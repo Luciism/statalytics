@@ -7,7 +7,7 @@
 🔗 [**Join Our Discord**](https://discord.gg/rHmHZ9vvwE)\
 🔗 [**Website**](https://www.statalytics.net)
 
-## Commmands
+## Commands
 | Command | Function |
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
