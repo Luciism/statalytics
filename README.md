@@ -63,6 +63,3 @@
 
 * ### Hotbar Preset Viewer
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554131089834024/hotbar.png?width=400&height=247" alt="Hotbar Preset Example" style="margin-left: 20px;"/>
-
-## Additional Information
-Statalytics is a bedwars stats discord bot written in python, making use of the PIL imaging library to output clean renders. Complete with a web dashboard and a subscription tier, statalytics is the way to go for all your Bedwars stats needs!
