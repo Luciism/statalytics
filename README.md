@@ -8,31 +8,30 @@
 🔗 [**Website**](https://www.statalytics.net)
 
 ## Commmands
-|Command|Function|
-|:||
-|`/link`|Link your account (recommended)|
-|`/unlink`|Unlink your account|
-|`/prestige`|View projected stats of anyone with **an active session**|
-|`/session`|View an active session of any player **with 1+ active**|
-|`/startsession`|Create a new session (must be linked)|
-|`/endsession`|End a specified session (must be linked)|
-|`/resetsession`|Reset a specified session (must be linked)|
-|`/activesessions`|Get a list of all your active sessions|
-|`/shop`|View the shop of any player|
-|`/mostplayed`|View the most played modes of any player|
-|`/bedwars`|View general bedwars stats of any player|
-|`/average`|View average stats and rations of any player|
-|`/resources`|View resource stats of any player|
-|`/skin`|View or save the skin of any player|
-|`/practice`|View practice stats of any player|
-|`/milestones`|View milestone stats of any player|
-|`/activecosmetics`|View the active cosmetics of any player|
-|`/hotbar`|Wiew the hotbar preference of any player|
-|`/pointless`|Same as /bedwars but really pointless|
+| Command | Function |
+| ------- | -------- |
+| `/link` | Link your account (recommended) |
+| `/unlink` | Unlink your account |
+| `/prestige` | View projected stats of anyone with **an active session** |
+| `/session` | View an active session of any player **with 1+ active** |
+| `/startsession` | Create a new session (must be linked) |
+| `/endsession` | End a specified session (must be linked) |
+| `/resetsession` | Reset a specified session (must be linked) |
+| `/activesessions` | Get a list of all your active sessions |
+| `/shop` | View the shop of any player |
+| `/mostplayed` | View the most played modes of any player |
+| `/bedwars` | View general Bedwars stats of any player |
+| `/average` | View average stats and ratios of any player |
+| `/resources` | View resource stats of any player |
+| `/skin` | View or save the skin of any player |
+| `/practice` | View practice stats of any player |
+| `/milestones` | View milestone stats of any player |
+| `/activecosmetics` | View the active cosmetics of any player |
+| `/hotbar` | View the hotbar preference of any player |
+| `/pointless` | Same as `/bedwars` but really pointless |
 
 ## Features
-* ### Projected Stats
-![Projected Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132591399022/projected.png?width=400&height=293 "Projected Stats Example")
+* ### Projected Stats![Projected Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132591399022/projected.png?width=400&height=293 "Projected Stats Example")
 
 * ### Bedwars Stats
 ![Bedwars Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293 "Bedwars Stats Example")
