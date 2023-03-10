@@ -1,8 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from calcsession import SessionStats
-from rendername import render_name
-from custombackground import background
+from calc.calcsession import SessionStats
+from helper.rendername import render_name
+from helper.custombackground import background
 
 def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     image_location = background(path=f'{os.getcwd()}/assets/session', uuid=uuid, default='session')

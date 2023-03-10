@@ -16,17 +16,17 @@ from link import AccountLink
 from authenticate import authenticate_user
 import reqapi
 
-from rendergraph import rendergraph
-from rendertotal import rendertotal
-from renderratio import renderratio
-from renderresources import renderresources
-from renderpractice import renderpractice
-from rendermilestones import rendermilestones
-from rendercosmetics import rendercosmetics
-from rendershop import rendershop
-from rendersession import rendersession
-from renderprojection import renderprojection
-from renderhotbar import renderhotbar
+from render.rendergraph import rendergraph
+from render.rendertotal import rendertotal
+from render.renderratio import renderratio
+from render.renderresources import renderresources
+from render.renderpractice import renderpractice
+from render.rendermilestones import rendermilestones
+from render.rendercosmetics import rendercosmetics
+from render.rendershop import rendershop
+from render.rendersession import rendersession
+from render.renderprojection import renderprojection
+from render.renderhotbar import renderhotbar
 
 # Initialise Bot
 TOKEN = os.environ.get('STATALYTICS_TOKEN', None)

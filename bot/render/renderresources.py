@@ -1,8 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from calcresources import Resources
-from rendername import render_name
-from custombackground import background
+from calc.calcresources import Resources
+from helper.rendername import render_name
+from helper.custombackground import background
 
 def renderresources(name, uuid, mode, hypixel_data, save_dir):
     # Open the image

@@ -1,9 +1,9 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calcprojection import SessionStats
-from custombackground import background
-from rendername import render_level, render_name_rank_only
+from calc.calcprojection import SessionStats
+from helper.custombackground import background
+from helper.rendername import render_level, render_name_rank_only
 
 def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
     image_location = background(path=f'{os.getcwd()}/assets/projection', uuid=uuid, default='base')

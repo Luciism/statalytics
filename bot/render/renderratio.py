@@ -1,8 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from calcratio import Ratios
-from rendername import render_name
-from custombackground import background
+from calc.calcratio import Ratios
+from helper.rendername import render_name
+from helper.custombackground import background
 
 def renderratio(name, uuid, mode, hypixel_data, save_dir):
     # Open the image

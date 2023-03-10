@@ -1,9 +1,9 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from rendername import render_name
-from calccosmetics import ActiveCosmetics
-from custombackground import background
+from helper.rendername import render_name
+from calc.calccosmetics import ActiveCosmetics
+from helper.custombackground import background
 
 def rendercosmetics(name, uuid):
     image_location = background(path=f'{os.getcwd()}/assets/cosmetics', uuid=uuid, default='activecosmetics')

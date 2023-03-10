@@ -1,6 +1,6 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from prescolor import Prescolor
+from helper.prescolor import Prescolor
 
 def render_name(name, level, playerrank, image, player_y, fontsize):
     """

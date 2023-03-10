@@ -1,9 +1,9 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calctotal import Stats
-from rendername import render_name_rank_only, render_level
-from custombackground import background
+from calc.calctotal import Stats
+from helper.rendername import render_name_rank_only, render_level
+from helper.custombackground import background
 
 def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     # Open the image

@@ -1,9 +1,9 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calcpractice import Practice
-from rendername import render_name
-from custombackground import background
+from calc.calcpractice import Practice
+from helper.rendername import render_name
+from helper.custombackground import background
 
 def renderpractice(name, uuid):
     # Open the image

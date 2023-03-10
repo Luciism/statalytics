@@ -4,8 +4,8 @@ import random
 from io import BytesIO
 import requests
 from PIL import Image, ImageDraw, ImageFont
-from custombackground import background
-from rendername import rank_color
+from helper.custombackground import background
+from helper.rendername import rank_color
 
 def rendergraph(name, uuid):
     # Get api key

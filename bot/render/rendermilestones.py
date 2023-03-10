@@ -1,8 +1,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from rendername import render_name, render_level
-from calcmilestones import Stats
-from custombackground import background
+from helper.rendername import render_name, render_level
+from calc.calcmilestones import Stats
+from helper.custombackground import background
 
 def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     image_location = background(path=f'{os.getcwd()}/assets/milestones', uuid=uuid, default='milestones')
