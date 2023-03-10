@@ -31,37 +31,38 @@
 | `/pointless` | Same as `/bedwars` but really pointless |
 
 ## Features
-* ### Projected Stats![Projected Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132591399022/projected.png?width=400&height=293 "Projected Stats Example")
+* ### Projected Stats
+# ![Projected Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132591399022/projected.png?width=400&height=293 "Projected Stats Example")
 
 * ### Bedwars Stats
-![Bedwars Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293 "Bedwars Stats Example")
+#![Bedwars Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293 "Bedwars Stats Example")
 
 * ### Session Stats
-![Session Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155521658880/session.png?width=400&height=293 "Session Stats Example")
+#![Session Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155521658880/session.png?width=400&height=293 "Session Stats Example")
 
 * ### Milestone Stats
-![Milestone Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131316318229/milestones.png?width=400&height=293 "Milestone Stats Example")
+#![Milestone Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131316318229/milestones.png?width=400&height=293 "Milestone Stats Example")
 
 * ### Practice Stats
-![Practice Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132167770193/practice.png?width=400&height=293 "Practice Stats Example")
+#![Practice Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132167770193/practice.png?width=400&height=293 "Practice Stats Example")
 
 * ### Average Stats
-![Average Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554154791833610/ratios.png?width=400&height=293 "Average Stats Example")
+#![Average Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554154791833610/ratios.png?width=400&height=293 "Average Stats Example")
 
 * ### Resource Stats
-![Resource Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155177705472/resources.png?width=400&height=293 "Resource Stats Example")
+#![Resource Stats Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155177705472/resources.png?width=400&height=293 "Resource Stats Example")
 
 * ### Active Cosmetics
-![Active Cosmetics Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132817887262/activecosmetics.png?width=400&height=293 "Active Cosmetics Example")
+#![Active Cosmetics Example](https://media.discordapp.net/attachments/1027817138095915068/1083554132817887262/activecosmetics.png?width=400&height=293 "Active Cosmetics Example")
 
 * ### Most Played Stats
-![Most Played Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131735760986/mostplayed.png?width=400&height=263 "Most Played Example")
+#![Most Played Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131735760986/mostplayed.png?width=400&height=263 "Most Played Example")
 
 * ### Quick Buy Viewer
-![Quick Buy Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155790078042/shop.png?width=400&height=217 "Quick Buy Example")
+#![Quick Buy Example](https://media.discordapp.net/attachments/1027817138095915068/1083554155790078042/shop.png?width=400&height=217 "Quick Buy Example")
 
 * ### Hotbar Preset Viewer
-![Hotbar Preset Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131089834024/hotbar.png?width=400&height=247 "Hotbar Preset Example")
+#![Hotbar Preset Example](https://media.discordapp.net/attachments/1027817138095915068/1083554131089834024/hotbar.png?width=400&height=247 "Hotbar Preset Example")
 
 ## Additional Information
 Statalytics is a bedwars stats discord bot written in python, making use of the PIL imaging library to output clean renders. Complete with a web dashboard and a subscription tier, statalytics is the way to go for all your Bedwars stats needs!
