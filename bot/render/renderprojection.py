@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcprojection import SessionStats
 from helper.custombackground import background
-from helper.rendername import render_level, render_name_rank_only
+from helper.rendername import render_level, render_rank, get_rank_prefix
 
 def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
     image_location = background(path=f'{os.getcwd()}/assets/projection', uuid=uuid, default='base')
@@ -15,6 +15,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     minecraft_16 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
     minecraft_18 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 18)
     minecraft_20 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 22)
 
     green = (85, 255, 85)
     white = (255, 255, 255)
@@ -24,7 +25,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     light_purple = (255, 85, 255)
 
     stats = SessionStats(name, uuid, session, mode, target, hypixel_data)
-    playerrank = stats.get_player_rank()
+    player_rank_info = stats.get_player_rank_info()
     projection_date = stats.get_projection_date()
     stars_per_day = stats.get_stars_per_day()
     items_purchased = stats.get_items_purchased()
@@ -71,7 +72,11 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render name
-    render_name_rank_only(name, playerrank, image, box_x=19, box_width=415, player_y=28, fontsize=22)
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 19
+
+    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Projection Date
     projection_date_txt = "Projected to hit on: "
@@ -93,7 +98,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     progress_x = ((415 - total_width) / 2) + 19
     progress_y = 84
 
-    render_level(stats.level_hypixel, image, progress_x, progress_y, 20)
+    render_level(stats.level_hypixel, progress_x, progress_y, 20, image)
 
     progress_x += draw.textlength(f"[{stats.level_hypixel}]", font=minecraft_20) + 16
 
@@ -102,7 +107,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
 
     progress_x += draw.textlength("  / ", font=minecraft_20)
 
-    render_level(target, image, progress_x, progress_y, 20)
+    render_level(target, progress_x, progress_y, 20, image)
 
     # Render Skin
     skin = Image.open(BytesIO(skin_res))

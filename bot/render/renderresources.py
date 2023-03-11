@@ -1,7 +1,7 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcresources import Resources
-from helper.rendername import render_name
+from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def renderresources(name, uuid, mode, hypixel_data, save_dir):
@@ -27,7 +27,7 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     # Define the values
     resources = Resources(name, uuid, mode, hypixel_data)
     level = resources.level
-    playerrank = resources.get_player_rank()
+    player_rank_info = resources.get_player_rank_info()
 
     iron_collected, gold_collected, diamonds_collected, emeralds_collected = resources.get_collected()
 
@@ -80,7 +80,7 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     total_collected_y = 430
 
     # Render player name
-    render_name(name, level, playerrank, image, player_y, fontsize=18)
+    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(101, 439), position_y=player_y, fontsize=18)
 
     # Render total
     totallength = draw.textlength(total_collected, font=font) + draw.textlength(total_collected_txt, font=font)

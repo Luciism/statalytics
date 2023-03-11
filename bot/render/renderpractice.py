@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcpractice import Practice
-from helper.rendername import render_name
+from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def renderpractice(name, uuid):
@@ -28,7 +28,7 @@ def renderpractice(name, uuid):
     # Define the values
     practice = Practice(name, uuid)
     level = practice.level
-    playerrank = practice.get_player_rank()
+    player_rank_info = practice.get_player_rank_info()
     most_played = practice.get_most_played()
 
     bridging_completed, bridging_failed, bridging_blocks, bridging_ratio = practice.get_bridging_stats()
@@ -82,7 +82,7 @@ def renderpractice(name, uuid):
     image.paste(title_image, (0, 0), title_image)
 
     player_y = 54
-    render_name(name, level, playerrank, image, player_y, fontsize=18)
+    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(113, 415), position_y=player_y, fontsize=18)
 
     # Return the image
     image_bytes = BytesIO()

@@ -12,13 +12,13 @@ class Stats:
 
         self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
 
-    def get_player_rank(self):
+    def get_player_rank_info(self):
         rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE'),
+            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
             'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
             'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
             'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None)
+            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
         }
         return rank_info
 

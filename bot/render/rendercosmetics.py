@@ -1,7 +1,7 @@
 import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from helper.rendername import render_name
+from helper.rendername import render_level_and_name
 from calc.calccosmetics import ActiveCosmetics
 from helper.custombackground import background
 
@@ -19,7 +19,7 @@ def rendercosmetics(name, uuid):
 
     cosmetics = ActiveCosmetics(name, uuid)
     level = cosmetics.level
-    playerrank = cosmetics.get_player_rank()
+    player_rank_info = cosmetics.get_player_rank_info()
 
     cosmetic_data = {
         'shopkeeper_skin': (299, 100),
@@ -46,7 +46,7 @@ def rendercosmetics(name, uuid):
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name
-    render_name(name, level, playerrank, image, 51, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image, box_positions=(121, 398), position_y=51, fontsize=20)
 
     # Return the image
     image_bytes = BytesIO()

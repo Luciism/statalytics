@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calctotal import Stats
-from helper.rendername import render_name_rank_only, render_level
+from helper.rendername import render_rank, render_level, get_rank_prefix
 from helper.custombackground import background
 
 def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
@@ -18,6 +18,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     minecraft_13 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 13)
     minecraft_16 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
     minecraft_20 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 22)
     arial_24 = ImageFont.truetype(f"{os.getcwd()}/assets/arial.ttf", 24)
 
     # Define the text colors
@@ -32,7 +33,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
 
     stats = Stats(name, uuid, mode, hypixel_data)
     level = stats.level
-    playerrank = stats.get_player_rank()
+    player_rank_info = stats.get_player_rank_info()
 
     progress, target, progress_out_of_10 = stats.get_progress()
     loot_chests, coins = stats.get_chest_and_coins()
@@ -85,7 +86,10 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render the player name
-    render_name_rank_only(name, playerrank, image, box_x=19, box_width=415, player_y=31, fontsize=22)
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 19
+    render_rank(name, position_x=player_x, position_y=31, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Render the progress
     totallength = draw.textlength(f'[{level}][{level + 1}]', font=minecraft_20) + draw.textlength(' [] ', font=minecraft_13) + draw.textlength('■■■■■■■■■■', font=arial_24) + 32 # 32 for width of pasted star symbol
@@ -93,7 +97,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     progress_bar_y = 91
 
     # First value (current level)
-    render_level(level, image, startpoint, progress_bar_y, 20)
+    render_level(level, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
 
     startpoint += draw.textlength(f'[{level}]', font=minecraft_20) + 16
 
@@ -126,7 +130,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     startpoint += draw.textlength("] ", font=minecraft_16)
 
     # Second value (next level)
-    render_level(level + 1, image, startpoint, progress_bar_y, 20)
+    render_level(level+1, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
 
     # Progress text (Progress: value / target)
     totallength = draw.textlength(f'Progress: {progress} / {target}', font=minecraft_20)

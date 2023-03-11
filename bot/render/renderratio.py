@@ -1,7 +1,7 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcratio import Ratios
-from helper.rendername import render_name
+from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def renderratio(name, uuid, mode, hypixel_data, save_dir):
@@ -25,7 +25,7 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
     # Define the values
     ratios = Ratios(name, uuid, mode, hypixel_data)
     level = ratios.level
-    playerrank = ratios.get_player_rank()
+    player_rank_info = ratios.get_player_rank_info()
     (
         wins_per_star,
         final_kills_per_star,
@@ -95,7 +95,7 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
 
 
     # Render player name
-    render_name(name, level, playerrank, image, player_y, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(106, 428), position_y=player_y, fontsize=20)
 
     # Render most wins and losses
     totallength = draw.textlength(f"{most_wins_txt}{most_wins}", font=font)

@@ -1,6 +1,6 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
-from helper.rendername import render_name, render_level
+from helper.rendername import render_level_and_name, render_level
 from calc.calcmilestones import Stats
 from helper.custombackground import background
 
@@ -22,7 +22,7 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
 
     stats = Stats(name, uuid, mode, hypixel_data)
     level = stats.level
-    playerrank = stats.get_player_rank()
+    player_rank_info = stats.get_player_rank_info()
 
     # --
     wins_ratio_target = stats.get_wlr_target()
@@ -80,7 +80,7 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     stars_until_txt = " Stars Until "
 
     # Render Stars Stats
-    totallength = draw.textlength(stars_until_value, font=font) + draw.textlength(stars_until_txt, font=font) + draw.textlength(str(stars_until_target), font=font) + draw.textlength("[]") + 16
+    totallength = draw.textlength(f'[{stars_until_value}]{stars_until_txt}{stars_until_target}', font=font) + 16
     stars_until_x = int((image.width - totallength) / 2)
 
     draw.text((stars_until_x + 2, stars_until_y + 2), stars_until_value, fill=black, font=font)
@@ -92,7 +92,7 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     draw.text((stars_until_x, stars_until_y), stars_until_txt, fill=white, font=font)
 
     stars_until_x += draw.textlength(stars_until_txt, font=font)
-    render_level(level=int(stars_until_target), image=image, startpoint=stars_until_x, startpoint_y=stars_until_y, fontsize=16)
+    render_level(level=int(stars_until_target), position_x=stars_until_x, position_y=stars_until_y, fontsize=16, image=image)
 
     # Render the title
     title_txt = f"{mode.title()} Milestone Progress"
@@ -106,6 +106,6 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     draw.text((title_x, title_y), title_txt, fill=white, font=font)
 
     # Render player name
-    render_name(name, level, playerrank, image, player_y, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(91, 450), position_y=player_y, fontsize=20)
 
     image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')

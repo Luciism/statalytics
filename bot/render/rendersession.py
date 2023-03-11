@@ -1,7 +1,7 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcsession import SessionStats
-from helper.rendername import render_name
+from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
@@ -24,7 +24,7 @@ def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     # Get stats
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
-    player_rank = stats.get_player_rank()
+    player_rank_info = stats.get_player_rank_info()
     most_played = stats.get_most_played()
     level = stats.level
     date_started = stats.date_started
@@ -120,7 +120,7 @@ def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     draw.text((title_x + 2, title_y + 2), title_txt, fill=black, font=font)
     draw.text((title_x, title_y), title_txt, fill=white, font=font)
 
-    render_name(name, level, player_rank, image, player_y, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(98, 444), position_y=player_y, fontsize=20)
 
     # Save the image
     image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')

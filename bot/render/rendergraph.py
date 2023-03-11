@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
-from helper.rendername import rank_color
+from helper.rendername import get_rank_color
 
 def rendergraph(name, uuid):
     # Get api key
@@ -14,27 +14,22 @@ def rendergraph(name, uuid):
     key = random.choice(list(allkeys))
 
     response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
-    hypixel_data = response.json()
+    hypixel_data = response.json().get('player', {}) if response.json().get('player', {}) is not None else {}
 
-    solos = hypixel_data.get('player', {}).get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)
-    doubles = hypixel_data.get('player', {}).get('stats', {}).get('Bedwars', {}).get('eight_two_games_played_bedwars', 1)
-    threes = hypixel_data.get('player', {}).get('stats', {}).get('Bedwars', {}).get('four_three_games_played_bedwars', 1)
-    fours = hypixel_data.get('player', {}).get('stats', {}).get('Bedwars', {}).get('four_four_games_played_bedwars', 1)
+    solos = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)
+    doubles = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_two_games_played_bedwars', 1)
+    threes = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_three_games_played_bedwars', 1)
+    fours = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_four_games_played_bedwars', 1)
 
-    rank = hypixel_data['player'].get('rank', 'NONE')
-    package_rank = hypixel_data['player'].get('packageRank', 'NONE')
-    new_package_rank = hypixel_data['player'].get('newPackageRank', 'NONE')
-    monthly_package_rank = hypixel_data['player'].get('monthlyPackageRank', 'NONE')
-    rank_plus_color = hypixel_data['player'].get('rankPlusColor', None)
-    player_rank = {
-        'rank': rank,
-        'packageRank': package_rank,
-        'newPackageRank': new_package_rank,
-        'monthlyPackageRank': monthly_package_rank,
-        'rankPlusColor': rank_plus_color
+    player_rank_info = {
+        'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
+        'packageRank': hypixel_data.get('packageRank', 'NONE'),
+        'newPackageRank': hypixel_data.get('newPackageRank', 'NONE'),
+        'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
+        'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
     }
 
-    rankcolor = rank_color(player_rank)
+    rankcolor = get_rank_color(player_rank_info)
 
     # Get ratio
     numbers = [int(solos), int(doubles), int(threes), int(fours)]
@@ -42,7 +37,6 @@ def rendergraph(name, uuid):
     ratios = [num / total for num in numbers]
 
     color = (0, 0, 255, 127)
-
 
     # Define the coordinates for the bars
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]

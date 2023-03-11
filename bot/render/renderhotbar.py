@@ -5,7 +5,7 @@ from io import BytesIO
 import requests
 from PIL import Image, ImageFont, ImageDraw
 from helper.custombackground import background
-from helper.rendername import rank_color
+from helper.rendername import get_rank_color
 
 def renderhotbar(name, uuid):
     # Get api key
@@ -17,9 +17,9 @@ def renderhotbar(name, uuid):
     slots = [(40, 424), (130, 424), (220, 424), (310, 424), (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
     response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
     try:
-        data = response.json()
-        hotbar = data['player']['stats']['Bedwars']['favorite_slots'].split(',')
-    except Exception:
+        hypixel_data = response.json()['player']
+        hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
+    except KeyError:
         return False
 
     # Open the base image
@@ -44,20 +44,15 @@ def renderhotbar(name, uuid):
     base_image.paste(overlay_image, (0, 0), overlay_image)
 
     # Render name
-    rank = data['player'].get('rank', 'NONE')
-    package_rank = data['player'].get('packageRank', 'NONE')
-    new_package_rank = data['player'].get('newPackageRank', 'NONE')
-    monthly_package_rank = data['player'].get('monthlyPackageRank', 'NONE')
-    rank_plus_color = data['player'].get('rankPlusColor', None)
-    player_rank = {
-        'rank': rank,
-        'packageRank': package_rank,
-        'newPackageRank': new_package_rank,
-        'monthlyPackageRank': monthly_package_rank,
-        'rankPlusColor': rank_plus_color
+    player_rank_info = {
+        'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
+        'packageRank': hypixel_data.get('packageRank', 'NONE'),
+        'newPackageRank': hypixel_data.get('newPackageRank', 'NONE'),
+        'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
+        'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
     }
 
-    rankcolor = rank_color(player_rank)
+    rankcolor = get_rank_color(player_rank_info)
 
     black = (0, 0, 0)
     white = (255, 255, 255)
