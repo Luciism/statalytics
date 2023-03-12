@@ -6,16 +6,16 @@ from helper.custombackground import background
 from helper.rendername import render_level, render_rank, get_rank_prefix
 
 def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
-    image_location = background(path=f'{os.getcwd()}/assets/projection', uuid=uuid, default='base')
+    image_location = background(path='./assets/projection', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
 
-    minecraft_16 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 18)
-    minecraft_20 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 22)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
+    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     green = (85, 255, 85)
     white = (255, 255, 255)
@@ -39,7 +39,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
 
 
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
 
     data = (
         ((leng(wins, 140) + 21, 148), (wins, green)),
@@ -114,10 +114,10 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     image.paste(skin, (466, 69), skin)
 
     # Paste overlay
-    overlay_image = Image.open(f'{os.getcwd()}/assets/projection/overlay.png')
+    overlay_image = Image.open('./assets/projection/overlay.png')
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
     if mode.lower() == "overall":
         return stats.level_hypixel

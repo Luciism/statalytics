@@ -5,13 +5,13 @@ from calc.calcmilestones import Stats
 from helper.custombackground import background
 
 def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
-    image_location = background(path=f'{os.getcwd()}/assets/milestones', uuid=uuid, default='milestones')
+    image_location = background(path='./assets/milestones', uuid=uuid, default='milestones')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
 
     green = (85, 255, 85)
     white = (255, 255, 255)
@@ -97,7 +97,7 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     # Render the title
     title_txt = f"{mode.title()} Milestone Progress"
     title_y = 23
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 24)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 24)
 
     totallength = draw.textlength(title_txt, font=font)
     title_x = int((image.width - totallength) / 2)
@@ -108,4 +108,4 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     # Render player name
     render_level_and_name(name, level, player_rank_info, image=image, box_positions=(91, 450), position_y=player_y, fontsize=20)
 
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

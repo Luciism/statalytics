@@ -9,7 +9,7 @@ from helper.rendername import get_rank_color
 
 def rendergraph(name, uuid):
     # Get api key
-    with open(f'{os.getcwd()}/database/apikeys.json', 'r') as keyfile:
+    with open('./database/apikeys.json', 'r') as keyfile:
         allkeys = json.load(keyfile)['keys']
     key = random.choice(list(allkeys))
 
@@ -42,7 +42,7 @@ def rendergraph(name, uuid):
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
     # Open Images
-    image_location = background(path=f'{os.getcwd()}/assets/graph', uuid=uuid, default='base')
+    image_location = background(path='./assets/graph', uuid=uuid, default='base')
     base_image = Image.open(image_location)
     base_image = base_image.convert("RGBA")
 
@@ -65,7 +65,7 @@ def rendergraph(name, uuid):
     black = (0, 0, 0)
     white = (255, 255, 255)
 
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 20)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 20)
     player_y = 33
     player_txt = "'s Most Played Modes"
 
@@ -83,7 +83,7 @@ def rendergraph(name, uuid):
     draw.text((startpoint, player_y), player_txt, fill=white, font=font)
 
     # Render the titles
-    overlay_image = Image.open(f'{os.getcwd()}/assets/graph/base_overlay.png')
+    overlay_image = Image.open('./assets/graph/base_overlay.png')
     base_image.paste(overlay_image, (0, 0), overlay_image)
 
     # Return the image

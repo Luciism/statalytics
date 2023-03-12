@@ -9,7 +9,7 @@ from helper.rendername import get_rank_color
 
 def renderhotbar(name, uuid):
     # Get api key
-    with open(f'{os.getcwd()}/database/apikeys.json', 'r') as datafile:
+    with open('./database/apikeys.json', 'r') as datafile:
         allkeys = json.load(datafile)['keys']
     key = random.choice(list(allkeys))
 
@@ -23,14 +23,14 @@ def renderhotbar(name, uuid):
         return False
 
     # Open the base image
-    image_location = background(path=f'{os.getcwd()}/assets/hotbar', uuid=uuid, default='hotbar')
+    image_location = background(path='./assets/hotbar', uuid=uuid, default='hotbar')
     base_image = Image.open(image_location)
     base_image = base_image.convert("RGBA")
 
     i = 0
     for i, item in enumerate(hotbar):
         # Open the top image (with transparency)
-        top_image = Image.open(f"{os.getcwd()}/assets/hotbar/{item.lower()}.png")
+        top_image = Image.open(f"./assets/hotbar/{item.lower()}.png")
 
         # Color compatible
         top_image = top_image.convert("RGBA")
@@ -38,7 +38,7 @@ def renderhotbar(name, uuid):
         # Paste the top image onto the base image at the specified position
         base_image.paste(top_image, slots[i], top_image)
 
-    overlay_image = Image.open(f'{os.getcwd()}/assets/hotbar/hotbar_overlay.png')
+    overlay_image = Image.open('./assets/hotbar/hotbar_overlay.png')
     overlay_image = overlay_image.convert("RGBA")
 
     base_image.paste(overlay_image, (0, 0), overlay_image)
@@ -57,7 +57,7 @@ def renderhotbar(name, uuid):
     black = (0, 0, 0)
     white = (255, 255, 255)
 
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 36)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 36)
     player_y = 53
     player_txt = "'s Hotbar"
 

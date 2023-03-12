@@ -6,7 +6,7 @@ from helper.custombackground import background
 
 def renderratio(name, uuid, mode, hypixel_data, save_dir):
     # Open the image
-    image_location = background(path=f'{os.getcwd()}/assets/ratios', uuid=uuid, default='ratios')
+    image_location = background(path='./assets/ratios', uuid=uuid, default='ratios')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -14,7 +14,7 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -124,7 +124,7 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
     # Render the title
     title_txt = f"{mode.title()} Bedwars Averages"
     title_y = 37
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 24)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 24)
 
     totallength = draw.textlength(title_txt, font=font)
     title_x = int((image.width - totallength) / 2)
@@ -133,4 +133,4 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
     draw.text((title_x, title_y), title_txt, fill=white, font=font)
 
     # Save the image
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

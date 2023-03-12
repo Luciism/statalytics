@@ -9,7 +9,7 @@ class AccountLink:
         self.discordtag, self.discordid, self.name, self.uuid = discordtag, discordid, name, uuid
 
     def account_link(self):
-        with open(f'{os.getcwd()}/database/apikeys.json', 'r') as datafile:
+        with open('./database/apikeys.json', 'r') as datafile:
             allkeys = json.load(datafile)['keys']
         key = random.choice(list(allkeys))
         response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={self.uuid}", timeout=10)
@@ -21,7 +21,7 @@ class AccountLink:
         # Linking Logic
         if self.discordtag == discordtag_hypixel:
             # Update it in the linked accounts database
-            with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+            with sqlite3.connect('./database/linkedaccounts.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{self.discordid}'")
                 linked_data = cursor.fetchone()
@@ -35,13 +35,13 @@ class AccountLink:
                 conn.commit()
 
             # Update autofill
-            with sqlite3.connect(f'{os.getcwd()}/database/subscriptions.db') as conn:
+            with sqlite3.connect('./database/subscriptions.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT * FROM subscriptions WHERE discordid = '{self.discordid}'")
                 subscription = cursor.fetchone()
 
             if subscription:
-                with sqlite3.connect(f'{os.getcwd()}/database/autofill.db') as conn:
+                with sqlite3.connect('./database/autofill.db') as conn:
                     cursor = conn.cursor()
                     query = f"SELECT * FROM autofill WHERE discordid = '{self.discordid}'"
                     cursor.execute(query)

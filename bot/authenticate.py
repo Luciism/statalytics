@@ -4,7 +4,7 @@ from mcuuid import MCUUID
 
 async def authenticate_user(username, interaction):
     if username is None:
-        with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+        with sqlite3.connect('./database/linkedaccounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
             linked_data = cursor.fetchone()

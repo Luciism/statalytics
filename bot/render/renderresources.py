@@ -6,7 +6,7 @@ from helper.custombackground import background
 
 def renderresources(name, uuid, mode, hypixel_data, save_dir):
     # Open the image
-    image_location = background(path=f'{os.getcwd()}/assets/resources', uuid=uuid, default='resources')
+    image_location = background(path='./assets/resources', uuid=uuid, default='resources')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -14,7 +14,7 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -97,7 +97,7 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     # Render the title
     title_txt = f"{mode.title()} Resources Collected"
     title_y = 19
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 22)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     totallength = draw.textlength(title_txt, font=font)
     title_x = int((image.width - totallength) / 2)
@@ -106,4 +106,4 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     draw.text((title_x, title_y), title_txt, fill=white, font=font)
 
     # Save the image
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

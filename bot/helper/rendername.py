@@ -53,13 +53,13 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
     :param fontsize: The size of the font
     :param image: The image to render on
     """
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', fontsize)
+    font = ImageFont.truetype('./assets/minecraft.ttf', fontsize)
     pos_colors = Prescolor(level).get_level_color()
     draw = ImageDraw.Draw(image)
 
     star_y = round(((fontsize - 17) / 2) + position_y)
-    star = Image.open(f'{os.getcwd()}/assets/stars/{pos_colors[5]}.png')
-    star_black = Image.open(f'{os.getcwd()}/assets/stars/black.png')
+    star = Image.open(f'./assets/stars/{pos_colors[5]}.png')
+    star_black = Image.open('./assets/stars/black.png')
 
     # Convert
     star = star.convert("RGBA")
@@ -112,7 +112,7 @@ def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str, p
     :param fontsize: The size of the font
     """
 
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', fontsize)
+    font = ImageFont.truetype('./assets/minecraft.ttf', fontsize)
     color_map = get_color_map()
 
     rank = player_rank_info['rank']
@@ -184,7 +184,7 @@ def render_level_and_name(name: str, level: int, player_rank_info: dict, image: 
     box_x, box_width = box_positions
 
     draw = draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', fontsize)
+    font = ImageFont.truetype('./assets/minecraft.ttf', fontsize)
 
     rank_prefix = get_rank_prefix(player_rank_info)
     totallength = draw.textlength(f'[{level}] {rank_prefix}{name}', font=font) + 16

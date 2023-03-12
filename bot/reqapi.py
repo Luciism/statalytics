@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 
 def startsession(uuid, session):
-    with open(f'{os.getcwd()}/database/apikeys.json', 'r') as datafile:
+    with open('./database/apikeys.json', 'r') as datafile:
         allkeys = json.load(datafile)['keys']
     key = random.choice(list(allkeys))
     response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
@@ -23,7 +23,7 @@ def startsession(uuid, session):
     for key in stat_keys:
         stat_values[key] = data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0)
 
-    with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+    with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))

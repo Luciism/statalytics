@@ -2,7 +2,7 @@ import os
 import sqlite3
 
 def background(path, uuid, default):
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE uuid = '{uuid}'")
         linked_data = cursor.fetchone()
@@ -11,7 +11,7 @@ def background(path, uuid, default):
         return f'{path}/{default}.png'
     discordid = linked_data[1]
 
-    with sqlite3.connect(f'{os.getcwd()}/database/subscriptions.db') as conn:
+    with sqlite3.connect('./database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discordid = '{discordid}'")
         subscription = cursor.fetchone()

@@ -7,7 +7,7 @@ from helper.custombackground import background
 
 def renderpractice(name, uuid):
     # Open the image
-    image_location = background(path=f'{os.getcwd()}/assets/practice', uuid=uuid, default='practice')
+    image_location = background(path='./assets/practice', uuid=uuid, default='practice')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -15,7 +15,7 @@ def renderpractice(name, uuid):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -78,7 +78,7 @@ def renderpractice(name, uuid):
         draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
 
     # Render the titles & name
-    title_image = Image.open(f'{os.getcwd()}/assets/practice/practice_titles.png')
+    title_image = Image.open('./assets/practice/practice_titles.png')
     image.paste(title_image, (0, 0), title_image)
 
     player_y = 54

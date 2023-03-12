@@ -9,7 +9,7 @@ class SessionStats:
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()

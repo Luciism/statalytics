@@ -5,13 +5,13 @@ from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
-    image_location = background(path=f'{os.getcwd()}/assets/session', uuid=uuid, default='session')
+    image_location = background(path='./assets/session', uuid=uuid, default='session')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -112,7 +112,7 @@ def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     # Render the name and title
     title_txt = f"{mode.title()} Bedwars Session # {session}"
     title_y = 40
-    font = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 24)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 24)
 
     totallength = draw.textlength(title_txt, font=font)
     title_x = int((image.width - totallength) / 2)
@@ -123,4 +123,4 @@ def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     render_level_and_name(name, level, player_rank_info, image=image, box_positions=(98, 444), position_y=player_y, fontsize=20)
 
     # Save the image
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

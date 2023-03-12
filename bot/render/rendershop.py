@@ -8,7 +8,7 @@ from helper.custombackground import background
 
 def rendershop(uuid):
     # Get api key
-    with open(f'{os.getcwd()}/database/apikeys.json', 'r') as datafile:
+    with open('./database/apikeys.json', 'r') as datafile:
         allkeys = json.load(datafile)['keys']
     key = random.choice(list(allkeys))
 
@@ -21,7 +21,7 @@ def rendershop(uuid):
         return False
 
     # Open the base image
-    image_location = background(path=f'{os.getcwd()}/assets/shop', uuid=uuid, default='base')
+    image_location = background(path='./assets/shop', uuid=uuid, default='base')
     base_image = Image.open(image_location)
     base_image = base_image.convert("RGBA")
 

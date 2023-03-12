@@ -7,7 +7,7 @@ from helper.custombackground import background
 
 def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     # Open the image
-    image_location = background(path=f'{os.getcwd()}/assets/total', uuid=uuid, default='base')
+    image_location = background(path='./assets/total', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -15,10 +15,10 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    minecraft_13 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 13)
-    minecraft_16 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16)
-    minecraft_20 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 22)
+    minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
     arial_24 = ImageFont.truetype(f"{os.getcwd()}/assets/arial.ttf", 24)
 
     # Define the text colors
@@ -53,7 +53,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         games_played, times_voided, items_purchased, winstreak = stats.get_misc_pointless()
 
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype(f'{os.getcwd()}/assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
 
     data = (
         ((leng(wins, 140) + 17, 190), (wins, green)),
@@ -160,9 +160,9 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     image.paste(skin, (466, 69), skin)
 
     # Paste overlay
-    overlay_image = Image.open(f'{os.getcwd()}/assets/total/overlay_{method}.png')
+    overlay_image = Image.open('./assets/total/overlay_{method}.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
-    image.save(f'{os.getcwd()}/database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

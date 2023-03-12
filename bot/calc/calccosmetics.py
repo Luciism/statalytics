@@ -7,7 +7,7 @@ class ActiveCosmetics:
     def __init__(self, name, uuid) -> None:
         self.name, self.uuid = name, uuid
 
-        with open(f'{os.getcwd()}/database/apikeys.json', 'r') as keyfile:
+        with open('./database/apikeys.json', 'r') as keyfile:
             allkeys = json.load(keyfile)['keys']
         key = random.choice(list(allkeys))
 

@@ -21,7 +21,7 @@ class DeleteSession(discord.ui.View):
         button.disabled = True
         await self.message.edit(view=self)
         await interaction.response.defer()
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             if self.method == "delete":
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
@@ -54,10 +54,10 @@ class Select(discord.ui.Select):
         await interaction.response.defer()
         mode = self.values[0].lower()
         if not interaction.user.id == self.user:
-            await interaction.followup.send(file=discord.File(f'{os.getcwd()}/database/activerenders/{self.interid.id}/{mode}.png'),ephemeral=True)
+            await interaction.followup.send(file=discord.File(f'./database/activerenders/{self.interid.id}/{mode}.png'),ephemeral=True)
         else:
             view = SelectView(self.name, user=self.user, interid=self.interid, inter=self.inter, mode=mode)
-            await self.inter.edit_original_response(attachments=[discord.File(f'{os.getcwd()}/database/activerenders/{self.interid.id}/{mode}.png')], view=view)
+            await self.inter.edit_original_response(attachments=[discord.File(f'./database/activerenders/{self.interid.id}/{mode}.png')], view=view)
 
 class SelectView(discord.ui.View):
     def __init__(self, name, user, interid, inter, mode, *, timeout = 300):
@@ -69,6 +69,6 @@ class SelectView(discord.ui.View):
     async def on_timeout(self) -> None:
         self.clear_items()
         await self.inter.edit_original_response(view=self)
-        if os.path.isdir(f'{os.getcwd()}/database/activerenders/{self.interid.id}'):
+        if os.path.isdir(f'./database/activerenders/{self.interid.id}'):
             print(f'{self.interid.id} timed out... deleting directory!')
-            shutil.rmtree(f'{os.getcwd()}/database/activerenders/{self.interid.id}')
+            shutil.rmtree(f'./database/activerenders/{self.interid.id}')

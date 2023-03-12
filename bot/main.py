@@ -58,7 +58,7 @@ async def on_ready():
 async def username_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]: #pylint: disable=unused-argument
     data = []
 
-    with sqlite3.connect(f'{os.getcwd()}/database/autofill.db') as conn:
+    with sqlite3.connect('./database/autofill.db') as conn:
         cursor = conn.cursor()
         result = cursor.execute("SELECT * FROM autofill WHERE LOWER(username) LIKE LOWER(?)", (fr'%{current.lower()}%',))
 
@@ -76,14 +76,14 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
         username = username_option.get('value')
         uuid = MCUUID(name=username).uuid
     else:
-        with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+        with sqlite3.connect('./database/linkedaccounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
             linked_data = cursor.fetchone()
         if not linked_data:
             return []
         uuid = linked_data[3]
-    with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+    with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
         session_data = cursor.fetchall()
@@ -93,7 +93,7 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
     return data
 
 def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_commands.Cooldown]:
-    with sqlite3.connect(f'{os.getcwd()}/database/subscriptions.db') as conn:
+    with sqlite3.connect('./database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discordid = '{interaction.user.id}'")
         subscription = cursor.fetchone()
@@ -103,7 +103,7 @@ def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_
 
 # Get hypixel data
 def get_hypixel_data(uuid):
-    with open(f'{os.getcwd()}/database/apikeys.json', 'r') as keyfile:
+    with open('./database/apikeys.json', 'r') as keyfile:
         allkeys = json.load(keyfile)['keys']
     key = random.choice(list(allkeys))
 
@@ -134,18 +134,18 @@ async def session(interaction: discord.Interaction, username: str=None, session:
 
     # Bot responses Logic
     refined = name.replace('_', r'\_')
-    with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+    with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
         if cursor.fetchone():
             await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
             interid = await interaction.original_response()
-            os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+            os.makedirs(f'./database/activerenders/{interid.id}')
             hypixel_data = get_hypixel_data(uuid)
 
             rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
             view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-            await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+            await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
             rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
             rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
             rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
@@ -195,7 +195,7 @@ async def link(interaction: discord.Interaction, username: str):
 # Unlink Command
 @client.tree.command(name = "unlink", description = "Unlink your account")
 async def unlink(interaction: discord.Interaction):
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
         if cursor.fetchone():
@@ -209,18 +209,18 @@ async def unlink(interaction: discord.Interaction):
 # Create Session Command
 @client.tree.command(name = "startsession", description = "Starts a new session")
 async def start_session(interaction: discord.Interaction):
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
         linked_data = cursor.fetchone()
     if linked_data:
         await interaction.response.defer()
         uuid = linked_data[3]
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             sessions = cursor.fetchall()
-        with sqlite3.connect(f'{os.getcwd()}/database/subscriptions.db') as conn:
+        with sqlite3.connect('./database/subscriptions.db') as conn:
             cursor = conn.cursor()
             query = f"SELECT * FROM subscriptions WHERE discordid = '{interaction.user.id}'"
             cursor.execute(query)
@@ -248,14 +248,14 @@ async def start_session(interaction: discord.Interaction):
 async def end_session(interaction: discord.Interaction, session: int = None):
     if session is None:
         session = 1
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
         linked_data = cursor.fetchone()
     if linked_data:
         uuid = linked_data[3]
 
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
@@ -274,7 +274,7 @@ async def end_session(interaction: discord.Interaction, session: int = None):
 @app_commands.autocomplete(session=session_autocompletion)
 @app_commands.describe(session='The session you want to reset')
 async def reset_session(interaction: discord.Interaction, session: int = None):
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
         linked_data = cursor.fetchone()
@@ -285,7 +285,7 @@ async def reset_session(interaction: discord.Interaction, session: int = None):
         if session is None:
             session = 1
 
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
@@ -302,7 +302,7 @@ async def reset_session(interaction: discord.Interaction, session: int = None):
 # Session List Command
 @client.tree.command(name = "activesessions", description = "View all active sessions")
 async def active_sessions(interaction: discord.Interaction):
-    with sqlite3.connect(f'{os.getcwd()}/database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linkedaccounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
         linked_data = cursor.fetchone()
@@ -310,7 +310,7 @@ async def active_sessions(interaction: discord.Interaction):
         await interaction.response.defer()
         uuid = linked_data[3]
 
-        with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+        with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
             sessions = cursor.fetchall()
@@ -358,7 +358,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
     if session is None:
         session = 1
     refined = name.replace('_', r'\_')
-    with sqlite3.connect(f'{os.getcwd()}/database/sessions.db') as conn:
+    with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
         sessionstats = cursor.fetchone()
@@ -367,7 +367,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
     if sessionstats:
         await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
         interid = await interaction.original_response()
-        os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+        os.makedirs(f'./database/activerenders/{interid.id}')
         skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
 
         hypixel_data = get_hypixel_data(uuid)
@@ -380,7 +380,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
         view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
 
         content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
-        await interaction.edit_original_response(content=content, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+        await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
         renderprojection(name, uuid, session, mode="Solos", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
         renderprojection(name, uuid, session, mode="Doubles", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
         renderprojection(name, uuid, session, mode="Threes", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
@@ -460,14 +460,14 @@ async def total(interaction: discord.Interaction, username: str=None):
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
 
-    os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+    os.makedirs(f'./database/activerenders/{interid.id}')
     skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
 
     rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
     rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
     rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
     rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
@@ -488,12 +488,12 @@ async def average(interaction: discord.Interaction, username: str=None):
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
 
-    os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+    os.makedirs(f'./database/activerenders/{interid.id}')
     hypixel_data = get_hypixel_data(uuid)
 
     renderratio(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
     renderratio(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
     renderratio(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
     renderratio(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
@@ -513,12 +513,12 @@ async def resources(interaction: discord.Interaction, username: str=None):
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
 
-    os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+    os.makedirs(f'./database/activerenders/{interid.id}')
     hypixel_data = get_hypixel_data(uuid)
 
     renderresources(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
     renderresources(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
     renderresources(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
     renderresources(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
@@ -577,12 +577,12 @@ async def milestones(interaction: discord.Interaction, username: str=None):
         return
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
-    os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+    os.makedirs(f'./database/activerenders/{interid.id}')
 
     hypixel_data = get_hypixel_data(uuid)
     rendermilestones(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
     rendermilestones(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
     rendermilestones(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
     rendermilestones(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
@@ -640,14 +640,14 @@ async def pointless(interaction: discord.Interaction, username: str=None):
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
 
-    os.makedirs(f'{os.getcwd()}/database/activerenders/{interid.id}')
+    os.makedirs(f'./database/activerenders/{interid.id}')
     skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
 
     rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"{os.getcwd()}/database/activerenders/{interid.id}/overall.png")], view=view)
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
     rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
     rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
     rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
