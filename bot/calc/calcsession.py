@@ -1,10 +1,9 @@
-import os
 import sqlite3
 from datetime import datetime
 
 class SessionStats:
-    def __init__(self, name, uuid, session, mode, hypixel_data) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
+        self.name = name
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})

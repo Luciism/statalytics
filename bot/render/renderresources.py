@@ -25,7 +25,7 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     aqua = (85, 255, 255)
 
     # Define the values
-    resources = Resources(name, uuid, mode, hypixel_data)
+    resources = Resources(name, mode, hypixel_data)
     level = resources.level
     player_rank_info = resources.get_player_rank_info()
 

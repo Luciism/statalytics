@@ -1,11 +1,10 @@
-import os
 import random
 import json
 import requests
 
 class Practice:
-    def __init__(self, name, uuid) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, name: str, uuid: str) -> None:
+        self.name = name
 
         with open('./database/apikeys.json', 'r') as keyfile:
             allkeys = json.load(keyfile)['keys']

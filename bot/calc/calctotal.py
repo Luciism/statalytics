@@ -1,6 +1,6 @@
 class Stats:
-    def __init__(self, name, uuid, mode, hypixel_data) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
+        self.name = name
         self.mode = mode
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}

@@ -20,7 +20,7 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     yellow = (255, 255, 85)
     red = (255, 85, 85)
 
-    stats = Stats(name, uuid, mode, hypixel_data)
+    stats = Stats(name, mode, hypixel_data)
     level = stats.level
     player_rank_info = stats.get_player_rank_info()
 

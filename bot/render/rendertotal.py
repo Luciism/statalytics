@@ -31,7 +31,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     gray = (170, 170, 170)
     aqua = (85, 255, 255)
 
-    stats = Stats(name, uuid, mode, hypixel_data)
+    stats = Stats(name, mode, hypixel_data)
     level = stats.level
     player_rank_info = stats.get_player_rank_info()
 
@@ -160,7 +160,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     image.paste(skin, (466, 69), skin)
 
     # Paste overlay
-    overlay_image = Image.open('./assets/total/overlay_{method}.png')
+    overlay_image = Image.open(f'./assets/total/overlay_{method}.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

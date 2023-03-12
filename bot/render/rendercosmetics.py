@@ -1,4 +1,3 @@
-import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from helper.rendername import render_level_and_name
@@ -17,7 +16,7 @@ def rendercosmetics(name, uuid):
     white = (255, 255, 255)
     black = (0, 0, 0)
 
-    cosmetics = ActiveCosmetics(name, uuid)
+    cosmetics = ActiveCosmetics(uuid)
     level = cosmetics.level
     player_rank_info = cosmetics.get_player_rank_info()
 

@@ -3,8 +3,8 @@ import sqlite3
 from datetime import datetime, timedelta
 
 class SessionStats:
-    def __init__(self, name, uuid, session, mode, target, hypixel_data) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, name: str, uuid: str, session: int, mode: str, target: int, hypixel_data: dict) -> None:
+        self.name = name
         self.target = target
         self.mode = mode
 

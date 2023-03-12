@@ -1,9 +1,9 @@
 import math
 
 class Stats:
-    def __init__(self, name, uuid, mode, hypixel_data) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.mode = mode
+        self.name = name
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) != None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})

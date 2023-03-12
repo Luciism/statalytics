@@ -1,11 +1,9 @@
 import json
-import os
 import random
 import requests
 
 class ActiveCosmetics:
-    def __init__(self, name, uuid) -> None:
-        self.name, self.uuid = name, uuid
+    def __init__(self, uuid: str) -> None:
 
         with open('./database/apikeys.json', 'r') as keyfile:
             allkeys = json.load(keyfile)['keys']
@@ -13,6 +11,7 @@ class ActiveCosmetics:
 
         response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
         self.hypixel_data = response.json().get('player', {}) if response.json().get('player', {}) is not None else {}
+        self.name = response.json().get('displayname', None)
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
 

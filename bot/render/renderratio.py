@@ -23,7 +23,7 @@ def renderratio(name, uuid, mode, hypixel_data, save_dir):
     black = (0, 0, 0)
 
     # Define the values
-    ratios = Ratios(name, uuid, mode, hypixel_data)
+    ratios = Ratios(name, mode, hypixel_data)
     level = ratios.level
     player_rank_info = ratios.get_player_rank_info()
     (
