@@ -57,7 +57,7 @@ class Stats:
         easter = self.hypixel_data_bedwars.get('bedwars_easter_boxes', 0)
         halloween = self.hypixel_data_bedwars.get('bedwars_halloween_boxes', 0)
 
-        total = normal + christmas + easter + halloween
+        total = int(normal + christmas + easter + halloween)
         coins = self.hypixel_data_bedwars.get('coins', 0)
         return f'{total:,}', f'{coins:,}'
 
