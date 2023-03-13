@@ -25,6 +25,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     light_purple = (255, 85, 255)
 
     stats = SessionStats(name, uuid, session, mode, target, hypixel_data)
+    level = int(stats.level_hypixel)
     player_rank_info = stats.get_player_rank_info()
     projection_date = stats.get_projection_date()
     stars_per_day = stats.get_stars_per_day()
@@ -36,7 +37,6 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     beds_broken, beds_lost, bblr = stats.get_beds()
     wins, losses, wlr = stats.get_wins()
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
-
 
     def leng(text, width):
         return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
@@ -94,13 +94,13 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     draw.text((projection_date_x, projection_date_y), projection_date, fill=light_purple, font=minecraft_18)
 
     # Render Progress
-    total_width = draw.textlength(f"[{stats.level_hypixel}]  / [{target}]", font=minecraft_20) + 32 # 32 for pasted star width
+    total_width = draw.textlength(f"[{level}]  / [{target}]", font=minecraft_20) + 32 # 32 for pasted star width
     progress_x = ((415 - total_width) / 2) + 19
     progress_y = 84
 
-    render_level(stats.level_hypixel, progress_x, progress_y, 20, image)
+    render_level(level, progress_x, progress_y, 20, image)
 
-    progress_x += draw.textlength(f"[{stats.level_hypixel}]", font=minecraft_20) + 16
+    progress_x += draw.textlength(f"[{level}]", font=minecraft_20) + 16
 
     draw.text((progress_x + 2, progress_y + 2), "  / ", fill=black, font=minecraft_18)
     draw.text((progress_x, progress_y), "  / ", fill=white, font=minecraft_18)
@@ -120,4 +120,4 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     # Save the image
     image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
     if mode.lower() == "overall":
-        return stats.level_hypixel
+        return level
