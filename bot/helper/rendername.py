@@ -36,9 +36,9 @@ def get_rank_prefix(player_rank_info: dict):
     elif rank in ("YOUTUBER", "ADMIN"):
         rank_prefix = '[YOUTUBE]' if rank == "YOUTUBER" else '[ADMIN]'
     elif old_package_rank in ("VIP", "VIP_PLUS") or new_package_rank in ("VIP", "VIP_PLUS"):
-        rank_prefix = "[VIP]" if old_package_rank == "VIP" else "[VIP+]"
+        rank_prefix = "[VIP]" if old_package_rank == "VIP" or new_package_rank == "VIP" else "[VIP+]"
     elif old_package_rank in ("MVP", "MVP_PLUS") or new_package_rank in ("MVP", "MVP_PLUS"):
-        rank_prefix = "[MVP]" if old_package_rank == "MVP" else "[MVP+]" if monthly_package_rank == "NONE" else "[MVP++]"
+        rank_prefix = "[MVP]" if old_package_rank == "MVP" or new_package_rank == "MVP" else "[MVP+]" if monthly_package_rank == "NONE" else "[MVP++]"
     else:
         rank_prefix = ""
 

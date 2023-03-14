@@ -1,9 +1,19 @@
 import math
+import sqlite3
 
 class Stats:
-    def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
-        self.mode = mode
+    def __init__(self, name: str, uuid: str, mode: str, session: int, hypixel_data: dict) -> None:
         self.name = name
+
+        with sqlite3.connect('./database/sessions.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
+            session_data = cursor.fetchone()
+            if session_data:
+                column_names = [desc[0] for desc in cursor.description]
+                self.session_data = dict(zip(column_names, session_data))
+            else:
+                self.session_data = None
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) != None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
@@ -22,215 +32,114 @@ class Stats:
         }
         return rank_info
 
-    def get_wins_until_value(self):
+    def get_wins(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-        target_wlr = math.ceil(0 if wins == 0 else wins / losses if losses != 0 else wins)
 
-        wins_at_target = int(losses * target_wlr)
-        needed_wins = wins_at_target - wins
-        return str("{:,}".format(needed_wins))
+        # WLR milestones
+        target_wlr = math.ceil(0 if wins == 0 else wins / losses if losses != 0 else wins+1)
+        wins_at_wlr = int(losses * target_wlr if losses > 1 else ((wins / (target_wlr - 1) if target_wlr > 0 else 0) * target_wlr))
+        wins_until_wlr = wins_at_wlr - wins
 
-    def get_wins_at_value(self):
-        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
-        losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-        target_wlr = math.ceil(0 if wins == 0 else wins / losses if losses != 0 else wins)
+        if self.session_data:
+            session_wins = wins - self.session_data[f'{self.mode}wins_bedwars']
+            session_losses = losses - self.session_data[f'{self.mode}losses_bedwars']
 
-        wins_at_target = int(losses * target_wlr)
-        return str("{:,}".format(wins_at_target))
+            wins_repitition = 0 if wins_until_wlr == 0 else wins_until_wlr / session_wins if session_wins != 0 else wins_until_wlr
+            new_losses = session_losses * wins_repitition + losses
 
-    def get_wlr_target(self):
-        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
-        losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-        target_wlr = math.ceil(0 if wins == 0 else wins / losses if losses != 0 else wins)
-        return f'{str("{:,}".format(target_wlr))} WLR'
+            wins_at_wlr = int(new_losses * target_wlr if new_losses > 1 else ((wins / (target_wlr - 1) if target_wlr > 0 else 0) * target_wlr))
+            wins_until_wlr = wins_at_wlr - wins
 
-    def get_wins_until_wins_value(self):
-        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
-
+        # Wins target milestone
         target_wins = (wins // 1000 + 1) * 1000
-        needed_wins = target_wins - wins
-        return str("{:,}".format(needed_wins))
+        wins_until_wins = target_wins - wins
 
-    def get_wins_until_wins_target(self):
-        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
-
-        target_wins = (wins // 1000 + 1) * 1000
-        return str("{:,}".format(target_wins))
-
-    def get_losses_until_losses_value(self):
-        losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-
+        # Losses not so much target milestone
         target_losses = (losses // 1000 + 1) * 1000
-        needed_losses = target_losses - losses
-        return str("{:,}".format(needed_losses))
+        losses_until_losses = target_losses - losses
 
-    def get_losses_until_losses_target(self):
-        losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
+        return f"{wins_until_wlr:,}", f"{wins_at_wlr:,}", f"{target_wlr:,} WLR", f"{wins_until_wins:,}", f"{target_wins:,}", f"{int(losses_until_losses):,}", f"{int(target_losses):,}"
 
-        target_losses = (losses // 1000 + 1) * 1000
-        return str("{:,}".format(target_losses))
-
-    # --
-
-    def get_final_kills_until_value(self):
+    def get_finals(self):
         final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
         final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
-        target_fkdr = math.ceil(0 if final_kills == 0 else final_kills / final_deaths if final_deaths != 0 else final_kills)
 
-        final_kills_at_target = int(final_deaths * target_fkdr)
-        needed_final_kills = final_kills_at_target - final_kills
-        return str("{:,}".format(needed_final_kills))
+        target_fkdr = math.ceil(0 if final_kills == 0 else final_kills / final_deaths if final_deaths != 0 else final_kills+1)
+        final_kills_at_fkdr = int(final_deaths * target_fkdr if final_deaths > 1 else ((final_kills / (target_fkdr - 1) if target_fkdr > 0 else 0) * target_fkdr))
+        final_kills_until_fkdr = final_kills_at_fkdr - final_kills
 
-    def get_final_kills_at_value(self):
-        final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
-        final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
-        target_fkdr = math.ceil(0 if final_kills == 0 else final_kills / final_deaths if final_deaths != 0 else final_kills)
+        if self.session_data:
+            session_final_kills = final_kills - self.session_data[f'{self.mode}final_kills_bedwars']
+            session_final_deaths = final_deaths - self.session_data[f'{self.mode}final_deaths_bedwars']
 
-        final_kills_at_target = int(final_deaths * target_fkdr)
-        return str("{:,}".format(final_kills_at_target))
+            final_kills_repitition = 0 if final_kills_until_fkdr == 0 else final_kills_until_fkdr / session_final_kills if session_final_kills != 0 else final_kills_until_fkdr
+            new_final_deaths = session_final_deaths * final_kills_repitition + final_deaths
 
-    def get_fkdr_target(self):
-        final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
-        final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
-        target_fkdr = math.ceil(0 if final_kills == 0 else final_kills / final_deaths if final_deaths != 0 else final_kills)
-        return f'{str("{:,}".format(target_fkdr))} FKDR'
-
-    def get_final_kills_until_final_kills_value(self):
-        final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
+            final_kills_at_fkdr = int(new_final_deaths * target_fkdr if new_final_deaths > 1 else ((final_kills / (target_fkdr - 1) if target_fkdr > 0 else 0) * target_fkdr))
+            final_kills_until_fkdr = final_kills_at_fkdr - final_kills
 
         target_final_kills = (final_kills // 1000 + 1) * 1000
-        needed_final_kills = target_final_kills - final_kills
-        return str("{:,}".format(needed_final_kills))
-
-    def get_final_kills_until_final_kills_target(self):
-        final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
-
-        target_final_kills = (final_kills // 1000 + 1) * 1000
-        return str("{:,}".format(target_final_kills))
-
-    def get_final_deaths_until_final_deaths_value(self):
-        final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
+        final_kills_until_final_kills = target_final_kills - final_kills
 
         target_final_deaths = (final_deaths // 1000 + 1) * 1000
-        needed_final_deaths = target_final_deaths - final_deaths
-        return str("{:,}".format(needed_final_deaths))
+        final_deaths_until_final_deaths = target_final_deaths - final_deaths
 
-    def get_final_deaths_until_final_deaths_target(self):
-        final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
+        return f"{final_kills_until_fkdr:,}", f"{final_kills_at_fkdr:,}", f"{target_fkdr:,} FKDR", f"{final_kills_until_final_kills:,}", f"{target_final_kills:,}", f"{int(final_deaths_until_final_deaths):,}", f"{int(target_final_deaths):,}"
 
-        target_final_deaths = (final_deaths // 1000 + 1) * 1000
-        return str("{:,}".format(target_final_deaths))
-
-    # --
-
-    def get_beds_broken_until_value(self):
+    def get_beds(self):
         beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
         beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
-        target_bblr = math.ceil(0 if beds_broken == 0 else beds_broken / beds_lost if beds_lost != 0 else beds_broken)
 
-        beds_broken_at_target = int(beds_lost * target_bblr)
-        needed_beds_broken = beds_broken_at_target - beds_broken
-        return str("{:,}".format(needed_beds_broken))
+        target_bblr = math.ceil(0 if beds_broken == 0 else beds_broken / beds_lost if beds_lost != 0 else beds_broken+1)
+        beds_broken_at_bblr = int(beds_lost * target_bblr if beds_lost > 1 else ((beds_broken / (target_bblr - 1) if target_bblr > 0 else 0) * target_bblr))
+        beds_broken_until_bblr = beds_broken_at_bblr - beds_broken
 
-    def get_beds_broken_at_value(self):
-        beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
-        beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
-        target_bblr = math.ceil(0 if beds_broken == 0 else beds_broken / beds_lost if beds_lost != 0 else beds_broken)
+        if self.session_data:
+            session_beds_broken = beds_broken - self.session_data[f'{self.mode}beds_broken_bedwars']
+            session_beds_lost = beds_lost - self.session_data[f'{self.mode}beds_lost_bedwars']
 
-        beds_broken_at_target = int(beds_lost * target_bblr)
-        return str("{:,}".format(beds_broken_at_target))
+            beds_broken_repitition = 0 if beds_broken_until_bblr == 0 else beds_broken_until_bblr / session_beds_broken if session_beds_broken != 0 else beds_broken_until_bblr
+            new_beds_lost = session_beds_lost * beds_broken_repitition + beds_lost
 
-    def get_bblr_target(self):
-        beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
-        beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
-        target_bblr = math.ceil(0 if beds_broken == 0 else beds_broken / beds_lost if beds_lost != 0 else beds_broken)
-        return f'{str("{:,}".format(target_bblr))} BBLR'
-
-    def get_beds_broken_until_beds_broken_value(self):
-        beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
+            beds_broken_at_bblr = int(new_beds_lost * target_bblr if new_beds_lost > 1 else ((beds_broken / (target_bblr - 1) if target_bblr > 0 else 0) * target_bblr))
+            beds_broken_until_bblr = beds_broken_at_bblr - beds_broken
 
         target_beds_broken = (beds_broken // 1000 + 1) * 1000
-        needed_beds_broken = target_beds_broken - beds_broken
-        return str("{:,}".format(needed_beds_broken))
-
-    def get_beds_broken_until_beds_broken_target(self):
-        beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
-
-        target_beds_broken = (beds_broken // 1000 + 1) * 1000
-        return str("{:,}".format(target_beds_broken))
-
-    def get_beds_lost_until_beds_lost_value(self):
-        beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
+        beds_broken_until_beds_broken = target_beds_broken - beds_broken
 
         target_beds_lost = (beds_lost // 1000 + 1) * 1000
-        needed_beds_lost = target_beds_lost - beds_lost
-        return str("{:,}".format(needed_beds_lost))
+        beds_lost_until_beds_lost = target_beds_lost - beds_lost
 
-    def get_beds_lost_until_beds_lost_target(self):
-        beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
+        return f"{beds_broken_until_bblr:,}", f"{beds_broken_at_bblr:,}", f"{target_bblr:,} BBLR", f"{beds_broken_until_beds_broken:,}", f"{target_beds_broken:,}", f"{int(beds_lost_until_beds_lost):,}", f"{int(target_beds_lost):,}"
 
-        target_beds_lost = (beds_lost // 1000 + 1) * 1000
-        return str("{:,}".format(target_beds_lost))
-
-    # --
-
-    def get_kills_until_value(self):
+    def get_kills(self):
         kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
         deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
-        target_kdr = math.ceil(0 if kills == 0 else kills / deaths if deaths != 0 else kills)
+        
+        target_kdr = math.ceil(0 if kills == 0 else kills / deaths if deaths != 0 else kills+1)
+        kills_at_kdr = int(deaths * target_kdr if deaths > 1 else ((kills / (target_kdr - 1) if target_kdr > 0 else 0) * target_kdr))
+        kills_until_kdr = kills_at_kdr - kills
 
-        kills_at_target = int(deaths * target_kdr)
-        needed_kills = kills_at_target - kills
-        return str("{:,}".format(needed_kills))
+        if self.session_data:
+            session_kills = kills - self.session_data[f'{self.mode}kills_bedwars']
+            session_deaths = deaths - self.session_data[f'{self.mode}deaths_bedwars']
 
-    def get_kills_at_value(self):
-        kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
-        deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
-        target_kdr = math.ceil(0 if kills == 0 else kills / deaths if deaths != 0 else kills)
+            kills_repitition = 0 if kills_until_kdr == 0 else kills_until_kdr / session_kills if session_kills != 0 else kills_until_kdr
+            new_deaths = session_deaths * kills_repitition + deaths
 
-        kills_at_target = int(deaths * target_kdr)
-        return str("{:,}".format(kills_at_target))
-
-    def get_kdr_target(self):
-        kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
-        deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
-        target_kdr = math.ceil(0 if kills == 0 else kills / deaths if deaths != 0 else kills)
-        return f'{str("{:,}".format(target_kdr))} KDR'
-
-    def get_kills_until_kills_value(self):
-        kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
+            kills_at_kdr = int(new_deaths * target_kdr if new_deaths > 1 else ((kills / (target_kdr - 1) if target_kdr > 0 else 0) * target_kdr))
+            kills_until_kdr = kills_at_kdr - kills
 
         target_kills = (kills // 1000 + 1) * 1000
-        needed_kills = target_kills - kills
-        return str("{:,}".format(needed_kills))
-
-    def get_kills_until_kills_target(self):
-        kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
-
-        target_kills = (kills // 1000 + 1) * 1000
-        return str("{:,}".format(target_kills))
-
-    def get_deaths_until_deaths_value(self):
-        deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
+        kills_until_kills = target_kills - kills
 
         target_deaths = (deaths // 1000 + 1) * 1000
-        needed_deaths = target_deaths - deaths
-        return str("{:,}".format(needed_deaths))
+        deaths_until_deaths = target_deaths - deaths
 
-    def get_deaths_until_deaths_target(self):
-        deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
+        return f"{kills_until_kdr:,}", f"{kills_at_kdr:,}", f"{target_kdr:,} KDR", f"{kills_until_kills:,}", f"{target_kills:,}", f"{int(deaths_until_deaths):,}", f"{int(target_deaths):,}"
 
-        target_deaths = (deaths // 1000 + 1) * 1000
-        return str("{:,}".format(target_deaths))
-
-    # --
-
-    def get_stars_value(self):
+    def get_stars(self):
         level_target = (self.level // 100 + 1) * 100
         needed_levels = level_target - self.level
-        return str(needed_levels)
-
-    def get_stars_target(self):
-        level_target = (self.level // 100 + 1) * 100
-        return str(level_target)
+        return str(needed_levels), str(level_target)

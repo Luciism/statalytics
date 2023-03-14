@@ -4,7 +4,7 @@ from helper.rendername import render_level_and_name, render_level
 from calc.calcmilestones import Stats
 from helper.custombackground import background
 
-def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
+def rendermilestones(name, uuid, mode, session, hypixel_data, save_dir):
     image_location = background(path='./assets/milestones', uuid=uuid, default='milestones')
     image = Image.open(image_location)
     image = image.convert("RGBA")
@@ -20,37 +20,35 @@ def rendermilestones(name, uuid, mode, hypixel_data, save_dir):
     yellow = (255, 255, 85)
     red = (255, 85, 85)
 
-    stats = Stats(name, mode, hypixel_data)
+    stats = Stats(name, uuid, mode, session, hypixel_data)
     level = stats.level
     player_rank_info = stats.get_player_rank_info()
 
-    # --
-    wins_ratio_target = stats.get_wlr_target()
-    final_kills_ratio_target = stats.get_fkdr_target()
-    beds_broken_ratio_target = stats.get_bblr_target()
-    kills_ratio_target = stats.get_kdr_target()
+    wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins, target_wins, losses_until_losses, target_losses = stats.get_wins()
+    final_kills_until_fkdr, final_kills_at_fkdr, target_fkdr, final_kills_until_final_kills, target_final_kills, final_deaths_until_final_deaths, target_final_deaths = stats.get_finals()
+    beds_broken_until_bblr, beds_broken_at_bblr, target_bblr, beds_broken_until_beds_broken, target_beds_broken, beds_lost_until_beds_lost, target_beds_lost = stats.get_beds()
+    kills_until_kdr, kills_at_kdr, target_kdr, kills_until_kills, target_kills, deaths_until_deaths, target_deaths = stats.get_kills()
 
-    stars_until_value = stats.get_stars_value()
-    stars_until_target = stats.get_stars_target()
+    stars_until_value, stars_until_target = stats.get_stars()
 
     # Get values for each stat
     data = (
-        ((27, 125), (stats.get_wins_until_value(), green), wins_ratio_target, " Wins Until "),
-        ((27, 154), (stats.get_wins_at_value(), green), wins_ratio_target, " Wins At "),
-        ((27, 183), (stats.get_wins_until_value(), green), stats.get_wins_until_wins_target(), " Wins Until "),
-        ((27, 212), (stats.get_losses_until_losses_value(), red), stats.get_losses_until_losses_target(), " Losses Until "),
-        ((336, 125), (stats.get_final_kills_until_value(), green), final_kills_ratio_target, " Final K Until "),
-        ((336, 154), (stats.get_final_kills_at_value(), green), final_kills_ratio_target, " Final K At "),
-        ((336, 183), (stats.get_final_kills_until_final_kills_value(), green), stats.get_final_kills_until_final_kills_target(), " Final K Until "),
-        ((336, 212), (stats.get_final_deaths_until_final_deaths_value(), red), stats.get_final_deaths_until_final_deaths_target(), " Final D Until "),
-        ((27, 287), (stats.get_beds_broken_until_value(), green), beds_broken_ratio_target, " Beds B Until "),
-        ((27, 316), (stats.get_beds_broken_at_value(), green), beds_broken_ratio_target, " Beds B At "),
-        ((27, 345), (stats.get_beds_broken_until_beds_broken_value(), green), stats.get_beds_broken_until_beds_broken_target(), " Beds B Until "),
-        ((27, 374), (stats.get_beds_lost_until_beds_lost_value(), red), stats.get_beds_lost_until_beds_lost_target(), " Beds L Until "),
-        ((336, 287), (stats.get_kills_until_value(), green), kills_ratio_target, " Kills Until "),
-        ((336, 316), (stats.get_kills_at_value(), green), kills_ratio_target, " Kills At "),
-        ((336, 345), (stats.get_kills_until_kills_value(), green), stats.get_kills_until_kills_target(), " Kills Until "),
-        ((336, 374), (stats.get_deaths_until_deaths_value(), red), stats.get_deaths_until_deaths_target(), " Deaths Until ")
+        ((27, 125), (wins_until_wlr, green), target_wlr, " Wins Until "),
+        ((27, 154), (wins_at_wlr, green), target_wlr, " Wins At "),
+        ((27, 183), (wins_until_wins, green), target_wins, " Wins Until "),
+        ((27, 212), (losses_until_losses, red), target_losses, " Losses Until "),
+        ((336, 125), (final_kills_until_fkdr, green), target_fkdr, " Final K Until "),
+        ((336, 154), (final_kills_at_fkdr, green), target_fkdr, " Final K At "),
+        ((336, 183), (final_kills_until_final_kills, green), target_final_kills, " Final K Until "),
+        ((336, 212), (final_deaths_until_final_deaths, red), target_final_deaths, " Final D Until "),
+        ((27, 287), (beds_broken_until_bblr, green), target_bblr, " Beds B Until "),
+        ((27, 316), (beds_broken_at_bblr, green), target_bblr, " Beds B At "),
+        ((27, 345), (beds_broken_until_beds_broken, green), target_beds_broken, " Beds B Until "),
+        ((27, 374), (beds_lost_until_beds_lost, red), target_beds_lost, " Beds L Until "),
+        ((336, 287), (kills_until_kdr, green), target_kdr, " Kills Until "),
+        ((336, 316), (kills_at_kdr, green), target_kdr, " Kills At "),
+        ((336, 345), (kills_until_kills, green), target_kills, " Kills Until "),
+        ((336, 374), (deaths_until_deaths, red), target_deaths, " Deaths Until ")
     )
 
     # Render stats

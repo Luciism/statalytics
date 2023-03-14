@@ -137,20 +137,7 @@ async def session(interaction: discord.Interaction, username: str=None, session:
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-        if cursor.fetchone():
-            await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-            interid = await interaction.original_response()
-            os.makedirs(f'./database/activerenders/{interid.id}')
-            hypixel_data = get_hypixel_data(uuid)
-
-            rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
-            view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-            await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-            rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
-            rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
-            rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
-            rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
-        else:
+        if not cursor.fetchone():
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
             if not cursor.fetchone():
                 await interaction.response.defer()
@@ -161,6 +148,18 @@ async def session(interaction: discord.Interaction, username: str=None, session:
                     await interaction.followup.send(f"{refined} has never played before!")
             else:
                 await interaction.response.send_message(f"{refined} doesn't have an active session with ID: `{session}`!")
+            return
+    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    interid = await interaction.original_response()
+    os.makedirs(f'./database/activerenders/{interid.id}')
+    hypixel_data = get_hypixel_data(uuid)
+    rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
+    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
+    rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
+    rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
+    rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
+    rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
 
 # Link Command
 @client.tree.command(name = "link", description = "Link your account")
@@ -566,27 +565,37 @@ async def practice(interaction: discord.Interaction, username: str=None):
 
 # Milestone Stats
 @client.tree.command(name = "milestones", description = "View the milestone stats of a player")
-@app_commands.autocomplete(username=username_autocompletion)
-@app_commands.describe(username='The player you want to view')
+@app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
+@app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
 @app_commands.checks.dynamic_cooldown(check_subscription)
-async def milestones(interaction: discord.Interaction, username: str=None):
+async def milestones(interaction: discord.Interaction, username: str=None, session: int=None):
     try:
         name, uuid = await authenticate_user(username, interaction)
     except Exception:
         await interaction.response.send_message("That player doesn't exist!")
         return
+    if session is None:
+        session = 100
+    with sqlite3.connect('./database/sessions.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
+        if not cursor.fetchone() and not session in (0, 100):
+            await interaction.response.send_message(f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
+            return
+
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
     interid = await interaction.original_response()
     os.makedirs(f'./database/activerenders/{interid.id}')
 
+    session = 1 if session == 100 else session
     hypixel_data = get_hypixel_data(uuid)
-    rendermilestones(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
+    rendermilestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
     view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    rendermilestones(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
+    rendermilestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
+    rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
+    rendermilestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
+    rendermilestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
 
 
 # Active Cosmetics
