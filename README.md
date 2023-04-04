@@ -41,7 +41,7 @@
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155521658880/session.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
 
 * ### Milestone Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554131316318229/milestones.png?width=400&height=293" alt="Milestone Stats Example" style="margin-left: 20px;"/>
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726755464331294/overall.png?width=400&height=293" alt="Milestone Stats Example" style="margin-left: 20px;"/>
 
 * ### Practice Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132167770193/practice.png?width=400&height=293" alt="Practice Stats Example" style="margin-left: 20px;"/>
@@ -56,7 +56,7 @@
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132817887262/activecosmetics.png?width=400&height=293" alt="Active Cosmetics Example" style="margin-left: 20px;"/>
 
 * ### Most Played Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554131735760986/mostplayed.png?width=400&height=263" alt="Most Played Example" style="margin-left: 20px;"/>
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726798812467210/mostplayed.png?width=400&height=263" alt="Most Played Example" style="margin-left: 20px;"/>
 
 * ### Quick Buy Viewer
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155790078042/shop.png?width=400&height=217" alt="Quick Buy Example" style="margin-left: 20px;"/>
