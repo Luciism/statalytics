@@ -1,17 +1,8 @@
-import random
-import json
-import requests
-
 class Practice:
-    def __init__(self, name: str, uuid: str) -> None:
+    def __init__(self, name: str, hypixel_data: dict) -> None:
         self.name = name
 
-        with open('./database/apikeys.json', 'r') as keyfile:
-            allkeys = json.load(keyfile)['keys']
-        key = random.choice(list(allkeys))
-
-        response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
-        self.hypixel_data = response.json().get('player', {}) if response.json().get('player', {}) is not None else {}
+        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)

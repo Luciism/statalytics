@@ -4,7 +4,7 @@ from helper.rendername import render_level_and_name
 from calc.calccosmetics import ActiveCosmetics
 from helper.custombackground import background
 
-def rendercosmetics(name, uuid):
+def rendercosmetics(name, uuid, hypixel_data):
     image_location = background(path='./assets/cosmetics', uuid=uuid, default='activecosmetics')
     image = Image.open(image_location)
     image = image.convert("RGBA")
@@ -16,7 +16,7 @@ def rendercosmetics(name, uuid):
     white = (255, 255, 255)
     black = (0, 0, 0)
 
-    cosmetics = ActiveCosmetics(uuid)
+    cosmetics = ActiveCosmetics(hypixel_data)
     level = cosmetics.level
     player_rank_info = cosmetics.get_player_rank_info()
 

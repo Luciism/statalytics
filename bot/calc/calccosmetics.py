@@ -1,31 +1,22 @@
-import json
-import random
-import requests
-
 class ActiveCosmetics:
-    def __init__(self, uuid: str) -> None:
-
-        with open('./database/apikeys.json', 'r') as keyfile:
-            allkeys = json.load(keyfile)['keys']
-        key = random.choice(list(allkeys))
-
-        response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
-        self.hypixel_data = response.json().get('player', {}) if response.json().get('player', {}) is not None else {}
-        self.name = response.json().get('displayname', None)
+    def __init__(self, hypixel_data: dict) -> None:
+        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        bedwars_data = self.hypixel_data.get('stats', {}).get('Bedwars', {})
+        self.name = hypixel_data.get('displayname', None)
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
 
-        self.shopkeeper_skin = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeNPCSkin', 'npcskin_none').replace('npcskin_', '').replace('_', ' ').title()
-        self.projectile_trail = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeProjectileTrail', 'projectiletrail_none').replace('projectiletrail_', '').replace('_', ' ').title()
-        self.death_cry = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeDeathCry', 'deathcry_none').replace('deathcry_', '').replace('_', ' ').title()
-        self.wood_skin = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeWoodType', 'woodSkin_none').replace('woodSkin_', '').replace('_', ' ').title()
-        self.kill_effect = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeKillEffect', 'killeffect_none').replace('killeffect_', '').replace('_', ' ').title()
-        self.island_topper = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeIslandTopper', 'islandtopper_none').replace('islandtopper_', '').replace('_', ' ').title()
-        self.victory_dance = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeVictoryDance', 'victorydance_none').replace('victorydance_', '').replace('_', ' ').title()
-        self.glyph = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeGlyph', 'glyph_none').lower().replace('glyph_', '').replace('_', ' ').title()
-        self.spray = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeSprays', 'sprays_none').replace('sprays_', '').replace('_', ' ').title()
-        self.bed_destroy = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeBedDestroy', 'beddestroy_none').replace('beddestroy_', '').replace('_', ' ').title()
-        self.kill_message = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('activeKillMessages', 'killmessages_none').replace('killmessages_', '').replace('_', ' ').title()
+        self.shopkeeper_skin = bedwars_data.get('activeNPCSkin', 'npcskin_none').replace('npcskin_', '').replace('_', ' ').title()
+        self.projectile_trail = bedwars_data.get('activeProjectileTrail', 'projectiletrail_none').replace('projectiletrail_', '').replace('_', ' ').title()
+        self.death_cry = bedwars_data.get('activeDeathCry', 'deathcry_none').replace('deathcry_', '').replace('_', ' ').title()
+        self.wood_skin = bedwars_data.get('activeWoodType', 'woodSkin_none').replace('woodSkin_', '').replace('_', ' ').title()
+        self.kill_effect = bedwars_data.get('activeKillEffect', 'killeffect_none').replace('killeffect_', '').replace('_', ' ').title()
+        self.island_topper = bedwars_data.get('activeIslandTopper', 'islandtopper_none').replace('islandtopper_', '').replace('_', ' ').title()
+        self.victory_dance = bedwars_data.get('activeVictoryDance', 'victorydance_none').replace('victorydance_', '').replace('_', ' ').title()
+        self.glyph = bedwars_data.get('activeGlyph', 'glyph_none').lower().replace('glyph_', '').replace('_', ' ').title()
+        self.spray = bedwars_data.get('activeSprays', 'sprays_none').replace('sprays_', '').replace('_', ' ').title()
+        self.bed_destroy = bedwars_data.get('activeBedDestroy', 'beddestroy_none').replace('beddestroy_', '').replace('_', ' ').title()
+        self.kill_message = bedwars_data.get('activeKillMessages', 'killmessages_none').replace('killmessages_', '').replace('_', ' ').title()
 
     def get_player_rank_info(self):
         rank_info = {

@@ -1,11 +1,10 @@
-import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcpractice import Practice
 from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
-def renderpractice(name, uuid):
+def renderpractice(name, uuid, hypixel_data):
     # Open the image
     image_location = background(path='./assets/practice', uuid=uuid, default='practice')
     image = Image.open(image_location)
@@ -26,7 +25,7 @@ def renderpractice(name, uuid):
     red = (255, 85, 85)
 
     # Define the values
-    practice = Practice(name, uuid)
+    practice = Practice(name, hypixel_data)
     level = practice.level
     player_rank_info = practice.get_player_rank_info()
     most_played = practice.get_most_played()

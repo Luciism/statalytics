@@ -1,23 +1,13 @@
-import os
-import json
-import random
 from io import BytesIO
-import requests
 from PIL import Image, ImageFont, ImageDraw
 from helper.custombackground import background
 from helper.rendername import get_rank_color
 
-def renderhotbar(name, uuid):
-    # Get api key
-    with open('./database/apikeys.json', 'r') as datafile:
-        allkeys = json.load(datafile)['keys']
-    key = random.choice(list(allkeys))
-
+def renderhotbar(name, uuid, hypixel_data):
     # Get shop layout and positions
     slots = [(40, 424), (130, 424), (220, 424), (310, 424), (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
-    response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
     try:
-        hypixel_data = response.json()['player']
+        hypixel_data = hypixel_data['player']
         hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
     except KeyError:
         return False

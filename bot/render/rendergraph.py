@@ -1,20 +1,11 @@
-import os
-import json
-import random
 from io import BytesIO
-import requests
 from PIL import Image, ImageDraw, ImageFont
+
 from helper.custombackground import background
 from helper.rendername import get_rank_color
 
-def rendergraph(name, uuid):
-    # Get api key
-    with open('./database/apikeys.json', 'r') as keyfile:
-        allkeys = json.load(keyfile)['keys']
-    key = random.choice(list(allkeys))
-
-    response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
-    hypixel_data = response.json().get('player', {}) if response.json().get('player', {}) is not None else {}
+def rendergraph(name, uuid, hypixel_data):
+    hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
 
     solos = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)
     doubles = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_two_games_played_bedwars', 1)

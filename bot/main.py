@@ -6,9 +6,9 @@ import random
 import json
 from io import BytesIO
 
-import requests
 import discord
 from mcuuid import MCUUID
+from requests_cache import CachedSession
 from discord import app_commands, ui
 from ui import DeleteSession, SelectView
 
@@ -33,6 +33,8 @@ TOKEN = os.environ.get('STATALYTICS_TOKEN', None)
 MY_GUILD = discord.Object(id=981835717070159883)
 NAME = "Statalytics"
 
+stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
+skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
 
 class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
@@ -102,12 +104,12 @@ def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_
     return app_commands.Cooldown(1, 3.5)
 
 # Get hypixel data
-def get_hypixel_data(uuid):
+def get_hypixel_data(uuid: str):
     with open('./database/apikeys.json', 'r') as keyfile:
         allkeys = json.load(keyfile)['keys']
     key = random.choice(list(allkeys))
 
-    return requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10).json()
+    return stats_session.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10).json()
 
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -367,7 +369,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
         await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
         interid = await interaction.original_response()
         os.makedirs(f'./database/activerenders/{interid.id}')
-        skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
 
         hypixel_data = get_hypixel_data(uuid)
         try:
@@ -409,7 +411,8 @@ async def shop(interaction: discord.Interaction,username: str=None):
     refined = name.replace('_', r'\_')
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
-    rendered = rendershop(uuid)
+    hypixel_data = get_hypixel_data(uuid)
+    rendered = rendershop(uuid, hypixel_data)
     if rendered is not False:
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="shop.png")])
     else:
@@ -428,7 +431,8 @@ async def most_played(interaction: discord.Interaction,username: str=None):
         return
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
-    rendered = rendergraph(name, uuid)
+    hypixel_data = get_hypixel_data(uuid)
+    rendered = rendergraph(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 
 # Suggest
@@ -460,7 +464,7 @@ async def total(interaction: discord.Interaction, username: str=None):
     interid = await interaction.original_response()
 
     os.makedirs(f'./database/activerenders/{interid.id}')
-    skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+    skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
 
@@ -536,7 +540,7 @@ async def skin(interaction: discord.Interaction, username: str=None):
         await interaction.response.send_message("That player doesn't exist!")
         return
     refined = name.replace('_', r'\_')
-    image_bytes = requests.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=10).content
+    image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=10).content
     file = discord.File(BytesIO(image_bytes), filename='skin.png')
     embed = discord.Embed()
     embed.set_image(url="attachment://skin.png")
@@ -559,7 +563,8 @@ async def practice(interaction: discord.Interaction, username: str=None):
         return
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
-    rendered = renderpractice(name, uuid)
+    hypixel_data = get_hypixel_data(uuid)
+    rendered = renderpractice(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='practice.png')])
 
 
@@ -611,7 +616,8 @@ async def active_cosmetics(interaction: discord.Interaction, username: str=None)
         return
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
-    rendered = rendercosmetics(name, uuid)
+    hypixel_data = get_hypixel_data(uuid)
+    rendered = rendercosmetics(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='cosmetics.png')])
 
 
@@ -629,7 +635,8 @@ async def hotbar(interaction: discord.Interaction,username: str=None):
     refined = name.replace('_', r'\_')
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
-    rendered = renderhotbar(name, uuid)
+    hypixel_data = get_hypixel_data(uuid)
+    rendered = renderhotbar(name, uuid, hypixel_data)
     if rendered is not False:
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="hotbar.png")])
     else:
@@ -650,7 +657,7 @@ async def pointless(interaction: discord.Interaction, username: str=None):
     interid = await interaction.original_response()
 
     os.makedirs(f'./database/activerenders/{interid.id}')
-    skin_res = requests.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+    skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
 
