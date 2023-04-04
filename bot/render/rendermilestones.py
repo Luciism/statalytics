@@ -1,4 +1,3 @@
-import os
 from PIL import Image, ImageDraw, ImageFont
 from helper.rendername import render_level_and_name, render_level
 from calc.calcmilestones import Stats

@@ -1,4 +1,3 @@
-import os
 from io import BytesIO
 from PIL import Image
 from helper.custombackground import background
@@ -17,7 +16,7 @@ def rendershop(uuid, hypixel_data):
     base_image = base_image.convert("RGBA")
 
     for i, item in enumerate(shop):
-        top_image = Image.open(f"{os.getcwd()}/assets/shop/{item}.png")
+        top_image = Image.open(f"./assets/shop/{item}.png")
         top_image = top_image.convert("RGBA")
         base_image.paste(top_image, slots[i], top_image)
 

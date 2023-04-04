@@ -1,4 +1,3 @@
-import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calctotal import Stats
@@ -19,7 +18,7 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
     minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
     minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-    arial_24 = ImageFont.truetype(f"{os.getcwd()}/assets/arial.ttf", 24)
+    arial_24 = ImageFont.truetype(f"./assets/arial.ttf", 24)
 
     # Define the text colors
     green = (85, 255, 85)

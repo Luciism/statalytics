@@ -1,4 +1,3 @@
-import os
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcresources import Resources
 from helper.rendername import render_level_and_name
