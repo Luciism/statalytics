@@ -1,5 +1,5 @@
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
 
 def rendershop(uuid, hypixel_data):
@@ -19,6 +19,12 @@ def rendershop(uuid, hypixel_data):
         top_image = Image.open(f"./assets/shop/{item}.png")
         top_image = top_image.convert("RGBA")
         base_image.paste(top_image, slots[i], top_image)
+
+    draw = ImageDraw.Draw(base_image)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 32)
+
+    name = hypixel_data['player']['displayname']
+    draw.text((42, 29), f"{name}'s Quick Buy", fill=(80, 80, 80), font=font)
 
     # Return the result
     image_bytes = BytesIO()
