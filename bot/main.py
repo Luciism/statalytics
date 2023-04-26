@@ -14,9 +14,9 @@ from ui import DeleteSession, SelectView
 
 from link import AccountLink
 from authenticate import authenticate_user
-import reqapi
+import initsession as initsession
 
-from render.rendergraph import rendergraph
+from render.rendermostplayed import rendermostplayed
 from render.rendertotal import rendertotal
 from render.renderratio import renderratio
 from render.renderresources import renderresources
@@ -143,7 +143,7 @@ async def session(interaction: discord.Interaction, username: str=None, session:
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
             if not cursor.fetchone():
                 await interaction.response.defer()
-                returnvalue = reqapi.startsession(uuid, session=1)
+                returnvalue = initsession.startsession(uuid, session=1)
                 if returnvalue is True:
                     await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
                 else:
@@ -233,11 +233,11 @@ async def start_session(interaction: discord.Interaction):
             for i, session in enumerate(sessions):
                 if session[0] != i + 1:
                     sessionid = i + 1
-                    reqapi.startsession(uuid, session=sessionid)
+                    initsession.startsession(uuid, session=sessionid)
                     break
             else:
                 sessionid = len(sessions) + 1
-                reqapi.startsession(uuid, session=sessionid)
+                initsession.startsession(uuid, session=sessionid)
             await interaction.followup.send(f'A new session was successfully created! Session ID: {sessionid}')
         else:
             await interaction.followup.send('You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
@@ -394,7 +394,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
     else:
         if not any_session:
             await interaction.response.defer()
-            returnvalue = reqapi.startsession(uuid, session=1)
+            returnvalue = initsession.startsession(uuid, session=1)
             if returnvalue is True:
                 await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
             else:
@@ -437,7 +437,7 @@ async def most_played(interaction: discord.Interaction,username: str=None):
     await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
 
     hypixel_data = get_hypixel_data(uuid)
-    rendered = rendergraph(name, uuid, hypixel_data)
+    rendered = rendermostplayed(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 
 # Suggest

@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
 from helper.rendername import get_rank_color
 
-def rendergraph(name, uuid, hypixel_data):
+def rendermostplayed(name, uuid, hypixel_data):
     hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
 
     solos = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)
@@ -33,7 +33,7 @@ def rendergraph(name, uuid, hypixel_data):
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
     # Open Images
-    image_location = background(path='./assets/graph', uuid=uuid, default='base')
+    image_location = background(path='./assets/mostplayed', uuid=uuid, default='base')
     base_image = Image.open(image_location)
     base_image = base_image.convert("RGBA")
 
@@ -48,7 +48,7 @@ def rendergraph(name, uuid, hypixel_data):
 
     for i, value in enumerate(ratios):
         height = 250 if value * 500 > 250 else value * 500
-        draw.rectangle([positions[i], (positions[i][0] + 77, positions[i][1] - height)], fill=color)
+        draw.rectangle([(positions[i][0] + 77, positions[i][1] - height), positions[i]], fill=color)
 
     base_image = Image.alpha_composite(base_image, bar_graph)
 
@@ -74,7 +74,7 @@ def rendergraph(name, uuid, hypixel_data):
     draw.text((startpoint, player_y), player_txt, fill=white, font=font)
 
     # Render the titles
-    overlay_image = Image.open('./assets/graph/overlay.png')
+    overlay_image = Image.open('./assets/mostplayed/overlay.png')
     base_image.paste(overlay_image, (0, 0), overlay_image)
 
     # Return the image

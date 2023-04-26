@@ -2,7 +2,7 @@ import os
 import shutil
 import sqlite3
 import discord
-import reqapi
+import initsession as initsession
 
 class DeleteSession(discord.ui.View):
     def __init__(self, session, uuid, method) -> None:
@@ -31,7 +31,7 @@ class DeleteSession(discord.ui.View):
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
                 conn.commit()
         if self.method != "delete":
-            reqapi.startsession(self.uuid, self.session)
+            initsession.startsession(self.uuid, self.session)
             await interaction.followup.send(f'{interaction.user.mention} Successfully reset session {self.session}!')
 
 # ------------------------------------------------------------------------------------------ #
