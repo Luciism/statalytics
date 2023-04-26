@@ -4,7 +4,7 @@ from calc.calcmilestones import Stats
 from helper.custombackground import background
 
 def rendermilestones(name, uuid, mode, session, hypixel_data, save_dir):
-    image_location = background(path='./assets/milestones', uuid=uuid, default='milestones')
+    image_location = background(path='./assets/milestones', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 

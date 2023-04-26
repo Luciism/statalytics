@@ -5,7 +5,7 @@ from calc.calccosmetics import ActiveCosmetics
 from helper.custombackground import background
 
 def rendercosmetics(name, uuid, hypixel_data):
-    image_location = background(path='./assets/cosmetics', uuid=uuid, default='activecosmetics')
+    image_location = background(path='./assets/cosmetics', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -41,7 +41,7 @@ def rendercosmetics(name, uuid, hypixel_data):
         draw.text((x, y), cosmetic_text, fill=white, font=font)
 
     # Render the titles
-    title_image = Image.open('./assets/cosmetics/activecosmetics_titles.png')
+    title_image = Image.open('./assets/cosmetics/overlay.png')
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name

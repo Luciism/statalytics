@@ -13,7 +13,7 @@ def renderhotbar(name, uuid, hypixel_data):
         return False
 
     # Open the base image
-    image_location = background(path='./assets/hotbar', uuid=uuid, default='hotbar')
+    image_location = background(path='./assets/hotbar', uuid=uuid, default='base')
     base_image = Image.open(image_location)
     base_image = base_image.convert("RGBA")
 
@@ -28,7 +28,7 @@ def renderhotbar(name, uuid, hypixel_data):
         # Paste the top image onto the base image at the specified position
         base_image.paste(top_image, slots[i], top_image)
 
-    overlay_image = Image.open('./assets/hotbar/hotbar_overlay.png')
+    overlay_image = Image.open('./assets/hotbar/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
 
     base_image.paste(overlay_image, (0, 0), overlay_image)

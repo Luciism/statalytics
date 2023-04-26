@@ -66,7 +66,7 @@ async def username_autocompletion(interaction: discord.Interaction, current: str
 
     for row in result:
         if len(data) < 25:
-            data.append(app_commands.Choice(name=row[0], value=row[0]))
+            data.append(app_commands.Choice(name=row[2], value=row[2]))
         else:
             break
     return data
@@ -78,13 +78,13 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
         username = username_option.get('value')
         uuid = MCUUID(name=username).uuid
     else:
-        with sqlite3.connect('./database/linkedaccounts.db') as conn:
+        with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+            cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
             linked_data = cursor.fetchone()
         if not linked_data:
             return []
-        uuid = linked_data[3]
+        uuid = linked_data[1]
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
@@ -97,7 +97,7 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
 def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_commands.Cooldown]:
     with sqlite3.connect('./database/subscriptions.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM subscriptions WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}")
         subscription = cursor.fetchone()
     if subscription:
         return app_commands.Cooldown(1, 0.0)
@@ -196,36 +196,39 @@ async def link(interaction: discord.Interaction, username: str):
 # Unlink Command
 @client.tree.command(name = "unlink", description = "Unlink your account")
 async def unlink(interaction: discord.Interaction):
-    with sqlite3.connect('./database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
         if cursor.fetchone():
-            cursor.execute(f"DELETE FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
-            conn.commit()
-            await interaction.response.send_message('Successfully unlinked your account!')
-        else:
-            await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+            cursor.execute(f"DELETE FROM linked_accounts WHERE discord_id = {interaction.user.id}")
+            message = 'Successfully unlinked your account!'
+        else: message = "You don't have an account linked! In order to link use `/link`!"
+        await interaction.response.send_message(message)
 
 
 # Create Session Command
 @client.tree.command(name = "startsession", description = "Starts a new session")
 async def start_session(interaction: discord.Interaction):
-    with sqlite3.connect('./database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
         linked_data = cursor.fetchone()
+
     if linked_data:
         await interaction.response.defer()
-        uuid = linked_data[3]
+        uuid = linked_data[1]
+
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             sessions = cursor.fetchall()
+
         with sqlite3.connect('./database/subscriptions.db') as conn:
             cursor = conn.cursor()
-            query = f"SELECT * FROM subscriptions WHERE discordid = '{interaction.user.id}'"
+            query = f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}"
             cursor.execute(query)
             subsciption = cursor.fetchone()
+
         if len(sessions) < 2 or subsciption and len(sessions) < 5:
             for i, session in enumerate(sessions):
                 if session[0] != i + 1:
@@ -247,14 +250,15 @@ async def start_session(interaction: discord.Interaction):
 @app_commands.autocomplete(session=session_autocompletion)
 @app_commands.describe(session='The session you want to delete')
 async def end_session(interaction: discord.Interaction, session: int = None):
-    if session is None:
-        session = 1
-    with sqlite3.connect('./database/linkedaccounts.db') as conn:
+    if session is None: session = 1
+
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
         linked_data = cursor.fetchone()
+    
     if linked_data:
-        uuid = linked_data[3]
+        uuid = linked_data[1]
 
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
@@ -275,21 +279,21 @@ async def end_session(interaction: discord.Interaction, session: int = None):
 @app_commands.autocomplete(session=session_autocompletion)
 @app_commands.describe(session='The session you want to reset')
 async def reset_session(interaction: discord.Interaction, session: int = None):
-    with sqlite3.connect('./database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
         linked_data = cursor.fetchone()
 
     if linked_data:
-        uuid = linked_data[3]
+        uuid = linked_data[1]
 
-        if session is None:
-            session = 1
+        if session is None: session = 1
 
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
+
         if session_data:
             view = DeleteSession(session, uuid, method="reset")
             await interaction.response.send_message(f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
@@ -303,13 +307,14 @@ async def reset_session(interaction: discord.Interaction, session: int = None):
 # Session List Command
 @client.tree.command(name = "activesessions", description = "View all active sessions")
 async def active_sessions(interaction: discord.Interaction):
-    with sqlite3.connect('./database/linkedaccounts.db') as conn:
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
         linked_data = cursor.fetchone()
+    
     if linked_data:
         await interaction.response.defer()
-        uuid = linked_data[3]
+        uuid = linked_data[1]
 
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()

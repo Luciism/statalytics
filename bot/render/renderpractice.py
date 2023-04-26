@@ -6,7 +6,7 @@ from helper.custombackground import background
 
 def renderpractice(name, uuid, hypixel_data):
     # Open the image
-    image_location = background(path='./assets/practice', uuid=uuid, default='practice')
+    image_location = background(path='./assets/practice', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -77,7 +77,7 @@ def renderpractice(name, uuid, hypixel_data):
         draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
 
     # Render the titles & name
-    title_image = Image.open('./assets/practice/practice_titles.png')
+    title_image = Image.open('./assets/practice/overlay.png')
     image.paste(title_image, (0, 0), title_image)
 
     player_y = 54

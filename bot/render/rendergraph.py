@@ -74,7 +74,7 @@ def rendergraph(name, uuid, hypixel_data):
     draw.text((startpoint, player_y), player_txt, fill=white, font=font)
 
     # Render the titles
-    overlay_image = Image.open('./assets/graph/base_overlay.png')
+    overlay_image = Image.open('./assets/graph/overlay.png')
     base_image.paste(overlay_image, (0, 0), overlay_image)
 
     # Return the image

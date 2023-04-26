@@ -4,7 +4,7 @@ from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
 def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
-    image_location = background(path='./assets/session', uuid=uuid, default='session')
+    image_location = background(path='./assets/session', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 

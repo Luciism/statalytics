@@ -3,12 +3,12 @@ from mcuuid import MCUUID
 
 async def authenticate_user(username, interaction):
     if username is None:
-        with sqlite3.connect('./database/linkedaccounts.db') as conn:
+        with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linkedaccounts WHERE discordid = '{interaction.user.id}'")
+            cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
             linked_data = cursor.fetchone()
         if linked_data:
-            uuid = linked_data[3]
+            uuid = linked_data[1]
             try:
                 name = MCUUID(uuid=uuid).name
             except Exception as error:
