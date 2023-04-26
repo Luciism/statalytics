@@ -35,7 +35,7 @@ class SessionStats:
         if self.levels_gained == 0:
             self.levels_gained = 0.0001
 
-        self.level_repitition = self.levels_to_go / self.levels_gained if self.levels_gained != 0 else 0 # how many times they have to gain the session amount of levels to get to the goal
+        self.level_repitition = self.levels_to_go / self.levels_gained # how many times they have to gain the session amount of levels to get to the goal
 
         self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
         self.suffixes = {
