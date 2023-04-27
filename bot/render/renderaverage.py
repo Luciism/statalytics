@@ -1,11 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
-from calc.calcratio import Ratios
+from calc.calcaverage import Ratios
 from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
-def renderratio(name, uuid, mode, hypixel_data, save_dir):
+def renderaverage(name, uuid, mode, hypixel_data, save_dir):
     # Open the image
-    image_location = background(path='./assets/ratios', uuid=uuid, default='base')
+    image_location = background(path='./assets/average', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 

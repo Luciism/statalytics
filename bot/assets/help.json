@@ -1,0 +1,51 @@
+{
+  "embeds": [
+    {
+      "title": "**Sessions:**",
+      "color": 3259881,
+      "fields": [
+        {
+          "name": "**What does it do?**",
+          "value": "When started, a session will track all statistics gained from that point on.  You can start a session with the `/startsession` command if you are linked and view your session with `/session`. On the free plan, you can have up to 2 sessions active at once, whereas on any paid plan, you can have up to 5. Your session stats will be used to calculate other functions such as projected stats. To delete / end a session you can use the `/endsession` command, you will be met with a confirmation box, you can also reset an active session with the `/resetsession` command. When using a session related command, if you don't specify a session ID, it will automatically default to session 1. To manage your sessions you must be linked."
+        },
+        {
+          "name": "**Commands:**",
+          "value": "`/session` - view session\n`/startsession` - start a session\n`/resetsession` - reset a session\n`/endsession` - delete a session"
+        }
+      ]
+    },
+    {
+      "title": "**Projection:**",
+      "color": 3259881,
+      "fields": [
+        {
+          "name": "**What does it do?**",
+          "value": "The Stat Projection feature in Bedwars enables you to effortlessly access your stats at any star level. With a straightforward `/prestige` command, you can obtain a comprehensive breakdown of your anticipated statistics, along with the calculated date. It's important to note that Stat Projection employs your session statistics to accurately forecast your future performance, so it's advisable to have a decent session beforehand for the most precise results. Additionally, you have the option of specifying a session to base your projections on, though it defaults to session 1 if left unspecified."
+        },
+        {
+          "name": "**Commands:**",
+          "value": "`/prestige` - view projected stats"
+        }
+      ]
+    },
+    {
+      "title": "**Linking:**",
+      "color": 3259881,
+      "fields": [
+        {
+          "name": "**What does it do?**",
+          "value": "Linking your account is a quality-of-life feature that offers several benefits, such as the ability to use commands without specifying a player, manage your sessions, and more. We highly recommend that you take advantage of this feature. To begin, make sure that your Discord account is connected to Hypixel with your __current__ Discord tag. Then, complete the linking process by executing the` /link <ign>` command."
+        },
+        {
+          "name": "**Commands:**",
+          "value": "`/link` - link your account\n`/unlink` - unlink your account"
+        }
+      ]
+    },
+    {
+      "title": "**Other Commands:**",
+      "description": "`/shop` - view the shop of any player\n`/mostplayed` - view most played modes of any player\n`/bedwars` - view general bedwars stats of any player\n`/average` - view average stats and rations of any player\n`/resources` - view resource stats of any player\n`/skin` - view or save the skin of any player\n`/practice` - view practice stats of any player\n`/milestones` - view milestone stats of any player\n`/activecosmetics` - view the active cosmetics of any player\n`/activesession` - get a list of all your active sessions\n`/hotbar` - view the hotbar preference of any player\n`/pointless` - same as /bedwars but really pointless",
+      "color": 3259881
+    }
+  ]
+}

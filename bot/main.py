@@ -9,16 +9,16 @@ from io import BytesIO
 import discord
 from mcuuid import MCUUID
 from requests_cache import CachedSession
-from discord import app_commands, ui
-from ui import DeleteSession, SelectView
+from discord import app_commands
+from ui import ManageSession, SelectView, SubmitSuggestion
 
-from link import AccountLink
+from link import link_account
 from authenticate import authenticate_user
 import initsession as initsession
 
 from render.rendermostplayed import rendermostplayed
 from render.rendertotal import rendertotal
-from render.renderratio import renderratio
+from render.renderaverage import renderaverage
 from render.renderresources import renderresources
 from render.renderpractice import renderpractice
 from render.rendermilestones import rendermilestones
@@ -32,6 +32,7 @@ from render.renderhotbar import renderhotbar
 TOKEN = os.environ.get('STATALYTICS_TOKEN', None)
 MY_GUILD = discord.Object(id=981835717070159883)
 NAME = "Statalytics"
+GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
 skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
@@ -111,13 +112,43 @@ def get_hypixel_data(uuid: str):
 
     return stats_session.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10).json()
 
+def get_linked_data(discord_id: int):
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
+        return cursor.fetchone()
+
+def get_subscription(discord_id: int):
+    with sqlite3.connect('./database/subscriptions.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
+        return cursor.fetchone()
+
+def update_command_stats(discord_id, command):
+    with sqlite3.connect('./database/command_usage.db') as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute(f"SELECT * FROM overall WHERE discord_id = {discord_id}")
+        if not cursor.fetchone(): cursor.execute('INSERT INTO overall (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+        else: cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
+        
+        cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
+        if not cursor.fetchone(): cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+        else: cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
+        
+        cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
+        cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
+
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
         await interaction.response.send_message(embed=discord.Embed(title="Command on cooldown!", description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.', color=0xFFE100).set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png'), ephemeral=True)
     else:
         # show full error traceback
-        traceback.print_exception(type(error), error, error.__traceback__)
+        traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+        print(traceback_str)
+        channel = client.get_channel(1101006847831445585)
+        await channel.send(f'```diff\n{traceback_str}\n```')
 
 # View Session Command
 @client.tree.command(name = "session", description = "View the session stats of a player")
@@ -126,42 +157,46 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def session(interaction: discord.Interaction, username: str=None, session: int=None):
     # Get data for player
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    if session is None:
-        session = 1
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    if session is None: session = 100
 
     # Bot responses Logic
     refined = name.replace('_', r'\_')
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-        if not cursor.fetchone():
-            cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
-            if not cursor.fetchone():
-                await interaction.response.defer()
-                returnvalue = initsession.startsession(uuid, session=1)
-                if returnvalue is True:
-                    await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
-                else:
-                    await interaction.followup.send(f"{refined} has never played before!")
-            else:
-                await interaction.response.send_message(f"{refined} doesn't have an active session with ID: `{session}`!")
-            return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
-    os.makedirs(f'./database/activerenders/{interid.id}')
+        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
+        session_data = cursor.fetchone()
+        if not session_data:
+            cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
+            session_data = cursor.fetchone()
+
+    if not session_data:
+        await interaction.response.defer()
+        response = initsession.startsession(uuid, session=1)
+
+        if response is True: await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
+        else: await interaction.followup.send(f"**{refined}** has never played before!")
+        return
+    elif session_data[0] != session and session != 100: 
+        await interaction.response.send_message(f"**{refined}** doesn't have an active session with ID: `{session}`!")
+        return
+
+    if session == 100: session = session_data[0]
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     hypixel_data = get_hypixel_data(uuid)
-    rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
-    rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
+
+    rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'session')
 
 # Link Command
 @client.tree.command(name = "link", description = "Link your account")
@@ -172,26 +207,23 @@ async def link(interaction: discord.Interaction, username: str):
         uuid = MCUUID(name=username).uuid
         name = MCUUID(name=username).name
     except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
         await interaction.response.send_message("That player does not exist!")
         return
 
     # Linking Logic
-    response = AccountLink(str(interaction.user), interaction.user.id, name, uuid).account_link()
+    response = link_account(str(interaction.user), interaction.user.id, name, uuid)
     refined = name.replace('_', r'\_')
-    if response is True:
-        await interaction.response.send_message(f"Successfully linked to {refined} ({interaction.user})")
+    if response is True: await interaction.response.send_message(f"Successfully linked to **{refined}** ({interaction.user})")
     # If discord isnt connected to hypixel
-    elif response is None:
-        await interaction.response.defer()
-        embed_var = discord.Embed(title=f"{refined}'s discord isn't connected on hypixel!", description='Example of how to connect your discord to hypixel:', color=0xFF00FF)
-        embed_var.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
-        await interaction.response.send_message(embed=embed_var)
     else:
         await interaction.response.defer()
-        embed_var = discord.Embed(title="How to connect discord to hypixel", description=f'That player is connected to a different discord tag on hypixel!\nIf you own the {refined} account, you must __update your hypixel connection__ to match your current discord tag:', color=0xFF00FF)
-        embed_var.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
-        await interaction.followup.send(embed=embed_var)
+        if response is None:
+            embed = discord.Embed(title=f"{refined}'s discord isn't connected on hypixel!", description='Example of how to connect your discord to hypixel:', color=0xFF00FF)
+        else:
+            embed = discord.Embed(title="How to connect discord to hypixel", description=f'''That player is connected to a different discord tag on hypixel!
+                        If you own the **{refined}** account, you must __update your hypixel connection__ to match your current discord tag:''', color=0xFF00FF)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
+        await interaction.followup.send(embed=embed)
 
 # Unlink Command
 @client.tree.command(name = "unlink", description = "Unlink your account")
@@ -209,10 +241,7 @@ async def unlink(interaction: discord.Interaction):
 # Create Session Command
 @client.tree.command(name = "startsession", description = "Starts a new session")
 async def start_session(interaction: discord.Interaction):
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-        linked_data = cursor.fetchone()
+    linked_data = get_linked_data(interaction.user.id)
 
     if linked_data:
         await interaction.response.defer()
@@ -223,13 +252,9 @@ async def start_session(interaction: discord.Interaction):
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             sessions = cursor.fetchall()
 
-        with sqlite3.connect('./database/subscriptions.db') as conn:
-            cursor = conn.cursor()
-            query = f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}"
-            cursor.execute(query)
-            subsciption = cursor.fetchone()
+        subscription = get_subscription(interaction.user.id)
 
-        if len(sessions) < 2 or subsciption and len(sessions) < 5:
+        if len(sessions) < 2 or subscription and len(sessions) < 5:
             for i, session in enumerate(sessions):
                 if session[0] != i + 1:
                     sessionid = i + 1
@@ -238,11 +263,12 @@ async def start_session(interaction: discord.Interaction):
             else:
                 sessionid = len(sessions) + 1
                 initsession.startsession(uuid, session=sessionid)
-            await interaction.followup.send(f'A new session was successfully created! Session ID: {sessionid}')
+            await interaction.followup.send(f'A new session was successfully created! Session ID: `{sessionid}`')
         else:
             await interaction.followup.send('You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
     else:
-        await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!\nOtherwise use `/session <player>` will start a session if one doesn't already exist!")
+        await interaction.response.send_message("""You don't have an account linked! In order to link use `/link`!
+                                                Otherwise use `/session <player>` will start a session if one doesn't already exist!""")
 
 
 # Delete Session Command
@@ -252,11 +278,8 @@ async def start_session(interaction: discord.Interaction):
 async def end_session(interaction: discord.Interaction, session: int = None):
     if session is None: session = 1
 
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-        linked_data = cursor.fetchone()
-    
+    linked_data = get_linked_data(interaction.user.id)
+
     if linked_data:
         uuid = linked_data[1]
 
@@ -265,7 +288,7 @@ async def end_session(interaction: discord.Interaction, session: int = None):
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
         if session_data:
-            view = DeleteSession(session, uuid, method="delete")
+            view = ManageSession(session, uuid, method="delete")
             await interaction.response.send_message(f'Are you sure you want to delete session {session}?', view=view, ephemeral=True)
             view.message = await interaction.original_response()
         else:
@@ -279,10 +302,7 @@ async def end_session(interaction: discord.Interaction, session: int = None):
 @app_commands.autocomplete(session=session_autocompletion)
 @app_commands.describe(session='The session you want to reset')
 async def reset_session(interaction: discord.Interaction, session: int = None):
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-        linked_data = cursor.fetchone()
+    linked_data = get_linked_data(interaction.user.id)
 
     if linked_data:
         uuid = linked_data[1]
@@ -295,7 +315,7 @@ async def reset_session(interaction: discord.Interaction, session: int = None):
             session_data = cursor.fetchone()
 
         if session_data:
-            view = DeleteSession(session, uuid, method="reset")
+            view = ManageSession(session, uuid, method="reset")
             await interaction.response.send_message(f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
             view.message = await interaction.original_response()
         else:
@@ -307,11 +327,8 @@ async def reset_session(interaction: discord.Interaction, session: int = None):
 # Session List Command
 @client.tree.command(name = "activesessions", description = "View all active sessions")
 async def active_sessions(interaction: discord.Interaction):
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-        linked_data = cursor.fetchone()
-    
+    linked_data = get_linked_data(interaction.user.id)
+
     if linked_data:
         await interaction.response.defer()
         uuid = linked_data[1]
@@ -320,16 +337,13 @@ async def active_sessions(interaction: discord.Interaction):
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
             sessions = cursor.fetchall()
-        session_list = []
-        for session in sessions:
-            session_list.append(str(session[0]))
+        session_list = [str(session[0]) for session in sessions]
 
         if session_list:
             session_string = ", ".join(session_list)
             await interaction.followup.send(f'Your active sessions: `{session_string}`')
         else:
             await interaction.followup.send("You don't have any sessions active! Use `/startsession` to create one!")
-
     else:
         await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
 
@@ -337,11 +351,13 @@ async def active_sessions(interaction: discord.Interaction):
 # Help command
 @client.tree.command(name = "help", description = "Help Page")
 async def get_help(interaction: discord.Interaction):
-    embed_var = discord.Embed(title=f"{NAME} Help Menu", description=None, color=0x46C5F0)
-    embed_var.add_field(name='How To Use', value=f'To use {NAME}, start by linking your account with `/link` - this step is not required but is recommending for the best functionality as you will not have to constantly input your username. Please note that the `/prestige` commands requires an active session to benchmark your current skill level!', inline=False)
-    embed_var.add_field(name='List Of Commands', value="`/session` - view an active session of a player\n`/startsession` - starts a new session\n`/endsession` - ends an active session\n`/resetsession` - reset an active session\n`/link` - link your hypixel account\n`/unlink` - unlink your hypixel account\n`/prestige` - view stats at specified stars\n`/shop` - view any players shop layout\n`/mostplayed` - view most played stats\n`/bedwars` - view total bedwars stats\n`/average` - view average bedwars stats\n`/resources` - view resource stats and info\n`/skin` - view or download and player's skin\n`/practice` - view practice modes stats\n`/milestones` - view milestone calculations", inline=False)
-    embed_var.add_field(name='About Us', value=f'{NAME} aims to revive features of an assumed discontinued bot and bring its own unique features to the table. {NAME} offers a blend of old and new functionality to provide a comprehensive experience for Bedwars players.\nFor any questions, bugs or concerns, contact us on our [discord](https://discord.gg/rHmHZ9vvwE).', inline=False)
-    await interaction.response.send_message(embed=embed_var)
+    with open('./assets/help.json', 'r') as datafile:
+        embed_data = json.load(datafile)
+
+    embeds = [discord.Embed.from_dict(embed) for embed in embed_data['embeds']]
+    await interaction.response.send_message(embeds=embeds, ephemeral=True)
+
+    update_command_stats(interaction.user.id, 'help')
 
 
 # Invite
@@ -356,51 +372,57 @@ async def invite(interaction: discord.Interaction):
 @app_commands.describe(username='The player you want to view', prestige='The prestige you want to view', session='The session you want to use as a benchmark (defaults to 1)')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def projected_stats(interaction: discord.Interaction, prestige: int, username: str=None, session: int=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    if session is None:
-        session = 1
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    if session is None: session = 100
+
+    # Bot responses Logic
     refined = name.replace('_', r'\_')
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-        sessionstats = cursor.fetchone()
-        cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
-        any_session = cursor.fetchone()
-    if sessionstats:
-        await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-        interid = await interaction.original_response()
-        os.makedirs(f'./database/activerenders/{interid.id}')
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
+        session_data = cursor.fetchone()
+        if not session_data:
+            cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
+            session_data = cursor.fetchone()
 
-        hypixel_data = get_hypixel_data(uuid)
-        try:
-            current_star = renderprojection(name, uuid, session, mode="Overall", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
-        except ZeroDivisionError:
-            content = f"Dude thats literally the same star that {refined} already is!\nUnless maybe an error occured? In which case please report this to the developers!"
-            await interaction.edit_original_response(content=content)
-            return
-        view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
+    if not session_data:
+        await interaction.response.defer()
+        response = initsession.startsession(uuid, session=1)
 
-        content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
-        await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-        renderprojection(name, uuid, session, mode="Solos", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
-        renderprojection(name, uuid, session, mode="Doubles", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
-        renderprojection(name, uuid, session, mode="Threes", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
-        renderprojection(name, uuid, session, mode="Fours", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id)
-    else:
-        if not any_session:
-            await interaction.response.defer()
-            returnvalue = initsession.startsession(uuid, session=1)
-            if returnvalue is True:
-                await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
-            else:
-                await interaction.followup.send(f"{refined} has never played before!")
-        else:
-            await interaction.response.send_message(f"{refined} doesn't have an active session with ID: `{session}`!")
+        if response is True: await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
+        else: await interaction.followup.send(f"**{refined}** has never played before!")
+        return
+    elif session_data[0] != session and session != 100: 
+        await interaction.response.send_message(f"**{refined}** doesn't have an active session with ID: `{session}`!")
+        return
+
+    if session == 100: session = session_data[0]
+
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
+    skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+
+    hypixel_data = get_hypixel_data(uuid)
+    
+    try:
+        current_star = renderprojection(name, uuid, session, mode="Overall", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+    except ZeroDivisionError:
+        content = f"You can use `/bedwars` if you want current stats...\nUnless maybe an error occured? In which case please report this to the developers!"
+        await interaction.edit_original_response(content=content)
+        return
+    
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+
+    content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
+    await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    renderprojection(name, uuid, session, mode="Solos", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+    renderprojection(name, uuid, session, mode="Doubles", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+    renderprojection(name, uuid, session, mode="Threes", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+    renderprojection(name, uuid, session, mode="Fours", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'projection')
 
 # Shopkeeper
 @client.tree.command(name = "shop", description = "View the shopkeeper of a player")
@@ -408,20 +430,19 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def shop(interaction: discord.Interaction,username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
     refined = name.replace('_', r'\_')
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    await interaction.response.send_message(GENERATING_MESSAGE)
 
     hypixel_data = get_hypixel_data(uuid)
     rendered = rendershop(uuid, hypixel_data)
     if rendered is not False:
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="shop.png")])
-    else:
-        await interaction.edit_original_response(content=f'**{refined} has not played before!**')
+    else: await interaction.edit_original_response(content=f'**{refined}** has not played before!')
+
+    update_command_stats(interaction.user.id, 'shop')
 
 # Most Played
 @client.tree.command(name = "mostplayed", description = "Most played mode of a player")
@@ -429,30 +450,22 @@ async def shop(interaction: discord.Interaction,username: str=None):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def most_played(interaction: discord.Interaction,username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    await interaction.response.send_message(GENERATING_MESSAGE)
 
     hypixel_data = get_hypixel_data(uuid)
     rendered = rendermostplayed(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 
+    update_command_stats(interaction.user.id, 'mostplayed')
+
 # Suggest
-class SubmitSuggestion(ui.Modal, title='Submit Suggestion'):
-    suggestion = ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
-
-    async def on_submit(self, interaction: discord.Interaction):
-        channel = client.get_channel(1065918528236040232)
-        submit_embed = discord.Embed(title=f'Suggestion by {interaction.user} ({interaction.user.id})', description=f'**Suggestion:**\n{self.suggestion}', color=0x55FFC8)
-        await channel.send(embed=submit_embed)
-        await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
-
 @client.tree.command(name='suggest', description='Suggest a feature you would like to see added!')
 async def suggest(interaction: discord.Interaction):
-    await interaction.response.send_modal(SubmitSuggestion())
+    channel = client.get_channel(1065918528236040232)
+    await interaction.response.send_modal(SubmitSuggestion(channel))
 
 # Total stats
 @client.tree.command(name = "bedwars", description = "View the general stats of a player")
@@ -460,52 +473,47 @@ async def suggest(interaction: discord.Interaction):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def total(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
 
-    os.makedirs(f'./database/activerenders/{interid.id}')
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
+    rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+    rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+    rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+    rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
 
-    rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
-    rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
-    rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
-    rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="generic")
+    update_command_stats(interaction.user.id, 'total')
 
 
-# Ratio Stats
+# Average Stats
 @client.tree.command(name = "average", description = "View the average stats of a player")
 @app_commands.autocomplete(username=username_autocompletion)
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def average(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
 
-    os.makedirs(f'./database/activerenders/{interid.id}')
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     hypixel_data = get_hypixel_data(uuid)
 
-    renderratio(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    renderratio(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderratio(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderratio(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderratio(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
+    renderaverage(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    renderaverage(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderaverage(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderaverage(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderaverage(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'average')
 
 # Resources Stats
 @client.tree.command(name = "resources", description = "View the resource stats of a player")
@@ -513,24 +521,22 @@ async def average(interaction: discord.Interaction, username: str=None):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def resources(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
 
-    os.makedirs(f'./database/activerenders/{interid.id}')
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     hypixel_data = get_hypixel_data(uuid)
 
-    renderresources(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interid.id)
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    renderresources(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderresources(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderresources(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interid.id)
-    renderresources(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interid.id)
+    renderresources(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    renderresources(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderresources(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderresources(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
+    renderresources(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'resources')
 
 
 # Skin View
@@ -539,20 +545,18 @@ async def resources(interaction: discord.Interaction, username: str=None):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def skin(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
     refined = name.replace('_', r'\_')
     image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=10).content
     file = discord.File(BytesIO(image_bytes), filename='skin.png')
-    embed = discord.Embed()
-    embed.set_image(url="attachment://skin.png")
 
-    skin_embed = discord.Embed(title=f"{refined}'s skin",url= f"https://namemc.com/profile/{uuid}", description=f"[Click here](https://crafatar.com/skins/{uuid}) to download", color=0x00AFF4)
+    skin_embed = discord.Embed(title=f"{refined}'s skin", url= f"https://namemc.com/profile/{uuid}", description=f"Click [here](https://crafatar.com/skins/{uuid}) to download", color=0x00AFF4)
     skin_embed.set_image(url="attachment://skin.png")
     await interaction.response.send_message(file=file, embed=skin_embed)
+
+    update_command_stats(interaction.user.id, 'skin')
 
 
 # Practice Stats
@@ -561,16 +565,16 @@ async def skin(interaction: discord.Interaction, username: str=None):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def practice(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    await interaction.response.send_message(GENERATING_MESSAGE)
 
     hypixel_data = get_hypixel_data(uuid)
     rendered = renderpractice(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='practice.png')])
+
+    update_command_stats(interaction.user.id, 'practice')
 
 
 # Milestone Stats
@@ -579,13 +583,10 @@ async def practice(interaction: discord.Interaction, username: str=None):
 @app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def milestones(interaction: discord.Interaction, username: str=None, session: int=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    if session is None:
-        session = 100
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    if session is None: session = 100
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
@@ -593,19 +594,20 @@ async def milestones(interaction: discord.Interaction, username: str=None, sessi
             await interaction.response.send_message(f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
             return
 
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
-    os.makedirs(f'./database/activerenders/{interid.id}')
-
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     session = 1 if session == 100 else session
     hypixel_data = get_hypixel_data(uuid)
-    rendermilestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    rendermilestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
-    rendermilestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interid.id)
+
+    rendermilestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    rendermilestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendermilestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+    rendermilestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'milestones')
 
 
 # Active Cosmetics
@@ -614,16 +616,16 @@ async def milestones(interaction: discord.Interaction, username: str=None, sessi
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def active_cosmetics(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
+    await interaction.response.send_message(GENERATING_MESSAGE)
 
     hypixel_data = get_hypixel_data(uuid)
     rendered = rendercosmetics(name, uuid, hypixel_data)
     await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='cosmetics.png')])
+
+    update_command_stats(interaction.user.id, 'cosmetics')
 
 
 # Hotbar
@@ -632,20 +634,19 @@ async def active_cosmetics(interaction: discord.Interaction, username: str=None)
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def hotbar(interaction: discord.Interaction,username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
+
     refined = name.replace('_', r'\_')
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
+    await interaction.response.send_message(GENERATING_MESSAGE)
 
     hypixel_data = get_hypixel_data(uuid)
     rendered = renderhotbar(name, uuid, hypixel_data)
     if rendered is not False:
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="hotbar.png")])
-    else:
-        await interaction.edit_original_response(content=f'**{refined} does not have a hotbar set!**')
+    else: await interaction.edit_original_response(content=f'**{refined}** does not have a hotbar set!**')
+
+    update_command_stats(interaction.user.id, 'hotbar')
 
 # Pointless stats
 @client.tree.command(name = "pointless", description = "View the general pointless stats of a player")
@@ -653,25 +654,48 @@ async def hotbar(interaction: discord.Interaction,username: str=None):
 @app_commands.describe(username='The player you want to view')
 @app_commands.checks.dynamic_cooldown(check_subscription)
 async def pointless(interaction: discord.Interaction, username: str=None):
-    try:
-        name, uuid = await authenticate_user(username, interaction)
-    except Exception:
-        await interaction.response.send_message("That player doesn't exist!")
-        return
-    await interaction.response.send_message('Generating please wait <a:loading1:1062561739989860462>')
-    interid = await interaction.original_response()
+    try: name, uuid = await authenticate_user(username, interaction)
+    except TypeError: return
 
-    os.makedirs(f'./database/activerenders/{interid.id}')
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
     skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
     hypixel_data = get_hypixel_data(uuid)
 
+    rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+    rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+    rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+    rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
 
-    rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
-    view = SelectView(name, user=interaction.user.id, interid=interid, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interid.id}/overall.png")], view=view)
-    rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
-    rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
-    rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
-    rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interid.id, method="pointless")
+    update_command_stats(interaction.user.id, 'pointless')
+
+# Usage command
+@client.tree.command(name = "usage", description = "View Command Usage")
+async def usage_stats(interaction: discord.Interaction):
+    with open('./assets/command_map.json', 'r') as datafile:
+        command_map = json.load(datafile)['commands']
+
+    with sqlite3.connect('./database/command_usage.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [table[0] for table in cursor.fetchall()]
+
+        cursor.execute(f'SELECT * FROM overall WHERE discord_id = {interaction.user.id}')
+        table_data = cursor.fetchone()
+        if not table_data: table_data = (0, 0)
+        description = [f'**Overall - {table_data[1]}**\n\n']
+
+        for table in tables:
+            cursor.execute(f'SELECT * FROM {table} WHERE discord_id = {interaction.user.id}')
+            table_data = cursor.fetchone()
+            if not table_data: table_data = (0, 0)
+            if table != "overall":
+                description.append(f'`{command_map.get(table)}` - `{table_data[1]}`\n')
+
+    embed = discord.Embed(title="Your Command Usage", description=''.join(description), color=0x5865F2)
+    await interaction.response.send_message(embed=embed)
 
 client.run(TOKEN)

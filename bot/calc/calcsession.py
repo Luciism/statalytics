@@ -12,6 +12,7 @@ class SessionStats:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
+
             column_names = [desc[0] for desc in cursor.description]
             self.session_data = dict(zip(column_names, session_data))
 

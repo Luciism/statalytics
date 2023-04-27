@@ -1,0 +1,18 @@
+{
+    "commands": {
+        "average": "/average",
+        "cosmetics": "/activecosmetics",
+        "hotbar": "/hotbar",
+        "milestones": "/milestones",
+        "mostplayed": "/mostplayed",
+        "practice": "/practice",
+        "projection": "/prestige",
+        "resources": "/resources",
+        "session": "/session",
+        "shop": "/shop",
+        "total": "/bedwars",
+        "skin": "/skin",
+        "pointless": "/pointless",
+        "overall": "Overall"
+    }
+}
