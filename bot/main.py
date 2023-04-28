@@ -148,7 +148,7 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)
         channel = client.get_channel(1101006847831445585)
-        await channel.send(f'```diff\n{traceback_str}\n```')
+        await channel.send(f'```diff\n{traceback_str[-1988:]}\n```')
 
 # View Session Command
 @client.tree.command(name = "session", description = "View the session stats of a player")

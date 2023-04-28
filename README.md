@@ -37,6 +37,9 @@
 * ### Bedwars Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293" alt="Bedwars Stats Example" style="margin-left: 20px;"/>
 
+* ### Resource Stats
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1101541089132949514/overall.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
+
 * ### Session Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155521658880/session.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
 
@@ -48,9 +51,6 @@
 
 * ### Average Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554154791833610/ratios.png?width=400&height=293" alt="Average Stats Example" style="margin-left: 20px;"/>
-
-* ### Resource Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155177705472/resources.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
 
 * ### Active Cosmetics
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132817887262/activecosmetics.png?width=400&height=293" alt="Active Cosmetics Example" style="margin-left: 20px;"/>

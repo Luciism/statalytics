@@ -1,6 +1,8 @@
+from io import BytesIO
+
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcresources import Resources
-from helper.rendername import render_level_and_name
+from helper.rendername import render_level, get_rank_prefix, render_rank
 from helper.custombackground import background
 
 def renderresources(name, uuid, mode, hypixel_data, save_dir):
@@ -13,7 +15,11 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+    arial_24 = ImageFont.truetype(f"./assets/arial.ttf", 24)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -22,87 +28,146 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     gray = (170, 170, 170)
     gold = (255, 170, 0)
     aqua = (85, 255, 255)
+    light_purple = (255, 85, 255)
 
     # Define the values
     resources = Resources(name, mode, hypixel_data)
     level = resources.level
     player_rank_info = resources.get_player_rank_info()
 
-    iron_collected, gold_collected, diamonds_collected, emeralds_collected = resources.get_collected()
+    progress, target, progress_out_of_10 = resources.get_progress()
+
+    iron_collected = f'{resources.iron_collected:,}'
+    gold_collected = f'{resources.gold_collected:,}'
+    diamonds_collected = f'{resources.diamonds_collected:,}'
+    emeralds_collected = f'{resources.emeralds_collected:,}'
 
     iron_per_game, gold_per_game, diamonds_per_game, emeralds_per_game = resources.get_per_game()
-
     iron_per_star, gold_per_star, diamonds_per_star, emeralds_per_star = resources.get_per_star()
-
-    iron_percentage = resources.get_iron_percentage()
-    gold_percentage = resources.get_gold_percentage()
-    diamond_percentage = resources.get_diamond_percentage()
-    emerald_percentage = resources.get_emerald_percentage()
+    iron_percentage, gold_percentage, diamond_percentage, emerald_percentage = resources.get_percentages()
+    iron_most_mode, gold_most_mode, diamond_most_mode, emerald_most_mode = resources.get_most_modes()
 
     total_collected = f'{resources.total_resources:,}'
 
+    def leng(text, container_width):
+        """Returns startpoint for centering text in a box"""
+        return (container_width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+
     data = (
-        ((68, 120), (iron_collected, gray), " Iron Collected"),
-        ((68, 148), (gold_collected, gold), " Gold Collected"),
-        ((68, 176), (diamonds_collected, aqua), " Diamonds Collected"),
-        ((68, 204), (emeralds_collected, green), " Emeralds Collected"),
-        ((360, 120), (iron_per_game, gray), " Iron / Game"),
-        ((360, 148), (gold_per_game, gold), " Gold / Game"),
-        ((360, 176), (diamonds_per_game, aqua), " Diamonds / Game"),
-        ((360, 204), (emeralds_per_game, green), " Emeralds / Game"),
-        ((68, 282), (iron_per_star, gray), " Iron / Star"),
-        ((68, 310), (gold_per_star, gold), " Gold / Star"),
-        ((68, 338), (diamonds_per_star, aqua), " Diamonds / Star"),
-        ((68, 366), (emeralds_per_star, green), " Emeralds / Star"),
-        ((360, 282), (iron_percentage, gray), " Iron"),
-        ((360, 310), (gold_percentage, gold), " Gold"),
-        ((360, 338), (diamond_percentage, aqua), " Diamonds"),
-        ((360, 366), (emerald_percentage, green), " Emeralds"),
+        ((leng(iron_collected, 141)+19, 189), iron_collected, white),
+        ((leng(gold_collected, 141)+174, 189), gold_collected, gold),
+        ((leng(diamonds_collected, 141)+329, 189), diamonds_collected, aqua),
+        ((leng(emeralds_collected, 141)+483, 189), emeralds_collected, green),
+        
+        ((leng(iron_per_game, 141)+19, 249), iron_per_game, white),
+        ((leng(gold_per_game, 141)+174, 249), gold_per_game, gold),
+        ((leng(diamonds_per_game, 141)+329, 249), diamonds_per_game, aqua),
+        ((leng(emeralds_per_game, 141)+483, 249), emeralds_per_game, green),
+        
+        ((leng(iron_per_star, 141)+19, 309), iron_per_star, white),
+        ((leng(gold_per_star, 141)+174, 309), gold_per_star, gold),
+        ((leng(diamonds_per_star, 141)+329, 309), diamonds_per_star, aqua),
+        ((leng(emeralds_per_star, 141)+483, 309), emeralds_per_star, green),
+        
+        ((leng(iron_percentage, 141)+19, 369), iron_percentage, white),
+        ((leng(gold_percentage, 141)+174, 369), gold_percentage, gold),
+        ((leng(diamond_percentage, 141)+329, 369), diamond_percentage, aqua),
+        ((leng(emerald_percentage, 141)+483, 369), emerald_percentage, green),
+        
+        ((leng(iron_most_mode, 141)+19, 429), iron_most_mode, white),
+        ((leng(gold_most_mode, 141)+174, 429), gold_most_mode, gold),
+        ((leng(diamond_most_mode, 141)+329, 429), diamond_most_mode, aqua),
+        ((leng(emerald_most_mode, 141)+483, 429), emerald_most_mode, green),
+
+        ((leng(total_collected, 174)+450, 129), total_collected, light_purple),
     )
 
     for values in data:
         start_x, start_y = values[0]
-        stat = values[1][0]
-        text = values[2]
+        stat = values[1]
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=font)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
-
-        start_x += draw.textlength(stat, font=font)
-
-        draw.text((start_x + 2, start_y + 2), text, fill=black, font=font)
-        draw.text((start_x, start_y), text, fill=white, font=font)
+        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
+        draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
     # Unloopable stuff
-    total_collected_txt = "Total Collected: "
-    player_y = 48
-    total_collected_y = 430
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 19
+    render_rank(name, position_x=player_x, position_y=27, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
-    # Render player name
-    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(101, 439), position_y=player_y, fontsize=18)
 
-    # Render total
-    totallength = draw.textlength(total_collected, font=font) + draw.textlength(total_collected_txt, font=font)
-    startpoint = int((image.width - totallength) / 2)
+    # ------ Render the progress ------ #
+    totallength = draw.textlength(f'[{level}][{level + 1}]', font=minecraft_20) + draw.textlength(' [] ', font=minecraft_13) + draw.textlength('■■■■■■■■■■', font=arial_24) + 32 # 32 for width of pasted star symbol
+    startpoint = int((415 - totallength) / 2) + 19
+    progress_bar_y = 88
 
-    draw.text((startpoint + 2, total_collected_y + 2), total_collected_txt, fill=black, font=font)
-    draw.text((startpoint, total_collected_y), total_collected_txt, fill=white, font=font)
+    # First value (current level)
+    render_level(level, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
 
-    startpoint += draw.textlength(total_collected_txt, font=font)
+    startpoint += draw.textlength(f'[{level}]', font=minecraft_20) + 16
 
-    draw.text((startpoint + 2, total_collected_y + 2), total_collected, fill=black, font=font)
-    draw.text((startpoint, total_collected_y), total_collected, fill=green, font=font)
+    # Left bracket for bar
+    draw.text((startpoint + 2, progress_bar_y + 3), " [", fill=black, font=minecraft_16)
+    draw.text((startpoint, progress_bar_y + 1), " [", fill=white, font=minecraft_16)
 
-    # Render the title
-    title_txt = f"{mode.title()} Resources Collected"
-    title_y = 19
-    font = ImageFont.truetype('./assets/minecraft.ttf', 22)
+    startpoint += draw.textlength(" [", font=minecraft_16)
 
-    totallength = draw.textlength(title_txt, font=font)
-    title_x = int((image.width - totallength) / 2)
+    # Filled in squared for bar
+    squares = "■" * int(progress_out_of_10)
 
-    draw.text((title_x + 2, title_y + 2), title_txt, fill=black, font=font)
-    draw.text((title_x, title_y), title_txt, fill=white, font=font)
+    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
+    draw.text((startpoint, progress_bar_y - 8), squares, fill=aqua, font=arial_24)
+
+    startpoint += draw.textlength(squares, font=arial_24)
+
+    # Blank in squared for bar
+    squares = "■" * (10 - int(progress_out_of_10))
+
+    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
+    draw.text((startpoint, progress_bar_y - 8), squares, fill=gray, font=arial_24)
+
+    startpoint += draw.textlength(squares, font=arial_24) + 3
+
+    # Right bracket for bar
+    draw.text((startpoint + 2, progress_bar_y + 3), "] ", fill=black, font=minecraft_16)
+    draw.text((startpoint, progress_bar_y + 1), "] ", fill=white, font=minecraft_16)
+
+    startpoint += draw.textlength("] ", font=minecraft_16)
+
+    # Second value (next level)
+    render_level(level+1, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
+
+    # Progress text (Progress: value / target)
+    totallength = draw.textlength(f'Progress: {progress} / {target}', font=minecraft_20)
+    startpoint = int((415 - totallength) / 2) + 19
+    progress_y = 119
+
+    draw.text((startpoint + 2, progress_y + 2), 'Progress: ', fill=black, font=minecraft_20)
+    draw.text((startpoint, progress_y), 'Progress: ', fill=white, font=minecraft_20)
+
+    startpoint += draw.textlength('Progress: ', font=minecraft_20)
+
+    draw.text((startpoint + 2, progress_y + 2), progress, fill=black, font=minecraft_20)
+    draw.text((startpoint, progress_y), progress, fill=light_purple, font=minecraft_20)
+
+    startpoint += draw.textlength(progress, font=minecraft_20)
+
+    draw.text((startpoint + 2, progress_y + 2), ' / ', fill=black, font=minecraft_20)
+    draw.text((startpoint, progress_y), ' / ', fill=white, font=minecraft_20)
+
+    startpoint += draw.textlength(' / ', font=minecraft_20)
+
+    draw.text((startpoint + 2, progress_y + 2), target, fill=black, font=minecraft_20)
+    draw.text((startpoint, progress_y), target, fill=green, font=minecraft_20)
+
+    # Render Mode
+    draw.text((leng(f'({mode})', 174)+451, 66), f'({mode})', fill=black, font=minecraft_16)
+    draw.text((leng(f'({mode})', 174)+450, 65), f'({mode})', fill=white, font=minecraft_16)
+
+    # Paste overlay
+    overlay_image = Image.open(f'./assets/resources/overlay.png')
+    overlay_image = overlay_image.convert("RGBA")
+    image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
     image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
