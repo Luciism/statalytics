@@ -21,7 +21,7 @@ def rendermilestones(name, uuid, mode, session, hypixel_data, save_dir):
 
     stats = Stats(name, uuid, mode, session, hypixel_data)
     level = stats.level
-    player_rank_info = stats.get_player_rank_info()
+    player_rank_info = stats.player_rank_info
 
     wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins, target_wins, losses_until_losses, target_losses = stats.get_wins()
     final_kills_until_fkdr, final_kills_at_fkdr, target_fkdr, final_kills_until_final_kills, target_final_kills, final_deaths_until_final_deaths, target_final_deaths = stats.get_finals()

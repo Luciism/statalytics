@@ -1,3 +1,5 @@
+from calc.calctools import get_player_rank_info, get_progress, get_most_played
+
 class Stats:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.name = name
@@ -7,18 +9,11 @@ class Stats:
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
-
         self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
 
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.progress = get_progress(self.hypixel_data_bedwars)
+        self.most_played = get_most_played(self.hypixel_data_bedwars)
 
     def get_kills(self):
         kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
@@ -60,44 +55,6 @@ class Stats:
         total = int(normal + christmas + easter + halloween)
         coins = self.hypixel_data_bedwars.get('coins', 0)
         return f'{total:,}', f'{coins:,}'
-
-    def get_most_played(self):
-        solos = self.hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0)
-        doubles = self.hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0)
-        threes = self.hypixel_data_bedwars.get('four_three_games_played_bedwars', 0)
-        fours =  self.hypixel_data_bedwars.get('four_four_games_played_bedwars', 0)
-        findgreatest = {
-            'Solos': solos,
-            'Doubles': doubles,
-            'Threes':  threes,
-            'Fours': fours
-        }
-        return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
-
-    def get_progress(self):
-        experience = self.hypixel_data_bedwars.get('Experience', 0)
-        times_prestiged = int(self.level / 100)
-        total_xp = 487000 * times_prestiged
-        if (self.level < 100 and self.level > 4) or int(str(self.level)[-2:]) >= 4:
-            total_xp += 7000
-            xp_this_prestige = experience - total_xp
-            xp_progress = xp_this_prestige % 5000
-            target = 5000
-        else:
-            xp_this_prestige = experience - total_xp
-            xp_map = {0: 500, 1: 1000, 2: 2000, 3: 3500, 4: 5000}
-            xp_progress = xp_this_prestige
-            target = 0
-            for key in xp_map.keys():
-                if int(str(self.level)[-2:]) == key:
-                    if key != 0:
-                        xp_before_this_level = sum([xp_map[i] for i in range(key)])
-                        xp_progress = xp_this_prestige - xp_before_this_level
-                    target = xp_map[key]
-                    break
-        devide_by = target / 10
-        progress_out_of_ten = round(xp_progress / devide_by)
-        return f'{xp_progress:,}', f'{target:,}', progress_out_of_ten
 
     def get_falling_kills(self):
         fall_kills = self.hypixel_data_bedwars.get(f'{self.mode}fall_kills_bedwars', 0)

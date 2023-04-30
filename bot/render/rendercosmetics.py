@@ -18,7 +18,7 @@ def rendercosmetics(name, uuid, hypixel_data):
 
     cosmetics = ActiveCosmetics(hypixel_data)
     level = cosmetics.level
-    player_rank_info = cosmetics.get_player_rank_info()
+    player_rank_info = cosmetics.player_rank_info
 
     cosmetic_data = {
         'shopkeeper_skin': (299, 100),

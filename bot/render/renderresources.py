@@ -1,9 +1,8 @@
-from io import BytesIO
-
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcresources import Resources
-from helper.rendername import render_level, get_rank_prefix, render_rank
+from helper.rendername import get_rank_prefix, render_rank
 from helper.custombackground import background
+from helper.renderprogress import render_progress_text, render_progress_bar
 
 def renderresources(name, uuid, mode, hypixel_data, save_dir):
     # Open the image
@@ -15,11 +14,8 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
     minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-    arial_24 = ImageFont.truetype(f"./assets/arial.ttf", 24)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -96,69 +92,9 @@ def renderresources(name, uuid, mode, hypixel_data, save_dir):
     render_rank(name, position_x=player_x, position_y=27, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
 
-    # ------ Render the progress ------ #
-    totallength = draw.textlength(f'[{level}][{level + 1}]', font=minecraft_20) + draw.textlength(' [] ', font=minecraft_13) + draw.textlength('■■■■■■■■■■', font=arial_24) + 32 # 32 for width of pasted star symbol
-    startpoint = int((415 - totallength) / 2) + 19
-    progress_bar_y = 88
-
-    # First value (current level)
-    render_level(level, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
-
-    startpoint += draw.textlength(f'[{level}]', font=minecraft_20) + 16
-
-    # Left bracket for bar
-    draw.text((startpoint + 2, progress_bar_y + 3), " [", fill=black, font=minecraft_16)
-    draw.text((startpoint, progress_bar_y + 1), " [", fill=white, font=minecraft_16)
-
-    startpoint += draw.textlength(" [", font=minecraft_16)
-
-    # Filled in squared for bar
-    squares = "■" * int(progress_out_of_10)
-
-    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
-    draw.text((startpoint, progress_bar_y - 8), squares, fill=aqua, font=arial_24)
-
-    startpoint += draw.textlength(squares, font=arial_24)
-
-    # Blank in squared for bar
-    squares = "■" * (10 - int(progress_out_of_10))
-
-    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
-    draw.text((startpoint, progress_bar_y - 8), squares, fill=gray, font=arial_24)
-
-    startpoint += draw.textlength(squares, font=arial_24) + 3
-
-    # Right bracket for bar
-    draw.text((startpoint + 2, progress_bar_y + 3), "] ", fill=black, font=minecraft_16)
-    draw.text((startpoint, progress_bar_y + 1), "] ", fill=white, font=minecraft_16)
-
-    startpoint += draw.textlength("] ", font=minecraft_16)
-
-    # Second value (next level)
-    render_level(level+1, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
-
-    # Progress text (Progress: value / target)
-    totallength = draw.textlength(f'Progress: {progress} / {target}', font=minecraft_20)
-    startpoint = int((415 - totallength) / 2) + 19
-    progress_y = 119
-
-    draw.text((startpoint + 2, progress_y + 2), 'Progress: ', fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), 'Progress: ', fill=white, font=minecraft_20)
-
-    startpoint += draw.textlength('Progress: ', font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), progress, fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), progress, fill=light_purple, font=minecraft_20)
-
-    startpoint += draw.textlength(progress, font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), ' / ', fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), ' / ', fill=white, font=minecraft_20)
-
-    startpoint += draw.textlength(' / ', font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), target, fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), target, fill=green, font=minecraft_20)
+    # Render the level progress
+    render_progress_bar(box_positions=(415, 19), position_y=88, level=level, progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_text(box_positions=(415, 19), position_y=119, progress=progress, target=target, draw=draw)
 
     # Render Mode
     draw.text((leng(f'({mode})', 174)+451, 66), f'({mode})', fill=black, font=minecraft_16)

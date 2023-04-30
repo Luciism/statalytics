@@ -1,6 +1,8 @@
 import sqlite3
 from datetime import datetime
 
+from calc.calctools import get_progress, get_player_rank_info
+
 class SessionStats:
     def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
         self.name = name
@@ -16,6 +18,9 @@ class SessionStats:
             column_names = [desc[0] for desc in cursor.description]
             self.session_data = dict(zip(column_names, session_data))
 
+            cursor.execute(f"SELECT COUNT(*) FROM sessions WHERE uuid = '{uuid}'")
+            self.total_sessions = str(cursor.fetchone()[0])
+
         self.level = self.hypixel_data.get('achievements', {}).get('bedwars_level', 0)
         self.stars_gained = str(self.level - self.session_data['level'])
 
@@ -25,15 +30,8 @@ class SessionStats:
         self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
         self.games_played = str(self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0) - self.session_data[f'{self.mode}games_played_bedwars'])
 
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.progress = get_progress(self.hypixel_data_bedwars)
 
     def get_most_played(self):
         solos = self.hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0) - self.session_data['eight_one_games_played_bedwars']
@@ -46,7 +44,7 @@ class SessionStats:
             'Threes':  threes,
             'Fours': fours
         }
-        return "Undefined" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
+        return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
 
     def get_wins(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0) - self.session_data[f'{self.mode}wins_bedwars']

@@ -1,6 +1,8 @@
 import sqlite3
 from datetime import datetime, timedelta
 
+from calc.calctools import get_player_rank_info
+
 class SessionStats:
     def get_level(self, xp):
         level = 100 * (xp // 487000) # prestige
@@ -45,20 +47,12 @@ class SessionStats:
         }
         self.complete_percent = f"{round((self.level_hypixel / self.target) * 100, 2)}%"
 
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+
     def get_increase_factor(self, value):
         increase_factor = (int(value / (self.level_repitition * 100)) * 0.1) * (int(self.level_repitition / 20) * 0.1) # add some extra for skill progression
         increased_value = round(float(value) + (increase_factor * value))
         return increased_value
-
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
 
     def get_kills(self):
         kills_hypixel = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0) # current kills on hypixel

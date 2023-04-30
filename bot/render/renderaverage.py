@@ -24,7 +24,7 @@ def renderaverage(name, uuid, mode, hypixel_data, save_dir):
     # Define the values
     ratios = Ratios(name, mode, hypixel_data)
     level = ratios.level
-    player_rank_info = ratios.get_player_rank_info()
+    player_rank_info = ratios.player_rank_info
     (
         wins_per_star,
         final_kills_per_star,

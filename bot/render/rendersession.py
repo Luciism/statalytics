@@ -1,29 +1,36 @@
+from io import BytesIO
+
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcsession import SessionStats
-from helper.rendername import render_level_and_name
+from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
+from helper.renderprogress import render_progress_bar
 
-def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
+def rendersession(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     image_location = background(path='./assets/session', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
 
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     # Define the text colors
     green = (85, 255, 85)
     white = (255, 255, 255)
     red = (255, 76, 76)
-    yellow = (255, 255, 81)
     black = (0, 0, 0)
-    blue = (79, 79, 255)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     # Get stats
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
-    player_rank_info = stats.get_player_rank_info()
+    progress_out_of_10 = stats.progress[2]
+    total_sessions = stats.total_sessions
+
+    player_rank_info = stats.player_rank_info
     most_played = stats.get_most_played()
     level = stats.level
     date_started = stats.date_started
@@ -34,92 +41,64 @@ def rendersession(name, uuid, session, mode, hypixel_data, save_dir):
     kills, deaths, kdr = stats.get_kills()
     wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
+    def leng(text, width):
+        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+
     data = (
-        ((42, 148), (wins, green), " Wins"),
-        ((42, 179), (losses, red), " Losses"),
-        ((42, 210), (wlr, yellow), " WLR"),
-        ((198, 148), (final_kills, green), " Final Kills"),
-        ((198, 179), (final_deaths, red), " Final Deaths"),
-        ((198, 210), (fkdr, yellow), " FKDR"),
-        ((198, 283), (beds_broken, green), " Beds Broken"),
-        ((198, 315), (beds_lost, red), " Beds Lost"),
-        ((198, 347), (bblr, yellow), " BBLR"),
-        ((42, 283), (kills, green), " Kills"),
-        ((42, 315), (deaths, red), " Deaths"),
-        ((42, 347), (kdr, yellow), " KDR"),
-        ((427, 146), (wins_per_day, blue), " Wins / Day"),
-        ((427, 178), (finals_per_day, blue), " Finals / Day"),
-        ((427, 208), (beds_per_day, blue), " Beds / Day"),
-        ((427, 283), (stars_per_day, blue), " Stars / Day"),
-        ((427, 315), (stats.stars_gained, blue), " Stars Gained"),
-        ((427, 345), (stats.games_played, blue), " Games Played"),
+        ((leng(wins, 140) + 17, 131), (wins, green)),
+        ((leng(losses, 140) + 171, 131), (losses, red)),
+        ((leng(wlr, 107) + 325, 131), (wlr, gold)),
+
+        ((leng(final_kills, 140) + 17, 190), (final_kills, green)),
+        ((leng(final_deaths, 140) + 171, 190), (final_deaths, red)),
+        ((leng(fkdr, 107) + 325, 190), (fkdr, gold)),
+
+        ((leng(beds_broken, 140) + 17, 249), (beds_broken, green)),
+        ((leng(beds_lost, 140) + 171, 249), (beds_lost, red)),
+        ((leng(bblr, 107) + 325, 249), (bblr, gold)),
+
+        ((leng(kills, 140) + 17, 308), (kills, green)),
+        ((leng(deaths, 140) + 171, 308), (deaths, red)),
+        ((leng(kdr, 107) + 325, 308), (kdr, gold)),
+
+        ((leng(stars_per_day, 130) + 17, 368), (stars_per_day, light_purple)),
+        ((leng(stats.stars_gained, 127) + 163, 368), (stats.stars_gained, light_purple)),
+        ((leng(stats.games_played, 128) + 306, 368), (stats.games_played, light_purple)),
+
+        ((leng(wins_per_day, 130) + 17, 427), (wins_per_day, light_purple)),
+        ((leng(finals_per_day, 127) + 163, 427), (finals_per_day, light_purple)),
+        ((leng(beds_per_day, 128) + 306, 427), (beds_per_day, light_purple)),
+
+        ((leng(f"# {session}", 171) + 452, 249), (f"# {session}", light_purple)),
+        ((leng(total_sessions, 171) + 452, 308), (total_sessions, light_purple)),
+        ((leng(date_started, 171) + 452, 367), (date_started, light_purple)),
+        ((leng(most_played, 171) + 452, 427), (most_played, light_purple)),
+        ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
     )
 
     for values in data:
         start_x, start_y = values[0]
         stat = values[1][0]
-        text = values[2]
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=font)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
+        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
+        draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
-        start_x += draw.textlength(stat, font=font)
+    # Render name & progress bar
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 19
 
-        draw.text((start_x + 2, start_y + 2), text, fill=black, font=font)
-        draw.text((start_x, start_y), text, fill=white, font=font)
+    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
 
+    # Paste skin
+    skin = Image.open(BytesIO(skin_res))
+    image.paste(skin, (466, 69), skin)
 
-    # Unloopables
-    started_txt = " Started"
-    most_played_txt = " Most Played"
-
-    player_y = 74
-
-    started_x = 76
-    started_y = 412
-
-    mostplayed_x = 336
-    mostplayed_y = 412
-
-
-    # Render the complex bottom stuff
-    # Started
-    totallength = draw.textlength(date_started, font=font) + draw.textlength(started_txt, font=font)
-    started_x = int((248 - totallength) / 2) + started_x
-
-    draw.text((started_x + 2, started_y + 2), date_started, fill=black, font=font)
-    draw.text((started_x, started_y), date_started, fill=blue, font=font)
-
-    started_x += draw.textlength(date_started, font=font)
-
-    draw.text((started_x + 2, started_y+ 2), started_txt, fill=black, font=font)
-    draw.text((started_x, started_y), started_txt, fill=white, font=font)
-
-    # Most played
-    totallength = draw.textlength(most_played, font=font) + draw.textlength(most_played_txt, font=font)
-    mostplayed_x = int((227 - totallength) / 2) + mostplayed_x
-
-    draw.text((mostplayed_x + 2, mostplayed_y + 2), most_played, fill=black, font=font)
-    draw.text((mostplayed_x, mostplayed_y), most_played, fill=blue, font=font)
-
-    mostplayed_x += draw.textlength(most_played, font=font)
-
-    draw.text((mostplayed_x + 2, mostplayed_y + 2), most_played_txt, fill=black, font=font)
-    draw.text((mostplayed_x, mostplayed_y), most_played_txt, fill=white, font=font)
-
-
-    # Render the name and title
-    title_txt = f"{mode.title()} Bedwars Session # {session}"
-    title_y = 40
-    font = ImageFont.truetype('./assets/minecraft.ttf', 24)
-
-    totallength = draw.textlength(title_txt, font=font)
-    title_x = int((image.width - totallength) / 2)
-
-    draw.text((title_x + 2, title_y + 2), title_txt, fill=black, font=font)
-    draw.text((title_x, title_y), title_txt, fill=white, font=font)
-
-    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(98, 444), position_y=player_y, fontsize=20)
+    # Paste overlay
+    overlay_image = Image.open(f'./assets/session/overlay.png')
+    overlay_image = overlay_image.convert("RGBA")
+    image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
     image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

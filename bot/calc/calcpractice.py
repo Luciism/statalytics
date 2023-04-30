@@ -1,3 +1,5 @@
+from calc.calctools import get_player_rank_info
+
 class Practice:
     def __init__(self, name: str, hypixel_data: dict) -> None:
         self.name = name
@@ -6,16 +8,7 @@ class Practice:
         self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
-
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
     def get_bridging_stats(self):
         bridging_completed = self.practice_stats.get('bridging', {}).get('successful_attempts', 0)

@@ -1,6 +1,8 @@
 import math
 import sqlite3
 
+from calc.calctools import get_player_rank_info
+
 class Stats:
     def __init__(self, name: str, uuid: str, mode: str, session: int, hypixel_data: dict) -> None:
         self.name = name
@@ -22,15 +24,7 @@ class Stats:
 
         self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
 
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
     def get_wins(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)

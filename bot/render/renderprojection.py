@@ -25,7 +25,7 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
 
     stats = SessionStats(name, uuid, session, mode, target, hypixel_data)
     level = int(stats.level_hypixel)
-    player_rank_info = stats.get_player_rank_info()
+    player_rank_info = stats.player_rank_info
     projection_date = stats.get_projection_date()
     stars_per_day = stats.get_stars_per_day()
     items_purchased = stats.get_items_purchased()

@@ -26,7 +26,7 @@ def rendercompare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2, 
     # Define the values
     compare = Compare(name_1, name_2, mode, hypixel_data_1, hypixel_data_2)
     level_1, level_2 = compare.level_1, compare.level_2
-    rank_info_1, rank_info_2 = compare.get_player_rank_info()
+    rank_info_1, rank_info_2 = compare.player_rank_info
 
     wins, losses, wlr, wins_diff, losses_diff, wlr_diff = compare.get_wins()
     final_kills, final_deaths, fkdr, final_kills_diff, final_deaths_diff, fkdr_diff = compare.get_finals()

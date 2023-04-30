@@ -1,8 +1,9 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calctotal import Stats
-from helper.rendername import render_rank, render_level, get_rank_prefix
+from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
+from helper.renderprogress import render_progress_bar, render_progress_text
 
 def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     # Open the image
@@ -14,11 +15,8 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
     minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-    arial_24 = ImageFont.truetype(f"./assets/arial.ttf", 24)
 
     # Define the text colors
     green = (85, 255, 85)
@@ -27,16 +25,14 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     black = (0, 0, 0)
     gold = (255, 170, 0)
     light_purple = (255, 85, 255)
-    gray = (170, 170, 170)
-    aqua = (85, 255, 255)
 
     stats = Stats(name, mode, hypixel_data)
     level = stats.level
-    player_rank_info = stats.get_player_rank_info()
+    player_rank_info = stats.player_rank_info
 
-    progress, target, progress_out_of_10 = stats.get_progress()
+    progress, target, progress_out_of_10 = stats.progress
     loot_chests, coins = stats.get_chest_and_coins()
-    most_played = stats.get_most_played()
+    most_played = stats.most_played
 
     if method == "generic":
         wins, losses, wlr = stats.get_wins()
@@ -91,68 +87,8 @@ def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     render_rank(name, position_x=player_x, position_y=31, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Render the progress
-    totallength = draw.textlength(f'[{level}][{level + 1}]', font=minecraft_20) + draw.textlength(' [] ', font=minecraft_13) + draw.textlength('■■■■■■■■■■', font=arial_24) + 32 # 32 for width of pasted star symbol
-    startpoint = int((415 - totallength) / 2) + 19
-    progress_bar_y = 91
-
-    # First value (current level)
-    render_level(level, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
-
-    startpoint += draw.textlength(f'[{level}]', font=minecraft_20) + 16
-
-    # Left bracket for bar
-    draw.text((startpoint + 2, progress_bar_y + 3), " [", fill=black, font=minecraft_16)
-    draw.text((startpoint, progress_bar_y + 1), " [", fill=white, font=minecraft_16)
-
-    startpoint += draw.textlength(" [", font=minecraft_16)
-
-    # Filled in squared for bar
-    squares = "■" * int(progress_out_of_10)
-
-    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
-    draw.text((startpoint, progress_bar_y - 8), squares, fill=aqua, font=arial_24)
-
-    startpoint += draw.textlength(squares, font=arial_24)
-
-    # Blank in squared for bar
-    squares = "■" * (10 - int(progress_out_of_10))
-
-    draw.text((startpoint + 2, progress_bar_y - 6), squares, fill=black, font=arial_24)
-    draw.text((startpoint, progress_bar_y - 8), squares, fill=gray, font=arial_24)
-
-    startpoint += draw.textlength(squares, font=arial_24) + 3
-
-    # Right bracket for bar
-    draw.text((startpoint + 2, progress_bar_y + 3), "] ", fill=black, font=minecraft_16)
-    draw.text((startpoint, progress_bar_y + 1), "] ", fill=white, font=minecraft_16)
-
-    startpoint += draw.textlength("] ", font=minecraft_16)
-
-    # Second value (next level)
-    render_level(level+1, position_x=startpoint, position_y=progress_bar_y, fontsize=20, image=image)
-
-    # Progress text (Progress: value / target)
-    totallength = draw.textlength(f'Progress: {progress} / {target}', font=minecraft_20)
-    startpoint = int((415 - totallength) / 2) + 19
-    progress_y = 122
-
-    draw.text((startpoint + 2, progress_y + 2), 'Progress: ', fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), 'Progress: ', fill=white, font=minecraft_20)
-
-    startpoint += draw.textlength('Progress: ', font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), progress, fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), progress, fill=light_purple, font=minecraft_20)
-
-    startpoint += draw.textlength(progress, font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), ' / ', fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), ' / ', fill=white, font=minecraft_20)
-
-    startpoint += draw.textlength(' / ', font=minecraft_20)
-
-    draw.text((startpoint + 2, progress_y + 2), target, fill=black, font=minecraft_20)
-    draw.text((startpoint, progress_y), target, fill=green, font=minecraft_20)
+    render_progress_bar(box_positions=(415, 19), position_y=91, level=level, progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_text(box_positions=(415, 19), position_y=122, progress=progress, target=target, draw=draw)
 
     # Render Skin
     skin = Image.open(BytesIO(skin_res))

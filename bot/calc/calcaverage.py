@@ -1,3 +1,5 @@
+from calc.calctools import get_player_rank_info
+
 class Ratios:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.name = name
@@ -10,16 +12,7 @@ class Ratios:
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
         self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
-
-    def get_player_rank_info(self):
-        rank_info = {
-            'rank': self.hypixel_data.get('rank', 'NONE') if self.name != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data.get('rankPlusColor', None) if self.name != "Technoblade" else "AQUA"
-        }
-        return rank_info
+        self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
     def get_per_star(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)

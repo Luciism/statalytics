@@ -1,3 +1,5 @@
+from calc.calctools import get_player_rank_info
+
 class Compare:
     def __init__(self, name_1: str, name_2: str, mode: str, hypixel_data_1: dict, hypixel_data_2) -> None:
         self.name_1, self.name_2 = name_1, name_2
@@ -13,22 +15,7 @@ class Compare:
         self.level_1 = self.hypixel_data_1.get("achievements", {}).get("bedwars_level", 0)
         self.level_2 = self.hypixel_data_2.get("achievements", {}).get("bedwars_level", 0)
 
-    def get_player_rank_info(self):
-        rank_info_1 = {
-            'rank': self.hypixel_data_1.get('rank', 'NONE') if self.name_1 != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data_1.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data_1.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data_1.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data_1.get('rankPlusColor', None) if self.name_1 != "Technoblade" else "AQUA"
-        }
-        rank_info_2 = {
-            'rank': self.hypixel_data_2.get('rank', 'NONE') if self.name_2 != "Technoblade" else "TECHNO",
-            'packageRank': self.hypixel_data_2.get('packageRank', 'NONE'),
-            'newPackageRank': self.hypixel_data_2.get('newPackageRank', 'NONE'),
-            'monthlyPackageRank': self.hypixel_data_2.get('monthlyPackageRank', 'NONE'),
-            'rankPlusColor': self.hypixel_data_2.get('rankPlusColor', None) if self.name_2 != "Technoblade" else "AQUA"
-        }
-        return rank_info_1, rank_info_2
+        self.player_rank_info = get_player_rank_info(self.hypixel_data_1), get_player_rank_info(self.hypixel_data_2)
     
     def get_wins(self):
         wins_1 = self.hypixel_data_bedwars_1.get(f'{self.mode}wins_bedwars', 0)

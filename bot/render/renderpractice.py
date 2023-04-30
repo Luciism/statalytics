@@ -27,7 +27,7 @@ def renderpractice(name, uuid, hypixel_data):
     # Define the values
     practice = Practice(name, hypixel_data)
     level = practice.level
-    player_rank_info = practice.get_player_rank_info()
+    player_rank_info = practice.player_rank_info
     most_played = practice.get_most_played()
 
     bridging_completed, bridging_failed, bridging_blocks, bridging_ratio = practice.get_bridging_stats()
