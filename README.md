@@ -46,7 +46,7 @@
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1101541089132949514/overall.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
 
 * ### Session Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155521658880/session.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102293389136887868/overall.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
 
 * ### Milestone Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726755464331294/overall.png?width=400&height=293" alt="Milestone Stats Example" style="margin-left: 20px;"/>
