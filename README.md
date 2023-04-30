@@ -29,6 +29,8 @@
 | `/activecosmetics` | View the active cosmetics of any player |
 | `/hotbar` | View the hotbar preference of any player |
 | `/pointless` | Same as `/bedwars` but really pointless |
+| `/compare` | Compare the bedwars stats of two players |
+| `/usage` | View your command usage with Statalytics |
 
 ## Features
 * ### Projected Stats
