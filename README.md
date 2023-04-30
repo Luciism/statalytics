@@ -65,7 +65,7 @@
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726798812467210/mostplayed.png?width=400&height=263" alt="Most Played Example" style="margin-left: 20px;"/>
 
 * ### Quick Buy Viewer
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554155790078042/shop.png?width=400&height=217" alt="Quick Buy Example" style="margin-left: 20px;"/>
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102297073811980338/shop.png?width=400&height=217" alt="Quick Buy Example" style="margin-left: 20px;"/>
 
 * ### Hotbar Preset Viewer
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554131089834024/hotbar.png?width=400&height=247" alt="Hotbar Preset Example" style="margin-left: 20px;"/>
