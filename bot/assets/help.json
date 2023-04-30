@@ -29,6 +29,20 @@
       ]
     },
     {
+      "title": "**Comparison:**",
+      "color": 3259881,
+      "fields": [
+        {
+          "name": "**What does it do?**",
+          "value": "The Stat Comparison feature enables users to easily compare the statistical performance of two players. To access this feature, simply execute the `/compare` command and provide the names of the two players you wish to compare. If your account is linked, specifying only one player will automatically compare your own stats with those of the first player."
+        },
+        {
+          "name": "**Commands:**",
+          "value": "`/compare` - view stat comparison"
+        }
+      ]
+    },
+    {
       "title": "**Linking:**",
       "color": 3259881,
       "fields": [

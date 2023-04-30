@@ -37,6 +37,9 @@
 * ### Bedwars Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293" alt="Bedwars Stats Example" style="margin-left: 20px;"/>
 
+* ### Stat Comparison
+  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102074961373437993/overall.png?width=400&height=293" alt="Stat Comparison Example" style="margin-left: 20px;"/>
+
 * ### Resource Stats
   <img src="https://media.discordapp.net/attachments/1027817138095915068/1101541089132949514/overall.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
 

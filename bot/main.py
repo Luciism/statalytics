@@ -27,6 +27,7 @@ from render.rendershop import rendershop
 from render.rendersession import rendersession
 from render.renderprojection import renderprojection
 from render.renderhotbar import renderhotbar
+from render.rendercompare import rendercompare
 
 # Initialise Bot
 TOKEN = os.environ.get('STATALYTICS_TOKEN', None)
@@ -189,7 +190,7 @@ async def session(interaction: discord.Interaction, username: str=None, session:
     hypixel_data = get_hypixel_data(uuid)
 
     rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
     rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
@@ -413,7 +414,7 @@ async def projected_stats(interaction: discord.Interaction, prestige: int, usern
         await interaction.edit_original_response(content=content)
         return
     
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
 
     content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
     await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
@@ -482,7 +483,7 @@ async def total(interaction: discord.Interaction, username: str=None):
     hypixel_data = get_hypixel_data(uuid)
 
     rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
     rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
@@ -506,7 +507,7 @@ async def average(interaction: discord.Interaction, username: str=None):
     hypixel_data = get_hypixel_data(uuid)
 
     renderaverage(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     renderaverage(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
     renderaverage(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
@@ -529,7 +530,7 @@ async def resources(interaction: discord.Interaction, username: str=None):
     hypixel_data = get_hypixel_data(uuid)
 
     renderresources(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     renderresources(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
     renderresources(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
@@ -600,7 +601,7 @@ async def milestones(interaction: discord.Interaction, username: str=None, sessi
     hypixel_data = get_hypixel_data(uuid)
 
     rendermilestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     rendermilestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
     rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
@@ -663,7 +664,7 @@ async def pointless(interaction: discord.Interaction, username: str=None):
     hypixel_data = get_hypixel_data(uuid)
 
     rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
-    view = SelectView(name, user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
     rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
     rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
@@ -697,5 +698,37 @@ async def usage_stats(interaction: discord.Interaction):
 
     embed = discord.Embed(title="Your Command Usage", description=''.join(description), color=0x5865F2)
     await interaction.response.send_message(embed=embed)
+
+# Average Stats
+@client.tree.command(name = "compare", description = "Compare a player's stats to another player's stats")
+@app_commands.autocomplete(player_1=username_autocompletion, player_2=username_autocompletion)
+@app_commands.describe(player_1='The primary player in the comparison', player_2='The secondary player in the comparison')
+@app_commands.checks.dynamic_cooldown(check_subscription)
+async def compare(interaction: discord.Interaction, player_1: str, player_2: str=None):
+    if player_2 is None:
+        try: name_1, uuid_1 = await authenticate_user(None, interaction)
+        except TypeError: return
+        try: name_2, uuid_2 = await authenticate_user(player_1, interaction)
+        except TypeError: return
+    else:
+        try: name_1, uuid_1 = await authenticate_user(player_1, interaction)
+        except TypeError: return
+        try: name_2, uuid_2 = await authenticate_user(player_2, interaction)
+        except TypeError: return
+
+    await interaction.response.send_message(GENERATING_MESSAGE)
+    os.makedirs(f'./database/activerenders/{interaction.id}')
+    hypixel_data_1 = get_hypixel_data(uuid_1)
+    hypixel_data_2 = get_hypixel_data(uuid_2)
+
+    rendercompare(name_1, name_2, uuid_1, mode="Overall", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+    view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+    rendercompare(name_1, name_2, uuid_1, mode="Solos", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+    rendercompare(name_1, name_2, uuid_1, mode="Doubles", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+    rendercompare(name_1, name_2, uuid_1, mode="Threes", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+    rendercompare(name_1, name_2, uuid_1, mode="Fours", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+
+    update_command_stats(interaction.user.id, 'compare')
 
 client.run(TOKEN)

@@ -47,8 +47,7 @@ class ManageSession(discord.ui.View):
 
 # ------------------------------------------------------------------------------------------ #
 class Select(discord.ui.Select):
-    def __init__(self, name, user, inter, mode):
-        self.name = name
+    def __init__(self, user, inter, mode):
         self.user = user
         self.inter = inter
         self.mode = f'{mode[0].upper()}{mode[1:]}'
@@ -66,13 +65,13 @@ class Select(discord.ui.Select):
         if not interaction.user.id == self.user:
             await interaction.followup.send(file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'),ephemeral=True)
         else:
-            view = SelectView(self.name, user=self.user, inter=self.inter, mode=mode)
+            view = SelectView(user=self.user, inter=self.inter, mode=mode)
             await self.inter.edit_original_response(attachments=[discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png')], view=view)
 
 class SelectView(discord.ui.View):
-    def __init__(self, name, user, inter, mode, *, timeout = 300):
+    def __init__(self, user, inter, mode, *, timeout = 300):
         super().__init__(timeout=timeout)
-        self.add_item(Select(name, user, inter, mode))
+        self.add_item(Select(user, inter, mode))
         self.inter = inter
 
     async def on_timeout(self) -> None:
