@@ -12,6 +12,7 @@ bot/assets/total/custom/
 bot/assets/compare/custom/
 bot/database/
 bot/misc/
+bot/cogs/commands/__pycache__/
 bot/__pycache__/
 bot/helper/__pycache__/
 bot/render/__pycache__/

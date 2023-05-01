@@ -2,7 +2,7 @@ import os
 import shutil
 import sqlite3
 import discord
-import initsession as initsession
+from functions import start_session
 
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     def __init__(self, channel, **kwargs):
@@ -41,7 +41,7 @@ class ManageSession(discord.ui.View):
             else:
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
         if self.method != "delete":
-            initsession.startsession(self.uuid, self.session)
+            start_session(self.uuid, self.session)
             message = f'Session `{self.session}` has been reset successfully!'
         await interaction.followup.send(message, ephemeral=True)
 
