@@ -30,7 +30,6 @@ async def on_ready():
     print(f'Logged in as {client.user} (ID: {client.user.id})\n------')
     await client.change_presence(activity=discord.Game(name="/help"))
 
-
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
@@ -39,8 +38,16 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         # show full error traceback
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)
+
         channel = client.get_channel(1101006847831445585)
-        await channel.send(f'```diff\n{traceback_str[-1988:]}\n```')
+        if len(traceback_str) > 1988:
+            for i in range(0, len(traceback_str), 1988):
+                # Get the substring from i to i+max_length
+                substring = traceback_str[i:i+1988]
+                await channel.send(f'```diff\n{substring}\n```')
+        else:
+            await channel.send(f'```diff\n{traceback_str[-1988:]}\n```')
+
 
 @client.command()
 @commands.is_owner()

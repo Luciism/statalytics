@@ -38,5 +38,6 @@ class Shop(commands.Cog):
 
         update_command_stats(interaction.user.id, 'shop')
 
+
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Shop(client))
