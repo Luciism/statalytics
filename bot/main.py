@@ -44,9 +44,9 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
             for i in range(0, len(traceback_str), 1988):
                 # Get the substring from i to i+max_length
                 substring = traceback_str[i:i+1988]
-                await channel.send(f'```diff\n{substring}\n```')
+                await channel.send(f'```cmd\n{substring}\n```')
         else:
-            await channel.send(f'```diff\n{traceback_str[-1988:]}\n```')
+            await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
 
 
 @client.command()
