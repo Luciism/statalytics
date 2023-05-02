@@ -19,7 +19,7 @@ class MyClient(commands.Bot):
                      'cosmetics', 'hotbar', 'compare']
         for ext in cogs_list:
             await client.load_extension(f'cogs.commands.{ext}')
-        await self.tree.sync()
+        #await self.tree.sync()
 
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
@@ -48,25 +48,47 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         else:
             await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
 
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CommandNotFound):
+        return
+    raise error
 
 @client.command()
 @commands.is_owner()
-async def cog(ctx, method: str, cog_name: str):
+async def load(ctx, cog: str):
     try:
-        if method == 'enable':
-            await client.load_extension(f'cogs.commands.{cog_name}')
-            await client.tree.sync()
-            msg = f'Successfully enabled cog: `{cog_name}`'
-        elif method == 'disable':
-            await client.unload_extension(f'cogs.commands.{cog_name}')
-            await client.tree.sync()
-            msg = f'Successfully disabled cog: `{cog_name}`'
-        else:
-            msg = 'Invalid method! Methods: `(enable, disable)`'
+        await client.load_extension(f'cogs.{cog}')
+        msg = f'Successfully loaded cog: {cog}'
     except commands.errors.ExtensionNotFound:
-        msg = f"Couldn't find cog: `{cog_name}`"
+        msg = f"Couldn't find cog: `{cog}`"
     await ctx.send(msg)
 
+@client.command()
+@commands.is_owner()
+async def unload(ctx, cog: str):
+    try:
+        await client.unload_extension(f'cogs.{cog}')
+        msg = f'Successfully unloaded cog: {cog}'
+    except commands.errors.ExtensionNotFound:
+        msg = f"Couldn't find cog: `{cog}`"
+    await ctx.send(msg)
+
+@client.command()
+@commands.is_owner()
+async def reload(ctx, cog: str):
+    try:
+        await client.reload_extension(f'cogs.{cog}')
+        msg = f'Successfully reloaded cog: {cog}'
+    except commands.errors.ExtensionNotFound:
+        msg = f"Couldn't find cog: `{cog}`"
+    await ctx.send(msg)
+
+@client.command()
+@commands.is_owner()
+async def sync(ctx):
+    await client.tree.sync()
+    await ctx.send('Successfully synced client tree!')
 
 if __name__ == '__main__':
     client.run(TOKEN)
