@@ -58,8 +58,10 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
     draw = ImageDraw.Draw(image)
 
     star_y = round(((fontsize - 17) / 2) + position_y)
-    star = Image.open(f'./assets/stars/{pos_colors[5]}.png')
-    star_black = Image.open('./assets/stars/black.png')
+    star_dir = "0_to_1000" if level < 1100 else "1100_to_2000" if level < 2100 else\
+               "2100_to_3000" if level < 3100 else "3100_to_5000"
+    star = Image.open(f'./assets/stars/{star_dir}/{pos_colors[5]}.png')
+    star_black = Image.open(f'./assets/stars/{star_dir}/black.png')
 
     # Convert
     star = star.convert("RGBA")

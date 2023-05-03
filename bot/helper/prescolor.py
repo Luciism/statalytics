@@ -16,6 +16,8 @@ class Prescolor:
         self.light_purple = (255, 85, 255)
         self.yellow = (255, 255, 85)
         self.white = (255, 255, 255)
+        self.dark_blue = (0, 0, 170)
+        self.black = (0, 0, 0)
 
         self.color_map = {
             10000: (self.red, "red"),
@@ -32,6 +34,26 @@ class Prescolor:
         }
 
         self.color_map_2 = {
+            5000: (self.dark_red, self.dark_red, self.dark_purple, self.blue, self.blue, "dark_blue", self.black),
+            4900: (self.dark_green, self.green, self.white, self.white, self.green, "green", self.dark_green),
+            4800: (self.dark_purple, self.dark_purple, self.red, self.gold, self.yellow, "aqua", self.dark_aqua),
+            4700: (self.white, self.dark_red, self.red, self.red, self.blue, "dark_blue", self.blue),
+            4600: (self.dark_aqua, self.aqua, self.yellow, self.yellow, self.gold, "light_purple", self.dark_purple),
+            4500: (self.white, self.white, self.aqua, self.aqua, self.dark_aqua, "dark_aqua", self.dark_aqua),
+            4400: (self.dark_green, self.dark_green, self.green, self.yellow, self.gold, "dark_purple", self.light_purple),
+            4300: (self.black, self.dark_purple, self.dark_gray, self.dark_gray, self.dark_purple, "dark_purple", self.black),
+            4200: (self.dark_blue, self.blue, self.dark_aqua, self.aqua, self.white, "gray", self.gray),
+            4100: (self.yellow, self.yellow, self.gold, self.red, self.light_purple, "light_purple", self.dark_purple),
+            4000: (self.dark_purple, self.dark_purple, self.red, self.red, self.gold, "gold", self.yellow),
+            3900: (self.red, self.red, self.green, self.green, self.dark_aqua, "blue", self.blue),
+            3800: (self.dark_blue, self.dark_blue, self.blue, self.dark_purple, self.dark_purple, "light_purple", self.dark_blue),
+            3700: (self.dark_red, self.dark_red, self.red, self.red, self.aqua, "dark_aqua", self.dark_aqua),
+            3600: (self.green, self.green, self.green, self.aqua, self.blue, "blue", self.dark_blue),
+            3500: (self.red, self.red, self.dark_red, self.dark_red, self.dark_green, "green", self.green),
+            3400: (self.dark_green, self.green, self.light_purple, self.light_purple, self.dark_purple, "dark_purple", self.green),
+            3300: (self.blue, self.blue, self.blue, self.light_purple, self.red, "red", self.dark_red),
+            3200: (self.red, self.dark_red, self.gray, self.gray, self.dark_red, "red", self.red),
+            3100: (self.blue, self.blue, self.dark_aqua, self.dark_aqua, self.gold, "gold", self.yellow),
             3000: (self.yellow, self.yellow, self.gold, self.gold, self.red, "red", self.dark_red),
             2900: (self.aqua, self.aqua, self.dark_aqua, self.dark_aqua, self.blue, "blue", self.blue),
             2800: (self.green, self.green, self.dark_green, self.dark_green, self.gold, "gold", self.yellow),
