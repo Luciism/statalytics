@@ -1,10 +1,12 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.calcpractice import Practice
-from helper.rendername import render_level_and_name
+from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
+from helper.renderprogress import render_progress_bar
 
-def renderpractice(name, uuid, hypixel_data):
+
+def renderpractice(name, uuid, hypixel_data, skin_res):
     # Open the image
     image_location = background(path='./assets/practice', uuid=uuid, default='base')
     image = Image.open(image_location)
@@ -14,74 +16,86 @@ def renderpractice(name, uuid, hypixel_data):
     draw = ImageDraw.Draw(image)
 
     # Choose a font and font size
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     # Define the text colors
-    green = (85, 255, 85)
     white = (255, 255, 255)
+    green = (85, 255, 85)
     black = (0, 0, 0)
     gold = (255, 170, 0)
-    yellow = (255, 255, 85)
     red = (255, 85, 85)
+    light_purple = (255, 85, 255)
 
     # Define the values
     practice = Practice(name, hypixel_data)
     level = practice.level
     player_rank_info = practice.player_rank_info
-    most_played = practice.get_most_played()
+    progress_out_of_10 = practice.progress[2]
 
-    bridging_completed, bridging_failed, bridging_blocks, bridging_ratio = practice.get_bridging_stats()
-    tnt_completed, tnt_failed, tnt_blocks, tnt_ratio = practice.get_tnt_stats()
-    mlg_completed, mlg_failed, mlg_blocks, mlg_ratio = practice.get_mlg_stats()
+    bridging_completed, bridging_failed, bridging_ratio = practice.get_bridging_stats()
+    pearl_completed, pearl_failed, pearl_ratio = practice.get_pearl_stats()
+    tnt_completed, tnt_failed, tnt_ratio = practice.get_tnt_stats()
+    mlg_completed, mlg_failed, mlg_ratio = practice.get_mlg_stats()
     straight_short, straight_medium, straight_long, straight_average = practice.get_straight_times()
     diagonal_short, diagonal_medium, diagonal_long, diagonal_average = practice.get_diagonal_times()
+    blocks_placed = practice.get_blocks_placed()
 
-    totallength = draw.textlength(most_played, font=font) + draw.textlength("Most Played: ", font=font)
-    most_played_x = int((image.width - totallength) / 2)
+    attempts = sum((int(value.replace(',', '')) for value in (bridging_completed, bridging_failed,
+        tnt_completed, tnt_failed, mlg_completed, mlg_failed, pearl_completed, pearl_failed)))
+    attempts = f'{attempts:,}'
+
+    def leng(text, width):
+        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
 
     data = (
-        ((26, 137), (bridging_completed, green), "Completed: "),
-        ((26, 163), (bridging_failed, red), "Failed: "),
-        ((26, 189), (bridging_blocks, yellow), "Blocks: "),
-        ((26, 215), (bridging_ratio, yellow), "C/F Ratio: "),
-        ((231, 137), (tnt_completed, green), "Completed: "),
-        ((231, 163), (tnt_failed, red), "Failed: "),
-        ((231, 189), (tnt_blocks, yellow), "Blocks: "),
-        ((231, 215), (tnt_ratio, yellow), "C/F Ratio: "),
-        ((436, 137), (mlg_completed, green), "Completed: "),
-        ((436, 163), (mlg_failed, red), "Failed: "),
-        ((436, 189), (mlg_blocks, yellow), "Blocks: "),
-        ((436, 215), (mlg_ratio, yellow), "C/F Ratio: "),
-        ((26, 302), (straight_short, yellow), "Short: "),
-        ((26, 328), (straight_medium, yellow), "Medium: "),
-        ((26, 354), (straight_long, yellow), "Long: "),
-        ((26, 380), (straight_average, yellow), "Average: "),
-        ((335, 302), (diagonal_short, yellow), "Short: "),
-        ((335, 328), (diagonal_medium, yellow), "Medium: "),
-        ((335, 354), (diagonal_long, yellow), "Long: "),
-        ((335, 380), (diagonal_average, yellow), "Average: "),
-        ((most_played_x, 433), (most_played, gold), "Most Played: ")
+        ((leng(bridging_completed, 140) + 17, 131), bridging_completed, green),
+        ((leng(bridging_failed, 140) + 171, 131), bridging_failed, red),
+        ((leng(bridging_ratio, 107) + 325, 131), bridging_ratio, gold),
+        ((leng(tnt_completed, 140) + 17, 190), tnt_completed, green),
+        ((leng(tnt_failed, 140) + 171, 190), tnt_failed, red),
+        ((leng(tnt_ratio, 107) + 325, 190), tnt_ratio, gold),
+        ((leng(mlg_completed, 140) + 17, 249), mlg_completed, green),
+        ((leng(mlg_failed, 140) + 171, 249), mlg_failed, red),
+        ((leng(mlg_ratio, 107) + 325, 249), mlg_ratio, gold),
+        ((leng(pearl_completed, 140) + 17, 308), pearl_completed, green),
+        ((leng(pearl_failed, 140) + 171, 308), pearl_failed, red),
+        ((leng(pearl_ratio, 107) + 325, 308), pearl_ratio, gold),
+        ((leng(straight_short, 142) + 17, 368), straight_short, light_purple),
+        ((leng(straight_medium, 139) + 173, 368), straight_medium, light_purple),
+        ((leng(straight_long, 141) + 327, 368), straight_long, light_purple),
+        ((leng(straight_average, 140) + 483, 368), straight_average, light_purple),
+        ((leng(diagonal_short, 142) + 17, 426), diagonal_short, light_purple),
+        ((leng(diagonal_medium, 139) + 173, 426), diagonal_medium, light_purple),
+        ((leng(diagonal_long, 141) + 327, 426), diagonal_long, light_purple),
+        ((leng(diagonal_average, 140) + 483, 426), diagonal_average, light_purple),
+        ((leng(attempts, 171) + 452, 249), attempts, light_purple),
+        ((leng(blocks_placed, 171) + 452, 308), blocks_placed, light_purple),
+        ((leng('(Overall)', 171) + 452, 46), '(Overall)', white),
     )
 
     for values in data:
         start_x, start_y = values[0]
-        stat = values[1][0]
-        text = values[2]
+        stat = values[1]
+        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
+        draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
-        draw.text((start_x + 2, start_y + 2), text, fill=black, font=font)
-        draw.text((start_x, start_y), text, fill=white, font=font)
+    # Render name & progress bar
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 19
 
-        start_x += draw.textlength(text, font=font)
+    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=font)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
+    # Render Skin
+    skin = Image.open(BytesIO(skin_res))
+    image.paste(skin, (466, 69), skin)
 
-    # Render the titles & name
-    title_image = Image.open('./assets/practice/overlay.png')
-    image.paste(title_image, (0, 0), title_image)
-
-    player_y = 54
-    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(113, 415), position_y=player_y, fontsize=18)
+    # Paste overlay
+    overlay_image = Image.open(f'./assets/practice/overlay.png')
+    overlay_image = overlay_image.convert("RGBA")
+    image.paste(overlay_image, (0, 0), overlay_image)
 
     # Return the image
     image_bytes = BytesIO()

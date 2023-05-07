@@ -7,7 +7,8 @@ from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,
-                       authenticate_user)
+                       authenticate_user,
+                       skin_session)
 
 
 class Practice(commands.Cog):
@@ -27,7 +28,8 @@ class Practice(commands.Cog):
         await interaction.response.send_message(self.GENERATING_MESSAGE)
 
         hypixel_data = get_hypixel_data(uuid)
-        rendered = renderpractice(name, uuid, hypixel_data)
+        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        rendered = renderpractice(name, uuid, hypixel_data, skin_res.content)
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='practice.png')])
 
         update_command_stats(interaction.user.id, 'practice')

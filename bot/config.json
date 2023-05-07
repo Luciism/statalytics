@@ -1,0 +1,21 @@
+{
+  "enabled_cogs": [
+    "commands.sessions",
+    "commands.linking",
+    "commands.projection",
+    "commands.shop",
+    "commands.mostplayed",
+    "commands.total",
+    "commands.average",
+    "commands.misc",
+    "commands.resources",
+    "commands.skin",
+    "commands.practice",
+    "commands.milestones",
+    "commands.cosmetics",
+    "commands.hotbar",
+    "commands.compare",
+    "commands.who",
+    "commands.displayname"
+  ]
+}

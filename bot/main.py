@@ -1,4 +1,5 @@
 import os
+import json
 import traceback
 
 import discord
@@ -14,12 +15,11 @@ class MyClient(commands.Bot):
         super().__init__(intents=intents, command_prefix=commands.when_mentioned_or('$'))
 
     async def setup_hook(self):
-        cogs_list = ['sessions', 'linking', 'projection', 'shop', 'mostplayed', 'total',
-                     'average', 'misc', 'resources', 'skin', 'practice', 'milestones',
-                     'cosmetics', 'hotbar', 'compare']
-        for ext in cogs_list:
-            await client.load_extension(f'cogs.commands.{ext}')
-        #await self.tree.sync()
+        with open('./config.json', 'r') as datafile:
+            cogs = json.load(datafile)['enabled_cogs']
+        for ext in cogs:
+            await client.load_extension(f'cogs.{ext}')
+        await self.tree.sync()
 
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
