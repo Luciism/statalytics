@@ -2,8 +2,8 @@
 ### Transform Bedwars stat tracking with Statalytics - the unmatched bot with exceptional functionalities.
 
 ### Links
-🔗 [**Add to server**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
-🔗 [**Join Our Discord**](https://discord.gg/rHmHZ9vvwE)\
+🔗 [**Invite**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
+🔗 [**Support**](https://discord.gg/rHmHZ9vvwE)\
 🔗 [**Website**](https://www.statalytics.net)
 
 ## Commands
