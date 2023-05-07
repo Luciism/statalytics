@@ -82,6 +82,8 @@ async def reload(ctx, cog: str):
         msg = f'Successfully reloaded cog: {cog}'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
+    except commands.errors.ExtensionNotLoaded:
+        msg = f"Cog not loaded: `{cog}`"
     await ctx.send(msg)
 
 @client.command()

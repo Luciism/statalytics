@@ -1,6 +1,5 @@
 # Statalytics
-
-### Statalytics is a unique Bedwars stats Discord bot that offers a wide range of features not previously seen in any other bot.
+### Transform Bedwars stat tracking with Statalytics - the unmatched bot with exceptional functionalities.
 
 ### Links
 🔗 [**Add to server**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
@@ -31,41 +30,45 @@
 | `/pointless` | Same as `/bedwars` but really pointless |
 | `/compare` | Compare the bedwars stats of two players |
 | `/usage` | View your command usage with Statalytics |
+| `/who` | Get the name of uuid of any player. |
+| `/displayname` | Render the hypixel display name of any player. |
+
+<br>
 
 ## Features
 * ### Projected Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132591399022/projected.png?width=400&height=293" alt="Projected Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/projected.png" alt="Projected Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Bedwars Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554133115674684/bedwars.png?width=400&height=293" alt="Bedwars Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/bedwars.png" alt="Bedwars Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Stat Comparison
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102074961373437993/overall.png?width=400&height=293" alt="Stat Comparison Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/compare.png" alt="Stat Comparison Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Session Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102293389136887868/overall.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/session.png" alt="Session Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Resource Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1101541089132949514/overall.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/resources.png" alt="Resource Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 
 * ### Milestone Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726755464331294/overall.png?width=400&height=293" alt="Milestone Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/milestones.png" alt="Milestone Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Practice Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132167770193/practice.png?width=400&height=293" alt="Practice Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/practice.png" alt="Practice Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Average Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554154791833610/ratios.png?width=400&height=293" alt="Average Stats Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/ratios.png" alt="Average Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Active Cosmetics
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554132817887262/activecosmetics.png?width=400&height=293" alt="Active Cosmetics Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/activecosmetics.png" alt="Active Cosmetics Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Most Played Stats
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1092726798812467210/mostplayed.png?width=400&height=263" alt="Most Played Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/mostplayed.png" alt="Most Played Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Quick Buy Viewer
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1102297073811980338/shop.png?width=400&height=217" alt="Quick Buy Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/shop.png" alt="Quick Buy Example" style="margin-left: 20px; width: 400px; height: auto;"/>
 
 * ### Hotbar Preset Viewer
-  <img src="https://media.discordapp.net/attachments/1027817138095915068/1083554131089834024/hotbar.png?width=400&height=247" alt="Hotbar Preset Example" style="margin-left: 20px;"/>
+  <img src="https://statalytics.net/static/images/features/hotbar.png" alt="Hotbar Preset Example" style="margin-left: 20px; width: 400px; height: auto;"/>
