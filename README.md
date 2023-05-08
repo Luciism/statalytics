@@ -3,7 +3,7 @@
 
 ### Links
 🔗 [**Invite**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
-🔗 [**Support**](https://discord.gg/rHmHZ9vvwE)\
+🔗 [****](https://discord.gg/rHmHZ9vvwE)\
 🔗 [**Website**](https://www.statalytics.net)
 
 ## Commands
@@ -11,8 +11,8 @@
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
 | `/unlink` | Unlink your account |
-| `/prestige` | View projected stats of anyone with **an active session** |
-| `/session` | View an active session of any player **with 1+ active** |
+| `/prestige` | View projected stats of anyone with **an active session*|
+| `/session` | View an active session of any player **with 1+ active*|
 | `/startsession` | Create a new session (must be linked) |
 | `/endsession` | End a specified session (must be linked) |
 | `/resetsession` | Reset a specified session (must be linked) |
@@ -36,39 +36,41 @@
 <br>
 
 ## Features
-* ### Projected Stats
-  <img src="https://statalytics.net/static/images/features/projected.png" alt="Projected Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+<div style="margin-left: 20px;">
 
-* ### Bedwars Stats
-  <img src="https://statalytics.net/static/images/features/bedwars.png" alt="Bedwars Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Projected Stats
+  <img src="https://statalytics.net/image/features/projected.png?width=400&height=293" alt="Projected Stats Example" style="margin-left: 20px;"/>
 
-* ### Stat Comparison
-  <img src="https://statalytics.net/static/images/features/compare.png" alt="Stat Comparison Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Bedwars Stats
+  <img src="https://statalytics.net/image/features/bedwars.png?width=400&height=293" alt="Bedwars Stats Example" style="margin-left: 20px;"/>
 
-* ### Session Stats
-  <img src="https://statalytics.net/static/images/features/session.png" alt="Session Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Stat Comparison
+  <img src="https://statalytics.net/image/features/compare.png?width=400&height=293" alt="Stat Comparison Example" style="margin-left: 20px;"/>
 
-* ### Resource Stats
-  <img src="https://statalytics.net/static/images/features/resources.png" alt="Resource Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Session Stats
+  <img src="https://statalytics.net/image/features/session.png?width=400&height=293" alt="Session Stats Example" style="margin-left: 20px;"/>
 
+### Resource Stats
+  <img src="https://statalytics.net/image/features/resources.png?width=400&height=293" alt="Resource Stats Example" style="margin-left: 20px;"/>
 
-* ### Milestone Stats
-  <img src="https://statalytics.net/static/images/features/milestones.png" alt="Milestone Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Practice Stats
+  <img src="https://statalytics.net/image/features/practice.png?width=400&height=293" alt="Practice Stats Example" style="margin-left: 20px;"/>
 
-* ### Practice Stats
-  <img src="https://statalytics.net/static/images/features/practice.png" alt="Practice Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Milestone Stats
+  <img src="https://statalytics.net/image/features/milestones.png?width=400&height=293" alt="Milestone Stats Example" style="margin-left: 20px;"/>
 
-* ### Average Stats
-  <img src="https://statalytics.net/static/images/features/ratios.png" alt="Average Stats Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Average Stats
+  <img src="https://statalytics.net/image/features/ratios.png?width=400&height=293" alt="Average Stats Example" style="margin-left: 20px;"/>
 
-* ### Active Cosmetics
-  <img src="https://statalytics.net/static/images/features/activecosmetics.png" alt="Active Cosmetics Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Active Cosmetics
+  <img src="https://statalytics.net/image/features/activecosmetics.png?width=400&height=293" alt="Active Cosmetics Example" style="margin-left: 20px;"/>
 
-* ### Most Played Stats
-  <img src="https://statalytics.net/static/images/features/mostplayed.png" alt="Most Played Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Most Played Stats
+  <img src="https://statalytics.net/image/features/mostplayed.png?width=400&height=263" alt="Most Played Example" style="margin-left: 20px;"/>
 
-* ### Quick Buy Viewer
-  <img src="https://statalytics.net/static/images/features/shop.png" alt="Quick Buy Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Quick Buy Viewer
+  <img src="https://statalytics.net/image/features/shop.png?width=400&height=217" alt="Quick Buy Example" style="margin-left: 20px;"/>
 
-* ### Hotbar Preset Viewer
-  <img src="https://statalytics.net/static/images/features/hotbar.png" alt="Hotbar Preset Example" style="margin-left: 20px; width: 400px; height: auto;"/>
+### Hotbar Preference Viewer
+  <img src="https://statalytics.net/image/features/hotbar.png?width=400&height=247" alt="Hotbar Preset Example" style="margin-left: 20px;"/>
+</div>
