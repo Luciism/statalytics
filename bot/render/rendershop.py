@@ -1,3 +1,5 @@
+import os
+
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
@@ -7,7 +9,7 @@ def rendershop(uuid, hypixel_data):
     slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80), (490, 80), (580, 80), (40, 170), (130, 170), (220, 170), (310, 170),
              (400, 170), (490, 170), (580, 170), (40, 260), (130, 260), (220, 260), (310, 260), (400, 260), (490, 260), (580, 260)]
 
-    try: shop = hypixel_data['player']['stats']['Bedwars']['favourites_2'].split(',')
+    try: shop = "wool,stone_sword,iron_boots,wooden_pickaxe,speed_ii_potion_(45_seconds),golden_apple,ender_pearl,oak_wood_planks,iron_sword,diamond_boots,wooden_axe,invisibility_potion_(30_seconds),fireball,bridge_egg,end_stone,stick_(knockback_i),ladder,shears,jump_v_potion_(45_seconds),tnt,ice_bridge".split(',')
     except KeyError: return False
 
     # Open the base image
@@ -16,7 +18,10 @@ def rendershop(uuid, hypixel_data):
     base_image = base_image.convert("RGBA")
 
     for i, item in enumerate(shop):
-        top_image = Image.open(f"./assets/shop/{item}.png")
+        if os.path.exists(f"./assets/shop/{item}.png"):
+            top_image = Image.open(f"./assets/shop/{item}.png")
+        else:
+            top_image = Image.open(f"./assets/shop/rotational_item.png")
         top_image = top_image.convert("RGBA")
         base_image.paste(top_image, slots[i], top_image)
 
