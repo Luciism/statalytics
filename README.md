@@ -3,16 +3,16 @@
 
 ### Links
 🔗 [**Invite**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
-🔗 [****](https://discord.gg/rHmHZ9vvwE)\
-🔗 [**Website**](https://www.statalytics.net)
+🔗 [**Website**](https://www.statalytics.net)\
+🔗 [**Support Server**](https://discord.gg/rHmHZ9vvwE)
 
 ## Commands
 | Command | Function |
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
 | `/unlink` | Unlink your account |
-| `/prestige` | View projected stats of anyone with **an active session*|
-| `/session` | View an active session of any player **with 1+ active*|
+| `/prestige` | View projected stats of anyone with **an active session**|
+| `/session` | View an active session of any player **with 1+ active session**|
 | `/startsession` | Create a new session (must be linked) |
 | `/endsession` | End a specified session (must be linked) |
 | `/resetsession` | Reset a specified session (must be linked) |
