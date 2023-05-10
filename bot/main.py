@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import traceback
 
 import discord
@@ -20,6 +21,8 @@ class MyClient(commands.Bot):
         for ext in cogs:
             await client.load_extension(f'cogs.{ext}')
         await self.tree.sync()
+        with open('./database/info.json', 'w') as datafile:
+            json.dump({"start_time": time.time()}, datafile, indent=4)
 
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
