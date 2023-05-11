@@ -1,7 +1,8 @@
 import os
-import json
 import time
 import traceback
+from json import load as load_json
+from json import dump as dump_json
 
 import discord
 from discord.ext import commands
@@ -17,12 +18,12 @@ class MyClient(commands.Bot):
 
     async def setup_hook(self):
         with open('./config.json', 'r') as datafile:
-            cogs = json.load(datafile)['enabled_cogs']
+            cogs = load_json(datafile)['enabled_cogs']
         for ext in cogs:
             await client.load_extension(f'cogs.{ext}')
         await self.tree.sync()
         with open('./uptime.json', 'w') as datafile:
-            json.dump({"start_time": time.time()}, datafile, indent=4)
+            dump_json({"start_time": time.time()}, datafile, indent=4)
 
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
@@ -36,7 +37,12 @@ async def on_ready():
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
-        await interaction.response.send_message(embed=discord.Embed(title="Command on cooldown!", description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.', color=0xFFE100).set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png'), ephemeral=True)
+        with open('./config.json', 'r') as datafile:
+            config = load_json(datafile)
+        embed_color = int(config['embed_warning_color'], base=16)
+        embed = discord.Embed(title="Command on cooldown!", description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.', color=embed_color)
+        embed.set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
+        await interaction.response.send_message(embed=embed, ephemeral=True)
     else:
         # show full error traceback
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))

@@ -1,6 +1,8 @@
 import os
-import shutil
 import sqlite3
+from json import load as load_json
+
+import shutil
 import discord
 from functions import start_session
 
@@ -12,7 +14,11 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     suggestion = discord.ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
 
     async def on_submit(self, interaction: discord.Interaction):
-        submit_embed = discord.Embed(title=f'Suggestion by {interaction.user} ({interaction.user.id})', description=f'**Suggestion:**\n{self.suggestion}', color=0x55FFC8)
+        with open('./config.json', 'r') as datafile:
+            config = load_json(datafile)
+        embed_color = int(config['embed_primary_color'], base=16)
+        submit_embed = discord.Embed(title=f'Suggestion by {interaction.user} ({interaction.user.id})', description=f'**Suggestion:**\n{self.suggestion}', color=embed_color)
+
         await self.channel.send(embed=submit_embed)
         await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
 

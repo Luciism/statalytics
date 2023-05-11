@@ -1,10 +1,10 @@
 import os
 import psutil
 import sys
-import json
 import time
 import datetime
 import sqlite3
+from json import load as load_json
 
 import discord
 from discord import app_commands
@@ -34,17 +34,17 @@ class Info(commands.Cog):
         total_members = len(self.client.users)
 
         with open('./uptime.json') as datafile:
-            start_time = json.load(datafile)['start_time']
+            start_time = load_json(datafile)['start_time']
 
         uptime = str(datetime.timedelta(seconds=int(round(time.time()-start_time))))
 
         with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
+            config = load_json(datafile)
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
-        embed = discord.Embed(title='Statalytics Info', description=None, color=0x00AFF4)
+        embed = discord.Embed(title='Statalytics Info', description=None, color=int(config['embed_primary_color'], base=16))
 
         embed.add_field(name='Key Metrics', value=f"""
             `┌` **Uptime:** `{uptime}`

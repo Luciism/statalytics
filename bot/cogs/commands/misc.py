@@ -1,5 +1,5 @@
-import json
 import sqlite3
+from json import load as load_json
 
 import discord
 from discord import app_commands
@@ -13,12 +13,14 @@ class Misc(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        with open('./config.json', 'r') as datafile:
+            self.config = load_json(datafile)
 
     # Help command
     @app_commands.command(name = "help", description = "Help Page")
     async def get_help(self, interaction: discord.Interaction):
         with open('./assets/help.json', 'r') as datafile:
-            embed_data = json.load(datafile)
+            embed_data = load_json(datafile)
 
         embeds = [discord.Embed.from_dict(embed) for embed in embed_data['embeds']]
         await interaction.response.send_message(embeds=embeds, ephemeral=True)
@@ -28,7 +30,8 @@ class Misc(commands.Cog):
     # Invite
     @app_commands.command(name='invite', description=f'Invite Statalytics to your server')
     async def invite(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f'To add Statalytics to your server, click [here](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)')
+        invite_url = self.config['links']['invite_url']
+        await interaction.response.send_message(f'To add Statalytics to your server, click [here]({invite_url})')
 
     # Suggest
     @app_commands.command(name='suggest', description='Suggest a feature you would like to see added!')
@@ -40,7 +43,7 @@ class Misc(commands.Cog):
     @app_commands.command(name = "usage", description = "View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
         with open('./assets/command_map.json', 'r') as datafile:
-            command_map = json.load(datafile)['commands']
+            command_map = load_json(datafile)['commands']
 
         with sqlite3.connect('./database/command_usage.db') as conn:
             cursor = conn.cursor()
@@ -59,7 +62,8 @@ class Misc(commands.Cog):
                 if table != "overall":
                     description.append(f'`{command_map.get(table)}` - `{table_data[1]}`\n')
 
-        embed = discord.Embed(title="Your Command Usage", description=''.join(description), color=0x5865F2)
+        embed_color = int(self.config['embed_primary_color'], base=16)
+        embed = discord.Embed(title="Your Command Usage", description=''.join(description), color=embed_color)
         await interaction.response.send_message(embed=embed)
 
 

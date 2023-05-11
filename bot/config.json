@@ -9,6 +9,9 @@
     "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
     "github": "https://github.com/oDepleted/statalytics"
   },
+  "embed_primary_color": "5865F2",
+  "embed_danger_color": "",
+  "embed_warning_color": "FFE100",
   "enabled_cogs": [
     "commands.sessions",
     "commands.linking",
