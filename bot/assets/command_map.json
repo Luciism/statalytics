@@ -15,6 +15,7 @@
         "pointless": "/pointless",
         "compare": "/compare",
         "help": "/help",
+        "info": "/info",
         "overall": "Overall"
     }
 }

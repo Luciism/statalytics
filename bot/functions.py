@@ -88,15 +88,21 @@ def get_subscription(discord_id: int):
 def update_command_stats(discord_id, command):
     with sqlite3.connect('./database/command_usage.db') as conn:
         cursor = conn.cursor()
-        
+
         cursor.execute(f"SELECT * FROM overall WHERE discord_id = {discord_id}")
         if not cursor.fetchone(): cursor.execute('INSERT INTO overall (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
         else: cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
-        
-        cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
-        if not cursor.fetchone(): cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+
+        try:
+            cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
+            current_commands_ran = cursor.fetchone()
+        except sqlite3.OperationalError:
+            cursor.execute(f"CREATE TABLE {command}( discord_id INTEGER PRIMARY KEY, commands_ran INTEGER )")
+            cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (0, 0))
+            current_commands_ran = None
+        if not current_commands_ran: cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
         else: cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
-        
+
         cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
         cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
 
