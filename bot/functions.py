@@ -127,7 +127,7 @@ def link_account(discord_tag, discord_id, name, uuid):
 
                 if not linked_data: cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
                 else: cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
-            
+
 
             # Update autofill
             with sqlite3.connect('./database/subscriptions.db') as conn:
