@@ -22,7 +22,7 @@ class Info(commands.Cog):
         with sqlite3.connect('./database/command_usage.db') as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f'SELECT commands_ran FROM total WHERE discord_id = 0')
+                f'SELECT commands_ran FROM overall WHERE discord_id = 0')
             total_commands_ran = cursor.fetchone()[0]
 
         with sqlite3.connect('./database/linked_accounts.db') as conn:
@@ -48,18 +48,18 @@ class Info(commands.Cog):
 
         embed.add_field(name='Key Metrics', value=f"""
             `┌` **Uptime:** `{uptime}`
-            `├` **Ping:** `{ping}ms`
-            `├` **Commands:** `{total_commands}`
+            `├` **Ping:** `{ping:,}ms`
+            `├` **Commands:** `{total_commands:,}`
             `└` **Version:** `{config['version']}`
         """)
 
         embed.add_field(name='', value='')
 
         embed.add_field(name='Bot Usage Stats', value=f"""
-            `┌` **Servers:** `{total_guilds}`
-            `├` **Users:** `{total_members}`
-            `├` **Commands Ran:** `{total_commands_ran}`
-            `└` **Linked Users**: `{total_linked_accounts}`
+            `┌` **Servers:** `{total_guilds:,}`
+            `├` **Users:** `{total_members:,}`
+            `├` **Commands Ran:** `{total_commands_ran:,}`
+            `└` **Linked Users**: `{total_linked_accounts:,}`
         """)
 
         python_version = '.'.join((str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])))
@@ -68,7 +68,7 @@ class Info(commands.Cog):
             `┌` **Devs:** `{', '.join(config['developers'])}`
             `├` **Library:** `discord.py`
             `├` **Python:** `{python_version}`
-            `└` **Used RAM:** `{ram_usage}mb`
+            `└` **Used RAM:** `{ram_usage:,}mb`
         """)
 
         embed.add_field(name='', value='')
