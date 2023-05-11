@@ -22,7 +22,7 @@ class MyClient(commands.Bot):
         for ext in cogs:
             await client.load_extension(f'cogs.{ext}')
         await self.tree.sync()
-        with open('./uptime.json', 'w') as datafile:
+        with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 
 intents = discord.Intents.all()

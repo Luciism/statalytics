@@ -35,7 +35,7 @@ class Info(commands.Cog):
         total_guilds = len(self.client.guilds)
         total_members = len(self.client.users)
 
-        with open('./uptime.json') as datafile:
+        with open('./database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']
 
         uptime = str(datetime.timedelta(seconds=int(round(time.time()-start_time))))
