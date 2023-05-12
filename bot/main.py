@@ -36,9 +36,9 @@ async def on_ready():
 
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    with open('./config.json', 'r') as datafile:
+        config = load_json(datafile)
     if isinstance(error, app_commands.CommandOnCooldown):
-        with open('./config.json', 'r') as datafile:
-            config = load_json(datafile)
         embed_color = int(config['embed_warning_color'], base=16)
         embed = discord.Embed(title="Command on cooldown!", description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.', color=embed_color)
         embed.set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
@@ -48,7 +48,7 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)
 
-        channel = client.get_channel(1101006847831445585)
+        channel = client.get_channel(config.get('error_logs_channel_id'))
         if len(traceback_str) > 1988:
             for i in range(0, len(traceback_str), 1988):
                 # Get the substring from i to i+max_length
@@ -68,7 +68,7 @@ async def on_command_error(ctx, error):
 async def load(ctx, cog: str):
     try:
         await client.load_extension(f'cogs.{cog}')
-        msg = f'Successfully loaded cog: {cog}'
+        msg = f'Successfully loaded cog: `{cog}`'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
     await ctx.send(msg)
@@ -78,7 +78,7 @@ async def load(ctx, cog: str):
 async def unload(ctx, cog: str):
     try:
         await client.unload_extension(f'cogs.{cog}')
-        msg = f'Successfully unloaded cog: {cog}'
+        msg = f'Successfully unloaded cog: `{cog}`'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
     await ctx.send(msg)
@@ -88,7 +88,7 @@ async def unload(ctx, cog: str):
 async def reload(ctx, cog: str):
     try:
         await client.reload_extension(f'cogs.{cog}')
-        msg = f'Successfully reloaded cog: {cog}'
+        msg = f'Successfully reloaded cog: `{cog}`'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
     except commands.errors.ExtensionNotLoaded:

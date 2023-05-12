@@ -62,6 +62,7 @@ class Info(commands.Cog):
 `├` **Users:** `{total_members:,}`
 `├` **Commands Ran:** `{total_commands_ran:,}`
 `└` **Linked Users**: `{total_linked_accounts:,}`
+​
         """)
 
         python_version = '.'.join((str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])))
