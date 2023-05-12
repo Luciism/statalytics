@@ -14,7 +14,6 @@
   "embed_danger_color": "",
   "embed_warning_color": "FFE100",
   "enabled_cogs": [
-    "logs",
     "commands.sessions",
     "commands.linking",
     "commands.projection",
