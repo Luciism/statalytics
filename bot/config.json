@@ -11,7 +11,7 @@
   },
   "error_logs_channel_id": 1101006847831445585,
   "embed_primary_color": "5865F2",
-  "embed_danger_color": "",
+  "embed_danger_color": "FC2B2B",
   "embed_warning_color": "FFE100",
   "enabled_cogs": [
     "commands.sessions",
