@@ -20,4 +20,5 @@ bot/render/__pycache__/
 bot/calc/__pycache__/
 bot/cache/
 website/
+utils/
 website_old/
