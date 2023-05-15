@@ -19,6 +19,8 @@ class DisplayName(commands.Cog):
 
         await interaction.response.defer()
         hypixel_data = get_hypixel_data(uuid)
+        if not hypixel_data.get('player'):
+            hypixel_data['player'] = {}
         rendered = renderdisplayname(name, hypixel_data)
         await interaction.followup.send(content=None, files=[discord.File(rendered, filename="displayname.png")])
 
