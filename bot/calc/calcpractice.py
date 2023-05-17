@@ -46,14 +46,38 @@ class Practice:
         short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_STRAIGHT:', 0) / 1000
         medium = self.practice_stats.get('records', {}).get('bridging_distance_50:elevation_NONE:angle_STRAIGHT:', 0) / 1000
         long = self.practice_stats.get('records', {}).get('bridging_distance_100:elevation_NONE:angle_STRAIGHT:', 0) / 1000
-        average = round(180 / (short + medium + long), 2)
 
-        return f'{round(short, 2):,}s', f'{round(medium, 2):,}s', f'{round(long, 2):,}s', f'{average:,}m/s'
+        total_distance = 0; output = []
+        value_map = {0: 30, 1: 50, 2: 100}
+        values = (short, medium, long)
+
+        for i, value in enumerate(values):
+            if value == 0: output.append('N/A')
+            else:
+                total_distance += value_map.get(i)
+                output.append(f'{round(value, 2):,}s')
+
+        try: average = f'{round(total_distance / (short + medium + long), 2):,}m/s'
+        except ZeroDivisionError: average = 'N/A'
+
+        return output[0], output[1], output[2], average
 
     def get_diagonal_times(self):
         short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_DIAGONAL:', 0) / 1000
         medium = self.practice_stats.get('records', {}).get('bridging_distance_50:elevation_NONE:angle_DIAGONAL:', 0) / 1000
         long = self.practice_stats.get('records', {}).get('bridging_distance_100:elevation_NONE:angle_DIAGONAL:', 0) / 1000
-        average = round(180 / (short + medium + long), 2)
 
-        return f'{round(short, 2):,}s', f'{round(medium, 2):,}s', f'{round(long, 2):,}s', f'{average:,}m/s'
+        total_distance = 0; output = []
+        value_map = {0: 30, 1: 50, 2: 100}
+        values = (short, medium, long)
+
+        for i, value in enumerate(values):
+            if value == 0: output.append('N/A')
+            else:
+                total_distance += value_map.get(i)
+                output.append(f'{round(value, 2):,}s')
+
+        try: average = f'{round(total_distance / (short + medium + long), 2):,}m/s'
+        except ZeroDivisionError: average = 'N/A'
+
+        return output[0], output[1], output[2], average
