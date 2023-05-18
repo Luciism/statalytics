@@ -44,6 +44,11 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         embed.set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
         await interaction.response.send_message(embed=embed, ephemeral=True)
     else:
+        # respond to interaction
+        embed_color = int(config['embed_danger_color'], base=16)
+        embed = discord.Embed(title=f'An error occured running /{interaction.data["name"]}', description=f'```{error}```\nIf the problem persists, please [get in touch]({config["links"]["support_server"]})', color=embed_color)
+        await interaction.edit_original_response(embed=embed)
+
         # show full error traceback
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)

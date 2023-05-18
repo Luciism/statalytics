@@ -65,10 +65,10 @@ def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_
 # Get hypixel data
 def get_hypixel_data(uuid: str):
     with open('./database/apikeys.json', 'r') as keyfile:
-        allkeys = json.load(keyfile)['keys']
-    key = random.choice(list(allkeys))
+        all_keys = json.load(keyfile)['hypixel']
+    key = all_keys[random.choice(list(all_keys))]
 
-    return stats_session.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10).json()
+    return stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
 
 # Get linked data
 def get_linked_data(discord_id: int):
@@ -108,11 +108,11 @@ def update_command_stats(discord_id, command):
 
 # Account linking
 def link_account(discord_tag, discord_id, name, uuid):
-    with open('./database/apikeys.json', 'r') as datafile:
-        allkeys = json.load(datafile)['keys']
-    key = random.choice(list(allkeys))
+    with open('./database/apikeys.json', 'r') as keyfile:
+        all_keys = json.load(keyfile)['hypixel']
+    key = all_keys[random.choice(list(all_keys))]
 
-    data = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10).json()
+    data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     if not data['player']: return None
     hypixel_discord_tag = data.get('player', {}).get('socialMedia', {}).get('links', {}).get('DISCORD', None)
 
@@ -153,11 +153,11 @@ def link_account(discord_tag, discord_id, name, uuid):
 
 # Start session
 def start_session(uuid, session):
-    with open('./database/apikeys.json', 'r') as datafile:
-        allkeys = json.load(datafile)['keys']
-    key = random.choice(list(allkeys))
-    response = requests.get(f"https://api.hypixel.net/player?key={allkeys[key]}&uuid={uuid}", timeout=10)
-    data = response.json()
+    with open('./database/apikeys.json', 'r') as keyfile:
+        all_keys = json.load(keyfile)['hypixel']
+    key = all_keys[random.choice(list(all_keys))]
+
+    data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     if data['player'] is None:
         return False
     stat_keys = ["Experience", "wins_bedwars", "losses_bedwars", "final_kills_bedwars", "final_deaths_bedwars", "kills_bedwars", "deaths_bedwars", "beds_broken_bedwars", "beds_lost_bedwars", "games_played_bedwars", "eight_one_wins_bedwars", "eight_one_losses_bedwars", "eight_one_final_kills_bedwars", "eight_one_final_deaths_bedwars", "eight_one_kills_bedwars", "eight_one_deaths_bedwars", "eight_one_beds_broken_bedwars", "eight_one_beds_lost_bedwars", "eight_one_games_played_bedwars", "eight_two_wins_bedwars", "eight_two_losses_bedwars", "eight_two_final_kills_bedwars", "eight_two_final_deaths_bedwars", "eight_two_kills_bedwars", "eight_two_deaths_bedwars", "eight_two_beds_broken_bedwars", "eight_two_beds_lost_bedwars", "eight_two_games_played_bedwars", "four_three_wins_bedwars", "four_three_losses_bedwars", "four_three_final_kills_bedwars", "four_three_final_deaths_bedwars", "four_three_kills_bedwars", "four_three_deaths_bedwars", "four_three_beds_broken_bedwars", "four_three_beds_lost_bedwars", "four_three_games_played_bedwars", "four_four_wins_bedwars", "four_four_losses_bedwars", "four_four_final_kills_bedwars", "four_four_final_deaths_bedwars", "four_four_kills_bedwars", "four_four_deaths_bedwars", "four_four_beds_broken_bedwars", "four_four_beds_lost_bedwars", "four_four_games_played_bedwars"]

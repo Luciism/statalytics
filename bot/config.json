@@ -14,6 +14,7 @@
   "embed_danger_color": "FC2B2B",
   "embed_warning_color": "FFE100",
   "enabled_cogs": [
+    "commands.denick",
     "commands.sessions",
     "commands.linking",
     "commands.projection",
