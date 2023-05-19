@@ -58,7 +58,7 @@
     },
     {
       "title": "**Other Commands:**",
-      "description": "`/shop` - view the shop of any player\n`/mostplayed` - view most played modes of any player\n`/bedwars` - view general bedwars stats of any player\n`/average` - view average stats and rations of any player\n`/resources` - view resource stats of any player\n`/skin` - view or save the skin of any player\n`/practice` - view practice stats of any player\n`/milestones` - view milestone stats of any player\n`/activecosmetics` - view the active cosmetics of any player\n`/activesession` - get a list of all your active sessions\n`/hotbar` - view the hotbar preference of any player\n`/pointless` - same as /bedwars but really pointless",
+      "description": "`/2024` - view the 2024 projected stats of a player\n`/shop` - view the shop of any player\n`/mostplayed` - view most played modes of any player\n`/bedwars` - view general bedwars stats of any player\n`/average` - view average stats and rations of any player\n`/resources` - view resource stats of any player\n`/skin` - view or save the skin of any player\n`/practice` - view practice stats of any player\n`/milestones` - view milestone stats of any player\n`/activecosmetics` - view the active cosmetics of any player\n`/activesession` - get a list of all your active sessions\n`/hotbar` - view the hotbar preference of any player\n`/pointless` - same as /bedwars but really pointless",
       "color": 3259881
     }
   ]
