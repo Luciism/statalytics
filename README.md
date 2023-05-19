@@ -11,11 +11,12 @@
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
 | `/unlink` | Unlink your account |
-| `/prestige` | View projected stats of anyone with **an active session**|
-| `/session` | View an active session of any player **with 1+ active session**|
-| `/startsession` | Create a new session (must be linked) |
-| `/endsession` | End a specified session (must be linked) |
-| `/resetsession` | Reset a specified session (must be linked) |
+| `/prestige` | View projected stats of a player (requires session)|
+| `/2024` | View projected next years stats a player (requires session)|
+| `/session` | View an active session of a player (requires session)|
+| `/startsession` | Create a new session (requires linking) |
+| `/endsession` | End a specified session (requires linking) |
+| `/resetsession` | Reset a specified session (requires linking) |
 | `/activesessions` | Get a list of all your active sessions |
 | `/shop` | View the shop of any player |
 | `/mostplayed` | View the most played modes of any player |
@@ -42,6 +43,9 @@
   <br>
   <h4 style="margin: 5px 0">Bedwars Stats</h4>
   <img src="https://statalytics.net/image/features/bedwars.png?width=400&height=293" alt="Bedwars Stats Example" style="margin-left: 20px; margin-bottom: 10px"/>
+  <br>
+  <h4 style="margin: 5px 0">Next Years Stats</h4>
+  <img src="https://statalytics.net/image/features/year.png?width=400&height=293" alt="Next Years Stats Example" style="margin-left: 20px; margin-bottom: 10px"/>
   <br>
   <h4 style="margin: 5px 0">Stat Comparison</h4>
   <img src="https://statalytics.net/image/features/compare.png?width=400&height=293" alt="Stat Comparison Example" style="margin-left: 20px; margin-bottom: 10px"/>
