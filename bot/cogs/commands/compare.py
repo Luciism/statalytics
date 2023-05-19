@@ -47,6 +47,7 @@ class Compare(commands.Cog):
         rendercompare(name_1, name_2, uuid_1, mode="Doubles", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
         rendercompare(name_1, name_2, uuid_1, mode="Threes", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
         rendercompare(name_1, name_2, uuid_1, mode="Fours", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        rendercompare(name_1, name_2, uuid_1, mode="4v4", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'compare')
 

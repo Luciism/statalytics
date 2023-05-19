@@ -13,6 +13,7 @@ from functions import (username_autocompletion,
                        get_linked_data,
                        get_subscription,
                        start_session,
+                       get_smart_session,
                        authenticate_user,
                        skin_session)
 
@@ -33,29 +34,12 @@ class Sessions(commands.Cog):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        if session is None: session = 100
-
         refined = name.replace('_', r'\_')
-        with sqlite3.connect('./database/sessions.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
-            session_data = cursor.fetchone()
-            if not session_data:
-                cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
-                session_data = cursor.fetchone()
-
-        if not session_data:
-            await interaction.response.defer()
-            response = start_session(uuid, session=1)
-
-            if response is True: await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
-            else: await interaction.followup.send(f"**{refined}** has never played before!")
-            return
-        elif session_data[0] != session and session != 100: 
-            await interaction.response.send_message(f"**{refined}** doesn't have an active session with ID: `{session}`!")
-            return
-
+        if session is None: session = 100
+        session_data = await get_smart_session(interaction, session, refined, uuid)
+        if not session_data: return
         if session == 100: session = session_data[0]
+
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = get_hypixel_data(uuid)
@@ -68,6 +52,7 @@ class Sessions(commands.Cog):
         rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
         rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
         rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        rendersession(name, uuid, session, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'session')
 
@@ -103,6 +88,8 @@ class Sessions(commands.Cog):
             await interaction.response.send_message("""You don't have an account linked! In order to link use `/link`!
                                                     Otherwise use `/session <player>` will start a session if one doesn't already exist!""")
 
+        update_command_stats(interaction.user.id, 'startsession')
+
 
     # Delete Session Command
     @app_commands.command(name = "endsession", description = "Ends an active session")
@@ -128,6 +115,8 @@ class Sessions(commands.Cog):
                 await interaction.response.send_message(f"You don't have an active session with ID: `{session}`!")
         else:
             await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+
+        update_command_stats(interaction.user.id, 'endsession')
 
 
     # Reset Session Command
@@ -155,6 +144,8 @@ class Sessions(commands.Cog):
                 await interaction.response.send_message(f"You don't have an active session with ID: `{session}`!")
         else:
             await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+        
+        update_command_stats(interaction.user.id, 'resetsession')
 
 
     # Session List Command
@@ -179,6 +170,8 @@ class Sessions(commands.Cog):
                 await interaction.followup.send("You don't have any sessions active! Use `/startsession` to create one!")
         else:
             await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+
+        update_command_stats(interaction.user.id, 'activesessions')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Sessions(client))

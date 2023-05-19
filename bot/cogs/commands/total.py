@@ -40,6 +40,7 @@ class Total(commands.Cog):
         rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
         rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
         rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        rendertotal(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
 
         update_command_stats(interaction.user.id, 'total')
 
@@ -63,7 +64,7 @@ class Total(commands.Cog):
         rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
         rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
         rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
-        rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        rendertotal(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
 
         update_command_stats(interaction.user.id, 'pointless')
 

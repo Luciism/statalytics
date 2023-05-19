@@ -1,16 +1,14 @@
-from calc.calctools import get_player_rank_info
+from calc.calctools import get_player_rank_info, get_mode
 
 class Compare:
     def __init__(self, name_1: str, name_2: str, mode: str, hypixel_data_1: dict, hypixel_data_2) -> None:
         self.name_1, self.name_2 = name_1, name_2
-        self.mode = mode
+        self.mode = get_mode(mode)
 
         self.hypixel_data_1 = hypixel_data_1.get('player', {}) if hypixel_data_1.get('player', {}) is not None else {}
         self.hypixel_data_2 = hypixel_data_2.get('player', {}) if hypixel_data_2.get('player', {}) is not None else {}
         self.hypixel_data_bedwars_1 = self.hypixel_data_1.get('stats', {}).get('Bedwars', {})
         self.hypixel_data_bedwars_2 = self.hypixel_data_2.get('stats', {}).get('Bedwars', {})
-
-        self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
 
         self.level_1 = self.hypixel_data_1.get("achievements", {}).get("bedwars_level", 0)
         self.level_2 = self.hypixel_data_2.get("achievements", {}).get("bedwars_level", 0)

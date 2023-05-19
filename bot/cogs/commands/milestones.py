@@ -49,6 +49,7 @@ class Milestones(commands.Cog):
         rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
         rendermilestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
         rendermilestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        rendermilestones(name, uuid, mode="4v4", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'milestones')
 

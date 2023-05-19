@@ -1,16 +1,14 @@
-from calc.calctools import get_player_rank_info, get_progress, get_most_played
+from calc.calctools import get_player_rank_info, get_progress, get_most_played, get_mode
 
 class Stats:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.name = name
-        self.mode = mode
+        self.mode = get_mode(mode)
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
-        self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
-
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
         self.most_played = get_most_played(self.hypixel_data_bedwars)

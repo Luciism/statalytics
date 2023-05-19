@@ -1,11 +1,12 @@
 import math
 import sqlite3
 
-from calc.calctools import get_player_rank_info
+from calc.calctools import get_player_rank_info, get_mode
 
 class Stats:
     def __init__(self, name: str, uuid: str, mode: str, session: int, hypixel_data: dict) -> None:
         self.name = name
+        self.mode = get_mode(mode)
 
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
@@ -21,9 +22,6 @@ class Stats:
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
-
-        self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
-
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
     def get_wins(self):

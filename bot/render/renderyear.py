@@ -1,11 +1,11 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calc.calcprojection import SessionStats
+from calc.calcyear import YearStats
 from helper.custombackground import background
 from helper.rendername import render_level, render_rank, get_rank_prefix
 
-def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
-    image_location = background(path='./assets/projection', uuid=uuid, default='base')
+def renderyear(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
+    image_location = background(path='./assets/year', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
 
@@ -23,13 +23,15 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     gold = (255, 170, 0)
     light_purple = (255, 85, 255)
 
-    stats = SessionStats(name, uuid, session, mode, target, hypixel_data)
+    stats = YearStats(name, uuid, session, mode, hypixel_data)
     level = int(stats.level_hypixel)
+    target = stats.get_target()
     player_rank_info = stats.player_rank_info
-    projection_date = stats.get_projection_date()
-    stars_per_day = stats.get_stars_per_day()
+    days_to_go = str(stats.days_to_go)
+    stars_per_day = f'{round(stats.stars_per_day, 2):,}'
+    year = str(stats.current_time.year + 1)
     items_purchased = stats.get_items_purchased()
-    stars_to_go = stats.stars_to_go
+    complete_percent = f'{round((365 - int(days_to_go)) / 365 * 100, 2)}%'
 
     kills, deaths, kdr = stats.get_kills()
     final_kills, final_deaths, fkdr = stats.get_finals()
@@ -56,8 +58,8 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
         ((leng(wins_per_star, 128) + 23, 385), (wins_per_star, light_purple)),
         ((leng(finals_per_star, 127) + 167, 385), (finals_per_star, light_purple)),
         ((leng(beds_per_star, 128) + 310, 385), (beds_per_star, light_purple)),
-        ((leng(stats.complete_percent, 171) + 452, 250), (stats.complete_percent, light_purple)),
-        ((leng(stars_to_go, 171) + 452, 309), (stars_to_go, light_purple)),
+        ((leng(complete_percent, 171) + 452, 250), (complete_percent, light_purple)),
+        ((leng(days_to_go, 171) + 452, 309), (days_to_go, light_purple)),
         ((leng(stars_per_day, 171) + 452, 368), (stars_per_day, light_purple)),
         ((leng(items_purchased, 171) + 452, 427), (items_purchased, light_purple)),
         ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
@@ -78,19 +80,19 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Projection Date
-    projection_date_txt = "Projected to hit on: "
+    year_txt = "Predictions For Year: "
 
-    total_width = draw.textlength(f"{projection_date_txt}{projection_date}", font=minecraft_18)
-    projection_date_x = ((417 - total_width) / 2) + 21
-    projection_date_y = 425
+    total_width = draw.textlength(f"{year_txt}{year}", font=minecraft_18)
+    year_x = ((417 - total_width) / 2) + 21
+    year_y = 425
 
-    draw.text((projection_date_x + 2, projection_date_y + 2), projection_date_txt, fill=black, font=minecraft_18)
-    draw.text((projection_date_x, projection_date_y), projection_date_txt, fill=white, font=minecraft_18)
+    draw.text((year_x + 2, year_y + 2), year_txt, fill=black, font=minecraft_18)
+    draw.text((year_x, year_y), year_txt, fill=white, font=minecraft_18)
 
-    projection_date_x += draw.textlength(projection_date_txt, font=minecraft_18)
+    year_x += draw.textlength(year_txt, font=minecraft_18)
 
-    draw.text((projection_date_x + 2, projection_date_y + 2), projection_date, fill=black, font=minecraft_18)
-    draw.text((projection_date_x, projection_date_y), projection_date, fill=light_purple, font=minecraft_18)
+    draw.text((year_x + 2, year_y + 2), year, fill=black, font=minecraft_18)
+    draw.text((year_x, year_y), year, fill=light_purple, font=minecraft_18)
 
     # Render Progress
     total_width = draw.textlength(f"[{level}]  / [{target}]", font=minecraft_20) + 32 # 32 for pasted star width
@@ -113,7 +115,8 @@ def renderprojection(name, uuid, session, mode, target, hypixel_data, skin_res, 
     image.paste(skin, (466, 69), skin)
 
     # Paste overlay
-    overlay_image = Image.open('./assets/projection/overlay.png')
+    overlay_image = Image.open('./assets/year/overlay.png')
+    overlay_image = overlay_image.convert('RGBA')
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image

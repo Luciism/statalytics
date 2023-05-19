@@ -160,7 +160,8 @@ def start_session(uuid, session):
     data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     if data['player'] is None:
         return False
-    stat_keys = ["Experience", "wins_bedwars", "losses_bedwars", "final_kills_bedwars", "final_deaths_bedwars", "kills_bedwars", "deaths_bedwars", "beds_broken_bedwars", "beds_lost_bedwars", "games_played_bedwars", "eight_one_wins_bedwars", "eight_one_losses_bedwars", "eight_one_final_kills_bedwars", "eight_one_final_deaths_bedwars", "eight_one_kills_bedwars", "eight_one_deaths_bedwars", "eight_one_beds_broken_bedwars", "eight_one_beds_lost_bedwars", "eight_one_games_played_bedwars", "eight_two_wins_bedwars", "eight_two_losses_bedwars", "eight_two_final_kills_bedwars", "eight_two_final_deaths_bedwars", "eight_two_kills_bedwars", "eight_two_deaths_bedwars", "eight_two_beds_broken_bedwars", "eight_two_beds_lost_bedwars", "eight_two_games_played_bedwars", "four_three_wins_bedwars", "four_three_losses_bedwars", "four_three_final_kills_bedwars", "four_three_final_deaths_bedwars", "four_three_kills_bedwars", "four_three_deaths_bedwars", "four_three_beds_broken_bedwars", "four_three_beds_lost_bedwars", "four_three_games_played_bedwars", "four_four_wins_bedwars", "four_four_losses_bedwars", "four_four_final_kills_bedwars", "four_four_final_deaths_bedwars", "four_four_kills_bedwars", "four_four_deaths_bedwars", "four_four_beds_broken_bedwars", "four_four_beds_lost_bedwars", "four_four_games_played_bedwars"]
+    with open('./config.json', 'r') as datafile:
+        stat_keys = json.load(datafile)['tracked_bedwars_stats']
     stat_values = {
     "session": session,
     "uuid": uuid,
@@ -221,9 +222,36 @@ async def authenticate_user(username, interaction):
             return
     else:
         try:
-            uuid = MCUUID(name=username).uuid
-            name = MCUUID(name=username).name
+            if len(username) <= 16:
+                uuid = MCUUID(name=username).uuid
+                name = MCUUID(name=username).name
+            else:
+                name = MCUUID(uuid=username).name
+                uuid = username
         except KeyError:
             await interaction.response.send_message("That player does not exist!")
             return
     return name, uuid
+
+
+async def get_smart_session(interaction, session, username, uuid):
+    with sqlite3.connect('./database/sessions.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
+        session_data = cursor.fetchone()
+        if not session_data:
+            cursor.execute(f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
+            session_data = cursor.fetchone()
+
+    if not session_data:
+        await interaction.response.defer()
+        response = start_session(uuid, session=1)
+
+        if response is True: await interaction.followup.send(f"**{username}** has no active sessions so one was created!")
+        else: await interaction.followup.send(f"**{username}** has never played before!")
+        return False
+    elif session_data[0] != session and session != 100: 
+        await interaction.response.send_message(f"**{username}** doesn't have an active session with ID: `{session}`!")
+        return False
+
+    return session_data

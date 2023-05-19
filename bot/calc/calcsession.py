@@ -1,11 +1,12 @@
 import sqlite3
 from datetime import datetime
 
-from calc.calctools import get_progress, get_player_rank_info
+from calc.calctools import get_progress, get_player_rank_info, get_mode
 
 class SessionStats:
     def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
         self.name = name
+        self.mode = get_mode(mode)
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
@@ -27,9 +28,7 @@ class SessionStats:
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d")
         self.date_started = str(old_time.strftime("%d/%m/%Y"))
 
-        self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
         self.games_played = str(self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0) - self.session_data[f'{self.mode}games_played_bedwars'])
-
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 

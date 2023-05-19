@@ -12,7 +12,7 @@ from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,
-                       start_session,
+                       get_smart_session,
                        authenticate_user,
                        skin_session)
 
@@ -31,29 +31,11 @@ class Projection(commands.Cog):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        if session is None: session = 100
-
         # Bot responses Logic
         refined = name.replace('_', r'\_')
-        with sqlite3.connect('./database/sessions.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
-            session_data = cursor.fetchone()
-            if not session_data:
-                cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
-                session_data = cursor.fetchone()
-
-        if not session_data:
-            await interaction.response.defer()
-            response = start_session(uuid, session=1)
-
-            if response is True: await interaction.followup.send(f"**{refined}** has no active sessions so one was created!")
-            else: await interaction.followup.send(f"**{refined}** has never played before!")
-            return
-        elif session_data[0] != session and session != 100: 
-            await interaction.response.send_message(f"**{refined}** doesn't have an active session with ID: `{session}`!")
-            return
-
+        if session is None: session = 100
+        session_data = await get_smart_session(interaction, session, refined, uuid)
+        if not session_data: return
         if session == 100: session = session_data[0]
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
@@ -77,6 +59,7 @@ class Projection(commands.Cog):
         renderprojection(name, uuid, session, mode="Doubles", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
         renderprojection(name, uuid, session, mode="Threes", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
         renderprojection(name, uuid, session, mode="Fours", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        renderprojection(name, uuid, session, mode="4v4", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'projection')
 

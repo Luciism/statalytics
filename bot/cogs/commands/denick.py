@@ -7,7 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from functions import check_subscription
+from functions import check_subscription, update_command_stats
 
 
 
@@ -62,6 +62,8 @@ class Denick(commands.Cog):
             embed.description = "No data."
         embed.set_footer(text="Powered by antisniper.net", icon_url='https://statalytics.net/image/antisniper.png')
         await interaction.response.send_message(embed=embed)
+        
+        update_command_stats(interaction.user.id, 'numberdenick')
 
 
 async def setup(client: commands.Bot) -> None:

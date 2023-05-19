@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.renderdisplayname import renderdisplayname
-from functions import check_subscription, username_autocompletion, authenticate_user, get_hypixel_data
+from functions import check_subscription, username_autocompletion, authenticate_user, get_hypixel_data, update_command_stats
 
 class DisplayName(commands.Cog):
     def __init__(self, client):
@@ -23,6 +23,8 @@ class DisplayName(commands.Cog):
             hypixel_data['player'] = {}
         rendered = renderdisplayname(name, hypixel_data)
         await interaction.followup.send(content=None, files=[discord.File(rendered, filename="displayname.png")])
+
+        update_command_stats(interaction.user.id, 'displayname')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(DisplayName(client))

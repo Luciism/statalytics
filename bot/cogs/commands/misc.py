@@ -33,11 +33,15 @@ class Misc(commands.Cog):
         invite_url = self.config['links']['invite_url']
         await interaction.response.send_message(f'To add Statalytics to your server, click [here]({invite_url})')
 
+        update_command_stats(interaction.user.id, 'invite')
+
     # Suggest
     @app_commands.command(name='suggest', description='Suggest a feature you would like to see added!')
     async def suggest(self, interaction: discord.Interaction):
         channel = self.client.get_channel(1065918528236040232)
         await interaction.response.send_modal(SubmitSuggestion(channel))
+
+        update_command_stats(interaction.user.id, 'suggest')
 
     # Usage command
     @app_commands.command(name = "usage", description = "View Command Usage")
@@ -53,18 +57,20 @@ class Misc(commands.Cog):
             cursor.execute(f'SELECT * FROM overall WHERE discord_id = {interaction.user.id}')
             table_data = cursor.fetchone()
             if not table_data: table_data = (0, 0)
-            description = [f'**Overall - {table_data[1]}**\n\n']
+            description = [f'**Overall - {table_data[1]}**\n']
 
             for table in tables:
                 cursor.execute(f'SELECT * FROM {table} WHERE discord_id = {interaction.user.id}')
                 table_data = cursor.fetchone()
-                if not table_data: table_data = (0, 0)
-                if table != "overall":
-                    description.append(f'`{command_map.get(table)}` - `{table_data[1]}`\n')
+                
+                if not table_data or table == "overall": continue
+                description.append(f'`{command_map.get(table)}` - `{table_data[1]}`')
 
         embed_color = int(self.config['embed_primary_color'], base=16)
-        embed = discord.Embed(title="Your Command Usage", description=''.join(description), color=embed_color)
+        embed = discord.Embed(title="Your Command Usage", description='\n'.join(description), color=embed_color)
         await interaction.response.send_message(embed=embed)
+
+        update_command_stats(interaction.user.id, 'usage')
 
 
 async def setup(client: commands.Bot) -> None:

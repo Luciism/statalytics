@@ -62,7 +62,8 @@ class Select(discord.ui.Select):
             discord.SelectOption(label="Solos"),
             discord.SelectOption(label="Doubles"),
             discord.SelectOption(label="Threes"),
-            discord.SelectOption(label="Fours")
+            discord.SelectOption(label="Fours"),
+            discord.SelectOption(label="4v4")
             ]
         super().__init__(placeholder=self.mode, max_values=1, min_values=1, options=options)
     async def callback(self, interaction: discord.Interaction):

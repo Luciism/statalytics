@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from mcuuid import MCUUID
-from functions import link_account
+from functions import link_account, update_command_stats
 
 
 class Linking(commands.Cog):
@@ -44,6 +44,8 @@ class Linking(commands.Cog):
             embed.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
             await interaction.followup.send(embed=embed)
 
+        update_command_stats(interaction.user.id, 'link')
+
     # Unlink Command
     @app_commands.command(name = "unlink", description = "Unlink your account")
     async def unlink(self, interaction: discord.Interaction):
@@ -55,6 +57,8 @@ class Linking(commands.Cog):
                 message = 'Successfully unlinked your account!'
             else: message = "You don't have an account linked! In order to link use `/link`!"
             await interaction.response.send_message(message)
+
+        update_command_stats(interaction.user.id, 'unlink')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Linking(client))

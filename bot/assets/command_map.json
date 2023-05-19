@@ -16,6 +16,18 @@
         "compare": "/compare",
         "help": "/help",
         "info": "/info",
+        "who": "/who",
+        "numberdenick": "/numberdenick",
+        "displayname": "/displayname",
+        "links": "/link",
+        "unlink": "/unlink",
+        "invite": "/invite",
+        "suggest": "/suggest",
+        "usage": "/usage",
+        "startsession": "/startsession",
+        "endsession": "/endsession",
+        "resetsession": "/resetsession",
+        "activesessions": "/activesessions",
         "overall": "Overall"
     }
 }

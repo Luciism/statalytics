@@ -1,12 +1,12 @@
+from calc.calctools import get_mode
+
 class Resources:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.name = name
-        self.mode = mode
+        self.mode = get_mode(mode)
 
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
-
-        self.mode = {"Solos": "eight_one_", "Doubles": "eight_two_", "Threes": "four_three_", "Fours": "four_four_"}.get(mode, "")
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
         self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)

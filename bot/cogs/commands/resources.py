@@ -38,6 +38,7 @@ class Resources(commands.Cog):
         renderresources(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
         renderresources(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
         renderresources(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
+        renderresources(name, uuid, mode="4v4", hypixel_data=hypixel_data, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'resources')
 
