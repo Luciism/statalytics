@@ -3,7 +3,7 @@ from PIL import Image, ImageFont, ImageDraw
 from helper.custombackground import background
 from helper.rendername import get_rank_color
 
-def renderhotbar(name, uuid, hypixel_data):
+def render_hotbar(name, uuid, hypixel_data):
     # Get shop layout and positions
     slots = [(40, 424), (130, 424), (220, 424), (310, 424), (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
     try:

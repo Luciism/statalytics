@@ -1,9 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 from helper.rendername import render_level_and_name, render_level
-from calc.calcmilestones import Stats
+from calc.milestones import Stats
 from helper.custombackground import background
 
-def rendermilestones(name, uuid, mode, session, hypixel_data, save_dir):
+def render_milestones(name, uuid, mode, session, hypixel_data, save_dir):
     image_location = background(path='./assets/milestones', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")

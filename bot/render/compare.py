@@ -1,9 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
-from calc.calccompare import Compare
+from calc.compare import Compare
 from helper.rendername import render_level_and_name
 from helper.custombackground import background
 
-def rendercompare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2, save_dir):
+def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2, save_dir):
     # Open the image
     image_location = background(path='./assets/compare', uuid=uuid_1, default='base')
     image = Image.open(image_location)

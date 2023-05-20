@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from ui import SelectView
-from render.rendertotal import rendertotal
+from render.total import render_total
 from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
@@ -33,14 +33,14 @@ class Total(commands.Cog):
         skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
         hypixel_data = get_hypixel_data(uuid)
 
-        rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
-        rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
-        rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
-        rendertotal(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
-        rendertotal(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
+        render_total(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="generic")
 
         update_command_stats(interaction.user.id, 'total')
 
@@ -58,13 +58,13 @@ class Total(commands.Cog):
         skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
         hypixel_data = get_hypixel_data(uuid)
 
-        rendertotal(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        render_total(name, uuid, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        rendertotal(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
-        rendertotal(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
-        rendertotal(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
-        rendertotal(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        render_total(name, uuid, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        render_total(name, uuid, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        render_total(name, uuid, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
+        render_total(name, uuid, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id, method="pointless")
 
         update_command_stats(interaction.user.id, 'pointless')
 

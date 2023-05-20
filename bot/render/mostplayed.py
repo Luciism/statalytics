@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
 from helper.rendername import get_rank_color
 
-def rendermostplayed(name, uuid, hypixel_data):
+def render_mostplayed(name, uuid, hypixel_data):
     hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
 
     solos = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)

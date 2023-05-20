@@ -3,7 +3,7 @@ from PIL import Image, ImageFont, ImageDraw
 from calc.calctools import get_player_rank_info
 from helper.rendername import get_rank_prefix, render_level_and_name
 
-def renderdisplayname(name, hypixel_data):
+def render_displayname(name, hypixel_data):
     level = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)
     player_rank_info = get_player_rank_info(hypixel_data=hypixel_data.get('player', {}))
     rank_prefix = get_rank_prefix(player_rank_info)

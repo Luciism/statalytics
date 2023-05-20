@@ -1,12 +1,12 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calc.calcpractice import Practice
+from calc.practice import Practice
 from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar
 
 
-def renderpractice(name, uuid, hypixel_data, skin_res):
+def render_practice(name, uuid, hypixel_data, skin_res):
     # Open the image
     image_location = background(path='./assets/practice', uuid=uuid, default='base')
     image = Image.open(image_location)

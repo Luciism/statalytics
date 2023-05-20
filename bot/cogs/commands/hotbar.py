@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from render.renderhotbar import renderhotbar
+from render.hotbar import render_hotbar
 from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
@@ -28,7 +28,7 @@ class Hotbar(commands.Cog):
         await interaction.response.send_message(self.GENERATING_MESSAGE)
 
         hypixel_data = get_hypixel_data(uuid)
-        rendered = renderhotbar(name, uuid, hypixel_data)
+        rendered = render_hotbar(name, uuid, hypixel_data)
         if rendered is not False:
             await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="hotbar.png")])
         else: await interaction.edit_original_response(content=f'**{refined}** does not have a hotbar set!**')

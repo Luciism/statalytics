@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from render.rendermostplayed import rendermostplayed
+from render.mostplayed import render_mostplayed
 from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
@@ -27,7 +27,7 @@ class MostPlayed(commands.Cog):
         await interaction.response.send_message(self.GENERATING_MESSAGE)
 
         hypixel_data = get_hypixel_data(uuid)
-        rendered = rendermostplayed(name, uuid, hypixel_data)
+        rendered = render_mostplayed(name, uuid, hypixel_data)
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 
         update_command_stats(interaction.user.id, 'mostplayed')

@@ -17,7 +17,7 @@ from functions import (username_autocompletion,
                        authenticate_user,
                        skin_session)
 
-from render.rendersession import rendersession
+from render.session import render_session
 from ui import SelectView, ManageSession
 
 class Sessions(commands.Cog):
@@ -45,14 +45,14 @@ class Sessions(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
         skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
 
-        rendersession(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        rendersession(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        rendersession(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        rendersession(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        rendersession(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        rendersession(name, uuid, session, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_session(name, uuid, session, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'session')
 

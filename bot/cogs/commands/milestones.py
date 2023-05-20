@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from ui import SelectView
-from render.rendermilestones import rendermilestones
+from render.milestones import render_milestones
 from functions import (username_autocompletion,
                        session_autocompletion,
                        check_subscription,
@@ -42,14 +42,14 @@ class Milestones(commands.Cog):
         session = 1 if session == 100 else session
         hypixel_data = get_hypixel_data(uuid)
 
-        rendermilestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        rendermilestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        rendermilestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        rendermilestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        rendermilestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        rendermilestones(name, uuid, mode="4v4", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_milestones(name, uuid, mode="4v4", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'milestones')
 

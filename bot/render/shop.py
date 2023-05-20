@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from helper.custombackground import background
 
-def rendershop(uuid, hypixel_data):
+def render_shop(uuid, hypixel_data):
     # Get shop layout and positions
     slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80), (490, 80), (580, 80), (40, 170), (130, 170), (220, 170), (310, 170),
              (400, 170), (490, 170), (580, 170), (40, 260), (130, 260), (220, 260), (310, 260), (400, 260), (490, 260), (580, 260)]

@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from ui import SelectView
-from render.renderaverage import renderaverage
+from render.average import render_average
 from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
@@ -31,14 +31,14 @@ class Average(commands.Cog):
         os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = get_hypixel_data(uuid)
 
-        renderaverage(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="Overall", hypixel_data=hypixel_data, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        renderaverage(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
-        renderaverage(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
-        renderaverage(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
-        renderaverage(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
-        renderaverage(name, uuid, mode="4v4", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="Solos", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="Doubles", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="Threes", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="Fours", hypixel_data=hypixel_data, save_dir=interaction.id)
+        render_average(name, uuid, mode="4v4", hypixel_data=hypixel_data, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'average')
 

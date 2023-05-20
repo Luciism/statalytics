@@ -1,10 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont
-from calc.calcresources import Resources
+from calc.resources import Resources
 from helper.rendername import get_rank_prefix, render_rank
 from helper.custombackground import background
 from helper.renderprogress import render_progress_text, render_progress_bar
 
-def renderresources(name, uuid, mode, hypixel_data, save_dir):
+def render_resources(name, uuid, mode, hypixel_data, save_dir):
     # Open the image
     image_location = background(path='./assets/resources', uuid=uuid, default='base')
     image = Image.open(image_location)

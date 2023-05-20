@@ -1,11 +1,11 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calc.calctotal import Stats
+from calc.total import Stats
 from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar, render_progress_text
 
-def rendertotal(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
+def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     # Open the image
     image_location = background(path='./assets/total', uuid=uuid, default='base')
     image = Image.open(image_location)

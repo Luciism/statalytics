@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from render.renderdisplayname import renderdisplayname
+from render.displayname import render_displayname
 from functions import check_subscription, username_autocompletion, authenticate_user, get_hypixel_data, update_command_stats
 
 class DisplayName(commands.Cog):
@@ -21,7 +21,7 @@ class DisplayName(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
         if not hypixel_data.get('player'):
             hypixel_data['player'] = {}
-        rendered = renderdisplayname(name, hypixel_data)
+        rendered = render_displayname(name, hypixel_data)
         await interaction.followup.send(content=None, files=[discord.File(rendered, filename="displayname.png")])
 
         update_command_stats(interaction.user.id, 'displayname')

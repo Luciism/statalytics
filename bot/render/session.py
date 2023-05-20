@@ -1,12 +1,12 @@
 from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont
-from calc.calcsession import SessionStats
+from calc.session import SessionStats
 from helper.rendername import render_rank, get_rank_prefix
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar
 
-def rendersession(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
+def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     image_location = background(path='./assets/session', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")

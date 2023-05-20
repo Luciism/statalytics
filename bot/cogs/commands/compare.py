@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from ui import SelectView
-from render.rendercompare import rendercompare
+from render.compare import render_compare
 from functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
@@ -40,14 +40,14 @@ class Compare(commands.Cog):
         hypixel_data_1 = get_hypixel_data(uuid_1)
         hypixel_data_2 = get_hypixel_data(uuid_2)
 
-        rendercompare(name_1, name_2, uuid_1, mode="Overall", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="Overall", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        rendercompare(name_1, name_2, uuid_1, mode="Solos", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
-        rendercompare(name_1, name_2, uuid_1, mode="Doubles", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
-        rendercompare(name_1, name_2, uuid_1, mode="Threes", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
-        rendercompare(name_1, name_2, uuid_1, mode="Fours", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
-        rendercompare(name_1, name_2, uuid_1, mode="4v4", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="Solos", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="Doubles", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="Threes", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="Fours", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
+        render_compare(name_1, name_2, uuid_1, mode="4v4", hypixel_data_1=hypixel_data_1, hypixel_data_2=hypixel_data_2, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'compare')
 
