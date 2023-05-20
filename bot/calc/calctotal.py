@@ -81,6 +81,6 @@ class Stats:
     def get_misc_pointless(self):
         games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
         tools_purchased = self.hypixel_data_bedwars.get(f'{self.mode}permanent_items_purchased_bedwars', 0)
-        items_purchased = self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)
+        melee_kills = self.hypixel_data_bedwars.get(f'{self.mode}entity_attack_kills_bedwars', 0)
         winstreak = self.hypixel_data_bedwars.get(f'{self.mode}winstreak', 0)
-        return f'{games_played:,}', f'{tools_purchased:,}', f'{items_purchased:,}', f'{winstreak:,}'
+        return f'{games_played:,}', f'{tools_purchased:,}', f'{melee_kills:,}', f'{winstreak:,}'

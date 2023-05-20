@@ -47,7 +47,7 @@ class Misc(commands.Cog):
     @app_commands.command(name = "usage", description = "View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
         with open('./assets/command_map.json', 'r') as datafile:
-            command_map = load_json(datafile)['commands']
+            command_map: dict = load_json(datafile)['commands']
 
         with sqlite3.connect('./database/command_usage.db') as conn:
             cursor = conn.cursor()
@@ -59,12 +59,16 @@ class Misc(commands.Cog):
             if not table_data: table_data = (0, 0)
             description = [f'**Overall - {table_data[1]}**\n']
 
+            usage_values = {}
             for table in tables:
                 cursor.execute(f'SELECT * FROM {table} WHERE discord_id = {interaction.user.id}')
                 table_data = cursor.fetchone()
-                
+
                 if not table_data or table == "overall": continue
-                description.append(f'`{command_map.get(table)}` - `{table_data[1]}`')
+                usage_values[command_map.get(table)] = table_data[1]
+
+            for key, value in sorted(usage_values.items(), key=lambda x: x[1], reverse=True):
+                description.append(f'`{key}` - `{value}`')
 
         embed_color = int(self.config['embed_primary_color'], base=16)
         embed = discord.Embed(title="Your Command Usage", description='\n'.join(description), color=embed_color)
