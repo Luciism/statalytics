@@ -1,5 +1,4 @@
 import os
-import sqlite3
 
 import discord
 from discord import app_commands
