@@ -63,12 +63,14 @@ def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_
     return app_commands.Cooldown(1, 3.5)
 
 # Get hypixel data
-def get_hypixel_data(uuid: str):
+def get_hypixel_data(uuid: str, cache: bool=True):
     with open('./database/apikeys.json', 'r') as keyfile:
         all_keys = json.load(keyfile)['hypixel']
     key = all_keys[random.choice(list(all_keys))]
 
-    return stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    if cache: data = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    else: data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    return data
 
 # Get linked data
 def get_linked_data(discord_id: int):
@@ -255,3 +257,65 @@ async def get_smart_session(interaction, session, username, uuid):
         return False
 
     return session_data
+
+def start_historical(uuid: str, method: str) -> None:
+    hypixel_data = get_hypixel_data(uuid, cache=False)
+
+    with open('./config.json', 'r') as datafile:
+        stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
+    stat_values = [uuid, hypixel_data["player"].get("achievements", {}).get("bedwars_level", 0)]
+
+    for key in stat_keys:
+        stat_values.append(hypixel_data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0))
+    stat_keys.insert(0, 'level')
+    stat_keys.insert(0, 'uuid')
+
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        keys = ', '.join(stat_keys)
+        cursor.execute(f"INSERT INTO {method} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
+
+def save_historical(local_data: tuple, hypixel_data: tuple, table: str):
+    historical_values = [hypixel_data[0], hypixel_data[1]]
+
+    for i, value in enumerate(hypixel_data[1:]):
+        historical_values.append(value - local_data[i+1])
+
+    with open('./config.json', 'r') as datafile:
+        stat_keys = ['uuid', 'level', 'stars_gained']
+        stat_keys.extend(json.load(datafile)['tracked_bedwars_stats'])
+
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
+        if not cursor.fetchone():
+            columns = ', '.join([f'{key} INTEGER' for key in stat_keys[1:]])
+            cursor.execute(f"CREATE TABLE {table} (uuid TEXT PRIMARY KEY, {columns})")
+
+        cursor.execute(f"SELECT uuid FROM {table} WHERE uuid = '{hypixel_data[0]}'")
+    
+        if not cursor.fetchone():
+            keys = ', '.join(stat_keys)
+            cursor.execute(f"INSERT INTO {table} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", historical_values)
+
+def uuid_to_discord_id(uuid: str) -> int | None:
+    """Attempts to fetch discord id from linked database"""
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
+        discord_id = cursor.fetchone()
+    return None if not discord_id else discord_id[0]
+
+def get_time_config(discord_id: int) -> tuple:
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        if discord_id:
+            cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{discord_id}'")
+            config_data = cursor.fetchone()
+            if config_data:
+                return config_data[1:]
+            else: return 0, 0
+        else: return 0, 0

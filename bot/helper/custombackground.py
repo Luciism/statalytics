@@ -15,6 +15,6 @@ def background(path, uuid, default):
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discordid}")
         subscription = cursor.fetchone()
-    if subscription and 'premium' in subscription[1] and os.path.exists(f'{path}/custom/{discordid}.png'):
+    if subscription and 'pro' in subscription[1] and os.path.exists(f'{path}/custom/{discordid}.png'):
         return f'{path}/custom/{discordid}.png'
     return f'{path}/{default}.png'

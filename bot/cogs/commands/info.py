@@ -49,41 +49,41 @@ class Info(commands.Cog):
         embed = discord.Embed(title='Statalytics Info', description=None, color=int(config['embed_primary_color'], base=16))
 
         embed.add_field(name='Key Metrics', value=f"""
-`┌` **Uptime:** `{uptime}`
-`├` **Ping:** `{ping:,}ms`
-`├` **Commands:** `{total_commands:,}`
-`└` **Version:** `{config['version']}`
-        """)
+            `┌` **Uptime:** `{uptime}`
+            `├` **Ping:** `{ping:,}ms`
+            `├` **Commands:** `{total_commands:,}`
+            `└` **Version:** `{config['version']}`
+        """.replace('   ', ''))
 
         embed.add_field(name='', value='')
 
         embed.add_field(name='Bot Usage Stats', value=f"""
-`┌` **Servers:** `{total_guilds:,}`
-`├` **Users:** `{total_members:,}`
-`├` **Commands Ran:** `{total_commands_ran:,}`
-`└` **Linked Users**: `{total_linked_accounts:,}`
-​
-        """)
+            `┌` **Servers:** `{total_guilds:,}`
+            `├` **Users:** `{total_members:,}`
+            `├` **Commands Ran:** `{total_commands_ran:,}`
+            `└` **Linked Users**: `{total_linked_accounts:,}`
+            ​
+        """.replace('   ', ''))
 
         python_version = '.'.join((str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])))
         ram_usage = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, 2)
         embed.add_field(name='Specifications', value=f"""
-`┌` **Devs:** `{', '.join(config['developers'])}`
-`├` **Library:** `discord.py`
-`├` **Python:** `{python_version}`
-`└` **Used RAM:** `{ram_usage:,}mb`
-        """)
+            `┌` **Devs:** `{', '.join(config['developers'])}`
+            `├` **Library:** `discord.py`
+            `├` **Python:** `{python_version}`
+            `└` **Used RAM:** `{ram_usage:,}mb`
+        """.replace('   ', ''))
 
         embed.add_field(name='', value='')
 
         embed.add_field(name='Links', value=f"""
-`┌` [Invite]({config['links']['invite_url']})
-`├` [Website]({config['links']['website']})
-`├` [Support]({config['links']['support_server']})
-`└` [Github]({config['links']['github']})
-        """)
+            `┌` [Invite]({config['links']['invite_url']})
+            `├` [Website]({config['links']['website']})
+            `├` [Support]({config['links']['support_server']})
+            `└` [Github]({config['links']['github']})
+        """.replace('   ', ''))
 
-        embed.set_thumbnail(url='https://statalytics.net/image/logo.png')
+        embed.set_thumbnail(url='https://statalytics.net/image/logo.png?v=1')
         await interaction.followup.send(embed=embed)
 
         update_command_stats(discord_id=interaction.user.id, command='info')

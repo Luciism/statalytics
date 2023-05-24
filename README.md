@@ -33,6 +33,15 @@
 | `/usage` | View your command usage with Statalytics |
 | `/who` | Get the name of uuid of any player. |
 | `/displayname` | Render the hypixel display name of any player. |
+| `/credits` | View the people who made Statalytics possible |
+| `/daily` | View the daily stats of any player. |
+| `/weekly` | View the weekly stats of any player. |
+| `/monthly` | View the monthly stats of any player |
+| `/yearly` | View the yearly stats of any player. |
+| `/lastday` | View the previous day's stats of any player. |
+| `/lastweek` | View the previous week's stats of any player. |
+| `/lastmonth` | View the previous month's stats of any player. |
+| `/lastyear` | View the previous year's stats of any player. |
 
 <br>
 

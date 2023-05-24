@@ -18,7 +18,6 @@ class Resources(commands.Cog):
         self.client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
-# Resources Stats
     @app_commands.command(name = "resources", description = "View the resource stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')

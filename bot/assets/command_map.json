@@ -29,6 +29,15 @@
         "resetsession": "/resetsession",
         "activesessions": "/activesessions",
         "year": "/2024",
+        "daily": "/daily",
+        "weekly": "/weekly",
+        "monthly": "/monthly",
+        "yearly": "/yearly",
+        "lastday": "/lastday",
+        "lastweek": "/lastweek",
+        "lastmonth": "/lastmonth",
+        "lastyear": "/lastyear",
+        "credits": "/credits",
         "overall": "Overall"
     }
 }

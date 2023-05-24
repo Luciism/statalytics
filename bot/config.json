@@ -1,7 +1,7 @@
 {
     "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "developers": [
         "Luca.#0616"
     ],
@@ -35,7 +35,12 @@
         "commands.compare",
         "commands.who",
         "commands.displayname",
-        "commands.info"
+        "commands.info",
+        "commands.historical.daily",
+        "commands.historical.weekly",
+        "commands.historical.monthly",
+        "commands.historical.yearly",
+        "commands.historical.reset_time"
     ],
     "tracked_bedwars_stats": [
         "Experience",

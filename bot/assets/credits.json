@@ -1,0 +1,33 @@
+{
+    "credits": {
+        "title": "Credits",
+        "description": "Statalytics was made possible by the following:",
+        "color": 5793266,
+        "fields": [
+            {
+                "name": "Lead Bot Developer",
+                "value": "[Luca.#0616](https://discordapp.com/users/774848780234653726)",
+                "inline": true
+            },
+            {
+                "name": "Chief Marketing Officer",
+                "value": "[Cas42#0001](https://discordapp.com/users/327097602350907393)",
+                "inline": true
+            },
+            {
+                "name": "",
+                "value": ""
+            },
+            {
+                "name": "Web Engineers",
+                "value": "[Cas42#0001](https://discordapp.com/users/327097602350907393)\n[Luca.#0616](https://discordapp.com/users/774848780234653726)",
+                "inline": true
+            },
+            {
+                "name": "Beta Testers",
+                "value": "[Cas42#0001](https://discordapp.com/users/327097602350907393)\n[Emily <3#3252](https://discordapp.com/users/833456655139995688)",
+                "inline": true
+            }
+        ]
+    }
+}

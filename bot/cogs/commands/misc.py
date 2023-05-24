@@ -57,7 +57,8 @@ class Misc(commands.Cog):
             cursor.execute(f'SELECT * FROM overall WHERE discord_id = {interaction.user.id}')
             table_data = cursor.fetchone()
             if not table_data: table_data = (0, 0)
-            description = [f'**Overall - {table_data[1]}**\n']
+            overall = f'**Overall - {table_data[1]}**'
+            description = []
 
             usage_values = {}
             for table in tables:
@@ -67,15 +68,27 @@ class Misc(commands.Cog):
                 if not table_data or table == "overall": continue
                 usage_values[command_map.get(table)] = table_data[1]
 
-            for key, value in sorted(usage_values.items(), key=lambda x: x[1], reverse=True):
-                description.append(f'`{key}` - `{value}`')
+        for key, value in sorted(usage_values.items(), key=lambda x: x[1], reverse=True):
+            description.append(f'`{key}` - `{value}`')
 
         embed_color = int(self.config['embed_primary_color'], base=16)
-        embed = discord.Embed(title="Your Command Usage", description='\n'.join(description), color=embed_color)
+        embed = discord.Embed(title="Your Command Usage", description=overall, color=embed_color)
+        for i in range(0, len(description), 10):
+            sublist = description[i:i+10]
+            embed.add_field(name='', value='\n'.join(sublist))
         await interaction.response.send_message(embed=embed)
 
         update_command_stats(interaction.user.id, 'usage')
 
+    @app_commands.command(name = "credits", description = "The people who made Statalytics possible")
+    async def credits(self, interaction: discord.Interaction):
+        with open('./assets/credits.json', 'r') as datafile:
+            credits = load_json(datafile)
+
+        embed = discord.Embed.from_dict(credits['credits'])
+        await interaction.response.send_message(embed=embed)
+
+        update_command_stats(interaction.user.id, 'credits')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Misc(client))
