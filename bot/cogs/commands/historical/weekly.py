@@ -184,7 +184,6 @@ class Weekly(commands.Cog):
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
-
             try:
                 cursor.execute(f"SELECT uuid FROM {table_name} WHERE uuid = '{uuid}'")
                 historical_data = cursor.fetchone()

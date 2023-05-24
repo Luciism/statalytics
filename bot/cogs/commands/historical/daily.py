@@ -174,12 +174,10 @@ class Daily(commands.Cog):
 
         discord_id = uuid_to_discord_id(uuid=uuid)
         gmt_offset = get_time_config(discord_id=discord_id)[0]
-
-        cursor = conn.cursor()
         table_name = (datetime.now(timezone(timedelta(hours=gmt_offset))) - timedelta(days=1)).strftime("daily_%Y_%m_%d")
 
         with sqlite3.connect('./database/historical.db') as conn:
-            
+            cursor = conn.cursor()
             try:
                 cursor.execute(f"SELECT uuid FROM {table_name} WHERE uuid = '{uuid}'")
                 historical_data = cursor.fetchone()
