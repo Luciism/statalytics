@@ -42,6 +42,7 @@
 | `/lastweek` | View the previous week's stats of any player. |
 | `/lastmonth` | View the previous month's stats of any player. |
 | `/lastyear` | View the previous year's stats of any player. |
+| `/resettime` | Configure the time for your historical stats to reset. |
 
 <br>
 

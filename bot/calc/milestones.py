@@ -37,7 +37,7 @@ class Stats:
             session_wins = wins - self.session_data[f'{self.mode}wins_bedwars']
             session_losses = losses - self.session_data[f'{self.mode}losses_bedwars']
 
-            wins_repitition = 0 if wins_until_wlr == 0 else wins_until_wlr / session_wins if session_wins != 1 else wins_until_wlr
+            wins_repitition = 0 if wins_until_wlr == 0 else wins_until_wlr / session_wins if session_wins != 0 else wins_until_wlr
             new_losses = session_losses * wins_repitition + losses
 
             wins_at_wlr = int(new_losses * target_wlr if new_losses > 1 else ((wins / (target_wlr - 1) if target_wlr > 0 else 0) * target_wlr))
@@ -65,7 +65,7 @@ class Stats:
             session_final_kills = final_kills - self.session_data[f'{self.mode}final_kills_bedwars']
             session_final_deaths = final_deaths - self.session_data[f'{self.mode}final_deaths_bedwars']
 
-            final_kills_repitition = 0 if final_kills_until_fkdr == 0 else final_kills_until_fkdr / session_final_kills if session_final_kills != 1 else final_kills_until_fkdr
+            final_kills_repitition = 0 if final_kills_until_fkdr == 0 else final_kills_until_fkdr / session_final_kills if session_final_kills != 0 else final_kills_until_fkdr
             new_final_deaths = session_final_deaths * final_kills_repitition + final_deaths
 
             final_kills_at_fkdr = int(new_final_deaths * target_fkdr if new_final_deaths > 1 else ((final_kills / (target_fkdr - 1) if target_fkdr > 0 else 0) * target_fkdr))
@@ -91,7 +91,7 @@ class Stats:
             session_beds_broken = beds_broken - self.session_data[f'{self.mode}beds_broken_bedwars']
             session_beds_lost = beds_lost - self.session_data[f'{self.mode}beds_lost_bedwars']
 
-            beds_broken_repitition = 0 if beds_broken_until_bblr == 0 else beds_broken_until_bblr / session_beds_broken if session_beds_broken != 1 else beds_broken_until_bblr
+            beds_broken_repitition = 0 if beds_broken_until_bblr == 0 else beds_broken_until_bblr / session_beds_broken if session_beds_broken != 0 else beds_broken_until_bblr
             new_beds_lost = session_beds_lost * beds_broken_repitition + beds_lost
 
             beds_broken_at_bblr = int(new_beds_lost * target_bblr if new_beds_lost > 1 else ((beds_broken / (target_bblr - 1) if target_bblr > 0 else 0) * target_bblr))
@@ -117,7 +117,7 @@ class Stats:
             session_kills = kills - self.session_data[f'{self.mode}kills_bedwars']
             session_deaths = deaths - self.session_data[f'{self.mode}deaths_bedwars']
 
-            kills_repitition = 0 if kills_until_kdr == 0 else kills_until_kdr / session_kills if session_kills != 1 else kills_until_kdr
+            kills_repitition = 0 if kills_until_kdr == 0 else kills_until_kdr / session_kills if session_kills != 0 else kills_until_kdr
             new_deaths = session_deaths * kills_repitition + deaths
 
             kills_at_kdr = int(new_deaths * target_kdr if new_deaths > 1 else ((kills / (target_kdr - 1) if target_kdr > 0 else 0) * target_kdr))

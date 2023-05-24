@@ -52,7 +52,7 @@
         },
         {
           "name": "**Commands:**",
-          "value": "`/daily` - view the current daily stats\n`/weekly` - view the current weekly stats\n`/monthly` - view current monthly stats\n`/yearly` - view current yearly stats\n`/lastday` - view yesterdays stats\n`/lastweek` - view last weeks stats\n`/lastmonth` - view last months stats\n`/lastyear` - view last years stats"
+          "value": "`/daily` - view the current daily stats\n`/weekly` - view the current weekly stats\n`/monthly` - view current monthly stats\n`/yearly` - view current yearly stats\n`/lastday` - view yesterdays stats\n`/lastweek` - view last weeks stats\n`/lastmonth` - view last months stats\n`/lastyear` - view last years stats\n`/resettime` - configure stat reset time"
         }
       ]
     },
