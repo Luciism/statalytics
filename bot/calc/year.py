@@ -34,6 +34,7 @@ class YearStats:
         self.stars_per_day = self.levels_gained / self.days
         self.projected_star = int(self.stars_per_day * self.days_to_go + self.level_hypixel)
         self.levels_to_go = self.projected_star - self.level_hypixel
+        if self.levels_to_go == 0: self.levels_to_go = 0.0001
         self.level_repetition = self.levels_to_go / self.levels_gained
 
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
@@ -84,7 +85,7 @@ class YearStats:
         avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
         avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
         avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
-        return str(round(avg_wins, 2)), str(round(avg_finals, 2)), str(round(avg_beds, 2))
+        return str(round(avg_wins, 2)).replace('-', ''), str(round(avg_finals, 2)).replace('-', ''), str(round(avg_beds, 2)).replace('-', '')
 
     def get_items_purchased(self):
         items_avg, items_hypixel = self.get_average(value=f'{self.mode}items_purchased_bedwars')

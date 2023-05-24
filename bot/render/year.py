@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.year import YearStats
 from helper.custombackground import background

@@ -1,5 +1,3 @@
-from io import BytesIO
-
 from PIL import Image, ImageDraw, ImageFont
 from calc.session import SessionStats
 from helper.rendername import render_rank, get_rank_prefix, paste_skin
