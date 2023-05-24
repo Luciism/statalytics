@@ -172,7 +172,8 @@ class Yearly(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        next_occurrence = datetime(now.year + 1, 1, 1, hour-1, 0, 0, tzinfo=timezone(timedelta(hours=gmt_offset)))
+        if hour > 0: hour -= 1
+        next_occurrence = datetime(now.year + 1, 1, 1, hour, 0, 0, tzinfo=timezone(timedelta(hours=gmt_offset)))
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 

@@ -1,5 +1,5 @@
-import os
-from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from helper.prescolor import Prescolor
 
 def get_color_map():
@@ -213,3 +213,16 @@ def get_rank_color(player_rank_info: dict):
     else:
         rankcolor = (255, 85, 85) if player_rank_info['rank'] in ("YOUTUBER", "ADMIN") else (0, 170, 0)
     return rankcolor
+
+def paste_skin(skin_res, image: Image, positions: tuple):
+    """
+    Pastes a skin onto image
+    :param skin_res: the image bytes object for the skin
+    :param image: the image object to paste onto
+    :param positions: the x & y coordinates to paste at
+    """
+    try:
+        skin = Image.open(BytesIO(skin_res))
+    except UnidentifiedImageError:
+        skin = Image.open('./assets/steve.png')
+    image.paste(skin, positions, skin)

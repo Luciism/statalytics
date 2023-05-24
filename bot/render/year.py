@@ -1,10 +1,11 @@
+from datetime import datetime
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.year import YearStats
 from helper.custombackground import background
-from helper.rendername import render_level, render_rank, get_rank_prefix
+from helper.rendername import render_level, render_rank, get_rank_prefix, paste_skin
 
-def render_year(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
+def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_dir):
     image_location = background(path='./assets/year', uuid=uuid, default='base')
     image = Image.open(image_location)
     image = image.convert("RGBA")
@@ -23,21 +24,23 @@ def render_year(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     gold = (255, 170, 0)
     light_purple = (255, 85, 255)
 
-    stats = YearStats(name, uuid, session, mode, hypixel_data)
+    stats = YearStats(name, uuid, session, year, mode, hypixel_data)
     level = int(stats.level_hypixel)
     target = stats.get_target()
     player_rank_info = stats.player_rank_info
     days_to_go = str(stats.days_to_go)
     stars_per_day = f'{round(stats.stars_per_day, 2):,}'
-    year = str(stats.current_time.year + 1)
     items_purchased = stats.get_items_purchased()
-    complete_percent = f'{round((365 - int(days_to_go)) / 365 * 100, 2)}%'
+    
+    years_to_go = year - datetime.now().year
+    complete_percent = f'{round(((365 * years_to_go) - int(days_to_go)) / (365 * years_to_go) * 100, 2)}%'
 
     kills, deaths, kdr = stats.get_kills()
     final_kills, final_deaths, fkdr = stats.get_finals()
     beds_broken, beds_lost, bblr = stats.get_beds()
     wins, losses, wlr = stats.get_wins()
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
+    year = str(year)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
@@ -110,9 +113,14 @@ def render_year(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
 
     render_level(target, progress_x, progress_y, 20, image)
 
-    # Render Skin
-    skin = Image.open(BytesIO(skin_res))
-    image.paste(skin, (466, 69), skin)
+    paste_skin(skin_res, image, positions=(466, 69))
+
+    # Draw title
+    title = f'Year {year}'
+    totallength = draw.textlength(title, font=minecraft_18)
+    title_x, title_y = round((171 - totallength) / 2) + 452, 27
+    draw.text((title_x + 2, title_y + 2), title, fill=black, font=minecraft_18)
+    draw.text((title_x, title_y), title, fill=white, font=minecraft_18)
 
     # Paste overlay
     overlay_image = Image.open('./assets/year/overlay.png')

@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.practice import Practice
-from helper.rendername import render_rank, get_rank_prefix
+from helper.rendername import render_rank, get_rank_prefix, paste_skin
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar
 
@@ -88,9 +88,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
     render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
 
-    # Render Skin
-    skin = Image.open(BytesIO(skin_res))
-    image.paste(skin, (466, 69), skin)
+    paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/practice/overlay.png')

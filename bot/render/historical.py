@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.historical import HistoricalStats, LookbackStats
-from helper.rendername import render_rank, get_rank_prefix
+from helper.rendername import render_rank, get_rank_prefix, paste_skin
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar, render_progress_text
 
@@ -96,9 +96,7 @@ def render_historical(name, uuid, method, mode, hypixel_data, skin_res, save_dir
     render_progress_bar(box_positions=(415, 19), position_y=91, level=level, progress_out_of_10=progress_out_of_10, image=image)
     render_progress_text(box_positions=(415, 19), position_y=122, progress=progress, target=target, draw=draw)
 
-    # Render Skin
-    skin = Image.open(BytesIO(skin_res))
-    image.paste(skin, (466, 69), skin)
+    paste_skin(skin_res, image, positions=(466, 69))
 
     # Draw title
     title = f'{method.title()} BW Stats' if not table_name else title_map.get(method)

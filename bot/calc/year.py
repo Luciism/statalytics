@@ -1,10 +1,10 @@
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from calc.calctools import get_player_rank_info, add_suffixes, get_mode, get_level
 
 class YearStats:
-    def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
+    def __init__(self, name: str, uuid: str, session: int, year: int, mode: str, hypixel_data: dict) -> None:
         self.name = name
         self.mode = get_mode(mode)
 
@@ -20,8 +20,10 @@ class YearStats:
 
         self.current_time = datetime.now().date()
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d").date()
+
+        if not year: year = self.current_time.year + 1
         self.days = (self.current_time - old_time).days
-        self.days_to_go = (datetime(self.current_time.year, 12, 31).date() - self.current_time).days
+        self.days_to_go = (datetime(year, 1, 1).date() - self.current_time).days
         if self.days == 0: self.days = 1
         if self.days_to_go == 0: self.days_to_go = 1
 
@@ -90,7 +92,7 @@ class YearStats:
 
         items_purchased = add_suffixes(round(projected_items))
         return items_purchased[0]
-    
+
     def get_target(self):
         stars_to_go = self.stars_per_day * self.days_to_go
         return int(stars_to_go + self.level_hypixel)

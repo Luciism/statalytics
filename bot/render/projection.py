@@ -2,7 +2,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from calc.projection import SessionStats
 from helper.custombackground import background
-from helper.rendername import render_level, render_rank, get_rank_prefix
+from helper.rendername import render_level, render_rank, get_rank_prefix, paste_skin
 
 def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
     image_location = background(path='./assets/projection', uuid=uuid, default='base')
@@ -108,9 +108,7 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
 
     render_level(target, progress_x, progress_y, 20, image)
 
-    # Render Skin
-    skin = Image.open(BytesIO(skin_res))
-    image.paste(skin, (466, 69), skin)
+    paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/projection/overlay.png')
