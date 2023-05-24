@@ -1,6 +1,5 @@
-from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from calc.projection import SessionStats
+from calc.projection import ProjectedStats
 from helper.custombackground import background
 from helper.rendername import render_level, render_rank, get_rank_prefix, paste_skin
 
@@ -23,7 +22,7 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
     gold = (255, 170, 0)
     light_purple = (255, 85, 255)
 
-    stats = SessionStats(name, uuid, session, mode, target, hypixel_data)
+    stats = ProjectedStats(name, uuid, session, mode, target, hypixel_data)
     level = int(stats.level_hypixel)
     player_rank_info = stats.player_rank_info
     projection_date = stats.get_projection_date()

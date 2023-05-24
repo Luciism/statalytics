@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from calc.calctools import get_player_rank_info, add_suffixes, get_mode
 
-class SessionStats:
+class ProjectedStats:
     def get_level(self, xp):
         level = 100 * (xp // 487000) # prestige
         xp %= 487000 # exp this prestige
@@ -32,7 +32,7 @@ class SessionStats:
         self.level_local =  self.get_level(self.session_data['Experience']) # how many levels player had when they started session
         self.level_hypixel = self.get_level(self.hypixel_data_bedwars.get('Experience', 0)) # current hypixel level
         self.levels_to_go = self.target - self.level_hypixel # levels to target
-        self.stars_to_go = add_suffixes(round(self.levels_to_go))[0]
+        self.stars_to_go = add_suffixes(int(self.target - int(self.level_hypixel)))[0]
 
         self.levels_gained = self.level_hypixel - self.level_local # how many levels gained during session
         if self.levels_gained == 0: self.levels_gained = 0.0001
