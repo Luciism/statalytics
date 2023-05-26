@@ -7,7 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from functions import check_subscription, update_command_stats
+from helper.functions import check_subscription, update_command_stats
 
 
 

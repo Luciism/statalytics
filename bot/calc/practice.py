@@ -1,4 +1,4 @@
-from calc.calctools import get_player_rank_info, get_progress
+from helper.calctools import get_player_rank_info, get_progress, rround
 
 class Practice:
     def __init__(self, name: str, hypixel_data: dict) -> None:
@@ -14,25 +14,25 @@ class Practice:
     def get_bridging_stats(self):
         bridging_completed = self.practice_stats.get('bridging', {}).get('successful_attempts', 0)
         bridging_failed = self.practice_stats.get('bridging', {}).get('failed_attempts', 0)
-        bridging_ratio = round(0 if bridging_completed == 0 else bridging_completed / bridging_failed if bridging_failed != 0 else bridging_completed, 2)
+        bridging_ratio = rround(bridging_completed / (bridging_failed or 1), 2)
         return f'{bridging_completed:,}', f'{bridging_failed:,}', f'{bridging_ratio:,}'
 
     def get_tnt_stats(self):
         tnt_completed = self.practice_stats.get('fireball_jumping', {}).get('successful_attempts', 0)
         tnt_failed = self.practice_stats.get('fireball_jumping', {}).get('failed_attempts', 0)
-        tnt_ratio = round(0 if tnt_completed == 0 else tnt_completed / tnt_failed if tnt_failed != 0 else tnt_completed, 2)
+        tnt_ratio = rround(tnt_completed / (tnt_failed or 1), 2)
         return f'{tnt_completed:,}', f'{tnt_failed:,}', f'{tnt_ratio:,}'
 
     def get_mlg_stats(self):
         mlg_completed = self.practice_stats.get('mlg', {}).get('successful_attempts', 0)
         mlg_failed = self.practice_stats.get('mlg', {}).get('failed_attempts', 0)
-        mlg_ratio = round(0 if mlg_completed == 0 else mlg_completed / mlg_failed if mlg_failed != 0 else mlg_completed, 2)
+        mlg_ratio = rround(mlg_completed / (mlg_failed or 1), 2)
         return f'{mlg_completed:,}', f'{mlg_failed:,}', f'{mlg_ratio:,}'
 
     def get_pearl_stats(self):
         pearl_completed = self.practice_stats.get('pearl_clutching', {}).get('successful_attempts', 0)
         pearl_failed = self.practice_stats.get('pearl_clutching', {}).get('failed_attempts', 0)
-        pearl_ratio = round(0 if pearl_completed == 0 else pearl_completed / pearl_failed if pearl_failed != 0 else pearl_completed, 2)
+        pearl_ratio = rround(pearl_completed / (pearl_failed or 1), 2)
         return f'{pearl_completed:,}', f'{pearl_failed:,}', f'{pearl_ratio:,}'
 
     def get_blocks_placed(self):

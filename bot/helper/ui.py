@@ -4,7 +4,7 @@ from json import load as load_json
 
 import shutil
 import discord
-from functions import start_session
+from helper.functions import start_session
 
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     def __init__(self, channel, **kwargs):

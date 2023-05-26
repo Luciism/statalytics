@@ -5,8 +5,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from ui import SubmitSuggestion
-from functions import update_command_stats
+from helper.ui import SubmitSuggestion
+from helper.functions import update_command_stats
 
 
 class Misc(commands.Cog):

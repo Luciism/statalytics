@@ -1,4 +1,4 @@
-from calc.calctools import get_player_rank_info, get_progress, get_most_played, get_mode
+from helper.calctools import get_player_rank_info, get_progress, get_most_played, get_mode, rround
 
 class Stats:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
@@ -16,7 +16,7 @@ class Stats:
     def calc_general_stats(self, key_1, key_2):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0)
         val_2 = self.hypixel_data_bedwars.get(key_2, 0)
-        ratio = round(0 if val_1 == 0 else val_1 / val_2 if val_2 != 0 else val_1, 2)
+        ratio = rround(val_1 / (val_2 or 1), 2)
         return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
 
     def get_kills(self):

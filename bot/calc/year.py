@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-from calc.calctools import get_player_rank_info, add_suffixes, get_mode, get_level
+from helper.calctools import get_player_rank_info, add_suffixes, get_mode, get_level, rround
 
 class YearStats:
     def __init__(self, name: str, uuid: str, session: int, year: int, mode: str, hypixel_data: dict) -> None:
@@ -61,9 +61,9 @@ class YearStats:
         projected_value_1 = self.get_increase_factor(projected_value_1) + value_1_hypixel
         projected_value_2 = self.levels_to_go * value_2_per_star + value_2_hypixel
 
-        projected_ratio = round(0 if projected_value_1 == 0 else projected_value_1 / projected_value_2 if projected_value_2 != 0 else projected_value_1, 2)
+        projected_ratio = rround(projected_value_1 / (projected_value_2 or 1), 2)
 
-        return int(projected_value_1), int(projected_value_2), round(projected_ratio, 2)
+        return int(projected_value_1), int(projected_value_2), rround(projected_ratio, 2)
 
     def get_wins(self):
         self.wins = self.get_trajectory(value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
@@ -85,7 +85,7 @@ class YearStats:
         avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
         avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
         avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
-        return str(round(avg_wins, 2)).replace('-', ''), str(round(avg_finals, 2)).replace('-', ''), str(round(avg_beds, 2)).replace('-', '')
+        return str(rround(avg_wins, 2)).replace('-', ''), str(rround(avg_finals, 2)).replace('-', ''), str(rround(avg_beds, 2)).replace('-', '')
 
     def get_items_purchased(self):
         items_avg, items_hypixel = self.get_average(value=f'{self.mode}items_purchased_bedwars')

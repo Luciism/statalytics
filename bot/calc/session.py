@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-from calc.calctools import get_progress, get_player_rank_info, get_mode
+from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
 
 class SessionStats:
     def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
@@ -48,7 +48,7 @@ class SessionStats:
     def calc_general_stats(self, key_1, key_2):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0) - self.session_data[key_1]
         val_2 = self.hypixel_data_bedwars.get(key_2, 0) - self.session_data[key_2]
-        ratio = round(0 if val_1 == 0 else val_1 / val_2 if val_2 != 0 else val_1, 2)
+        ratio = rround(val_1 / (val_2 or 1), 2)
         return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
 
     def get_wins(self):
@@ -69,15 +69,15 @@ class SessionStats:
         days = (current_time - session_date).days
 
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0) - self.session_data[f'{self.mode}wins_bedwars']
-        winspd = round(0 if wins == 0 else wins / days if days != 0 else wins, 2)
+        winspd = rround(0 if wins == 0 else wins / days if days != 0 else wins, 2)
 
         final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0) - self.session_data[f'{self.mode}final_kills_bedwars']
-        finalspd = round(0 if final_kills == 0 else final_kills / days if days != 0 else final_kills, 2)
+        finalspd = rround(final_kills / (days or 1), 2)
 
         beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0) - self.session_data[f'{self.mode}beds_broken_bedwars']
-        bedspd = round(0 if beds_broken == 0 else beds_broken / days if days != 0 else beds_broken, 2)
+        bedspd = rround(beds_broken / (days or 1), 2)
 
         stars_gained = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0) - self.session_data.get('level', 0)
-        starspd = round(0 if stars_gained == 0 else stars_gained / days if days != 0 else stars_gained, 2)
+        starspd = rround(stars_gained / (days or 1), 2)
 
         return f'{winspd:,}', f'{finalspd:,}', f'{bedspd:,}', f'{starspd:,}'

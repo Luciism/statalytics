@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-from calc.calctools import get_player_rank_info, add_suffixes, get_mode
+from helper.calctools import get_player_rank_info, add_suffixes, get_mode, rround
 
 class ProjectedStats:
     def get_level(self, xp):
@@ -62,7 +62,7 @@ class ProjectedStats:
 
         projected_value_1 = self.get_increase_factor(value_1_repetition) + value_1_hypixel
         projected_value_2 = round(value_2_repetition + value_2_hypixel)
-        projected_ratio = round(0 if projected_value_1 == 0 else projected_value_1 / projected_value_2 if projected_value_2 != 0 else projected_value_1, 2)
+        projected_ratio = rround(projected_value_1 / (projected_value_2 or 1), 2)
 
         return projected_value_1, projected_value_2, projected_ratio
 

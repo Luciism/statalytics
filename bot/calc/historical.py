@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime,  timedelta
 
-from calc.calctools import get_progress, get_player_rank_info, get_mode
+from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
 
 class HistoricalStats:
     def __init__(self, name: str, uuid: str, method: int, mode: str, hypixel_data: dict) -> None:
@@ -50,29 +50,23 @@ class HistoricalStats:
         }
         return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
 
+    def calc_general_stats(self, key_1, key_2):
+        val_1 = self.hypixel_data_bedwars.get(key_1, 0) - self.historical_data[key_1]
+        val_2 = self.hypixel_data_bedwars.get(key_2, 0) - self.historical_data[key_2]
+        ratio = rround(val_1 / (val_2 or 1), 2)
+        return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
+
     def get_wins(self):
-        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0) - self.historical_data[f'{self.mode}wins_bedwars']
-        losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0) - self.historical_data[f'{self.mode}losses_bedwars']
-        wlr = round(0 if wins == 0 else wins / losses if losses != 0 else wins, 2)
-        return f'{wins:,}', f'{losses:,}', f'{wlr:,}'
+        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
     def get_finals(self):
-        finalkills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0) - self.historical_data[f'{self.mode}final_kills_bedwars']
-        finaldeaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0) - self.historical_data[f'{self.mode}final_deaths_bedwars']
-        fkdr = round(0 if finalkills == 0 else finalkills / finaldeaths if finaldeaths != 0 else finalkills, 2)
-        return f'{finalkills:,}', f'{finaldeaths:,}', f'{fkdr:,}'
+        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
     def get_kills(self):
-        kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0) - self.historical_data[f'{self.mode}kills_bedwars']
-        deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0) - self.historical_data[f'{self.mode}deaths_bedwars']
-        kdr = round(0 if kills == 0 else kills / deaths if deaths != 0 else kills, 2)
-        return f'{kills:,}', f'{deaths:,}', f'{kdr:,}'
+        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
     def get_beds(self):
-        bedsbroken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0) - self.historical_data[f'{self.mode}beds_broken_bedwars']
-        bedslost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0) - self.historical_data[f'{self.mode}beds_lost_bedwars']
-        bblr = round(0 if bedsbroken == 0 else bedsbroken / bedslost if bedslost != 0 else bedsbroken, 2)
-        return f'{bedsbroken:,}', f'{bedslost:,}', f'{bblr:,}'
+        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
     def get_time_info(self):
         time = datetime.utcnow() + timedelta(hours=self.config_data[1] if self.config_data else 0)
@@ -136,29 +130,23 @@ class LookbackStats:
         }
         return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
 
+    def calc_general_stats(self, key_1, key_2):
+        val_1 = self.historical_data[key_1]
+        val_2 = self.historical_data[key_2]
+        ratio = rround(val_1 / (val_2 or 1), 2)
+        return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
+
     def get_wins(self):
-        wins = self.historical_data[f'{self.mode}wins_bedwars']
-        losses = self.historical_data[f'{self.mode}losses_bedwars']
-        wlr = round(0 if wins == 0 else wins / losses if losses != 0 else wins, 2)
-        return f'{wins:,}', f'{losses:,}', f'{wlr:,}'
+        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
     def get_finals(self):
-        finalkills = self.historical_data[f'{self.mode}final_kills_bedwars']
-        finaldeaths = self.historical_data[f'{self.mode}final_deaths_bedwars']
-        fkdr = round(0 if finalkills == 0 else finalkills / finaldeaths if finaldeaths != 0 else finalkills, 2)
-        return f'{finalkills:,}', f'{finaldeaths:,}', f'{fkdr:,}'
+        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
     def get_kills(self):
-        kills = self.historical_data[f'{self.mode}kills_bedwars']
-        deaths = self.historical_data[f'{self.mode}deaths_bedwars']
-        kdr = round(0 if kills == 0 else kills / deaths if deaths != 0 else kills, 2)
-        return f'{kills:,}', f'{deaths:,}', f'{kdr:,}'
+        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
     def get_beds(self):
-        bedsbroken = self.historical_data[f'{self.mode}beds_broken_bedwars']
-        bedslost = self.historical_data[f'{self.mode}beds_lost_bedwars']
-        bblr = round(0 if bedsbroken == 0 else bedsbroken / bedslost if bedslost != 0 else bedsbroken, 2)
-        return f'{bedsbroken:,}', f'{bedslost:,}', f'{bblr:,}'
+        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
     def get_time_info(self):
         if self.table_name.startswith('daily'):

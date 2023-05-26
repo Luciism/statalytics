@@ -10,7 +10,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from functions import update_command_stats
+from helper.functions import update_command_stats
 
 
 class Info(commands.Cog):
@@ -83,7 +83,7 @@ class Info(commands.Cog):
             `└` [Github]({config['links']['github']})
         """.replace('   ', ''))
 
-        embed.set_thumbnail(url='https://statalytics.net/image/logo.png?v=1')
+        embed.set_thumbnail(url='https://statalytics.net/image/logo.png?v=2')
         await interaction.followup.send(embed=embed)
 
         update_command_stats(discord_id=interaction.user.id, command='info')

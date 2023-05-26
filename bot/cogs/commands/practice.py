@@ -3,12 +3,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.practice import render_practice
-from functions import (username_autocompletion,
+from helper.functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
-                       skin_session)
+                       fetch_skin_model)
 
 
 class Practice(commands.Cog):
@@ -28,8 +28,8 @@ class Practice(commands.Cog):
         await interaction.response.send_message(self.GENERATING_MESSAGE)
 
         hypixel_data = get_hypixel_data(uuid)
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
-        rendered = render_practice(name, uuid, hypixel_data, skin_res.content)
+        skin_res = fetch_skin_model(uuid, 144)
+        rendered = render_practice(name, uuid, hypixel_data, skin_res)
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='practice.png')])
 
         update_command_stats(interaction.user.id, 'practice')

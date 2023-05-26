@@ -1,4 +1,4 @@
-from calc.calctools import get_player_rank_info, get_mode
+from helper.calctools import get_player_rank_info, get_mode, rround
 
 class Ratios:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
@@ -14,49 +14,49 @@ class Ratios:
 
     def get_per_star(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
-        wins_per_star = round(0 if wins == 0 else wins / self.level if self.level != 0 else wins, 2)
+        wins_per_star = rround(wins / (self.level or 1), 2)
 
         final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
-        final_kills_per_star = round(0 if final_kills == 0 else final_kills / self.level if self.level != 0 else final_kills, 2)
+        final_kills_per_star = rround(final_kills / (self.level or 1), 2)
 
         beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
-        beds_broken_per_star = round(0 if beds_broken == 0 else beds_broken / self.level if self.level != 0 else beds_broken, 2)
+        beds_broken_per_star = rround(beds_broken / (self.level or 1), 2)
 
         kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
-        kills_per_star = round(0 if kills == 0 else kills / self.level if self.level != 0 else kills, 2)
+        kills_per_star = rround(kills / (self.level or 1), 2)
 
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-        losses_per_star = round(0 if losses == 0 else losses / self.level if self.level != 0 else losses, 2)
+        losses_per_star = rround(losses / (self.level or 1), 2)
 
         final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
-        final_deaths_per_star = round(0 if final_deaths == 0 else final_deaths / self.level if self.level != 0 else final_deaths, 2)
+        final_deaths_per_star = rround(final_deaths / (self.level or 1), 2)
 
         beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
-        beds_lost_per_star = round(0 if beds_lost == 0 else beds_lost / self.level if self.level != 0 else beds_lost, 2)
+        beds_lost_per_star = rround(beds_lost / (self.level or 1), 2)
 
         deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
-        deaths_per_star = round(0 if deaths == 0 else deaths / self.level if self.level != 0 else deaths, 2)
+        deaths_per_star = rround(deaths / (self.level or 1), 2)
 
         return str(wins_per_star), str(final_kills_per_star), str(beds_broken_per_star), str(kills_per_star), str(losses_per_star), str(final_deaths_per_star), str(beds_lost_per_star), str(deaths_per_star)
 
     def get_per_game(self):
         final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
-        final_kills_per_game = round(0 if final_kills == 0 else final_kills / self.games_played if self.games_played != 0 else final_kills, 2)
+        final_kills_per_game = rround(final_kills / (self.games_played or 1), 2)
 
         beds_broken = self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)
-        beds_broken_per_game = round(0 if beds_broken == 0 else beds_broken / self.games_played if self.games_played != 0 else beds_broken, 2)
+        beds_broken_per_game = rround(beds_broken / (self.games_played or 1), 2)
 
         kills = self.hypixel_data_bedwars.get(f'{self.mode}kills_bedwars', 0)
-        kills_per_game = round(0 if kills == 0 else kills / self.games_played if self.games_played != 0 else kills, 2)
+        kills_per_game = rround(kills / (self.games_played or 1), 2)
 
         final_deaths = self.hypixel_data_bedwars.get(f'{self.mode}final_deaths_bedwars', 0)
-        final_deaths_per_game = round(0 if final_deaths == 0 else final_deaths / self.games_played if self.games_played != 0 else final_deaths, 2)
+        final_deaths_per_game = rround(final_deaths / (self.games_played or 1), 2)
 
         beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
-        beds_lost_per_game = round(0 if beds_lost == 0 else beds_lost / self.games_played if self.games_played != 0 else beds_lost, 2)
+        beds_lost_per_game = rround(beds_lost / (self.games_played or 1), 2)
 
         deaths = self.hypixel_data_bedwars.get(f'{self.mode}deaths_bedwars', 0)
-        deaths_per_game = round(0 if deaths == 0 else deaths / self.games_played if self.games_played != 0 else deaths, 2)
+        deaths_per_game = rround(deaths / (self.games_played or 1), 2)
 
         return str(final_kills_per_game), str(beds_broken_per_game), str(kills_per_game), str(final_deaths_per_game), str(beds_lost_per_game), str(deaths_per_game)
 

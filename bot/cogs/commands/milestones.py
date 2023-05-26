@@ -5,9 +5,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from ui import SelectView
+from helper.ui import SelectView
 from render.milestones import render_milestones
-from functions import (username_autocompletion,
+from helper.functions import (username_autocompletion,
                        session_autocompletion,
                        check_subscription,
                        get_hypixel_data,

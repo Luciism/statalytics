@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.hotbar import render_hotbar
-from functions import (username_autocompletion,
+from helper.functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,

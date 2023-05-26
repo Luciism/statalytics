@@ -6,14 +6,15 @@ import traceback
 import asyncio
 
 from datetime import datetime, timedelta, timezone
+from dateutil.relativedelta import relativedelta
 
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from ui import SelectView
-from functions import (username_autocompletion,
+from helper.ui import SelectView
+from helper.functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,
@@ -23,7 +24,9 @@ from functions import (username_autocompletion,
                        save_historical,
                        uuid_to_discord_id,
                        get_time_config,
-                       skin_session)
+                       fetch_skin_model,
+                       get_lookback_eligiblility,
+                       message_invalid_lookback)
 
 
 async def is_eligible(interaction: discord.Interaction, discord_id: int) -> bool:
@@ -168,7 +171,7 @@ class Yearly(commands.Cog):
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
@@ -177,34 +180,47 @@ class Yearly(commands.Cog):
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 
-        render_historical(name, uuid, method="yearly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=f':alarm_clock: Resets <t:{timestamp}:R>', attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="yearly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="yearly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'yearly')
 
     @app_commands.command(name = "lastyear", description = "View last years stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
-    @app_commands.describe(username='The player you want to view')
+    @app_commands.describe(username='The player you want to view', years='The lookback amount in years')
     @app_commands.checks.dynamic_cooldown(check_subscription)
-    async def lastyear(self, interaction: discord.Interaction, username: str=None):
+    async def lastyear(self, interaction: discord.Interaction, username: str=None, years: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
-        refined = name.replace("_", "\_")
 
+        refined = name.replace("_", "\_")
         discord_id = uuid_to_discord_id(uuid)
+
         result = await is_eligible(interaction, discord_id)
         if not result: return
+
+        max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
+        if max_lookback == 60 and years == 1:
+            pass
+        elif -1 != max_lookback < (years * 365):
+            await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
+            return
+        if years < 1: years = 1
 
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        table_name = (now - timedelta(days=365)).strftime("yearly_%Y")
+        try:
+            table_name = (now - relativedelta(years=years)).strftime("yearly_%Y")
+        except ValueError:
+            await interaction.response.send_message('Big, big number... too big number...')
+            return
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -215,22 +231,22 @@ class Yearly(commands.Cog):
                 historical_data = ()
 
         if not historical_data:
-            await interaction.response.send_message(f'{refined} has no tracked data for last year!')
+            await interaction.response.send_message(f'{refined} has no tracked data for {years} year(s) ago!')
             return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
     
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'lastyear')
 

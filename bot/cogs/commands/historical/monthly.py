@@ -7,14 +7,15 @@ import asyncio
 
 from calendar import monthrange
 from datetime import datetime, timedelta, timezone
+from dateutil.relativedelta import relativedelta
 
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from ui import SelectView
-from functions import (username_autocompletion,
+from helper.ui import SelectView
+from helper.functions import (username_autocompletion,
                        check_subscription,
                        get_hypixel_data,
                        update_command_stats,
@@ -23,7 +24,9 @@ from functions import (username_autocompletion,
                        save_historical,
                        uuid_to_discord_id,
                        get_time_config,
-                       skin_session)
+                       fetch_skin_model,
+                       get_lookback_eligiblility,
+                       message_invalid_lookback)
 
 
 class Monthly(commands.Cog):
@@ -93,11 +96,14 @@ class Monthly(commands.Cog):
                 sleep_time = 0.5 - (time.time() - start_time)
                 await asyncio.sleep(sleep_time)
 
+
     def cog_load(self):
         self.reset_monthly.start()
 
+
     def cog_unload(self):
         self.reset_monthly.cancel()
+
 
     @reset_monthly.before_loop
     async def before_reset_monthly(self):
@@ -105,11 +111,12 @@ class Monthly(commands.Cog):
         sleep_seconds = (60 - now.minute) * 60 - now.second
         await asyncio.sleep(sleep_seconds)
 
+
     @reset_monthly.error
     async def on_reset_monthly_error(self, error):
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)
-        
+
         with open('./config.json', 'r') as datafile: config = json.load(datafile)
         await self.client.wait_until_ready()
         channel = self.client.get_channel(config.get('error_logs_channel_id'))
@@ -147,7 +154,7 @@ class Monthly(commands.Cog):
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
@@ -159,31 +166,43 @@ class Monthly(commands.Cog):
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 
-        render_historical(name, uuid, method="monthly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=f':alarm_clock: Resets <t:{timestamp}:R>', attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="monthly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="monthly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'monthly')
 
+
     @app_commands.command(name = "lastmonth", description = "View last months stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
-    @app_commands.describe(username='The player you want to view')
+    @app_commands.describe(username='The player you want to view', months='The lookback amount in months')
     @app_commands.checks.dynamic_cooldown(check_subscription)
-    async def lastmonth(self, interaction: discord.Interaction, username: str=None):
+    async def lastmonth(self, interaction: discord.Interaction, username: str=None, months: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
-        refined = name.replace("_", "\_")
 
+        refined = name.replace("_", "\_")
         discord_id = uuid_to_discord_id(uuid=uuid)
+
+        max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
+        if -1 != max_lookback < (months * 30):
+            await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
+            return
+        if months < 1: months = 1
+
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        table_name = (now - timedelta(days=now.day)).strftime("monthly_%Y_%m")
+        try:
+            table_name = (now - relativedelta(months=months)).strftime("monthly_%Y_%m")
+        except ValueError:
+            await interaction.response.send_message('Big, big number... too big number...')
+            return
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -194,22 +213,22 @@ class Monthly(commands.Cog):
                 historical_data = ()
 
         if not historical_data:
-            await interaction.response.send_message(f'{refined} has no tracked data for last month!')
+            await interaction.response.send_message(f'{refined} has no tracked data for {months} month(s) ago!')
             return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/144/{uuid}', timeout=10)
+        skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
-    
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res.content, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
 
         update_command_stats(interaction.user.id, 'lastmonth')
 

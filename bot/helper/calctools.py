@@ -80,3 +80,8 @@ def get_mode(mode: str) -> str:
         "4v4": "two_four_"
     }
     return modes.get(mode, "")
+
+def rround(number: float | int, ndigits: int=0) -> float | int:
+    rounded: float = float(round(number, ndigits))
+    if rounded.is_integer(): rounded = int(rounded)
+    return rounded

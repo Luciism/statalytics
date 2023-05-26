@@ -1,4 +1,4 @@
-from calc.calctools import get_mode
+from helper.calctools import get_mode, rround
 
 class Resources:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
@@ -53,18 +53,18 @@ class Resources:
         return f'{xp_progress:,}', f'{target:,}', progress_out_of_ten
 
     def get_per_game(self):
-        iron_per_game = round(0 if self.iron_collected == 0 else self.iron_collected / self.games_played if self.games_played != 0 else self.iron_collected, 2)
-        gold_per_game = round(0 if self.gold_collected == 0 else self.gold_collected / self.games_played if self.games_played != 0 else self.gold_collected, 2)
-        diamonds_per_game = round(0 if self.diamonds_collected == 0 else self.diamonds_collected / self.games_played if self.games_played != 0 else self.diamonds_collected, 2)
-        emeralds_per_game = round(0 if self.emeralds_collected == 0 else self.emeralds_collected / self.games_played if self.games_played != 0 else self.emeralds_collected, 2)
+        iron_per_game = rround(self.iron_collected / (self.games_played or 1), 2)
+        gold_per_game = rround(self.gold_collected / (self.games_played or 1), 2)
+        diamonds_per_game = rround(self.diamonds_collected / (self.games_played or 1), 2)
+        emeralds_per_game = rround(self.emeralds_collected / (self.games_played or 1), 2)
 
         return f'{iron_per_game:,}', f'{gold_per_game:,}', f'{diamonds_per_game:,}', f'{emeralds_per_game:,}'
 
     def get_per_star(self):
-        iron_per_star = round(0 if self.iron_collected == 0 else self.iron_collected / self.level if self.level != 0 else self.iron_collected, 2)
-        gold_per_star = round(0 if self.gold_collected == 0 else self.gold_collected / self.level if self.level != 0 else self.gold_collected, 2)
-        diamonds_per_star = round(0 if self.diamonds_collected == 0 else self.diamonds_collected / self.level if self.level != 0 else self.diamonds_collected, 2)
-        emeralds_per_star = round(0 if self.emeralds_collected == 0 else self.emeralds_collected / self.level if self.level != 0 else self.emeralds_collected, 2)
+        iron_per_star = rround(self.iron_collected / (self.level or 1), 2)
+        gold_per_star = rround(self.gold_collected / (self.level or 1), 2)
+        diamonds_per_star = rround(self.diamonds_collected / (self.level or 1), 2)
+        emeralds_per_star = rround(self.emeralds_collected / (self.level or 1), 2)
 
         return f'{iron_per_star:,}', f'{gold_per_star:,}', f'{diamonds_per_star:,}', f'{emeralds_per_star:,}'
 

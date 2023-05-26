@@ -319,3 +319,46 @@ def get_time_config(discord_id: int) -> tuple:
                 return config_data[1:]
             else: return 0, 0
         else: return 0, 0
+
+async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id: int) -> bool:
+    subscription = None
+    if discord_id:
+        subscription = get_subscription(discord_id=discord_id)
+    if not subscription or not discord_id:
+        subscription = get_subscription(discord_id=interaction.user.id)
+
+    if subscription:
+        if 'basic' in subscription[1]:
+            return 60
+        elif 'pro' in subscription[1]:
+            return -1
+        return 30
+    return 30
+
+async def message_invalid_lookback(interaction: discord.Interaction, max_lookback):
+    with open('./config.json', 'r') as datafile:
+        config = json.load(datafile)
+    embed_color = int(config['embed_primary_color'], base=16)
+    embed = discord.Embed(title='Maximum lookback exceeded!', description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!", color=embed_color)
+    embed.add_field(name="How it works:", value=f"""
+        \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
+        \- You can view longer history if you or the checked player has a premium plan.
+    """.replace('   ', ''), inline=False)
+    embed.add_field(name='Limits', value="""
+        \- Free tier maximum lookback - 30 days
+        \- Basic tier maxmum lookback  - 60 days
+        \- Pro tier maximum lookback - unlimited
+    """.replace('   ', ''), inline=False)
+
+    await interaction.response.send_message(embed=embed)
+
+def skin_from_file():
+    with open('./assets/steve.png', 'rb') as f:
+        return f.read()
+
+def fetch_skin_model(uuid: int, size: int):
+    try:
+        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/{size}/{uuid}', timeout=3).content
+    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+        skin_res = skin_from_file()
+    return skin_res

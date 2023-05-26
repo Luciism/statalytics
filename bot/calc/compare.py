@@ -1,4 +1,4 @@
-from calc.calctools import get_player_rank_info, get_mode
+from helper.calctools import get_player_rank_info, get_mode, rround
 
 class Compare:
     def __init__(self, name_1: str, name_2: str, mode: str, hypixel_data_1: dict, hypixel_data_2) -> None:
@@ -18,11 +18,11 @@ class Compare:
     def calc_general_stats(self, key_1, key_2):
         val_1_1 = self.hypixel_data_bedwars_1.get(key_1, 0)
         val_2_1 = self.hypixel_data_bedwars_1.get(key_2, 0)
-        ratio_1 = round(0 if val_1_1 == 0 else val_1_1 / val_2_1 if val_2_1 != 0 else val_1_1, 2)
+        ratio_1 = rround(val_1_1 / (val_2_1 or 1), 2)
 
         val_1_2 = self.hypixel_data_bedwars_2.get(key_1, 0)
         val_2_2 = self.hypixel_data_bedwars_2.get(key_2, 0)
-        ratio_2 = round(0 if val_1_2 == 0 else val_1_2 / val_2_2 if val_2_2 != 0 else val_1_2, 2)
+        ratio_2 = rround(val_1_2 / (val_2_2 or 1), 2)
 
         val_1_diff = val_1_1 - val_1_2
         val_1_diff = f'{val_1_diff:,}' if val_1_diff < 0 else f'+{val_1_diff:,}'

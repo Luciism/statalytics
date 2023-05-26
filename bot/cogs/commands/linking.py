@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from mcuuid import MCUUID
-from functions import link_account, update_command_stats
+from helper.functions import link_account, update_command_stats
 
 
 class Linking(commands.Cog):

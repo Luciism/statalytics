@@ -1,11 +1,12 @@
 from io import BytesIO
 from json import load as load_json
+from requests import ConnectTimeout, ReadTimeout
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-from functions import (username_autocompletion,
+from helper.functions import (username_autocompletion,
                        check_subscription,
                        update_command_stats,
                        authenticate_user,
@@ -27,8 +28,14 @@ class Skin(commands.Cog):
         except TypeError: return
 
         refined = name.replace('_', r'\_')
-        image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=10).content
+        image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
         file = discord.File(BytesIO(image_bytes), filename='skin.png')
+
+        try:
+            image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
+        except (ReadTimeout, ConnectTimeout):
+            await interaction.response.send_message('Failed to fetch skin, please try again later. (Skin API error)')
+            return
 
         with open('./config.json', 'r') as datafile:
             config = load_json(datafile)

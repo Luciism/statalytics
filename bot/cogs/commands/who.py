@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from mcuuid import MCUUID
-from functions import update_command_stats
+from helper.functions import update_command_stats
 
 class Who(commands.Cog):
     def __init__(self, client):

@@ -1,4 +1,4 @@
-from calc.calctools import get_player_rank_info
+from helper.calctools import get_player_rank_info
 
 class ActiveCosmetics:
     def __init__(self, hypixel_data: dict) -> None:
