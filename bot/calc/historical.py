@@ -69,10 +69,6 @@ class HistoricalStats:
         return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
     def get_time_info(self):
-        time = datetime.utcnow() + timedelta(hours=self.config_data[1] if self.config_data else 0)
-        ordinal = lambda n: "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-        todays_date = time.strftime("%b %d") + time.strftime(ordinal(time.day)) + time.strftime(" %Y")
-
         if self.config_data:
             timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
             hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am',
@@ -82,7 +78,7 @@ class HistoricalStats:
             timezone = 'GMT+0:00'
             reset_hour = '12:00am'
 
-        return todays_date, timezone, reset_hour
+        return timezone, reset_hour
 
 
 class LookbackStats:
@@ -149,19 +145,6 @@ class LookbackStats:
         return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
     def get_time_info(self):
-        if self.table_name.startswith('daily'):
-            time = datetime.utcnow() + timedelta(days=-1, hours=self.config_data[1] if self.config_data else 0)
-            ordinal = lambda n: "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-            date = time.strftime("%b %d") + time.strftime(ordinal(time.day)) + time.strftime(" %Y")
-        elif self.table_name.startswith('weekly'):
-            date = 'Week ' + self.table_name.split('_')[2]
-        elif self.table_name.startswith('monthly'):
-            old_date = datetime.strptime(self.table_name, 'monthly_%Y_%m')
-            date = old_date.strftime("%b %Y")
-        elif self.table_name.startswith('yearly'):
-            old_date = datetime.strptime(self.table_name, 'yearly_%Y')
-            date = old_date.strftime("Year %Y")
-
         if self.config_data:
             timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
             hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am',
@@ -171,4 +154,4 @@ class LookbackStats:
             timezone = 'GMT+0:00'
             reset_hour = '12:00am'
 
-        return date, timezone, reset_hour
+        return timezone, reset_hour

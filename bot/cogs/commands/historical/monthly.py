@@ -26,7 +26,8 @@ from helper.functions import (username_autocompletion,
                        get_time_config,
                        fetch_skin_model,
                        get_lookback_eligiblility,
-                       message_invalid_lookback)
+                       message_invalid_lookback,
+                       ordinal)
 
 
 class Monthly(commands.Cog):
@@ -158,6 +159,8 @@ class Monthly(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        formatted_date = now.strftime(f"%b %d{ordinal(now.day)} %Y")
+
         next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
         if now >= next_occurrence:
             next_occurrence = next_occurrence.replace(day=1, month=next_occurrence.month + 1)
@@ -166,14 +169,27 @@ class Monthly(commands.Cog):
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 
-        render_historical(name, uuid, method="monthly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "monthly",
+            "relative_date": formatted_date,
+            "title": "Monthly BW Stats",
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=f':alarm_clock: Resets <t:{timestamp}:R>', attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="monthly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="monthly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(
+            content=f':alarm_clock: Resets <t:{timestamp}:R>',
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'monthly')
 
@@ -198,8 +214,11 @@ class Monthly(commands.Cog):
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        relative_date = now - relativedelta(months=months)
+        formatted_date = relative_date.strftime("%b %Y")
+
         try:
-            table_name = (now - relativedelta(months=months)).strftime("monthly_%Y_%m")
+            table_name = relative_date.strftime("monthly_%Y_%m")
         except ValueError:
             await interaction.response.send_message('Big, big number... too big number...')
             return
@@ -221,14 +240,27 @@ class Monthly(commands.Cog):
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
 
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "lastmonth",
+            "relative_date": formatted_date,
+            "title": f"{months} Months Ago",
+            "table_name": table_name,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+        
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastmonth", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(content=None,
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'lastmonth')
 

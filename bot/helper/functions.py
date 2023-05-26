@@ -362,3 +362,6 @@ def fetch_skin_model(uuid: int, size: int):
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
         skin_res = skin_from_file()
     return skin_res
+
+def ordinal(n):
+    return "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")

@@ -26,7 +26,8 @@ from helper.functions import (username_autocompletion,
                        get_time_config,
                        fetch_skin_model,
                        get_lookback_eligiblility,
-                       message_invalid_lookback)
+                       message_invalid_lookback,
+                       ordinal)
 
 
 async def is_eligible(interaction: discord.Interaction, discord_id: int) -> bool:
@@ -175,19 +176,34 @@ class Yearly(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        relative_date = now.strftime(f"%b %d{ordinal(now.day)} %Y")
+
         if hour > 0: hour -= 1
         next_occurrence = datetime(now.year + 1, 1, 1, hour, 0, 0, tzinfo=timezone(timedelta(hours=gmt_offset)))
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 
-        render_historical(name, uuid, method="yearly", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "yearly",
+            "relative_date": relative_date,
+            "title": "Yearly BW Stats",
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=f':alarm_clock: Resets <t:{timestamp}:R>', attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="yearly", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yearly", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(
+            content=f':alarm_clock: Resets <t:{timestamp}:R>',
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'yearly')
 
@@ -216,8 +232,10 @@ class Yearly(commands.Cog):
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        relative_date = now - relativedelta(years=years)
+        formatted_date = relative_date.strftime("Year %Y")
         try:
-            table_name = (now - relativedelta(years=years)).strftime("yearly_%Y")
+            table_name = relative_date.strftime("yearly_%Y")
         except ValueError:
             await interaction.response.send_message('Big, big number... too big number...')
             return
@@ -238,15 +256,28 @@ class Yearly(commands.Cog):
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
-    
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "lastyear",
+            "relative_date": formatted_date,
+            "title": f"{years} Years Ago",
+            "table_name": table_name,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id,
+        }
+
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="lastyear", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(content=None,
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'lastyear')
 

@@ -23,7 +23,8 @@ from helper.functions import (username_autocompletion,
                        get_time_config,
                        get_lookback_eligiblility,
                        message_invalid_lookback,
-                       fetch_skin_model)
+                       fetch_skin_model,
+                       ordinal)
 
 
 class Daily(commands.Cog):
@@ -148,19 +149,34 @@ class Daily(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        formatted_date = now.strftime(f"%b %d{ordinal(now.day)} %Y")
+
         next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
         if now >= next_occurrence: next_occurrence += timedelta(days=1)
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
 
-        render_historical(name, uuid, method="daily", mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "daily",
+            "relative_date": formatted_date,
+            "title": "Daily BW Stats",
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=f':alarm_clock: Resets <t:{timestamp}:R>', attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="daily", mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="daily", mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="daily", mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="daily", mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="daily", mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(
+            content=f':alarm_clock: Resets <t:{timestamp}:R>',
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'daily')
 
@@ -183,8 +199,12 @@ class Daily(commands.Cog):
 
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
+        now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        relative_date = now - timedelta(days=days)
+        formatted_date = relative_date.strftime(f"%b %d{ordinal(relative_date.day)} %Y")
+
         try:
-            table_name = (datetime.now(timezone(timedelta(hours=gmt_offset))) - timedelta(days=days)).strftime("daily_%Y_%m_%d")
+            table_name = relative_date.strftime("daily_%Y_%m_%d")
         except OverflowError:
             await interaction.response.send_message('Big, big number... too big number...')
             return
@@ -206,14 +226,27 @@ class Daily(commands.Cog):
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
 
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "method": "yesterday",
+            "relative_date": formatted_date,
+            "title": f"{days} Days Ago",
+            "table_name": table_name,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_historical(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_historical(name, uuid, method="yesterday", table_name=table_name, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        await interaction.edit_original_response(content=None,
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        render_historical(mode="Solos", **kwargs)
+        render_historical(mode="Doubles", **kwargs)
+        render_historical(mode="Threes", **kwargs)
+        render_historical(mode="Fours", **kwargs)
+        render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'lastday')
 

@@ -4,7 +4,7 @@ from helper.rendername import render_rank, get_rank_prefix, paste_skin
 from helper.custombackground import background
 from helper.renderprogress import render_progress_bar, render_progress_text
 
-def render_historical(name, uuid, method, mode, hypixel_data, skin_res, save_dir, table_name = None):
+def render_historical(name, uuid, method, relative_date, title, mode, hypixel_data, skin_res, save_dir, table_name = None):
     # Open the image
     image_location = background(path='./assets/historical', uuid=uuid, default=f'base_{method}')
     image = Image.open(image_location)
@@ -30,18 +30,12 @@ def render_historical(name, uuid, method, mode, hypixel_data, skin_res, save_dir
         stats = HistoricalStats(name, uuid, method, mode, hypixel_data)
     else:
         stats = LookbackStats(name, uuid, table_name, mode, hypixel_data)
-        title_map = {
-            "yesterday": "Yesterday",
-            "lastweek": "Last Week",
-            "lastmonth": "Last Month",
-            "lastyear": "Last Year"
-        }
 
     level = stats.level
     player_rank_info = stats.player_rank_info
 
     progress, target, progress_out_of_10 = stats.progress
-    todays_date, timezone, reset_hour = stats.get_time_info()
+    timezone, reset_hour = stats.get_time_info()
     most_played = stats.get_most_played()
     games_played = f'{stats.games_played:,}'
     items_purchased = f'{stats.items_purchased:,}'
@@ -73,7 +67,7 @@ def render_historical(name, uuid, method, mode, hypixel_data, skin_res, save_dir
         ((leng(reset_hour, 128) + 306, 427), (reset_hour, light_purple)),
         ((leng(games_played, 171) + 452, 249), (games_played, light_purple)),
         ((leng(most_played, 171) + 452, 308), (most_played, light_purple)),
-        ((leng(todays_date, 171) + 452, 367), (todays_date, light_purple)),
+        ((leng(relative_date, 171) + 452, 367), (relative_date, light_purple)),
         ((leng(items_purchased, 171) + 452, 427), (items_purchased, light_purple)),
         ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
     )
@@ -98,7 +92,6 @@ def render_historical(name, uuid, method, mode, hypixel_data, skin_res, save_dir
     paste_skin(skin_res, image, positions=(466, 69))
 
     # Draw title
-    title = f'{method.title()} BW Stats' if not table_name else title_map.get(method)
     totallength = draw.textlength(title, font=minecraft_17)
     title_x = round((171 - totallength) / 2) + 452
     title_y = 27
