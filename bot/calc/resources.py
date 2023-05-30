@@ -1,5 +1,6 @@
 from helper.calctools import get_mode, rround
 
+
 class Resources:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
         self.name = name
@@ -27,6 +28,7 @@ class Resources:
         }
         return rank_info
 
+
     def get_progress(self):
         experience = self.hypixel_data_bedwars.get('Experience', 0)
         times_prestiged = int(self.level / 100)
@@ -52,6 +54,7 @@ class Resources:
         progress_out_of_ten = round(xp_progress / devide_by)
         return f'{xp_progress:,}', f'{target:,}', progress_out_of_ten
 
+
     def get_per_game(self):
         iron_per_game = rround(self.iron_collected / (self.games_played or 1), 2)
         gold_per_game = rround(self.gold_collected / (self.games_played or 1), 2)
@@ -59,6 +62,7 @@ class Resources:
         emeralds_per_game = rround(self.emeralds_collected / (self.games_played or 1), 2)
 
         return f'{iron_per_game:,}', f'{gold_per_game:,}', f'{diamonds_per_game:,}', f'{emeralds_per_game:,}'
+
 
     def get_per_star(self):
         iron_per_star = rround(self.iron_collected / (self.level or 1), 2)
@@ -68,9 +72,11 @@ class Resources:
 
         return f'{iron_per_star:,}', f'{gold_per_star:,}', f'{diamonds_per_star:,}', f'{emeralds_per_star:,}'
 
+
     def get_percentages(self):
         values = (self.iron_collected, self.gold_collected, self.diamonds_collected, self.emeralds_collected)
         return ('0%'if 0 in (value, self.total_resources) else f"{round((value / self.total_resources) * 100, 2)}%" for value in values)
+
 
     def get_most_modes(self):
         iron = {
@@ -97,6 +103,7 @@ class Resources:
             "Threes": self.hypixel_data_bedwars.get(f'four_three_emerald_resources_collected_bedwars', 0),
             "Fours": self.hypixel_data_bedwars.get(f'four_four_emerald_resources_collected_bedwars', 0)
         }
+
 
         values = (iron, gold, diamonds, emeralds)
         return ("N/A" if max(value.values()) == 0 else str(max(value, key=value.get)) for value in values)

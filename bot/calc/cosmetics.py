@@ -1,5 +1,6 @@
 from helper.calctools import get_player_rank_info
 
+
 class ActiveCosmetics:
     def __init__(self, hypixel_data: dict) -> None:
         self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}

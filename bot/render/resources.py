@@ -1,37 +1,15 @@
 from PIL import Image, ImageDraw, ImageFont
 from calc.resources import Resources
 from helper.rendername import get_rank_prefix, render_rank
-from helper.custombackground import background
+from helper.rendertools import get_background
 from helper.renderprogress import render_progress_text, render_progress_bar
 
 def render_resources(name, uuid, mode, hypixel_data, save_dir):
-    # Open the image
-    image_location = background(path='./assets/resources', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    gray = (170, 170, 170)
-    gold = (255, 170, 0)
-    aqua = (85, 255, 255)
-    light_purple = (255, 85, 255)
-
-    # Define the values
     resources = Resources(name, mode, hypixel_data)
     level = resources.level
     player_rank_info = resources.get_player_rank_info()
-
     progress, target, progress_out_of_10 = resources.get_progress()
+    total_collected = f'{resources.total_resources:,}'
 
     iron_collected = f'{resources.iron_collected:,}'
     gold_collected = f'{resources.gold_collected:,}'
@@ -43,11 +21,23 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
     iron_percentage, gold_percentage, diamond_percentage, emerald_percentage = resources.get_percentages()
     iron_most_mode, gold_most_mode, diamond_most_mode, emerald_most_mode = resources.get_most_modes()
 
-    total_collected = f'{resources.total_resources:,}'
+    image = get_background(path='./assets/resources', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     def leng(text, container_width):
         """Returns startpoint for centering text in a box"""
-        return (container_width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (container_width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    aqua = (85, 255, 255)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(iron_collected, 141)+19, 189), iron_collected, white),

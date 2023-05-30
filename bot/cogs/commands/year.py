@@ -9,7 +9,7 @@ from helper.ui import SelectView
 from render.year import render_year
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
@@ -21,7 +21,7 @@ from helper.functions import (username_autocompletion,
 
 class Year(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
     async def year_command(self, interaction: discord.Interaction, name: str, uuid: str, session: int, year: int):
@@ -38,14 +38,25 @@ class Year(commands.Cog):
 
         hypixel_data = get_hypixel_data(uuid)
 
-        render_year(name, uuid, session, year=year, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "session": session,
+            "year": year,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_year(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_year(name, uuid, session, year=year, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_year(name, uuid, session, year=year, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_year(name, uuid, session, year=year, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_year(name, uuid, session, year=year, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_year(name, uuid, session, year=year, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+
+        render_year(mode="Solos", **kwargs)
+        render_year(mode="Doubles", **kwargs)
+        render_year(mode="Threes", **kwargs)
+        render_year(mode="Fours", **kwargs)
+        render_year(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, f'year_{year}')
 
@@ -53,16 +64,17 @@ class Year(commands.Cog):
     @app_commands.command(name = "2024", description = "View the a players projected stats for 2024")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2024(self, interaction: discord.Interaction, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
         await self.year_command(interaction, name, uuid, session, 2024)
 
+
     @app_commands.command(name = "2025", description = "View the a players projected stats for 2025")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -84,6 +96,7 @@ class Year(commands.Cog):
             return
 
         await self.year_command(interaction, name, uuid, session, 2025)
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Year(client))

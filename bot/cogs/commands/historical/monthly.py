@@ -16,7 +16,7 @@ from discord.ext import commands, tasks
 from render.historical import render_historical
 from helper.ui import SelectView
 from helper.functions import (username_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
@@ -32,8 +32,9 @@ from helper.functions import (username_autocompletion,
 
 class Monthly(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+
 
     @tasks.loop(hours=1)
     async def reset_monthly(self):
@@ -94,7 +95,7 @@ class Monthly(commands.Cog):
                 table_name = (timezone - timedelta(days=1)).strftime("monthly_%Y_%m")
                 save_historical(monthly, stat_values, table=table_name)
 
-                sleep_time = 0.5 - (time.time() - start_time)
+                sleep_time = 1 - (time.time() - start_time)
                 await asyncio.sleep(sleep_time)
 
 
@@ -133,7 +134,7 @@ class Monthly(commands.Cog):
     @app_commands.command(name = "monthly", description = "View the monthly stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, username: str=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -197,7 +198,7 @@ class Monthly(commands.Cog):
     @app_commands.command(name = "lastmonth", description = "View last months stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', months='The lookback amount in months')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastmonth(self, interaction: discord.Interaction, username: str=None, months: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return

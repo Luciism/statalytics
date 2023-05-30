@@ -11,14 +11,13 @@ from helper.functions import link_account, update_command_stats
 
 class Linking(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
-    # Link Command
+
     @app_commands.command(name = "link", description = "Link your account")
     @app_commands.describe(username='The player you want to link to')
     async def link(self, interaction: discord.Interaction, username: str):
-        # Get name and uuid
         try:
             uuid = MCUUID(name=username).uuid
             name = MCUUID(name=username).name
@@ -46,7 +45,7 @@ class Linking(commands.Cog):
 
         update_command_stats(interaction.user.id, 'link')
 
-    # Unlink Command
+
     @app_commands.command(name = "unlink", description = "Unlink your account")
     async def unlink(self, interaction: discord.Interaction):
         with sqlite3.connect('./database/linked_accounts.db') as conn:
@@ -59,6 +58,7 @@ class Linking(commands.Cog):
             await interaction.response.send_message(message)
 
         update_command_stats(interaction.user.id, 'unlink')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Linking(client))

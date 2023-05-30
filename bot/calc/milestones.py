@@ -1,7 +1,8 @@
 import math
 import sqlite3
 
-from helper.calctools import get_player_rank_info, get_mode
+from helper.calctools import get_player_rank_info, get_mode, get_progress
+
 
 class Stats:
     def __init__(self, name: str, uuid: str, mode: str, session: int, hypixel_data: dict) -> None:
@@ -23,6 +24,8 @@ class Stats:
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.progress = get_progress(self.hypixel_data_bedwars)
+
 
     def calc_general_stats(self, key_1, key_2, ratio):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0)
@@ -50,17 +53,22 @@ class Stats:
 
         return f"{val_1_until_ratio:,}", f"{val_1_at_ratio:,}", f"{target_ratio:,} {ratio}", f"{val_1_until_val_1:,}", f"{target_val_1:,}", f"{int(val_2_until_val_2):,}", f"{int(target_val_2):,}"
 
+
     def get_wins(self):
         return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars', 'WLR')
+
 
     def get_finals(self):
         return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars', 'FKDR')
 
+
     def get_beds(self):
         return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars', 'BBLR')
 
+
     def get_kills(self):
         return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars', 'KDR')
+
 
     def get_stars(self):
         level_target = (self.level // 100 + 1) * 100

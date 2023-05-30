@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 from render.historical import render_historical
 from helper.ui import SelectView
 from helper.functions import (username_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
@@ -29,8 +29,9 @@ from helper.functions import (username_autocompletion,
 
 class Weekly(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+
 
     @tasks.loop(hours=1)
     async def reset_weekly(self):
@@ -91,20 +92,24 @@ class Weekly(commands.Cog):
                 table_name = (timezone - timedelta(days=1)).strftime("weekly_%Y_%U")
                 save_historical(weekly, stat_values, table=table_name)
 
-                sleep_time = 0.5 - (time.time() - start_time)
+                sleep_time = 1 - (time.time() - start_time)
                 await asyncio.sleep(sleep_time)
+
 
     def cog_load(self):
         self.reset_weekly.start()
 
+
     def cog_unload(self):
         self.reset_weekly.cancel()
+
 
     @reset_weekly.before_loop
     async def before_reset_weekly(self):
         now = datetime.now()
         sleep_seconds = (60 - now.minute) * 60 - now.second
         await asyncio.sleep(sleep_seconds)
+
 
     @reset_weekly.error
     async def on_reset_weekly_error(self, error):
@@ -126,7 +131,7 @@ class Weekly(commands.Cog):
     @app_commands.command(name = "weekly", description = "View the weekly stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, username: str=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -188,7 +193,7 @@ class Weekly(commands.Cog):
     @app_commands.command(name = "lastweek", description = "View last weeks stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', weeks='The lookback amount in weeks')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastweek(self, interaction: discord.Interaction, username: str=None, weeks: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -254,6 +259,7 @@ class Weekly(commands.Cog):
         render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'lastweek')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Weekly(client))

@@ -1,29 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 from calc.compare import Compare
 from helper.rendername import render_level_and_name
-from helper.custombackground import background
+from helper.rendertools import get_background
 
 def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2, save_dir):
-    # Open the image
-    image_location = background(path='./assets/compare', uuid=uuid_1, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    red = (255, 85, 85)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-
-    # Define the values
     compare = Compare(name_1, name_2, mode, hypixel_data_1, hypixel_data_2)
     level_1, level_2 = compare.level_1, compare.level_2
     rank_info_1, rank_info_2 = compare.player_rank_info
@@ -33,9 +13,21 @@ def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2,
     beds_broken, beds_lost, bblr, beds_broken_diff, beds_lost_diff, bblr_diff = compare.get_beds()
     kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = compare.get_kills()
 
+    image = get_background(path='./assets/compare', uuid=uuid_1, default='base', level=level_1, rank_info=rank_info_1)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+
     def leng(text, container_width):
         """Returns startpoint for centering text in a box"""
-        return (container_width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (container_width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    red = (255, 85, 85)
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
 
     def color(value, method):
         if method == 'g': color = green if value[0] == '+' else red

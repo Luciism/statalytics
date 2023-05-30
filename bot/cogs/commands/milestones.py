@@ -9,22 +9,23 @@ from helper.ui import SelectView
 from render.milestones import render_milestones
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
-                       authenticate_user)
+                       authenticate_user,
+                       fetch_skin_model)
 
 
 class Milestones(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
-    # Milestone Stats
+
     @app_commands.command(name = "milestones", description = "View the milestone stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def milestones(self, interaction: discord.Interaction, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -41,17 +42,29 @@ class Milestones(commands.Cog):
         os.makedirs(f'./database/activerenders/{interaction.id}')
         session = 1 if session == 100 else session
         hypixel_data = get_hypixel_data(uuid)
+        skin_res = fetch_skin_model(uuid, 128)
 
-        render_milestones(name, uuid, mode="Overall", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "session": session,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_milestones(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_milestones(name, uuid, mode="Solos", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        render_milestones(name, uuid, mode="Doubles", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        render_milestones(name, uuid, mode="Threes", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        render_milestones(name, uuid, mode="Fours", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
-        render_milestones(name, uuid, mode="4v4", session=session, hypixel_data=hypixel_data, save_dir=interaction.id)
+
+        render_milestones(mode="Solos", **kwargs)
+        render_milestones(mode="Doubles", **kwargs)
+        render_milestones(mode="Threes", **kwargs)
+        render_milestones(mode="Fours", **kwargs)
+        render_milestones(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'milestones')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Milestones(client))

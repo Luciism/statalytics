@@ -1,28 +1,13 @@
 from datetime import datetime
+
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.year import YearStats
-from helper.custombackground import background
-from helper.rendername import render_level, render_rank, get_rank_prefix, paste_skin
+from helper.rendertools import get_background, paste_skin, box_center_text
+from helper.rendername import render_level, render_rank, get_rank_prefix
+
 
 def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_dir):
-    image_location = background(path='./assets/year', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
-
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
     stats = YearStats(name, uuid, session, year, mode, hypixel_data)
     level = int(stats.level_hypixel)
     target = stats.get_target()
@@ -41,8 +26,24 @@ def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_di
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
     year = str(year)
 
+    image = get_background(path='./assets/year', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
+    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(wins, 140) + 21, 148), (wins, green)),
@@ -112,14 +113,10 @@ def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_di
 
     render_level(target, progress_x, progress_y, 20, image)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    box_center_text(f'Year {year}', draw, box_width=171, box_start=452, text_y=27, font=minecraft_18)
 
-    # Draw title
-    title = f'Year {year}'
-    totallength = draw.textlength(title, font=minecraft_18)
-    title_x, title_y = round((171 - totallength) / 2) + 452, 27
-    draw.text((title_x + 2, title_y + 2), title, fill=black, font=minecraft_18)
-    draw.text((title_x, title_y), title, fill=white, font=minecraft_18)
+    # Paste Skin
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/year/overlay.png')

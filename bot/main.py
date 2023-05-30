@@ -1,6 +1,7 @@
 import os
 import time
 import traceback
+
 from json import load as load_json
 from json import dump as dump_json
 
@@ -9,8 +10,8 @@ from discord.ext import commands
 from discord import app_commands
 
 
-# Initialise Bot
 TOKEN = os.environ.get('STATALYTICS_TOKEN')
+
 
 class MyClient(commands.Bot):
     def __init__(self, *, intents: discord.Intents):
@@ -25,7 +26,11 @@ class MyClient(commands.Bot):
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 
-intents = discord.Intents.all()
+
+intents = discord.Intents(messages=True)
+intents.message_content = True
+intents.guilds = True
+intents.members = True
 client = MyClient(intents=intents)
 
 
@@ -33,6 +38,7 @@ client = MyClient(intents=intents)
 async def on_ready():
     print(f'Logged in as {client.user} (ID: {client.user.id})\n------')
     await client.change_presence(activity=discord.Game(name="/help"))
+
 
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -62,11 +68,13 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         else:
             await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
 
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):
         return
     raise error
+
 
 @client.command()
 @commands.is_owner()
@@ -76,7 +84,10 @@ async def load(ctx, cog: str):
         msg = f'Successfully loaded cog: `{cog}`'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
+    except commands.errors.ExtensionAlreadyLoaded:
+        msg = f"Cog already loaded: `{cog}`"
     await ctx.send(msg)
+
 
 @client.command()
 @commands.is_owner()
@@ -86,7 +97,10 @@ async def unload(ctx, cog: str):
         msg = f'Successfully unloaded cog: `{cog}`'
     except commands.errors.ExtensionNotFound:
         msg = f"Couldn't find cog: `{cog}`"
+    except commands.errors.ExtensionNotLoaded:
+        msg = f"Cog not loaded: `{cog}`"
     await ctx.send(msg)
+
 
 @client.command()
 @commands.is_owner()
@@ -100,11 +114,13 @@ async def reload(ctx, cog: str):
         msg = f"Cog not loaded: `{cog}`"
     await ctx.send(msg)
 
+
 @client.command()
 @commands.is_owner()
 async def sync(ctx):
     await client.tree.sync()
     await ctx.send('Successfully synced client tree!')
+
 
 if __name__ == '__main__':
     client.run(TOKEN)

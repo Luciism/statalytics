@@ -2,6 +2,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 from helper.rendername import render_level
 
+
 class Values:
     minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
@@ -15,6 +16,7 @@ class Values:
     gray = (170, 170, 170)
     light_purple = (255, 85, 255)
     green = (85, 255, 85)
+
 
 def render_progress_bar(box_positions: tuple, position_y: int, level: int, progress_out_of_10: int, image: Image):
     """
@@ -66,6 +68,7 @@ def render_progress_bar(box_positions: tuple, position_y: int, level: int, progr
 
     # Second value (next level)
     render_level(level+1, position_x=startpoint, position_y=position_y, fontsize=20, image=image)
+
 
 def render_progress_text(box_positions: tuple, position_y: int, progress: int, target: int, draw: ImageDraw):
     """

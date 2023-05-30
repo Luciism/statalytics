@@ -1,5 +1,6 @@
 from helper.calctools import get_player_rank_info, get_progress, rround
 
+
 class Practice:
     def __init__(self, name: str, hypixel_data: dict) -> None:
         self.name = name
@@ -11,11 +12,13 @@ class Practice:
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
 
+
     def get_bridging_stats(self):
         bridging_completed = self.practice_stats.get('bridging', {}).get('successful_attempts', 0)
         bridging_failed = self.practice_stats.get('bridging', {}).get('failed_attempts', 0)
         bridging_ratio = rround(bridging_completed / (bridging_failed or 1), 2)
         return f'{bridging_completed:,}', f'{bridging_failed:,}', f'{bridging_ratio:,}'
+
 
     def get_tnt_stats(self):
         tnt_completed = self.practice_stats.get('fireball_jumping', {}).get('successful_attempts', 0)
@@ -23,11 +26,13 @@ class Practice:
         tnt_ratio = rround(tnt_completed / (tnt_failed or 1), 2)
         return f'{tnt_completed:,}', f'{tnt_failed:,}', f'{tnt_ratio:,}'
 
+
     def get_mlg_stats(self):
         mlg_completed = self.practice_stats.get('mlg', {}).get('successful_attempts', 0)
         mlg_failed = self.practice_stats.get('mlg', {}).get('failed_attempts', 0)
         mlg_ratio = rround(mlg_completed / (mlg_failed or 1), 2)
         return f'{mlg_completed:,}', f'{mlg_failed:,}', f'{mlg_ratio:,}'
+
 
     def get_pearl_stats(self):
         pearl_completed = self.practice_stats.get('pearl_clutching', {}).get('successful_attempts', 0)
@@ -35,12 +40,14 @@ class Practice:
         pearl_ratio = rround(pearl_completed / (pearl_failed or 1), 2)
         return f'{pearl_completed:,}', f'{pearl_failed:,}', f'{pearl_ratio:,}'
 
+
     def get_blocks_placed(self):
         bridging_blocks = self.practice_stats.get('bridging', {}).get('blocks_placed', 0)
         tnt_blocks = self.practice_stats.get('fireball_jumping', {}).get('blocks_placed', 0)
         mlg_blocks = self.practice_stats.get('mlg', {}).get('blocks_placed', 0)
         blocks_placed = bridging_blocks + tnt_blocks + mlg_blocks
         return f'{blocks_placed:,}'
+
 
     def get_straight_times(self):
         short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_STRAIGHT:', 0) / 1000
@@ -61,6 +68,7 @@ class Practice:
         except ZeroDivisionError: average = 'N/A'
 
         return output[0], output[1], output[2], average
+
 
     def get_diagonal_times(self):
         short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_DIAGONAL:', 0) / 1000

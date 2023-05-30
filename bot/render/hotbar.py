@@ -1,39 +1,16 @@
 from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
-from helper.custombackground import background
-from helper.rendername import get_rank_color
+from helper.rendertools import get_background
+from helper.rendertools import get_rank_color
 
 def render_hotbar(name, uuid, hypixel_data):
-    # Get shop layout and positions
     slots = [(40, 424), (130, 424), (220, 424), (310, 424), (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
     try:
         hypixel_data = hypixel_data['player']
         hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
     except KeyError:
-        return False
+        hotbar = ['null'] * 9
 
-    # Open the base image
-    image_location = background(path='./assets/hotbar', uuid=uuid, default='base')
-    base_image = Image.open(image_location)
-    base_image = base_image.convert("RGBA")
-
-    i = 0
-    for i, item in enumerate(hotbar):
-        # Open the top image (with transparency)
-        top_image = Image.open(f"./assets/hotbar/{item.lower()}.png")
-
-        # Color compatible
-        top_image = top_image.convert("RGBA")
-
-        # Paste the top image onto the base image at the specified position
-        base_image.paste(top_image, slots[i], top_image)
-
-    overlay_image = Image.open('./assets/hotbar/overlay.png')
-    overlay_image = overlay_image.convert("RGBA")
-
-    base_image.paste(overlay_image, (0, 0), overlay_image)
-
-    # Render name
     player_rank_info = {
         'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
         'packageRank': hypixel_data.get('packageRank', 'NONE'),
@@ -41,9 +18,23 @@ def render_hotbar(name, uuid, hypixel_data):
         'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
         'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
     }
-
     rankcolor = get_rank_color(player_rank_info)
 
+    base_image = get_background(path='./assets/hotbar', uuid=uuid, default='base', level=0, rank_info=player_rank_info)
+    base_image = base_image.convert("RGBA")
+
+    composite_image = Image.new("RGBA", base_image.size)
+
+    for i, item in enumerate(hotbar):
+        top_image = Image.open(f"./assets/hotbar/{item.lower()}.png")
+        top_image = top_image.convert("RGBA")
+        composite_image.paste(top_image, slots[i], top_image)
+
+    overlay_image = Image.open('./assets/hotbar/overlay.png')
+    overlay_image = overlay_image.convert("RGBA")
+    composite_image.paste(overlay_image, (0, 0), overlay_image)
+
+    # Render name
     black = (0, 0, 0)
     white = (255, 255, 255)
 
@@ -63,6 +54,8 @@ def render_hotbar(name, uuid, hypixel_data):
 
     draw.text((startpoint + 4, player_y + 4), player_txt, fill=black, font=font)
     draw.text((startpoint, player_y), player_txt, fill=white, font=font)
+
+    base_image = Image.alpha_composite(base_image, composite_image)
 
     # Return the result
     image_bytes = BytesIO()

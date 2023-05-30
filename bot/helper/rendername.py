@@ -1,6 +1,8 @@
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
-from helper.prescolor import Prescolor
+from PIL import Image, ImageDraw, ImageFont
+
+from helper.prescolor import get_prestige_colors
+from helper.rendertools import recolor_pixels
+
 
 def get_color_map():
     color_map = {
@@ -54,32 +56,28 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
     :param image: The image to render on
     """
     font = ImageFont.truetype('./assets/minecraft.ttf', fontsize)
-    pos_colors = Prescolor(level).get_level_color()
+    pos_colors = get_prestige_colors(level)
     draw = ImageDraw.Draw(image)
 
     star_y = round(((fontsize - 17) / 2) + position_y)
-    star_dir = "0_to_1000" if level < 1100 else "1100_to_2000" if level < 2100 else\
+    star_type = "0_to_1000" if level < 1100 else "1100_to_2000" if level < 2100 else\
                "2100_to_3000" if level < 3100 else "3100_to_5000"
-    star = Image.open(f'./assets/stars/{star_dir}/{pos_colors[5]}.png')
-    star_black = Image.open(f'./assets/stars/{star_dir}/black.png')
-
-    # Convert
+    star = Image.open(f'./assets/stars/{star_type}.png')
     star = star.convert("RGBA")
-    star_black = star_black.convert("RGBA")
+    star = recolor_pixels(star, ((214, 214, 214),), (pos_colors if level < 1000 else pos_colors[5],))
 
     if level < 1000 or level >= 10000:
         draw.text((position_x + 2, position_y + 2), f"[{level}", fill=(0, 0, 0), font=font)
-        draw.text((position_x, position_y), f'[{level}', fill=pos_colors[0], font=font)
+        draw.text((position_x, position_y), f'[{level}', fill=pos_colors, font=font)
 
         position_x += draw.textlength(f"[{level}", font=font)
 
-        image.paste(star_black, (int(position_x) + 3, star_y + 1), star_black)
         image.paste(star, (int(position_x) + 1, star_y), star)
 
         position_x += star.width + 2
 
         draw.text((position_x + 2, position_y + 2), "] ", fill=(0, 0, 0), font=font)
-        draw.text((position_x, position_y), '] ', fill=pos_colors[0], font=font)
+        draw.text((position_x, position_y), '] ', fill=pos_colors, font=font)
 
         position_x += draw.textlength('] ', font=font)
 
@@ -91,7 +89,6 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
             draw.text((position_x, position_y), str(level)[i], fill=pos_colors[i+1], font=font)
             position_x += draw.textlength(str(level)[i], font=font)
 
-        image.paste(star_black, (int(position_x) + 3, star_y + 1), star_black)
         image.paste(star, (int(position_x) + 1, star_y), star)
         position_x += star.width + 2
 
@@ -194,35 +191,3 @@ def render_level_and_name(name: str, level: int, player_rank_info: dict, image: 
 
     position_x = render_level(level, position_x, position_y, fontsize, image)
     render_rank(name, position_x, position_y, rank_prefix, player_rank_info, draw, fontsize)
-
-
-def get_rank_color(player_rank_info: dict):
-    """
-    Returns a rank color based off of the rank information given
-    :param player_rank_info: the rank information
-    """
-    if player_rank_info['rank'] == "TECHNO":
-        rankcolor = (255, 85, 255)
-    elif player_rank_info['rank'] == "NONE":
-        if (player_rank_info['packageRank'], player_rank_info['newPackageRank']) == ("NONE", "NONE"):
-            rankcolor = (170, 170, 170)
-        elif player_rank_info['packageRank'] in ("VIP", "VIP_PLUS") or player_rank_info['newPackageRank'] in ("VIP", "VIP_PLUS"):
-            rankcolor = (85, 255, 85)
-        elif player_rank_info['packageRank'] in ("MVP", "MVP_PLUS") or player_rank_info['newPackageRank'] in ("MVP", "MVP_PLUS"):
-            rankcolor = (85, 255, 255) if player_rank_info['monthlyPackageRank'] == "NONE" else (255, 170, 0)
-    else:
-        rankcolor = (255, 85, 85) if player_rank_info['rank'] in ("YOUTUBER", "ADMIN") else (0, 170, 0)
-    return rankcolor
-
-def paste_skin(skin_res, image: Image, positions: tuple):
-    """
-    Pastes a skin onto image
-    :param skin_res: the image bytes object for the skin
-    :param image: the image object to paste onto
-    :param positions: the x & y coordinates to paste at
-    """
-    try:
-        skin = Image.open(BytesIO(skin_res))
-    except UnidentifiedImageError:
-        skin = Image.open('./assets/steve.png')
-    image.paste(skin, positions, skin)

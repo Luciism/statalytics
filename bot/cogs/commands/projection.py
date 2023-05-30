@@ -8,7 +8,7 @@ from helper.ui import SelectView
 from render.projection import render_projection
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        get_smart_session,
@@ -18,14 +18,14 @@ from helper.functions import (username_autocompletion,
 
 class Projection(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
 
     @app_commands.command(name = "prestige", description = "View the projected stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', prestige='The prestige you want to view', session='The session you want to use as a benchmark (defaults to 1)')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def projected_stats(self, interaction: discord.Interaction, prestige: int=None, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -48,17 +48,26 @@ class Projection(commands.Cog):
             prestige = (current_star // 100 + 1) * 100
         if prestige <= 0: prestige = 1
 
-        current_star = render_projection(name, uuid, session, mode="Overall", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "session": session,
+            "target": prestige,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
 
+        current_star = render_projection(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-
         content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
         await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_projection(name, uuid, session, mode="Solos", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_projection(name, uuid, session, mode="Doubles", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_projection(name, uuid, session, mode="Threes", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_projection(name, uuid, session, mode="Fours", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_projection(name, uuid, session, mode="4v4", target=prestige, hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+
+        render_projection(mode="Solos", **kwargs)
+        render_projection(mode="Doubles", **kwargs)
+        render_projection(mode="Threes", **kwargs)
+        render_projection(mode="Fours", **kwargs)
+        render_projection(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'projection')
 

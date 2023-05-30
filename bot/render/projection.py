@@ -1,27 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.projection import ProjectedStats
-from helper.custombackground import background
-from helper.rendername import render_level, render_rank, get_rank_prefix, paste_skin
+from helper.rendertools import get_background, paste_skin
+from helper.rendername import render_level, render_rank, get_rank_prefix
+
 
 def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
-    image_location = background(path='./assets/projection', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
-
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
     stats = ProjectedStats(name, uuid, session, mode, target, hypixel_data)
     level = int(stats.level_hypixel)
     player_rank_info = stats.player_rank_info
@@ -36,8 +20,24 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
     wins, losses, wlr = stats.get_wins()
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
 
+    image = get_background(path='./assets/projection', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
+    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(wins, 140) + 21, 148), (wins, green)),
@@ -107,7 +107,7 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
 
     render_level(target, progress_x, progress_y, 20, image)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/projection/overlay.png')

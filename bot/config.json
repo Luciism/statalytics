@@ -1,20 +1,39 @@
 {
     "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.3.3",
+    "version": "1.4.0",
     "developers": [
-        "Luca.#0616"
+        "Luca.#6666"
     ],
     "links": {
         "website": "https://statalytics.net/",
         "support_server": "https://discord.gg/rHmHZ9vvwE",
         "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
-        "github": "https://github.com/oDepleted/statalytics"
+        "github": "https://github.com/oDepleted/statalytics",
+        "voting": {
+            "top.gg": "https://top.gg/bot/903765373181112360/vote",
+            "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
+            "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
+        }
     },
     "error_logs_channel_id": 1101006847831445585,
     "embed_primary_color": "5865F2",
     "embed_danger_color": "FC2B2B",
     "embed_warning_color": "FFE100",
+    "theme_packs": {
+        "voter_themes": {
+            "none": "None",
+            "color_sync_fusion": "Color Sync Fusion",
+            "cold_feet": "Cold Feet",
+            "crystal_dawn": "Crystal Dawn",
+            "mooner_eclipse": "Mooner Eclipse",
+            "blue_retreat": "Blue Retreat",
+            "technoblade": "Legends Never Die"
+        },
+        "exclusive_themes": {
+            "summer_2023": "Summer Exclusive 2023"
+        }
+    },
     "enabled_cogs": [
         "commands.year",
         "commands.denick",
@@ -36,11 +55,13 @@
         "commands.who",
         "commands.displayname",
         "commands.info",
+        "commands.voting",
+        "commands.settings",
+        "commands.historical.reset_time",
         "commands.historical.daily",
         "commands.historical.weekly",
         "commands.historical.monthly",
-        "commands.historical.yearly",
-        "commands.historical.reset_time"
+        "commands.historical.yearly"
     ],
     "tracked_bedwars_stats": [
         "Experience",

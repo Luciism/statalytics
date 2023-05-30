@@ -1,8 +1,9 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-from helper.custombackground import background
-from helper.rendername import get_rank_color
+from helper.rendertools import get_background, get_rank_color
+from helper.calctools import get_player_rank_info
+
 
 def render_mostplayed(name, uuid, hypixel_data):
     hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
@@ -12,14 +13,7 @@ def render_mostplayed(name, uuid, hypixel_data):
     threes = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_three_games_played_bedwars', 1)
     fours = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_four_games_played_bedwars', 1)
 
-    player_rank_info = {
-        'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
-        'packageRank': hypixel_data.get('packageRank', 'NONE'),
-        'newPackageRank': hypixel_data.get('newPackageRank', 'NONE'),
-        'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
-        'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
-    }
-
+    player_rank_info = get_player_rank_info(hypixel_data=hypixel_data)
     rankcolor = get_rank_color(player_rank_info)
 
     # Get ratio
@@ -27,14 +21,13 @@ def render_mostplayed(name, uuid, hypixel_data):
     total = sum(numbers)
     ratios = [num / total for num in numbers]
 
-    color = (0, 0, 255, 127)
+    color = (45, 45, 255, 127)
 
     # Define the coordinates for the bars
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
     # Open Images
-    image_location = background(path='./assets/mostplayed', uuid=uuid, default='base')
-    base_image = Image.open(image_location)
+    base_image = get_background(path='./assets/mostplayed', uuid=uuid, default='base', level=0, rank_info=player_rank_info)
     base_image = base_image.convert("RGBA")
 
     bar_graph = Image.new('RGBA', (640, 420), (0, 0, 0, 0))
@@ -75,7 +68,7 @@ def render_mostplayed(name, uuid, hypixel_data):
 
     # Render the titles
     overlay_image = Image.open('./assets/mostplayed/overlay.png')
-    base_image.paste(overlay_image, (0, 0), overlay_image)
+    base_image = Image.alpha_composite(base_image, overlay_image)
 
     # Return the image
     image_bytes = BytesIO()

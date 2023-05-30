@@ -1,31 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.historical import HistoricalStats, LookbackStats
-from helper.rendername import render_rank, get_rank_prefix, paste_skin
-from helper.custombackground import background
+from helper.rendername import render_rank, get_rank_prefix
+from helper.rendertools import get_background, paste_skin, box_center_text
 from helper.renderprogress import render_progress_bar, render_progress_text
 
+
 def render_historical(name, uuid, method, relative_date, title, mode, hypixel_data, skin_res, save_dir, table_name = None):
-    # Open the image
-    image_location = background(path='./assets/historical', uuid=uuid, default=f'base_{method}')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_17 = ImageFont.truetype('./assets/minecraft.ttf', 17)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
     if not table_name:
         stats = HistoricalStats(name, uuid, method, mode, hypixel_data)
     else:
@@ -46,8 +27,23 @@ def render_historical(name, uuid, method, relative_date, title, mode, hypixel_da
     beds_broken, beds_lost, bblr = stats.get_beds()
     kills, deaths, kdr = stats.get_kills()
 
+    image = get_background(path=f'./assets/historical/{method}', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_17 = ImageFont.truetype('./assets/minecraft.ttf', 17)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(wins, 140) + 17, 190), (wins, green)),
@@ -89,14 +85,10 @@ def render_historical(name, uuid, method, relative_date, title, mode, hypixel_da
     render_progress_bar(box_positions=(415, 19), position_y=91, level=level, progress_out_of_10=progress_out_of_10, image=image)
     render_progress_text(box_positions=(415, 19), position_y=122, progress=progress, target=target, draw=draw)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    box_center_text(title, draw, box_width=171, box_start=452, text_y=27, font=minecraft_17)
 
-    # Draw title
-    totallength = draw.textlength(title, font=minecraft_17)
-    title_x = round((171 - totallength) / 2) + 452
-    title_y = 27
-    draw.text((title_x + 2, title_y + 2), title, fill=black, font=minecraft_17)
-    draw.text((title_x, title_y), title, fill=white, font=minecraft_17)
+    # Paste skin
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/historical/overlay.png')

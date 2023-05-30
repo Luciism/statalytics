@@ -2,20 +2,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from helper.rendername import render_level_and_name
 from calc.cosmetics import ActiveCosmetics
-from helper.custombackground import background
+from helper.rendertools import get_background
 
 def render_cosmetics(name, uuid, hypixel_data):
-    image_location = background(path='./assets/cosmetics', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
-
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
-
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-
     cosmetics = ActiveCosmetics(hypixel_data)
     level = cosmetics.level
     player_rank_info = cosmetics.player_rank_info
@@ -34,7 +23,15 @@ def render_cosmetics(name, uuid, hypixel_data):
         'kill_message': (299, 430)
     }
 
-    # Render the cosmetics
+    image = get_background(path='./assets/cosmetics', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
+
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+
     for cosmetic, (x, y) in cosmetic_data.items():
         cosmetic_text = getattr(cosmetics, cosmetic)
         draw.text((x + 2, y + 2), cosmetic_text, fill=black, font=font)

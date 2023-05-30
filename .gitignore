@@ -11,6 +11,15 @@ bot/assets/shop/custom/
 bot/assets/total/custom/
 bot/assets/compare/custom/
 bot/assets/year/custom/
+bot/assets/hotbar/custom/
+bot/assets/historical/daily/custom/
+bot/assets/historical/weekly/custom/
+bot/assets/historical/monthly/custom/
+bot/assets/historical/yearly/custom/
+bot/assets/historical/lastday/custom/
+bot/assets/historical/lastweek/custom/
+bot/assets/historical/lastmonth/custom/
+bot/assets/historical/lastyear/custom/
 bot/database/
 bot/misc/
 bot/cogs/commands/__pycache__/
@@ -23,4 +32,6 @@ bot/calc/__pycache__/
 bot/cache/
 website/
 utils/
+api/
+.vscode/
 website_old/

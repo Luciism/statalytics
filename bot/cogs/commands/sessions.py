@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        get_linked_data,
@@ -20,16 +20,17 @@ from helper.functions import (username_autocompletion,
 from render.session import render_session
 from helper.ui import SelectView, ManageSession
 
+
 class Sessions(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
-    # View Session Command
+
     @app_commands.command(name = "session", description = "View the session stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to view')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def session(self, interaction: discord.Interaction, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -45,18 +46,28 @@ class Sessions(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
         skin_res = fetch_skin_model(uuid, 144)
 
-        render_session(name, uuid, session, mode="Overall", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+        kwargs = {
+            "name": name,
+            "uuid": uuid,
+            "session": session,
+            "hypixel_data": hypixel_data,
+            "skin_res": skin_res,
+            "save_dir": interaction.id
+        }
+
+        render_session(mode="Overall", **kwargs)
         view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_session(name, uuid, session, mode="Solos", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_session(name, uuid, session, mode="Doubles", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_session(name, uuid, session, mode="Threes", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_session(name, uuid, session, mode="Fours", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
-        render_session(name, uuid, session, mode="4v4", hypixel_data=hypixel_data, skin_res=skin_res, save_dir=interaction.id)
+
+        render_session(mode="Solos", **kwargs)
+        render_session(mode="Doubles", **kwargs)
+        render_session(mode="Threes", **kwargs)
+        render_session(mode="Fours", **kwargs)
+        render_session(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'session')
 
-    # Create Session Command
+
     @app_commands.command(name = "startsession", description = "Starts a new session")
     async def start_session(self, interaction: discord.Interaction):
         linked_data = get_linked_data(interaction.user.id)
@@ -86,12 +97,11 @@ class Sessions(commands.Cog):
                 await interaction.followup.send('You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
         else:
             await interaction.response.send_message("""You don't have an account linked! In order to link use `/link`!
-                                                    Otherwise use `/session <player>` will start a session if one doesn't already exist!""")
+                                                    Otherwise `/session <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
 
         update_command_stats(interaction.user.id, 'startsession')
 
 
-    # Delete Session Command
     @app_commands.command(name = "endsession", description = "Ends an active session")
     @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
@@ -119,7 +129,6 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'endsession')
 
 
-    # Reset Session Command
     @app_commands.command(name = "resetsession", description = "Resets an active session")
     @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to reset')
@@ -148,7 +157,6 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'resetsession')
 
 
-    # Session List Command
     @app_commands.command(name = "activesessions", description = "View all active sessions")
     async def active_sessions(self, interaction: discord.Interaction):
         linked_data = get_linked_data(interaction.user.id)
@@ -172,6 +180,7 @@ class Sessions(commands.Cog):
             await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
 
         update_command_stats(interaction.user.id, 'activesessions')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Sessions(client))

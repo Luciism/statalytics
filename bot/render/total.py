@@ -1,30 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.total import Stats
-from helper.rendername import render_rank, get_rank_prefix, paste_skin
-from helper.custombackground import background
+from helper.rendername import render_rank, get_rank_prefix
+from helper.rendertools import get_background, paste_skin
 from helper.renderprogress import render_progress_bar, render_progress_text
 
+
 def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
-    # Open the image
-    image_location = background(path='./assets/total', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
     stats = Stats(name, mode, hypixel_data)
     level = stats.level
     player_rank_info = stats.player_rank_info
@@ -46,8 +28,23 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         kills, deaths, kdr = stats.get_fire_kills()
         games_played, times_voided, items_purchased, winstreak = stats.get_misc_pointless()
 
+
+    image = get_background(path='./assets/total', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(wins, 140) + 17, 190), (wins, green)),
@@ -89,7 +86,7 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     render_progress_bar(box_positions=(415, 19), position_y=91, level=level, progress_out_of_10=progress_out_of_10, image=image)
     render_progress_text(box_positions=(415, 19), position_y=122, progress=progress, target=target, draw=draw)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/total/overlay_{method}.png')

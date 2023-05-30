@@ -6,6 +6,7 @@ import shutil
 import discord
 from helper.functions import start_session
 
+
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     def __init__(self, channel, **kwargs):
         self.channel = channel
@@ -22,6 +23,7 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
         await self.channel.send(embed=submit_embed)
         await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
 
+
 class ManageSession(discord.ui.View):
     def __init__(self, session: int, uuid: str, method: str) -> None:
         super().__init__(timeout = 20)
@@ -33,6 +35,7 @@ class ManageSession(discord.ui.View):
         for item in self.children:
             item.disabled = True
         await self.message.edit(view=self)
+
 
     @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.danger, custom_id = "confirm")
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -51,6 +54,7 @@ class ManageSession(discord.ui.View):
             message = f'Session `{self.session}` has been reset successfully!'
         await interaction.followup.send(message, ephemeral=True)
 
+
 # ------------------------------------------------------------------------------------------ #
 class Select(discord.ui.Select):
     def __init__(self, user, inter, mode):
@@ -66,6 +70,8 @@ class Select(discord.ui.Select):
             discord.SelectOption(label="4v4")
             ]
         super().__init__(placeholder=self.mode, max_values=1, min_values=1, options=options)
+    
+    
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         mode = self.values[0].lower()
@@ -75,14 +81,19 @@ class Select(discord.ui.Select):
             view = SelectView(user=self.user, inter=self.inter, mode=mode)
             await self.inter.edit_original_response(attachments=[discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png')], view=view)
 
+
 class SelectView(discord.ui.View):
     def __init__(self, user, inter, mode, *, timeout = 300):
         super().__init__(timeout=timeout)
         self.add_item(Select(user, inter, mode))
         self.inter = inter
 
+
     async def on_timeout(self) -> None:
-        self.clear_items()
-        await self.inter.edit_original_response(view=self)
+        try:
+            self.clear_items()
+            await self.inter.edit_original_response(view=self)
+        except discord.errors.NotFound:
+            pass
         if os.path.isdir(f'./database/activerenders/{self.inter.id}'):
             shutil.rmtree(f'./database/activerenders/{self.inter.id}')

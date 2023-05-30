@@ -15,7 +15,8 @@ from helper.functions import update_command_stats
 
 class Info(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
+
 
     @app_commands.command(name="info", description="View information and stats for Statalytics")
     async def info(self, interaction: discord.Interaction):

@@ -1,4 +1,5 @@
-from helper.calctools import get_player_rank_info, get_mode, rround
+from helper.calctools import get_player_rank_info, get_mode, rround, get_progress
+
 
 class Ratios:
     def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
@@ -11,6 +12,8 @@ class Ratios:
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
         self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.progress = get_progress(hypixel_data_bedwars=self.hypixel_data_bedwars)
+
 
     def get_per_star(self):
         wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
@@ -39,6 +42,7 @@ class Ratios:
 
         return str(wins_per_star), str(final_kills_per_star), str(beds_broken_per_star), str(kills_per_star), str(losses_per_star), str(final_deaths_per_star), str(beds_lost_per_star), str(deaths_per_star)
 
+
     def get_per_game(self):
         final_kills = self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)
         final_kills_per_game = rround(final_kills / (self.games_played or 1), 2)
@@ -60,15 +64,18 @@ class Ratios:
 
         return str(final_kills_per_game), str(beds_broken_per_game), str(kills_per_game), str(final_deaths_per_game), str(beds_lost_per_game), str(deaths_per_game)
 
+
     def get_clutch_rate(self):
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
         beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
         clutches = beds_lost - losses
         return '0%' if clutches <= 0 or beds_lost <= 0 else f"{round((clutches / beds_lost) * 100, 2)}%"
 
+
     def get_loss_rate(self):
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
         return "0%" if self.games_played == 0 else "100%" if losses == 0 else f'{round((losses / self.games_played) * 100, 2)}%'
+
 
     def get_most_wins(self):
         solos = self.hypixel_data_bedwars.get('eight_one_wins_bedwars', 0)
@@ -77,6 +84,7 @@ class Ratios:
         fours = self.hypixel_data_bedwars.get('four_four_wins_bedwars', 0)
         findgreatest = {'Solos': solos, 'Doubles': doubles, 'Threes':  threes, 'Fours': fours}
         return "Unknown" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
+
 
     def get_most_losses(self):
         solos = self.hypixel_data_bedwars.get('eight_one_losses_bedwars', 0)

@@ -1,33 +1,14 @@
 from io import BytesIO
+
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.practice import Practice
-from helper.rendername import render_rank, get_rank_prefix, paste_skin
-from helper.custombackground import background
+from helper.rendername import render_rank, get_rank_prefix
+from helper.rendertools import get_background, paste_skin
 from helper.renderprogress import render_progress_bar
 
 
 def render_practice(name, uuid, hypixel_data, skin_res):
-    # Open the image
-    image_location = background(path='./assets/practice', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    # Define the text colors
-    white = (255, 255, 255)
-    green = (85, 255, 85)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    red = (255, 85, 85)
-    light_purple = (255, 85, 255)
-
-    # Define the values
     practice = Practice(name, hypixel_data)
     level = practice.level
     player_rank_info = practice.player_rank_info
@@ -45,8 +26,23 @@ def render_practice(name, uuid, hypixel_data, skin_res):
         tnt_completed, tnt_failed, mlg_completed, mlg_failed, pearl_completed, pearl_failed)))
     attempts = f'{attempts:,}'
 
+    image = get_background(path='./assets/practice', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    white = (255, 255, 255)
+    green = (85, 255, 85)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    red = (255, 85, 85)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(bridging_completed, 140) + 17, 131), bridging_completed, green),
@@ -88,7 +84,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
     render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/practice/overlay.png')

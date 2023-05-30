@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 from render.historical import render_historical
 from helper.ui import SelectView
 from helper.functions import (username_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
@@ -31,6 +31,7 @@ class Daily(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+
 
     @tasks.loop(hours=1)
     async def reset_daily(self):
@@ -89,14 +90,17 @@ class Daily(commands.Cog):
                 table_name = (timezone - timedelta(days=1)).strftime("daily_%Y_%m_%d")
                 save_historical(daily, stat_values, table=table_name)
 
-                sleep_time = 0.5 - (time.time() - start_time)
+                sleep_time = 1 - (time.time() - start_time)
                 await asyncio.sleep(sleep_time)
+
 
     def cog_load(self):
         self.reset_daily.start()
 
+
     def cog_unload(self):
         self.reset_daily.cancel()
+
 
     @reset_daily.error
     async def on_reset_daily_error(self, error):
@@ -120,10 +124,11 @@ class Daily(commands.Cog):
         sleep_seconds = (60 - now.minute) * 60 - now.second
         await asyncio.sleep(sleep_seconds)
 
+
     @app_commands.command(name = "daily", description = "View the daily stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def daily(self, interaction: discord.Interaction, username: str=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -184,7 +189,7 @@ class Daily(commands.Cog):
     @app_commands.command(name = "lastday", description = "View yesterdays stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', days='The lookback amount in days')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastday(self, interaction: discord.Interaction, username: str=None, days: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -229,7 +234,7 @@ class Daily(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "yesterday",
+            "method": "lastday",
             "relative_date": formatted_date,
             "title": f"{days} Days Ago",
             "table_name": table_name,
@@ -249,6 +254,7 @@ class Daily(commands.Cog):
         render_historical(mode="4v4", **kwargs)
 
         update_command_stats(interaction.user.id, 'lastday')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Daily(client))

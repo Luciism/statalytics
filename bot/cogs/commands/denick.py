@@ -7,13 +7,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import check_subscription, update_command_stats
-
+from helper.functions import get_command_cooldown, update_command_stats
 
 
 class Denick(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
 
     async def number_autocomplete(self, interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
         data = [
@@ -22,10 +21,11 @@ class Denick(commands.Cog):
         ]
         return data
 
+
     @app_commands.command(name = "numberdenick", description = "Find the ign of a nick based on their kill messages (powered by antisniper)")
     @app_commands.describe(mode='The stat to denick with (finals / beds)', count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction, mode: str, count: int):
         mode = mode.lower()
         if not mode in ('finals', 'beds'):

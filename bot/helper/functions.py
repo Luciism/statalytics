@@ -1,5 +1,8 @@
+"""A set of useful functions used throughout the bot"""
+
 import random
 import json
+import time
 import typing
 import sqlite3
 import discord
@@ -14,9 +17,25 @@ from datetime import datetime
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
 skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
 
-# Username autofill
-async def username_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]: #pylint: disable=unused-argument
-    data = []
+
+def get_voting_data(discord_id: int) -> tuple:
+    """
+    Returns a users voting data
+    :param discord_id: The discord id of the user's voting data to be fetched
+    """
+    with sqlite3.connect('./database/voting.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
+        return cursor.fetchone()
+
+
+async def username_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
+    """
+    Interaction username autocomplete
+    Paramaters will be handled automatically by discord.py
+    """
+    data: list = []
 
     with sqlite3.connect('./database/autofill.db') as conn:
         cursor = conn.cursor()
@@ -29,20 +48,24 @@ async def username_autocompletion(interaction: discord.Interaction, current: str
             break
     return data
 
-# Session autofill
-async def session_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]: #pylint: disable=unused-argument
+
+async def session_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
+    """
+    Interaction session autocomplete
+    Paramaters will be handled automatically by discord.py
+    """
     username_option = next((opt for opt in interaction.data['options'] if opt['name'] == 'username'), None)
     if username_option:
         username = username_option.get('value')
-        uuid = MCUUID(name=username).uuid
+        uuid: str = MCUUID(name=username).uuid
     else:
         with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-            linked_data = cursor.fetchone()
+            linked_data: tuple = cursor.fetchone()
         if not linked_data:
             return []
-        uuid = linked_data[1]
+        uuid: str = linked_data[1]
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
@@ -52,42 +75,75 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
         data.append(app_commands.Choice(name=session[0], value=session[0]))
     return data
 
-# Get cooldown
-def check_subscription(interaction: discord.Interaction) -> typing.Optional[app_commands.Cooldown]:
+
+def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[app_commands.Cooldown]:
+    """
+    Gets interaction cooldown based on subscription and voting status.
+    Subscription = 0 seconds
+    Recent vote = 1.75
+    Nothing = 3.5
+
+    Paramaters will be handled automatically by discord.py
+    """
     with sqlite3.connect('./database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}")
         subscription = cursor.fetchone()
     if subscription:
         return app_commands.Cooldown(1, 0.0)
+        
+    # If user has voted in past 24 hours
+    voting_data = get_voting_data(interaction.user.id)
+    current_time = time.time()
+    if voting_data and ((current_time - voting_data[3]) / 3600 < 24):
+        return app_commands.Cooldown(1, 1.75)
+
     return app_commands.Cooldown(1, 3.5)
 
-# Get hypixel data
-def get_hypixel_data(uuid: str, cache: bool=True):
-    with open('./database/apikeys.json', 'r') as keyfile:
-        all_keys = json.load(keyfile)['hypixel']
-    key = all_keys[random.choice(list(all_keys))]
 
-    if cache: data = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
-    else: data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+def get_hypixel_data(uuid: str, cache: bool=True) -> dict:
+    """
+    Fetch a users hypixel data from hypixel's api
+    :param uuid: The uuid of the user's data to fetch
+    :param cache: Whether to use caching or not
+    """
+    with open('./database/apikeys.json', 'r') as keyfile:
+        all_keys: dict = json.load(keyfile)['hypixel']
+    key: str = all_keys[random.choice(list(all_keys))]
+
+    if cache: data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    else: data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     return data
 
-# Get linked data
-def get_linked_data(discord_id: int):
+
+def get_linked_data(discord_id: int) -> tuple:
+    """
+    Returns a users linked data from linked database
+    :param discord_id: The discord id of user's linked data to be retrieved
+    """
     with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
         return cursor.fetchone()
 
-# Get subscription data
-def get_subscription(discord_id: int):
+
+def get_subscription(discord_id: int) -> tuple:
+    """
+    Returns a users subscription data from subscription database
+    :param discord_id: The discord id of user's subscription data to be retrieved
+    """
     with sqlite3.connect('./database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
         return cursor.fetchone()
 
-# Update command stats
-def update_command_stats(discord_id, command):
+
+def update_command_stats(discord_id: int, command: str) -> None:
+    """
+    Updates command usage stats for passed command.
+    If command doesn't exist in database, a new table will be created.
+    :param discord_id: The user that ran he command
+    """
     with sqlite3.connect('./database/command_usage.db') as conn:
         cursor = conn.cursor()
 
@@ -97,7 +153,7 @@ def update_command_stats(discord_id, command):
 
         try:
             cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
-            current_commands_ran = cursor.fetchone()
+            current_commands_ran: tuple = cursor.fetchone()
         except sqlite3.OperationalError:
             cursor.execute(f"CREATE TABLE {command}( discord_id INTEGER PRIMARY KEY, commands_ran INTEGER )")
             cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (0, 0))
@@ -108,15 +164,22 @@ def update_command_stats(discord_id, command):
         cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
         cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
 
-# Account linking
-def link_account(discord_tag, discord_id, name, uuid):
+
+def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> bool | None:
+    """
+    Attempt to link an discord account to a hypixel account
+    :param discord_tag: The discord user's full tag eg: Example#1234
+    :param discord_id: The discord user's id
+    :param name: The username of the hypixel account being linked
+    :param uuid: The uuid of the hypixel account being linked
+    """
     with open('./database/apikeys.json', 'r') as keyfile:
         all_keys = json.load(keyfile)['hypixel']
     key = all_keys[random.choice(list(all_keys))]
 
-    data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     if not data['player']: return None
-    hypixel_discord_tag = data.get('player', {}).get('socialMedia', {}).get('links', {}).get('DISCORD', None)
+    hypixel_discord_tag: str = data.get('player', {}).get('socialMedia', {}).get('links', {}).get('DISCORD', None)
 
     # Linking Logic
     if hypixel_discord_tag:
@@ -130,18 +193,17 @@ def link_account(discord_tag, discord_id, name, uuid):
                 if not linked_data: cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
                 else: cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
 
-
             # Update autofill
             with sqlite3.connect('./database/subscriptions.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
-                subscription = cursor.fetchone()
+                subscription: tuple = cursor.fetchone()
 
             if subscription:
                 with sqlite3.connect('./database/autofill.db') as conn:
                     cursor = conn.cursor()
                     cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
-                    autofill_data = cursor.fetchone()
+                    autofill_data: tuple = cursor.fetchone()
 
                     if not autofill_data:
                         query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
@@ -153,23 +215,31 @@ def link_account(discord_tag, discord_id, name, uuid):
         return False
     return None
 
-# Start session
-def start_session(uuid, session):
-    with open('./database/apikeys.json', 'r') as keyfile:
-        all_keys = json.load(keyfile)['hypixel']
-    key = all_keys[random.choice(list(all_keys))]
 
-    data = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+def start_session(uuid: str, session: int) -> bool:
+    """
+    Initiate a bedwars stats session
+    :param uuid: The uuid of the player to initiate a session for
+    :param session: The id of the session being initiated
+    """
+    with open('./database/apikeys.json', 'r') as keyfile:
+        all_keys: dict = json.load(keyfile)['hypixel']
+    key: str = all_keys[random.choice(list(all_keys))]
+
+    data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     if data['player'] is None:
         return False
+
     with open('./config.json', 'r') as datafile:
-        stat_keys = json.load(datafile)['tracked_bedwars_stats']
-    stat_values = {
-    "session": session,
-    "uuid": uuid,
-    "date": datetime.now().strftime("%Y-%m-%d"),
-    "level": data["player"].get("achievements", {}).get("bedwars_level", 0),
+        stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
+
+    stat_values: dict = {
+        "session": session,
+        "uuid": uuid,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "level": data["player"].get("achievements", {}).get("bedwars_level", 0),
     }
+
     for key in stat_keys:
         stat_values[key] = data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0)
 
@@ -177,7 +247,7 @@ def start_session(uuid, session):
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-        row = cursor.fetchone()
+        row: tuple = cursor.fetchone()
 
         if not row:
             columns = ', '.join(stat_values.keys())
@@ -192,15 +262,20 @@ def start_session(uuid, session):
         conn.commit()
     return True
 
-# Authenticate Linked User
-def update_autofill(discord_id, uuid, username):
-    subscription = get_subscription(discord_id)
 
+def update_autofill(discord_id: int, uuid: str, username: str) -> None:
+    """
+    Updates autofill for a user, this will be helpful if a user has changed their ign
+    :param discord_id: The discord id of the target linked user
+    :param uuid: The uuid of the target linked user
+    :param username: The updated username of the target linked user
+    """
+    subscription: tuple = get_subscription(discord_id)
     if subscription:
         with sqlite3.connect('../bot/database/autofill.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
-            autofill_data = cursor.fetchone()
+            autofill_data: tuple = cursor.fetchone()
 
             if not autofill_data:
                 query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
@@ -209,15 +284,21 @@ def update_autofill(discord_id, uuid, username):
                 query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
                 cursor.execute(query, (uuid, username, discord_id))
 
-async def authenticate_user(username, interaction):
+
+async def authenticate_user(username: str, interaction: discord.Interaction) -> tuple[str, str] | None:
+    """
+    Get formatted username & uuid of a user from their minecraft ign / uuid
+    :param username: The minecraft ign of the player to return (can also take a uuid)
+    :param interaction: The discord interaction object used
+    """
     if username is None:
         with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-            linked_data = cursor.fetchone()
+            linked_data: tuple = cursor.fetchone()
         if linked_data:
-            uuid = linked_data[1]
-            name = MCUUID(uuid=uuid).name
+            uuid: str = linked_data[1]
+            name: str = MCUUID(uuid=uuid).name
             update_autofill(interaction.user.id, uuid, name)
         else:
             await interaction.response.send_message("You are not linked! Either specify a player or link your account using `/link`!")
@@ -225,29 +306,37 @@ async def authenticate_user(username, interaction):
     else:
         try:
             if len(username) <= 16:
-                uuid = MCUUID(name=username).uuid
-                name = MCUUID(name=username).name
+                uuid: str = MCUUID(name=username).uuid
+                name: str = MCUUID(name=username).name
             else:
-                name = MCUUID(uuid=username).name
-                uuid = username
+                name: str = MCUUID(uuid=username).name
+                uuid: str = username
         except KeyError:
             await interaction.response.send_message("That player does not exist!")
             return
     return name, uuid
 
 
-async def get_smart_session(interaction, session, username, uuid):
+async def get_smart_session(interaction: discord.Interaction, session: int, username: str, uuid: str) -> tuple | bool:
+    """
+    Dynamically gets a session of a user
+    If session is 100, the first session to exist will be returned
+    :param interaction: The discord interaction object used
+    :param session: The session to attempt to be retrieved
+    :param username: The username of the session owner
+    :param uuid: The uuid of the session owner
+    """
     with sqlite3.connect('./database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
-        session_data = cursor.fetchone()
+        session_data: tuple = cursor.fetchone()
         if not session_data:
             cursor.execute(f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
-            session_data = cursor.fetchone()
+            session_data: tuple = cursor.fetchone()
 
     if not session_data:
         await interaction.response.defer()
-        response = start_session(uuid, session=1)
+        response: bool = start_session(uuid, session=1)
 
         if response is True: await interaction.followup.send(f"**{username}** has no active sessions so one was created!")
         else: await interaction.followup.send(f"**{username}** has never played before!")
@@ -258,8 +347,14 @@ async def get_smart_session(interaction, session, username, uuid):
 
     return session_data
 
+
 def start_historical(uuid: str, method: str) -> None:
-    hypixel_data = get_hypixel_data(uuid, cache=False)
+    """
+    Initiates historical stat tracking (daily, weekly, etc)
+    :param uuid: The uuid of the player's historical stats being initiated
+    :param method: The type of historical data being tracked (daily, weekly, etc)
+    """
+    hypixel_data: dict = get_hypixel_data(uuid, cache=False)
 
     with open('./config.json', 'r') as datafile:
         stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
@@ -276,7 +371,15 @@ def start_historical(uuid: str, method: str) -> None:
         keys = ', '.join(stat_keys)
         cursor.execute(f"INSERT INTO {method} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
 
-def save_historical(local_data: tuple, hypixel_data: tuple, table: str):
+
+def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
+    """
+    Saves historical data to a specified table, typically used when historical stats reset.
+    Creates new table if specified table doesn't exist
+    :param local_data: The historical starting data
+    :param hypixel_data: The current hypixel data
+    :param table: The name of the table to save the historical data to
+    """
     historical_values = [hypixel_data[0], hypixel_data[1]]
 
     for i, value in enumerate(hypixel_data[1:]):
@@ -300,15 +403,24 @@ def save_historical(local_data: tuple, hypixel_data: tuple, table: str):
             keys = ', '.join(stat_keys)
             cursor.execute(f"INSERT INTO {table} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", historical_values)
 
+
 def uuid_to_discord_id(uuid: str) -> int | None:
-    """Attempts to fetch discord id from linked database"""
+    """
+    Attempts to fetch discord id from linked database
+    :param uuid: The uuid of the player to find linked data for
+    """
     with sqlite3.connect('./database/linked_accounts.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
         discord_id = cursor.fetchone()
     return None if not discord_id else discord_id[0]
 
+
 def get_time_config(discord_id: int) -> tuple:
+    """
+    Attempt to get time configuration data for specified discord id
+    :param discord_id: The discord id of the relative user
+    """
     with sqlite3.connect('./database/historical.db') as conn:
         cursor = conn.cursor()
 
@@ -320,7 +432,13 @@ def get_time_config(discord_id: int) -> tuple:
             else: return 0, 0
         else: return 0, 0
 
+
 async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id: int) -> bool:
+    """
+    Returns the amount of days back a user can check a player's historical stats
+    :param interaction: The discord interaction object used
+    :param discord_id: The relative discord_id to be checked
+    """
     subscription = None
     if discord_id:
         subscription = get_subscription(discord_id=discord_id)
@@ -335,11 +453,19 @@ async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id
         return 30
     return 30
 
-async def message_invalid_lookback(interaction: discord.Interaction, max_lookback):
+
+async def message_invalid_lookback(interaction: discord.Interaction, max_lookback) -> None:
+    """
+    Responds to a interaction with an max lookback exceeded message
+    :param interaction: The discord interaction object used
+    :param max_lookback: The maximum lookback the user had availiable
+    """
     with open('./config.json', 'r') as datafile:
-        config = json.load(datafile)
+        config: dict = json.load(datafile)
+
     embed_color = int(config['embed_primary_color'], base=16)
     embed = discord.Embed(title='Maximum lookback exceeded!', description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!", color=embed_color)
+
     embed.add_field(name="How it works:", value=f"""
         \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
         \- You can view longer history if you or the checked player has a premium plan.
@@ -352,16 +478,46 @@ async def message_invalid_lookback(interaction: discord.Interaction, max_lookbac
 
     await interaction.response.send_message(embed=embed)
 
-def skin_from_file():
+
+def skin_from_file() -> bytes:
+    """Loads a steve skin from file"""
     with open('./assets/steve.png', 'rb') as f:
         return f.read()
 
-def fetch_skin_model(uuid: int, size: int):
+
+def fetch_skin_model(uuid: int, size: int) -> bytes:
+    """
+    Fetches a 3d skin model visage.surgeplay.com
+    If something goes wrong, a steve skin will returned
+    :param uuid: The uuid of the relative player
+    :param size: The skin render size in pixels
+    """
     try:
         skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/{size}/{uuid}', timeout=3).content
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
         skin_res = skin_from_file()
     return skin_res
 
-def ordinal(n):
+
+def ordinal(n: int) -> str:
+    """
+    Formats a day for example '21' would be '21st'
+    :param n: The number to format
+    """
     return "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+
+
+def get_owned_themes(discord_id: int) -> list:
+    """
+    Returns a list of themes owned by user relative to the passed discord id
+    :param discord_id: The relative discord user
+    """
+    with sqlite3.connect('./database/voting.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}")
+        owned_themes = cursor.fetchone()
+
+    if owned_themes and owned_themes[0]:
+        themes_list = owned_themes[0].split(',')
+        return themes_list
+    return []

@@ -11,12 +11,12 @@ from helper.functions import update_command_stats
 
 class Misc(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
         with open('./config.json', 'r') as datafile:
             self.config = load_json(datafile)
 
-    # Help command
+
     @app_commands.command(name = "help", description = "Help Page")
     async def get_help(self, interaction: discord.Interaction):
         with open('./assets/help.json', 'r') as datafile:
@@ -27,7 +27,7 @@ class Misc(commands.Cog):
 
         update_command_stats(interaction.user.id, 'help')
 
-    # Invite
+
     @app_commands.command(name='invite', description=f'Invite Statalytics to your server')
     async def invite(self, interaction: discord.Interaction):
         invite_url = self.config['links']['invite_url']
@@ -35,7 +35,7 @@ class Misc(commands.Cog):
 
         update_command_stats(interaction.user.id, 'invite')
 
-    # Suggest
+
     @app_commands.command(name='suggest', description='Suggest a feature you would like to see added!')
     async def suggest(self, interaction: discord.Interaction):
         channel = self.client.get_channel(1065918528236040232)
@@ -43,7 +43,7 @@ class Misc(commands.Cog):
 
         update_command_stats(interaction.user.id, 'suggest')
 
-    # Usage command
+
     @app_commands.command(name = "usage", description = "View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
         with open('./assets/command_map.json', 'r') as datafile:
@@ -64,7 +64,6 @@ class Misc(commands.Cog):
             for table in tables:
                 cursor.execute(f'SELECT * FROM {table} WHERE discord_id = {interaction.user.id}')
                 table_data = cursor.fetchone()
-
                 if not table_data or table == "overall": continue
                 usage_values[command_map.get(table)] = table_data[1]
 
@@ -80,6 +79,7 @@ class Misc(commands.Cog):
 
         update_command_stats(interaction.user.id, 'usage')
 
+
     @app_commands.command(name = "credits", description = "The people who made Statalytics possible")
     async def credits(self, interaction: discord.Interaction):
         with open('./assets/credits.json', 'r') as datafile:
@@ -89,6 +89,7 @@ class Misc(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
         update_command_stats(interaction.user.id, 'credits')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Misc(client))

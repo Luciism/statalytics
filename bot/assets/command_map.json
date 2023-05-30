@@ -19,7 +19,7 @@
         "who": "/who",
         "numberdenick": "/numberdenick",
         "displayname": "/displayname",
-        "links": "/link",
+        "link": "/link",
         "unlink": "/unlink",
         "invite": "/invite",
         "suggest": "/suggest",
@@ -38,7 +38,10 @@
         "lastweek": "/lastweek",
         "lastmonth": "/lastmonth",
         "lastyear": "/lastyear",
+        "resettime": "/resettime",
         "credits": "/credits",
+        "vote": "/vote",
+        "settings": "/settings",
         "overall": "Overall"
     }
 }

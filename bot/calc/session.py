@@ -3,6 +3,7 @@ from datetime import datetime
 
 from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
 
+
 class SessionStats:
     def __init__(self, name: str, uuid: str, session: int, mode: str, hypixel_data: dict) -> None:
         self.name = name
@@ -32,6 +33,7 @@ class SessionStats:
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 
+
     def get_most_played(self):
         solos = self.hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0) - self.session_data['eight_one_games_played_bedwars']
         doubles = self.hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0) - self.session_data['eight_two_games_played_bedwars']
@@ -45,23 +47,29 @@ class SessionStats:
         }
         return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
 
+
     def calc_general_stats(self, key_1, key_2):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0) - self.session_data[key_1]
         val_2 = self.hypixel_data_bedwars.get(key_2, 0) - self.session_data[key_2]
         ratio = rround(val_1 / (val_2 or 1), 2)
         return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
 
+
     def get_wins(self):
         return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+
 
     def get_finals(self):
         return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
+
     def get_kills(self):
         return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
+
     def get_beds(self):
         return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+
 
     def get_per_day(self):
         current_time = datetime.now()

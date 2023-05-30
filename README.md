@@ -2,9 +2,10 @@
 ### Transform Bedwars stat tracking with Statalytics - the unmatched bot with exceptional functionalities.
 
 ### Links
-🔗 [**Invite**](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\
-🔗 [**Website**](https://www.statalytics.net)\
-🔗 [**Support Server**](https://discord.gg/rHmHZ9vvwE)
+
+<p>🔗 <a href="https://statalytics.net/invite" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Invite</a></p>
+<p style="line-height: 0">🔗 <a href="https://statalytics.net/" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0">Website</a></p>
+<p>🔗 <a href="https://statalytics.net/discord" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Support</a></p>
 
 ## Commands
 | Command | Function |
@@ -42,7 +43,8 @@
 | `/lastweek` | View the previous week's stats of any player. |
 | `/lastmonth` | View the previous month's stats of any player. |
 | `/lastyear` | View the previous year's stats of any player. |
-| `/resettime` | Configure the time for your historical stats to reset. |
+| `/settings` | Configure historical reset time & theme packs. |
+| `/vote` | Get a bunch of voting information for the bot. |
 
 <br>
 

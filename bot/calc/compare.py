@@ -1,5 +1,6 @@
 from helper.calctools import get_player_rank_info, get_mode, rround
 
+
 class Compare:
     def __init__(self, name_1: str, name_2: str, mode: str, hypixel_data_1: dict, hypixel_data_2) -> None:
         self.name_1, self.name_2 = name_1, name_2
@@ -14,6 +15,7 @@ class Compare:
         self.level_2 = self.hypixel_data_2.get("achievements", {}).get("bedwars_level", 0)
 
         self.player_rank_info = get_player_rank_info(self.hypixel_data_1), get_player_rank_info(self.hypixel_data_2)
+
 
     def calc_general_stats(self, key_1, key_2):
         val_1_1 = self.hypixel_data_bedwars_1.get(key_1, 0)
@@ -35,14 +37,18 @@ class Compare:
 
         return f'{val_1_1:,} / {val_1_2:,}', f'{val_2_1:,} / {val_2_2:,}', f'{ratio_1:,} / {ratio_2:,}', val_1_diff, val_2_diff, ratio_diff
 
+
     def get_wins(self):
         return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+
 
     def get_finals(self):
         return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
+
     def get_beds(self):
         return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+
 
     def get_kills(self):
         return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')

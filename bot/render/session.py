@@ -1,28 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.session import SessionStats
-from helper.rendername import render_rank, get_rank_prefix, paste_skin
-from helper.custombackground import background
+from helper.rendername import render_rank, get_rank_prefix
+from helper.rendertools import get_background, paste_skin
 from helper.renderprogress import render_progress_bar
 
+
 def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
-    image_location = background(path='./assets/session', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
-
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
-    # Get stats
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
     progress_out_of_10 = stats.progress[2]
@@ -39,8 +23,22 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     kills, deaths, kdr = stats.get_kills()
     wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
+    image = get_background(path='./assets/session', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
     def leng(text, width):
-        return (width - draw.textlength(text, font=ImageFont.truetype('./assets/minecraft.ttf', 16))) / 2
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+    gold = (255, 170, 0)
+    light_purple = (255, 85, 255)
 
     data = (
         ((leng(wins, 140) + 17, 131), (wins, green)),
@@ -89,7 +87,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
     render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/session/overlay.png')

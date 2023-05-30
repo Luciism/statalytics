@@ -1,30 +1,17 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.average import Ratios
-from helper.rendername import render_level_and_name
-from helper.custombackground import background
+from helper.rendername import get_rank_prefix, render_rank
+from helper.rendertools import get_background, paste_skin, box_center_text
+from helper.renderprogress import render_progress_bar, render_progress_text
 
-def render_average(name, uuid, mode, hypixel_data, save_dir):
-    # Open the image
-    image_location = background(path='./assets/average', uuid=uuid, default='base')
-    image = Image.open(image_location)
-    image = image.convert("RGBA")
 
-    # Create an ImageDraw object
-    draw = ImageDraw.Draw(image)
-
-    # Choose a font and font size
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
-
-    # Define the text colors
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-
-    # Define the values
+def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     ratios = Ratios(name, mode, hypixel_data)
     level = ratios.level
     player_rank_info = ratios.player_rank_info
+    progress, target, progress_out_of_10 = ratios.progress
+
     (
         wins_per_star,
         final_kills_per_star,
@@ -52,84 +39,74 @@ def render_average(name, uuid, mode, hypixel_data, save_dir):
     most_wins = ratios.get_most_wins()
     most_losses = ratios.get_most_losses()
 
+    green = (85, 255, 85)
+    white = (255, 255, 255)
+    red = (255, 76, 76)
+    black = (0, 0, 0)
+
+    image = get_background(path='./assets/average', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = image.convert("RGBA")
+
+    draw = ImageDraw.Draw(image)
+    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
+    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+
+    def leng(text, width):
+        return (width - draw.textlength(text, font=minecraft_16)) / 2
+
     data = (
-        ((72, 135), (wins_per_star, green), " Wins / Star"),
-        ((72, 163), (final_kills_per_star, green), " Final K / Star"),
-        ((72, 191), (beds_broken_per_star, green), " Beds B / Star"),
-        ((72, 219), (kills_per_star, green), " Kills / Star"),
-        ((354, 135), (final_kills_per_game, green), " Final K / Game"),
-        ((354, 163), (beds_broken_per_game, green), " Beds B / Game"),
-        ((354, 191), (kills_per_game, green), " Kills / Game"),
-        ((354, 219), (clutch_rate, green), " Clutch Rate"),
-        ((72, 279), (losses_per_star, red), " Losses / Star"),
-        ((72, 307), (final_deaths_per_star, red), " Final D / Star"),
-        ((72, 335), (beds_lost_per_star, red), " Beds L / Star"),
-        ((72, 363), (deaths_per_star, red), " Deaths / Star"),
-        ((351, 279), (final_deaths_per_game, red), " Final D / Game"),
-        ((351, 307), (beds_lost_per_game, red), " Beds L / Game"),
-        ((351, 335), (deaths_per_game, red), " Deaths / Game"),
-        ((351, 363), (loss_rate, red), " Loss Rate")
+        ((leng(wins_per_star, 141)+18, 249), wins_per_star, green),
+        ((leng(final_kills_per_star, 141)+18, 309), final_kills_per_star, green),
+        ((leng(beds_broken_per_star, 141)+18, 369), beds_broken_per_star, green),
+        ((leng(kills_per_star, 141)+18, 429), kills_per_star, green),
+
+        ((leng(losses_per_star, 141)+172, 249), losses_per_star, red),
+        ((leng(final_deaths_per_star, 141)+172, 309), final_deaths_per_star, red),
+        ((leng(beds_lost_per_star, 141)+172, 369), beds_lost_per_star, red),
+        ((leng(deaths_per_star, 141)+172, 429), deaths_per_star, red),
+
+        ((leng(clutch_rate, 141)+326, 249), clutch_rate, green),
+        ((leng(final_kills_per_game, 141)+326, 309), final_kills_per_game, green),
+        ((leng(beds_broken_per_game, 141)+326, 369), beds_broken_per_game, green),
+        ((leng(kills_per_game, 141)+326, 429), kills_per_game, green),
+
+        ((leng(loss_rate, 142)+480, 249), loss_rate, red),
+        ((leng(final_deaths_per_game, 142)+480, 309), final_deaths_per_game, red),
+        ((leng(beds_lost_per_game, 142)+480, 369), beds_lost_per_game, red),
+        ((leng(deaths_per_game, 142)+480, 429), deaths_per_game, red),
+
+        ((leng(most_wins, 201)+18, 189), most_wins, green),
+        ((leng(most_losses, 201)+232, 189), most_losses, red),
+        ((leng(f'({mode.title()})', 171)+451, 46), f'({mode.title()})', white)
     )
 
     for values in data:
         start_x, start_y = values[0]
-        stat = values[1][0]
-        text = values[2]
+        stat = values[1]
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=font)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=font)
+        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
+        draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
-        start_x += draw.textlength(stat, font=font)
+    # Render name & progress bar
+    rank_prefix = get_rank_prefix(player_rank_info)
+    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
+    player_x = round((415 - totallength) / 2) + 18
 
-        draw.text((start_x + 2, start_y + 2), text, fill=black, font=font)
-        draw.text((start_x, start_y), text, fill=white, font=font)
+    render_rank(name, position_x=player_x, position_y=26, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
-    # Second half (describe)
-    most_wins_txt = "Most Wins: "
-    most_losses_txt = "Most Losses: "
+    render_progress_bar(box_positions=(415, 18), position_y=88, level=level, progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_text(box_positions=(415, 18), position_y=119, progress=progress, target=target, draw=draw)
 
-    # Calculate the position of the text
-    player_y = 70
-    most_y = 420
+    # Paste overlay
+    overlay_image = Image.open(f'./assets/average/overlay.png')
+    overlay_image = overlay_image.convert("RGBA")
+    image.paste(overlay_image, (0, 0), overlay_image)
 
+    box_center_text("Average Stats", draw, box_width=171, box_start=451, text_y=25, font=minecraft_18)
 
-    # Render player name
-    render_level_and_name(name, level, player_rank_info, image=image, box_positions=(106, 428), position_y=player_y, fontsize=20)
-
-    # Render most wins and losses
-    totallength = draw.textlength(f"{most_wins_txt}{most_wins}", font=font)
-    startpoint = int((235 - totallength) / 2) + 81
-
-    draw.text((startpoint + 2, most_y + 2), most_wins_txt, fill=black, font=font)
-    draw.text((startpoint, most_y), most_wins_txt, fill=white, font=font)
-
-    startpoint += draw.textlength(most_wins_txt, font=font)
-
-    draw.text((startpoint + 2, most_y + 2), most_wins, fill=black, font=font)
-    draw.text((startpoint, most_y), most_wins, fill=green, font=font)
-
-    totallength = draw.textlength(f"{most_losses_txt}{most_losses}", font=font)
-    startpoint = int((235 - totallength) / 2) + 324
-
-    draw.text((startpoint + 2, most_y + 2), most_losses_txt, fill=black, font=font)
-    draw.text((startpoint, most_y), most_losses_txt, fill=white, font=font)
-
-    startpoint += draw.textlength(most_losses_txt, font=font)
-
-    draw.text((startpoint + 2, most_y + 2), most_losses, fill=black, font=font)
-    draw.text((startpoint, most_y), most_losses, fill=red, font=font)
-
-
-    # Render the title
-    title_txt = f"{mode.title()} Bedwars Averages"
-    title_y = 37
-    font = ImageFont.truetype('./assets/minecraft.ttf', 24)
-
-    totallength = draw.textlength(title_txt, font=font)
-    title_x = int((image.width - totallength) / 2)
-
-    draw.text((title_x + 2, title_y + 2), title_txt, fill=black, font=font)
-    draw.text((title_x, title_y), title_txt, fill=white, font=font)
+    # Render skin
+    image = paste_skin(skin_res, image, positions=(465, 67))
 
     # Save the image
     image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')

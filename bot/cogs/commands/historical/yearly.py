@@ -15,7 +15,7 @@ from discord.ext import commands, tasks
 from render.historical import render_historical
 from helper.ui import SelectView
 from helper.functions import (username_autocompletion,
-                       check_subscription,
+                       get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
@@ -48,9 +48,10 @@ async def is_eligible(interaction: discord.Interaction, discord_id: int) -> bool
         return False
     return True
 
+
 class Yearly(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
     @tasks.loop(hours=1)
@@ -112,20 +113,24 @@ class Yearly(commands.Cog):
                 table_name = (timezone - timedelta(days=1)).strftime("yearly_%Y")
                 save_historical(yearly, stat_values, table=table_name)
 
-                sleep_time = 0.5 - (time.time() - start_time)
+                sleep_time = 1 - (time.time() - start_time)
                 await asyncio.sleep(sleep_time)
+
 
     def cog_load(self):
         self.reset_yearly.start()
 
+
     def cog_unload(self):
         self.reset_yearly.cancel()
+
 
     @reset_yearly.before_loop
     async def before_reset_yearly(self):
         now = datetime.now()
         sleep_seconds = (60 - now.minute) * 60 - now.second
         await asyncio.sleep(sleep_seconds)
+
 
     @reset_yearly.error
     async def on_reset_yearly_error(self, error):
@@ -147,7 +152,7 @@ class Yearly(commands.Cog):
     @app_commands.command(name = "yearly", description = "View the yearly stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def yearly(self, interaction: discord.Interaction, username: str=None):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
@@ -207,10 +212,11 @@ class Yearly(commands.Cog):
 
         update_command_stats(interaction.user.id, 'yearly')
 
+
     @app_commands.command(name = "lastyear", description = "View last years stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', years='The lookback amount in years')
-    @app_commands.checks.dynamic_cooldown(check_subscription)
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastyear(self, interaction: discord.Interaction, username: str=None, years: int=1):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return

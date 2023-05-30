@@ -1,93 +1,94 @@
-class Prescolor:
-    def __init__(self, level) -> None:
-        self.level = level
+class ColorMaps:
+    """
+    Bedwars prestige color maps
+    color_map: level 0-900 & 10000+
+    color_map_2: 1000 - 9900
 
-        self.dark_green = (0, 170, 0)
-        self.dark_aqua = (0, 170, 170)
-        self.dark_red = (170, 0, 0)
-        self.dark_purple = (170, 0, 170)
-        self.gold = (255, 170, 0)
-        self.gray = (170, 170, 170)
-        self.dark_gray = (85, 85, 85)
-        self.blue = (85, 85, 255)
-        self.green = (85, 255, 85)
-        self.aqua = (85, 255, 255)
-        self.red = (255, 85, 85)
-        self.light_purple = (255, 85, 255)
-        self.yellow = (255, 255, 85)
-        self.white = (255, 255, 255)
-        self.dark_blue = (0, 0, 170)
-        self.black = (0, 0, 0)
+    """
+    dark_green = (0, 170, 0)
+    dark_aqua = (0, 170, 170)
+    dark_red = (170, 0, 0)
+    dark_purple = (170, 0, 170)
+    gold = (255, 170, 0)
+    gray = (170, 170, 170)
+    dark_gray = (85, 85, 85)
+    blue = (85, 85, 255)
+    green = (85, 255, 85)
+    aqua = (85, 255, 255)
+    red = (255, 85, 85)
+    light_purple = (255, 85, 255)
+    yellow = (255, 255, 85)
+    white = (255, 255, 255)
+    dark_blue = (0, 0, 170)
+    black = (0, 0, 0)
 
-        self.color_map = {
-            10000: (self.red, "red"),
-            900: (self.dark_purple, "dark_purple"),
-            800: (self.blue, "blue"),
-            700: (self.light_purple, "light_purple"),
-            600: (self.dark_red, "dark_red"),
-            500: (self.dark_aqua, "dark_aqua"),
-            400: (self.dark_green, "dark_green"),
-            300: (self.aqua, "aqua"),
-            200: (self.gold, "gold"),
-            100: (self.white, "white"),
-            0: (self.gray, "gray")
-        }
+    color_map = {
+        10000: red,
+        900: dark_purple,
+        800: blue,
+        700: light_purple,
+        600: dark_red,
+        500: dark_aqua,
+        400: dark_green,
+        300: aqua,
+        200: gold,
+        100: white,
+        0: gray,
+    }
 
-        self.color_map_2 = {
-            5000: (self.dark_red, self.dark_red, self.dark_purple, self.blue, self.blue, "dark_blue", self.black),
-            4900: (self.dark_green, self.green, self.white, self.white, self.green, "green", self.dark_green),
-            4800: (self.dark_purple, self.dark_purple, self.red, self.gold, self.yellow, "aqua", self.dark_aqua),
-            4700: (self.white, self.dark_red, self.red, self.red, self.blue, "dark_blue", self.blue),
-            4600: (self.dark_aqua, self.aqua, self.yellow, self.yellow, self.gold, "light_purple", self.dark_purple),
-            4500: (self.white, self.white, self.aqua, self.aqua, self.dark_aqua, "dark_aqua", self.dark_aqua),
-            4400: (self.dark_green, self.dark_green, self.green, self.yellow, self.gold, "dark_purple", self.light_purple),
-            4300: (self.black, self.dark_purple, self.dark_gray, self.dark_gray, self.dark_purple, "dark_purple", self.black),
-            4200: (self.dark_blue, self.blue, self.dark_aqua, self.aqua, self.white, "gray", self.gray),
-            4100: (self.yellow, self.yellow, self.gold, self.red, self.light_purple, "light_purple", self.dark_purple),
-            4000: (self.dark_purple, self.dark_purple, self.red, self.red, self.gold, "gold", self.yellow),
-            3900: (self.red, self.red, self.green, self.green, self.dark_aqua, "blue", self.blue),
-            3800: (self.dark_blue, self.dark_blue, self.blue, self.dark_purple, self.dark_purple, "light_purple", self.dark_blue),
-            3700: (self.dark_red, self.dark_red, self.red, self.red, self.aqua, "dark_aqua", self.dark_aqua),
-            3600: (self.green, self.green, self.green, self.aqua, self.blue, "blue", self.dark_blue),
-            3500: (self.red, self.red, self.dark_red, self.dark_red, self.dark_green, "green", self.green),
-            3400: (self.dark_green, self.green, self.light_purple, self.light_purple, self.dark_purple, "dark_purple", self.green),
-            3300: (self.blue, self.blue, self.blue, self.light_purple, self.red, "red", self.dark_red),
-            3200: (self.red, self.dark_red, self.gray, self.gray, self.dark_red, "red", self.red),
-            3100: (self.blue, self.blue, self.dark_aqua, self.dark_aqua, self.gold, "gold", self.yellow),
-            3000: (self.yellow, self.yellow, self.gold, self.gold, self.red, "red", self.dark_red),
-            2900: (self.aqua, self.aqua, self.dark_aqua, self.dark_aqua, self.blue, "blue", self.blue),
-            2800: (self.green, self.green, self.dark_green, self.dark_green, self.gold, "gold", self.yellow),
-            2700: (self.yellow, self.yellow, self.white, self.white, self.dark_gray, "dark_gray", self.dark_gray),
-            2600: (self.dark_red, self.dark_red, self.red, self.red, self.light_purple, "light_purple", self.dark_purple),
-            2500: (self.white, self.white, self.green, self.green, self.dark_green, "dark_green", self.dark_green),
-            2400: (self.aqua, self.aqua, self.white, self.white, self.gray, "gray", self.dark_gray),
-            2300: (self.dark_purple, self.dark_purple, self.light_purple, self.light_purple, self.gold, "yellow", self.yellow),
-            2200: (self.gold, self.gold, self.white, self.white, self.aqua, "dark_aqua", self.dark_aqua),
-            2100: (self.white, self.white, self.yellow, self.yellow, self.gold, "gold", self.gold),
-            2000: (self.dark_gray, self.gray, self.white, self.white, self.gray, "gray", self.dark_gray),
-            1900: (self.gray, self.dark_purple, self.dark_purple, self.dark_purple, self.dark_purple, "gray", self.gray),
-            1800: (self.gray, self.blue, self.blue, self.blue, self.blue, "dark_blue", self.gray),
-            1700: (self.gray, self.light_purple, self.light_purple, self.light_purple, self.light_purple, "dark_purple", self.gray),
-            1600: (self.gray, self.red, self.red, self.red, self.red, "dark_red", self.gray),
-            1500: (self.gray, self.dark_aqua, self.dark_aqua, self.dark_aqua, self.dark_aqua, "blue", self.gray),
-            1400: (self.gray, self.green, self.green, self.green, self.green, "dark_green", self.gray),
-            1300: (self.gray, self.aqua, self.aqua, self.aqua, self.aqua, "dark_aqua", self.gray),
-            1200: (self.gray, self.yellow, self.yellow, self.yellow, self.yellow, "gold", self.gray),
-            1100: (self.gray, self.white, self.white, self.white, self.white, "gray", self.gray),
-            1000: (self.red, self.gold, self.yellow, self.green, self.aqua, "light_purple", self.dark_purple)
-        }
+    color_map_2 = {
+        5000: (dark_red, dark_red, dark_purple, blue, blue, dark_blue, black),
+        4900: (dark_green, green, white, white, green, green, dark_green),
+        4800: (dark_purple, dark_purple, red, gold, yellow, aqua, dark_aqua),
+        4700: (white, dark_red, red, red, blue, dark_blue, blue),
+        4600: (dark_aqua, aqua, yellow, yellow, gold, light_purple, dark_purple),
+        4500: (white, white, aqua, aqua, dark_aqua, dark_aqua, dark_aqua),
+        4400: (dark_green, dark_green, green, yellow, gold, dark_purple, light_purple),
+        4300: (black, dark_purple, dark_gray, dark_gray, dark_purple, dark_purple, black),
+        4200: (dark_blue, blue, dark_aqua, aqua, white, gray, gray),
+        4100: (yellow, yellow, gold, red, light_purple, light_purple, dark_purple),
+        4000: (dark_purple, dark_purple, red, red, gold, gold, yellow),
+        3900: (red, red, green, green, dark_aqua, blue, blue),
+        3800: (dark_blue, dark_blue, blue, dark_purple, dark_purple, light_purple, dark_blue),
+        3700: (dark_red, dark_red, red, red, aqua, dark_aqua, dark_aqua),
+        3600: (green, green, green, aqua, blue, blue, dark_blue),
+        3500: (red, red, dark_red, dark_red, dark_green, green, green),
+        3400: (dark_green, green, light_purple, light_purple, dark_purple, dark_purple, green),
+        3300: (blue, blue, blue, light_purple, red, red, dark_red),
+        3200: (red, dark_red, gray, gray, dark_red, red, red),
+        3100: (blue, blue, dark_aqua, dark_aqua, gold, gold, yellow),
+        3000: (yellow, yellow, gold, gold, red, red, dark_red),
+        2900: (aqua, aqua, dark_aqua, dark_aqua, blue, blue, blue),
+        2800: (green, green, dark_green, dark_green, gold, gold, yellow),
+        2700: (yellow, yellow, white, white, dark_gray, dark_gray, dark_gray),
+        2600: (dark_red, dark_red, red, red, light_purple, light_purple, dark_purple),
+        2500: (white, white, green, green, dark_green, dark_green, dark_green),
+        2400: (aqua, aqua, white, white, gray, gray, dark_gray),
+        2300: (dark_purple, dark_purple, light_purple, light_purple, gold, yellow, yellow),
+        2200: (gold, gold, white, white, aqua, dark_aqua, dark_aqua),
+        2100: (white, white, yellow, yellow, gold, gold, gold),
+        2000: (dark_gray, gray, white, white, gray, gray, dark_gray),
+        1900: (gray, dark_purple, dark_purple, dark_purple, dark_purple, gray, gray),
+        1800: (gray, blue, blue, blue, blue, dark_blue, gray),
+        1700: (gray, light_purple, light_purple, light_purple, light_purple, dark_purple, gray),
+        1600: (gray, red, red, red, red, dark_red, gray),
+        1500: (gray, dark_aqua, dark_aqua, dark_aqua, dark_aqua, blue, gray),
+        1400: (gray, green, green, green, green, dark_green, gray),
+        1300: (gray, aqua, aqua, aqua, aqua, dark_aqua, gray),
+        1200: (gray, yellow, yellow, yellow, yellow, gold, gray),
+        1100: (gray, white, white, white, white, gray, gray),
+        1000: (red, gold, yellow, green, aqua, light_purple, dark_purple)
+    }
 
-    def get_level_color(self):
-        if self.level >= 1000 and self.level < 10000:
-            for key in sorted(self.color_map_2.keys(), reverse=True):
-                if self.level >= key:
-                    pos1, pos2, pos3, pos4, pos5, pos6, pos7 = self.color_map_2[key]
-                    break
-
-            return (pos1, pos2, pos3, pos4, pos5, pos6, pos7)
-
-        for key in sorted(self.color_map.keys(), reverse=True):
-            if self.level >= key:
-                pos1, pos2 = self.color_map[key]
-                break
-        return (pos1, None, None, None, None, pos2, None)
+def get_prestige_colors(level: int) -> tuple:
+    """
+    Returns prestige colors based on level.
+    Any level below 1000 or above 10000 will be a single RGB set
+    Any level between 1000 and 9900 will have 7 color position values
+    :param level: the level of the desired prestige color
+    """
+    colors = ColorMaps
+    prestige = (level // 100) * 100
+    if level >= 1000 and level < 10000:
+        return colors.color_map_2.get(prestige, colors.color_map_2.get(5000))
+    return colors.color_map.get(prestige)
