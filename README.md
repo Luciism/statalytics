@@ -15,6 +15,23 @@
 | `/prestige` | View projected stats of a player (requires session)|
 | `/milestones` | View milestone stats of any player |
 
+#### Current Stats
+| Command | Function |
+| ------- | -------- |
+| `/mostplayed` | View the most played modes of any player |
+| `/bedwars` | View general Bedwars stats of any player |
+| `/average` | View average stats and ratios of any player |
+| `/pointless` | Same as `/bedwars` but really pointless |
+| `/compare` | Compare the bedwars stats of two players |
+| `/resources` | View resource stats of any player |
+| `/practice` | View practice stats of any player |
+| `/activecosmetics` | View the active cosmetics of any player |
+| `/hotbar` | View the hotbar preference of any player |
+| `/shop` | View the shop of any player |
+| `/skin` | View or save the skin of any player |
+| `/who` | Get the name of uuid of any player. |
+| `/displayname` | Render the hypixel display name of any player. |
+
 #### Historical Stats
 | Command | Function |
 | ------- | -------- |
@@ -39,27 +56,13 @@
 | `/resetsession` | Reset a specified session (requires linking) |
 | `/activesessions` | Get a list of all your active sessions |
 
-#### Current Stats
+#### QOL Commands
 | Command | Function |
 | ------- | -------- |
-
 | `/link` | Link your account (recommended) |
 | `/unlink` | Unlink your account |
-| `/shop` | View the shop of any player |
-| `/mostplayed` | View the most played modes of any player |
-| `/bedwars` | View general Bedwars stats of any player |
-| `/average` | View average stats and ratios of any player |
-| `/resources` | View resource stats of any player |
-| `/skin` | View or save the skin of any player |
-| `/practice` | View practice stats of any player |
-| `/activecosmetics` | View the active cosmetics of any player |
-| `/hotbar` | View the hotbar preference of any player |
-| `/pointless` | Same as `/bedwars` but really pointless |
-| `/compare` | Compare the bedwars stats of two players |
 | `/usage` | View your command usage with Statalytics |
-| `/who` | Get the name of uuid of any player. |
-| `/displayname` | Render the hypixel display name of any player. |
-| `/credits` | View the people who made Statalytics possible |
+| `/credits` | See the contributers Statalytics possible |
 | `/settings` | Configure historical reset time & theme packs. |
 | `/vote` | Get a bunch of voting information for the bot. |
 
