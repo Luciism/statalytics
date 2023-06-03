@@ -7,7 +7,8 @@ from helper.rendertools import get_background, paste_skin, box_center_text
 from helper.rendername import render_level, render_rank, get_rank_prefix
 
 
-def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_dir):
+def render_year(name, uuid, session, year, mode,
+                hypixel_data, skin_res, save_dir):
     stats = YearStats(name, uuid, session, year, mode, hypixel_data)
     level = int(stats.level_hypixel)
     target = stats.get_target()
@@ -26,7 +27,9 @@ def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_di
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
     year = str(year)
 
-    image = get_background(path='./assets/year', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/year', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -80,7 +83,8 @@ def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_di
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
 
-    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Projection Date
     year_txt = "Predictions For Year: "
@@ -113,7 +117,8 @@ def render_year(name, uuid, session, year, mode, hypixel_data, skin_res, save_di
 
     render_level(target, progress_x, progress_y, 20, image)
 
-    box_center_text(f'Year {year}', draw, box_width=171, box_start=452, text_y=27, font=minecraft_18)
+    box_center_text(f'Year {year}', draw, box_width=171,
+                    box_start=452, text_y=27, font=minecraft_18)
 
     # Paste Skin
     image = paste_skin(skin_res, image, positions=(466, 69))

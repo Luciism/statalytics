@@ -111,8 +111,10 @@ def get_hypixel_data(uuid: str, cache: bool=True) -> dict:
         all_keys: dict = json.load(keyfile)['hypixel']
     key: str = all_keys[random.choice(list(all_keys))]
 
-    if cache: data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
-    else: data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    if cache:
+        data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    else:
+        data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     return data
 
 
@@ -148,8 +150,10 @@ def update_command_stats(discord_id: int, command: str) -> None:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT * FROM overall WHERE discord_id = {discord_id}")
-        if not cursor.fetchone(): cursor.execute('INSERT INTO overall (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
-        else: cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
+        if not cursor.fetchone():
+            cursor.execute('INSERT INTO overall (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+        else:
+            cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
 
         try:
             cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
@@ -158,11 +162,31 @@ def update_command_stats(discord_id: int, command: str) -> None:
             cursor.execute(f"CREATE TABLE {command}( discord_id INTEGER PRIMARY KEY, commands_ran INTEGER )")
             cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (0, 0))
             current_commands_ran = None
-        if not current_commands_ran: cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
-        else: cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
+
+        if not current_commands_ran:
+            cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+        else:
+            cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
 
         cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
         cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
+
+
+def insert_linked_data(discord_id: int, uuid: str) -> None:
+    """
+    Inserts linked account data into database
+    :param discord_id: the discord id of the relative user
+    :param uuid: the minecraft uuid of the relvative user
+    """
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
+        linked_data = cursor.fetchone()
+
+        if not linked_data:
+            cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
+        else:
+            cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
 
 
 def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> bool | None:
@@ -173,44 +197,19 @@ def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> boo
     :param name: The username of the hypixel account being linked
     :param uuid: The uuid of the hypixel account being linked
     """
-    with open('./database/apikeys.json', 'r') as keyfile:
-        all_keys = json.load(keyfile)['hypixel']
-    key = all_keys[random.choice(list(all_keys))]
-
-    data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
-    if not data['player']: return None
-    hypixel_discord_tag: str = data.get('player', {}).get('socialMedia', {}).get('links', {}).get('DISCORD', None)
+    hypixel_data = get_hypixel_data(uuid=uuid, cache=False)
+    if not hypixel_data['player']:
+        return None
+    hypixel_discord_tag: str = hypixel_data.get('player', {}
+        ).get('socialMedia', {}
+        ).get('links', {}
+        ).get('DISCORD', None)
 
     # Linking Logic
     if hypixel_discord_tag:
         if discord_tag == hypixel_discord_tag:
-            # Update it in the linked accounts database
-            with sqlite3.connect('./database/linked_accounts.db') as conn:
-                cursor = conn.cursor()
-                cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
-                linked_data = cursor.fetchone()
-
-                if not linked_data: cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
-                else: cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
-
-            # Update autofill
-            with sqlite3.connect('./database/subscriptions.db') as conn:
-                cursor = conn.cursor()
-                cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
-                subscription: tuple = cursor.fetchone()
-
-            if subscription:
-                with sqlite3.connect('./database/autofill.db') as conn:
-                    cursor = conn.cursor()
-                    cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
-                    autofill_data: tuple = cursor.fetchone()
-
-                    if not autofill_data:
-                        query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
-                        cursor.execute(query, (discord_id, uuid, name))
-                    else:
-                        query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
-                        cursor.execute(query, (uuid, name, discord_id))
+            insert_linked_data(discord_id=discord_id, uuid=uuid)
+            update_autofill(discord_id=discord_id, uuid=uuid, username=name)
             return True
         return False
     return None
@@ -292,10 +291,7 @@ async def authenticate_user(username: str, interaction: discord.Interaction) -> 
     :param interaction: The discord interaction object used
     """
     if username is None:
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-            linked_data: tuple = cursor.fetchone()
+        linked_data = get_linked_data(interaction.user.id)
         if linked_data:
             uuid: str = linked_data[1]
             name: str = MCUUID(uuid=uuid).name
@@ -311,6 +307,8 @@ async def authenticate_user(username: str, interaction: discord.Interaction) -> 
             else:
                 name: str = MCUUID(uuid=username).name
                 uuid: str = username
+                if not name:
+                    raise KeyError
         except KeyError:
             await interaction.response.send_message("That player does not exist!")
             return
@@ -464,7 +462,11 @@ async def message_invalid_lookback(interaction: discord.Interaction, max_lookbac
         config: dict = json.load(datafile)
 
     embed_color = int(config['embed_primary_color'], base=16)
-    embed = discord.Embed(title='Maximum lookback exceeded!', description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!", color=embed_color)
+    embed = discord.Embed(
+        title='Maximum lookback exceeded!',
+        description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!",
+        color=embed_color
+        )
 
     embed.add_field(name="How it works:", value=f"""
         \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
@@ -521,3 +523,29 @@ def get_owned_themes(discord_id: int) -> list:
         themes_list = owned_themes[0].split(',')
         return themes_list
     return []
+
+
+async def yearly_eligibility(interaction: discord.Interaction, discord_id: int) -> bool:
+    subscription = None
+    if discord_id:
+        subscription = get_subscription(discord_id=discord_id)
+
+    if not subscription and not get_subscription(interaction.user.id):
+        with open('./config.json', 'r') as datafile:
+            config = json.load(datafile)
+
+        embed_color = int(config['embed_primary_color'], base=16)
+        embed = discord.Embed(
+            title="That player doesn't have premium!",
+            description='In order to view yearly stats, a [premium subscription](https://statalytics.net/store) is required!',
+            color=embed_color
+        )
+
+        embed.add_field(name='How does it work?', value="""
+            \- You can view any player's yearly stats if you have a premium subscription.
+            \- You can view a player's yearly stats if they have a premium subscription.\n
+            Yearly stats can be tracked but not viewed without a premium subscription
+        """.replace('   ', ''))
+        await interaction.response.send_message(embed=embed)
+        return False
+    return True

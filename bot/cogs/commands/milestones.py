@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.milestones import render_milestones
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -35,7 +35,8 @@ class Milestones(commands.Cog):
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
             if not cursor.fetchone() and not session in (0, 100):
-                await interaction.response.send_message(f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
+                await interaction.response.send_message(
+                    f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
                 return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
@@ -54,8 +55,9 @@ class Milestones(commands.Cog):
         }
 
         render_milestones(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
 
         render_milestones(mode="Solos", **kwargs)
         render_milestones(mode="Doubles", **kwargs)

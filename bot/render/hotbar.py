@@ -1,26 +1,24 @@
 from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
-from helper.rendertools import get_background
-from helper.rendertools import get_rank_color
+from helper.rendertools import get_background, get_rank_color
+from helper.calctools import get_player_rank_info
 
 def render_hotbar(name, uuid, hypixel_data):
-    slots = [(40, 424), (130, 424), (220, 424), (310, 424), (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
+    slots = [(40, 424), (130, 424), (220, 424), (310, 424),
+             (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
+
     try:
         hypixel_data = hypixel_data['player']
         hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
     except KeyError:
         hotbar = ['null'] * 9
 
-    player_rank_info = {
-        'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
-        'packageRank': hypixel_data.get('packageRank', 'NONE'),
-        'newPackageRank': hypixel_data.get('newPackageRank', 'NONE'),
-        'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
-        'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
-    }
+    player_rank_info = get_player_rank_info(hypixel_data)
     rankcolor = get_rank_color(player_rank_info)
 
-    base_image = get_background(path='./assets/hotbar', uuid=uuid, default='base', level=0, rank_info=player_rank_info)
+    base_image = get_background(path='./assets/hotbar', uuid=uuid,
+                                default='base', level=0, rank_info=player_rank_info)
+
     base_image = base_image.convert("RGBA")
 
     composite_image = Image.new("RGBA", base_image.size)

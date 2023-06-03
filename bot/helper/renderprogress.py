@@ -18,7 +18,8 @@ class Values:
     green = (85, 255, 85)
 
 
-def render_progress_bar(box_positions: tuple, position_y: int, level: int, progress_out_of_10: int, image: Image):
+def render_progress_bar(box_positions: tuple, position_y: int,
+                        level: int, progress_out_of_10: int, image: Image):
     """
     :param box_positions: Values for container to center the progress bar (box_width, box_start_x)
     :param position_y: Y position to render the progress bar
@@ -30,7 +31,11 @@ def render_progress_bar(box_positions: tuple, position_y: int, level: int, progr
     draw = ImageDraw.Draw(image)
 
     # Render the progress
-    totallength = draw.textlength(f'[{level}][{level + 1}]', font=Values.minecraft_20) + draw.textlength(' [] ', font=Values.minecraft_13) + draw.textlength('■■■■■■■■■■', font=Values.arial_24) + 32 # 32 for width of pasted star symbol
+    totallength = draw.textlength(f'[{level}][{level + 1}]', font=Values.minecraft_20
+                                  ) + draw.textlength(' [] ', font=Values.minecraft_13
+                                  ) + draw.textlength('■■■■■■■■■■', font=Values.arial_24
+                                  ) + 44 # 44 for star and centering
+
     startpoint = int((box_positions[0] - totallength) / 2) + box_positions[1]
 
     # First value (current level)
@@ -39,10 +44,10 @@ def render_progress_bar(box_positions: tuple, position_y: int, level: int, progr
     startpoint += draw.textlength(f'[{level}]', font=Values.minecraft_20) + 16
 
     # Left bracket for bar
-    draw.text((startpoint + 2, position_y + 3), " [", fill=Values.black, font=Values.minecraft_16)
-    draw.text((startpoint, position_y + 1), " [", fill=Values.white, font=Values.minecraft_16)
+    draw.text((startpoint + 2, position_y + 3), "  [", fill=Values.black, font=Values.minecraft_16)
+    draw.text((startpoint, position_y + 1), "  [", fill=Values.white, font=Values.minecraft_16)
 
-    startpoint += draw.textlength(" [", font=Values.minecraft_16)
+    startpoint += draw.textlength("  [", font=Values.minecraft_16)
 
     # Filled in squared for bar
     squares = "■" * int(progress_out_of_10)

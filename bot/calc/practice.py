@@ -5,7 +5,8 @@ class Practice:
     def __init__(self, name: str, hypixel_data: dict) -> None:
         self.name = name
 
-        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = hypixel_data.get('player', {})\
+                            if hypixel_data.get('player', {}) is not None else {}
         self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
@@ -50,9 +51,14 @@ class Practice:
 
 
     def get_straight_times(self):
-        short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_STRAIGHT:', 0) / 1000
-        medium = self.practice_stats.get('records', {}).get('bridging_distance_50:elevation_NONE:angle_STRAIGHT:', 0) / 1000
-        long = self.practice_stats.get('records', {}).get('bridging_distance_100:elevation_NONE:angle_STRAIGHT:', 0) / 1000
+        short = self.practice_stats.get('records', {}).get(
+            'bridging_distance_30:elevation_NONE:angle_STRAIGHT:', 0) / 1000
+
+        medium = self.practice_stats.get('records', {}).get(
+            'bridging_distance_50:elevation_NONE:angle_STRAIGHT:', 0) / 1000
+
+        long = self.practice_stats.get('records', {}).get(
+            'bridging_distance_100:elevation_NONE:angle_STRAIGHT:', 0) / 1000
 
         total_distance = 0; output = []
         value_map = {0: 30, 1: 50, 2: 100}
@@ -71,9 +77,14 @@ class Practice:
 
 
     def get_diagonal_times(self):
-        short = self.practice_stats.get('records', {}).get('bridging_distance_30:elevation_NONE:angle_DIAGONAL:', 0) / 1000
-        medium = self.practice_stats.get('records', {}).get('bridging_distance_50:elevation_NONE:angle_DIAGONAL:', 0) / 1000
-        long = self.practice_stats.get('records', {}).get('bridging_distance_100:elevation_NONE:angle_DIAGONAL:', 0) / 1000
+        short = self.practice_stats.get('records', {}).get(
+            'bridging_distance_30:elevation_NONE:angle_DIAGONAL:', 0) / 1000
+
+        medium = self.practice_stats.get('records', {}).get(
+            'bridging_distance_50:elevation_NONE:angle_DIAGONAL:', 0) / 1000
+
+        long = self.practice_stats.get('records', {}).get(
+            'bridging_distance_100:elevation_NONE:angle_DIAGONAL:', 0) / 1000
 
         total_distance = 0; output = []
         value_map = {0: 30, 1: 50, 2: 100}

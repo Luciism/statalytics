@@ -41,7 +41,12 @@ class Skin(commands.Cog):
         with open('./config.json', 'r') as datafile:
             config = load_json(datafile)
         embed_color = int(config['embed_primary_color'], base=16)
-        embed = discord.Embed(title=f"{refined}'s skin", url= f"https://namemc.com/profile/{uuid}", description=f"Click [here](https://crafatar.com/skins/{uuid}) to download", color=embed_color)
+        embed = discord.Embed(
+            title=f"{refined}'s skin",
+            url=f"https://namemc.com/profile/{uuid}",
+            description=f"Click [here](https://crafatar.com/skins/{uuid}) to download",
+            color=embed_color
+        )
         embed.set_image(url="attachment://skin.png")
         await interaction.followup.send(file=file, embed=embed)
 

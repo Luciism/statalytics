@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.year import render_year
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -24,7 +24,8 @@ class Year(commands.Cog):
         self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
-    async def year_command(self, interaction: discord.Interaction, name: str, uuid: str, session: int, year: int):
+    async def year_command(self, interaction: discord.Interaction,
+                           name: str, uuid: str, session: int, year: int):
         refined = name.replace('_', r'\_')
 
         if session is None: session = 100
@@ -49,8 +50,12 @@ class Year(commands.Cog):
         }
 
         render_year(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None,
+            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")],
+            view=view
+        )
 
         render_year(mode="Solos", **kwargs)
         render_year(mode="Doubles", **kwargs)
@@ -87,7 +92,12 @@ class Year(commands.Cog):
             with open('./config.json', 'r') as datafile:
                 config = json.load(datafile)
             embed_color = int(config['embed_primary_color'], base=16)
-            embed = discord.Embed(title="That player doesn't have premium!", description='In order to view stats for 2025, a [premium subscription](https://statalytics.net/store) is required!', color=embed_color)
+            embed = discord.Embed(
+                title="That player doesn't have premium!",
+                description='In order to view stats for 2025, a [premium subscription](https://statalytics.net/store) is required!',
+                color=embed_color
+            )
+
             embed.add_field(name='How does it work?', value="""
                 \- You can view any player's stats for 2025 if you have a premium subscription.
                 \- You can view a player's stats for 2025 if they have a premium subscription.

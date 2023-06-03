@@ -2,12 +2,16 @@ from helper.calctools import get_player_rank_info, get_mode, rround
 
 
 class Compare:
-    def __init__(self, name_1: str, name_2: str, mode: str, hypixel_data_1: dict, hypixel_data_2) -> None:
+    def __init__(self, name_1: str, name_2: str, mode: str,
+                 hypixel_data_1: dict, hypixel_data_2) -> None:
         self.name_1, self.name_2 = name_1, name_2
         self.mode = get_mode(mode)
 
-        self.hypixel_data_1 = hypixel_data_1.get('player', {}) if hypixel_data_1.get('player', {}) is not None else {}
-        self.hypixel_data_2 = hypixel_data_2.get('player', {}) if hypixel_data_2.get('player', {}) is not None else {}
+        self.hypixel_data_1 = hypixel_data_1.get('player', {})\
+                              if hypixel_data_1.get('player', {}) is not None else {}
+        self.hypixel_data_2 = hypixel_data_2.get('player', {})\
+                              if hypixel_data_2.get('player', {}) is not None else {}
+
         self.hypixel_data_bedwars_1 = self.hypixel_data_1.get('stats', {}).get('Bedwars', {})
         self.hypixel_data_bedwars_2 = self.hypixel_data_2.get('stats', {}).get('Bedwars', {})
 
@@ -35,7 +39,8 @@ class Compare:
         ratio_diff = round(ratio_1 - ratio_2, 2)
         ratio_diff = f'{ratio_diff:,}' if ratio_diff < 0 else f'+{ratio_diff:,}'
 
-        return f'{val_1_1:,} / {val_1_2:,}', f'{val_2_1:,} / {val_2_2:,}', f'{ratio_1:,} / {ratio_2:,}', val_1_diff, val_2_diff, ratio_diff
+        return f'{val_1_1:,} / {val_1_2:,}', f'{val_2_1:,} / {val_2_2:,}',\
+               f'{ratio_1:,} / {ratio_2:,}', val_1_diff, val_2_diff, ratio_diff
 
 
     def get_wins(self):

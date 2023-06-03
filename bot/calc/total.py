@@ -6,7 +6,8 @@ class Stats:
         self.name = name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = hypixel_data.get('player', {})\
+                            if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
@@ -23,35 +24,43 @@ class Stats:
 
 
     def get_kills(self):
-        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
 
     def get_finals(self):
-        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
 
     def get_beds(self):
-        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
 
     def get_wins(self):
-        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
 
     def get_falling_kills(self):
-        return self.calc_general_stats(f'{self.mode}fall_kills_bedwars', f'{self.mode}fall_deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}fall_kills_bedwars', f'{self.mode}fall_deaths_bedwars')
 
 
     def get_void_kills(self):
-        return self.calc_general_stats(f'{self.mode}void_kills_bedwars', f'{self.mode}void_deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}void_kills_bedwars', f'{self.mode}void_deaths_bedwars')
 
 
     def get_ranged_kills(self):
-        return self.calc_general_stats(f'{self.mode}projectile_kills_bedwars', f'{self.mode}projectile_deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}projectile_kills_bedwars', f'{self.mode}projectile_deaths_bedwars')
 
 
     def get_fire_kills(self):
-        return self.calc_general_stats(f'{self.mode}fire_tick_kills_bedwars', f'{self.mode}fire_tick_deaths_bedwars')
+        return self.calc_general_stats(
+            f'{self.mode}fire_tick_kills_bedwars', f'{self.mode}fire_tick_deaths_bedwars')
 
 
     def get_misc(self):

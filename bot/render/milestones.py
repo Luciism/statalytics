@@ -12,10 +12,19 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     stars_until_value, stars_until_target = stats.get_stars()
     progress, target, progress_out_of_10 = stats.progress
 
-    wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins, target_wins, losses_until_losses, target_losses = stats.get_wins()
-    final_kills_until_fkdr, final_kills_at_fkdr, target_fkdr, final_kills_until_final_kills, target_final_kills, final_deaths_until_final_deaths, target_final_deaths = stats.get_finals()
-    beds_broken_until_bblr, beds_broken_at_bblr, target_bblr, beds_broken_until_beds_broken, target_beds_broken, beds_lost_until_beds_lost, target_beds_lost = stats.get_beds()
-    kills_until_kdr, kills_at_kdr, target_kdr, kills_until_kills, target_kills, deaths_until_deaths, target_deaths = stats.get_kills()
+    wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins,\
+        target_wins, losses_until_losses, target_losses = stats.get_wins()
+
+    final_kills_until_fkdr, final_kills_at_fkdr, target_fkdr,\
+        final_kills_until_final_kills, target_final_kills,\
+        final_deaths_until_final_deaths, target_final_deaths = stats.get_finals()
+
+    beds_broken_until_bblr, beds_broken_at_bblr, target_bblr,\
+        beds_broken_until_beds_broken, target_beds_broken,\
+        beds_lost_until_beds_lost, target_beds_lost = stats.get_beds()
+
+    kills_until_kdr, kills_at_kdr, target_kdr, kills_until_kills,\
+        target_kills, deaths_until_deaths, target_deaths = stats.get_kills()
 
     green = (85, 255, 85)
     white = (255, 255, 255)
@@ -43,7 +52,9 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
         ((342, 430), (deaths_until_deaths, red), target_deaths, " Deaths Until ")
     )
 
-    image = get_background(path='./assets/milestones', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/milestones', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -76,7 +87,9 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     stars_until_txt = " Stars Until "
 
     # Render Stars Stats
-    totallength = draw.textlength(f'[{stars_until_value}]{stars_until_txt}{stars_until_target}', font=minecraft_16) + 16
+    totallength = draw.textlength(
+        f'[{stars_until_value}]{stars_until_txt}{stars_until_target}', font=minecraft_16) + 16
+
     stars_until_x = int((415 - totallength) / 2) + 18
 
     draw.text((stars_until_x + 2, stars_until_y + 2), stars_until_value, fill=black, font=minecraft_16)
@@ -88,17 +101,24 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     draw.text((stars_until_x, stars_until_y), stars_until_txt, fill=white, font=minecraft_16)
 
     stars_until_x += draw.textlength(stars_until_txt, font=minecraft_16)
-    render_level(level=int(stars_until_target), position_x=stars_until_x, position_y=stars_until_y, fontsize=16, image=image)
+
+    render_level(level=int(stars_until_target), position_x=stars_until_x,
+                 position_y=stars_until_y, fontsize=16, image=image)
 
     # Render the player name
     rank_prefix = get_rank_prefix(player_rank_info)
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
-    render_rank(name, position_x=player_x, position_y=28, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+
+    render_rank(name, position_x=player_x, position_y=28, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Render the progress
-    render_progress_bar(box_positions=(415, 18), position_y=89, level=level, progress_out_of_10=progress_out_of_10, image=image)
-    render_progress_text(box_positions=(415, 18), position_y=120, progress=progress, target=target, draw=draw)
+    render_progress_bar(box_positions=(415, 18), position_y=89, level=level,
+                        progress_out_of_10=progress_out_of_10, image=image)
+
+    render_progress_text(box_positions=(415, 18), position_y=120,
+                         progress=progress, target=target, draw=draw)
 
     box_center_text('Milestones', draw, box_width=171, box_start=451, text_y=23, font=minecraft_18)
     box_center_text(f'({mode.title()})', draw, box_width=171, box_start=451, text_y=45, font=minecraft_16)

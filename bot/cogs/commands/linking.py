@@ -36,10 +36,18 @@ class Linking(commands.Cog):
                 config = load_json(datafile)
             embed_color = int(config['embed_primary_color'], base=16)
             if response is None:
-                embed = discord.Embed(title=f"{refined}'s discord isn't connected on hypixel!", description='Example of how to connect your discord to hypixel:', color=embed_color)
+                embed = discord.Embed(
+                    title=f"{refined}'s discord isn't connected on hypixel!",
+                    description='Example of how to connect your discord to hypixel:',
+                    color=embed_color
+                )
+
             else:
-                embed = discord.Embed(title="How to connect discord to hypixel", description=f'''That player is connected to a different discord tag on hypixel!
-                            If you own the **{refined}** account, you must __update your hypixel connection__ to match your current discord tag:''', color=embed_color)
+                embed = discord.Embed(
+                    title="How to connect discord to hypixel",
+                    description=f'''That player is connected to a different discord tag on hypixel!
+                    If you own the **{refined}** account, you must __update your hypixel connection__ to match your current discord tag:'''.replace('   ', ''),
+                    color=embed_color)
             embed.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
             await interaction.followup.send(embed=embed)
 

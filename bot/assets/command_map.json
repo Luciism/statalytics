@@ -42,6 +42,10 @@
         "credits": "/credits",
         "vote": "/vote",
         "settings": "/settings",
+        "difference_daily": "/difference daily",
+        "difference_weekly": "/difference weekly",
+        "difference_monthly": "/difference monthly",
+        "difference_yearly": "/difference yearly",
         "overall": "Overall"
     }
 }

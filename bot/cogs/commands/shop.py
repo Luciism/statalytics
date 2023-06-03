@@ -28,7 +28,8 @@ class Shop(commands.Cog):
 
         hypixel_data = get_hypixel_data(uuid)
         rendered = render_shop(name, uuid, hypixel_data)
-        await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename="shop.png")])
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(rendered, filename="shop.png")])
 
         update_command_stats(interaction.user.id, 'shop')
 

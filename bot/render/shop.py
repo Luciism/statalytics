@@ -3,23 +3,29 @@ import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-from helper.rendertools import get_background, get_rank_color
+from helper.rendertools import get_background
 from helper.calctools import get_player_rank_info
 
 def render_shop(name, uuid, hypixel_data):
     # Get shop layout and positions
-    slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80), (490, 80), (580, 80), (40, 170), (130, 170), (220, 170), (310, 170),
-             (400, 170), (490, 170), (580, 170), (40, 260), (130, 260), (220, 260), (310, 260), (400, 260), (490, 260), (580, 260)]
+    slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80),
+             (490, 80), (580, 80), (40, 170), (130, 170), (220, 170), 
+             (310, 170),(400, 170), (490, 170), (580, 170), (40, 260),
+             (130, 260), (220, 260), (310, 260), (400, 260), (490, 260), (580, 260)]
 
     try:
         shop = hypixel_data['player']['stats']['Bedwars']['favourites_2'].split(',')
     except (KeyError, TypeError):
-        shop = ['wool', 'stone_sword', 'chainmail_boots', 'null', 'bow', 'speed_ii_potion_(45_seconds)', 'tnt', 'oak_wood_planks',
-                'iron_sword', 'iron_boots', 'shears', 'arrow', 'jump_v_potion_(45_seconds)', 'water_bucket'] + ['null'] * 7
+        shop = ['wool', 'stone_sword', 'chainmail_boots', 'null',
+                'bow', 'speed_ii_potion_(45_seconds)', 'tnt', 'oak_wood_planks',
+                'iron_sword', 'iron_boots', 'shears', 'arrow',
+                'jump_v_potion_(45_seconds)', 'water_bucket'] + ['null'] * 7
 
     player_rank_info = get_player_rank_info(hypixel_data=hypixel_data['player'])
 
-    base_image = get_background(path='./assets/shop', uuid=uuid, default='base', level=0, rank_info=player_rank_info)
+    base_image = get_background(path='./assets/shop', uuid=uuid,
+                                default='base', level=0, rank_info=player_rank_info)
+
     base_image = base_image.convert("RGBA")
 
     composite_image = Image.new("RGBA", base_image.size)

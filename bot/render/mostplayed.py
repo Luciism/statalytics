@@ -6,7 +6,8 @@ from helper.calctools import get_player_rank_info
 
 
 def render_mostplayed(name, uuid, hypixel_data):
-    hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+    hypixel_data = hypixel_data.get('player', {})\
+                   if hypixel_data.get('player', {}) is not None else {}
 
     solos = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_one_games_played_bedwars', 1)
     doubles = hypixel_data.get('stats', {}).get('Bedwars', {}).get('eight_two_games_played_bedwars', 1)
@@ -27,7 +28,9 @@ def render_mostplayed(name, uuid, hypixel_data):
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
     # Open Images
-    base_image = get_background(path='./assets/mostplayed', uuid=uuid, default='base', level=0, rank_info=player_rank_info)
+    base_image = get_background(path='./assets/mostplayed', uuid=uuid,
+                                default='base', level=0, rank_info=player_rank_info)
+
     base_image = base_image.convert("RGBA")
 
     bar_graph = Image.new('RGBA', (640, 420), (0, 0, 0, 0))
@@ -36,7 +39,8 @@ def render_mostplayed(name, uuid, hypixel_data):
     # Draw the bars
     if max(ratios) * 500 > 250:
         difference = (max(ratios) * 500) - 250
-        ratios = [value - (difference / 500) if value - (difference / 500) > 0 else 0 for value in ratios]
+        ratios = [value - (difference / 500)
+                  if value - (difference / 500) > 0 else 0 for value in ratios]
 
 
     for i, value in enumerate(ratios):

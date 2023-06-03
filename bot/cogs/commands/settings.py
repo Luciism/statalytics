@@ -15,7 +15,8 @@ HOURS = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', 
 
 class Select(discord.ui.Select):
     def __init__(self, placeholder, options, min_values, max_values):
-        super().__init__(placeholder=placeholder, max_values=max_values, min_values=min_values, options=options)
+        super().__init__(placeholder=placeholder, max_values=max_values,
+                         min_values=min_values, options=options)
         self.placeholder = placeholder
 
     async def callback(self, interaction: discord.Interaction):
@@ -31,9 +32,11 @@ class Select(discord.ui.Select):
                 current_theme = cursor.fetchone()
 
                 if current_theme:
-                    cursor.execute("UPDATE rewards_data SET enabled_theme = ? WHERE discord_id = ?", (value, discord_id))
+                    cursor.execute(
+                        "UPDATE rewards_data SET enabled_theme = ? WHERE discord_id = ?", (value, discord_id))
                 else:
-                    cursor.execute("INSERT INTO rewards_data (discord_id, enabled_theme) VALUES (?, ?)", (discord_id, value))
+                    cursor.execute(
+                        "INSERT INTO rewards_data (discord_id, enabled_theme) VALUES (?, ?)", (discord_id, value))
             await interaction.response.send_message('Successfully updated theme!', ephemeral=True)
             return
 
@@ -41,13 +44,16 @@ class Select(discord.ui.Select):
             method = 'timezone' if self.placeholder == 'Select your GMT offset' else 'reset_hour'
             with sqlite3.connect('./database/historical.db') as conn:
                 cursor = conn.cursor()
-                cursor.execute(f'SELECT timezone FROM configuration WHERE discord_id = {interaction.user.id}')
+                cursor.execute(
+                    f'SELECT timezone FROM configuration WHERE discord_id = {interaction.user.id}')
 
                 if cursor.fetchone():
-                    cursor.execute(f'UPDATE configuration SET {method} = ? WHERE discord_id = ?', (value, interaction.user.id))
+                    cursor.execute(
+                        f'UPDATE configuration SET {method} = ? WHERE discord_id = ?', (value, interaction.user.id))
                 else:
                     values = (interaction.user.id, value, 0) if method == 'timezone' else (interaction.user.id, 0, value)
-                    cursor.execute('INSERT INTO configuration (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
+                    cursor.execute(
+                        'INSERT INTO configuration (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
 
             if method == 'timezone':
                 message = f'Successfully updated timezone to `GMT{"+" if int(value) >= 0 else ""}{value}:00`'
@@ -61,7 +67,9 @@ class SelectView(discord.ui.View):
     def __init__(self, interaction: discord.Interaction, view_data: list | tuple, *, timeout=300):
         super().__init__(timeout=timeout)
         for view in view_data:
-            self.add_item(Select(view['placeholder'], view['options'], view['min_values'], view['max_values']))
+            self.add_item(
+                Select(view['placeholder'], view['options'],
+                       view['min_values'], view['max_values']))
         self.interaction = interaction
 
     async def on_timeout(self) -> None:
@@ -140,7 +148,11 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
 
-        await interaction.response.send_message(embed=embed, view=SelectView(interaction=interaction, view_data=view_data), ephemeral=True)
+        await interaction.response.send_message(
+            embed=embed,
+            view=SelectView(interaction=interaction, view_data=view_data),
+            ephemeral=True
+        )
 
 
 class Settings(commands.Cog):

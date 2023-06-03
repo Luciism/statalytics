@@ -23,7 +23,9 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     kills, deaths, kdr = stats.get_kills()
     wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
-    image = get_background(path='./assets/session', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/session', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -84,8 +86,11 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
 
-    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
-    render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
+    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+
+    render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
+                        progress_out_of_10=progress_out_of_10, image=image)
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

@@ -28,7 +28,8 @@ class MostPlayed(commands.Cog):
 
         hypixel_data = get_hypixel_data(uuid)
         rendered = render_mostplayed(name, uuid, hypixel_data)
-        await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 
         update_command_stats(interaction.user.id, 'mostplayed')
 

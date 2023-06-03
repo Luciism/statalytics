@@ -81,8 +81,11 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
 
-    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
-    render_progress_bar(box_positions=(415, 19), position_y=61, level=level, progress_out_of_10=progress_out_of_10, image=image)
+    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+
+    render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
+                        progress_out_of_10=progress_out_of_10, image=image)
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

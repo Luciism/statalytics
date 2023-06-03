@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.resources import render_resources
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
@@ -39,8 +39,10 @@ class Resources(commands.Cog):
         }
 
         render_resources(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+
         render_resources(mode="Solos", **kwargs)
         render_resources(mode="Doubles", **kwargs)
         render_resources(mode="Threes", **kwargs)

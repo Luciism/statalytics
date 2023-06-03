@@ -47,7 +47,11 @@ class Info(commands.Cog):
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
-        embed = discord.Embed(title='Statalytics Info', description=None, color=int(config['embed_primary_color'], base=16))
+        embed = discord.Embed(
+            title='Statalytics Info',
+            description=None,
+            color=int(config['embed_primary_color'], base=16)
+            )
 
         embed.add_field(name='Key Metrics', value=f"""
             `┌` **Uptime:** `{uptime}`

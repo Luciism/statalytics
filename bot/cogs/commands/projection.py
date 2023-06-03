@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.projection import render_projection
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -24,7 +24,9 @@ class Projection(commands.Cog):
 
     @app_commands.command(name = "prestige", description = "View the projected stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view', prestige='The prestige you want to view', session='The session you want to use as a benchmark (defaults to 1)')
+    @app_commands.describe(username='The player you want to view',
+                           prestige='The prestige you want to view',
+                           session='The session you want to use as a benchmark (defaults to 1)')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def projected_stats(self, interaction: discord.Interaction, prestige: int=None, username: str=None, session: int=None):
         try: name, uuid = await authenticate_user(username, interaction)
@@ -59,9 +61,10 @@ class Projection(commands.Cog):
         }
 
         current_star = render_projection(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
-        await interaction.edit_original_response(content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        await interaction.edit_original_response(
+            content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
 
         render_projection(mode="Solos", **kwargs)
         render_projection(mode="Doubles", **kwargs)

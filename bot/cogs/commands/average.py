@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.average import render_average
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
@@ -42,8 +42,9 @@ class Average(commands.Cog):
         }
 
         render_average(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
         render_average(mode="Solos", **kwargs)
         render_average(mode="Doubles", **kwargs)
         render_average(mode="Threes", **kwargs)

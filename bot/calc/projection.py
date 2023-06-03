@@ -5,7 +5,8 @@ from helper.calctools import get_player_rank_info, add_suffixes, get_mode, rroun
 
 
 class ProjectedStats:
-    def __init__(self, name: str, uuid: str, session: int, mode: str, target: int, hypixel_data: dict) -> None:
+    def __init__(self, name: str, uuid: str, session: int,
+                 mode: str, target: int, hypixel_data: dict) -> None:
         self.name = name
         self.target = target
         self.mode = get_mode(mode)
@@ -20,22 +21,22 @@ class ProjectedStats:
             column_names = [desc[0] for desc in cursor.description]
             self.session_data = dict(zip(column_names, session_data))
 
-        self.level_local =  get_level(self.session_data['Experience']) # how many levels player had when they started session
-        self.level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0)) # current hypixel level
-        self.levels_to_go = self.target - self.level_hypixel # levels to target
+        self.level_local =  get_level(self.session_data['Experience'])  # how many levels player had when they started session
+        self.level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0))  # current hypixel level
+        self.levels_to_go = self.target - self.level_hypixel  # levels to target
         self.stars_to_go = add_suffixes(int(self.target - int(self.level_hypixel)))[0]
 
-        self.levels_gained = self.level_hypixel - self.level_local # how many levels gained during session
+        self.levels_gained = self.level_hypixel - self.level_local  # how many levels gained during session
         if self.levels_gained == 0: self.levels_gained = 0.0001
 
-        self.level_repetition = self.levels_to_go / self.levels_gained # how many times they have to gain the session amount of levels to get to the goal
+        self.level_repetition = self.levels_to_go / self.levels_gained  # how many times they have to gain the session amount of levels to get to the goal
         self.complete_percent = f"{round((self.level_hypixel / self.target) * 100, 2)}%"
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
 
     def get_increase_factor(self, value):
         if self.level_repetition > 0:
-            try: increase_factor = 1 / (self.level_repetition ** self.level_repetition) # add some extra for skill progression
+            try: increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
             except OverflowError: increase_factor = 0
         else: increase_factor = 0
 
@@ -61,33 +62,47 @@ class ProjectedStats:
 
 
     def get_kills(self):
-        self.kills = self.get_trajectory(value_1=f'{self.mode}kills_bedwars', value_2=f'{self.mode}deaths_bedwars')
+        self.kills = self.get_trajectory(
+            value_1=f'{self.mode}kills_bedwars', value_2=f'{self.mode}deaths_bedwars')
+
         formatted_values = add_suffixes(*self.kills)
         return formatted_values
 
 
     def get_finals(self):
-        self.finals = self.get_trajectory(value_1=f'{self.mode}final_kills_bedwars', value_2=f'{self.mode}final_deaths_bedwars')
+        self.finals = self.get_trajectory(
+            value_1=f'{self.mode}final_kills_bedwars', value_2=f'{self.mode}final_deaths_bedwars')
+
         formatted_values = add_suffixes(*self.finals)
         return formatted_values
 
 
     def get_beds(self):
-        self.beds = self.get_trajectory(value_1=f'{self.mode}beds_broken_bedwars', value_2=f'{self.mode}beds_lost_bedwars')
+        self.beds = self.get_trajectory(
+            value_1=f'{self.mode}beds_broken_bedwars', value_2=f'{self.mode}beds_lost_bedwars')
+
         formatted_values = add_suffixes(*self.beds)
         return formatted_values
 
 
     def get_wins(self):
-        self.wins = self.get_trajectory(value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
+        self.wins = self.get_trajectory(
+            value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
+
         formatted_values = add_suffixes(*self.wins)
         return formatted_values
 
 
     def get_per_star(self):
-        avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
-        avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
-        avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
+        avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(
+            f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
+
+        avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(
+            f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
+
+        avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(
+            f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
+
         return str(rround(avg_wins, 2)), str(rround(avg_finals, 2)), str(rround(avg_beds, 2))
 
 

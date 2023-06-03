@@ -5,7 +5,7 @@ from calc.cosmetics import ActiveCosmetics
 from helper.rendertools import get_background
 
 def render_cosmetics(name, uuid, hypixel_data):
-    cosmetics = ActiveCosmetics(hypixel_data)
+    cosmetics = ActiveCosmetics(name, hypixel_data)
     level = cosmetics.level
     player_rank_info = cosmetics.player_rank_info
 
@@ -23,7 +23,9 @@ def render_cosmetics(name, uuid, hypixel_data):
         'kill_message': (299, 430)
     }
 
-    image = get_background(path='./assets/cosmetics', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/cosmetics', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -42,7 +44,8 @@ def render_cosmetics(name, uuid, hypixel_data):
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name
-    render_level_and_name(name, level, player_rank_info, image, box_positions=(121, 398), position_y=51, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image,
+                          box_positions=(121, 398), position_y=51, fontsize=20)
 
     # Return the image
     image_bytes = BytesIO()

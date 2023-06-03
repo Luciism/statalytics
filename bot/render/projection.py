@@ -5,7 +5,8 @@ from helper.rendertools import get_background, paste_skin
 from helper.rendername import render_level, render_rank, get_rank_prefix
 
 
-def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res, save_dir):
+def render_projection(name, uuid, session, mode, target,
+                      hypixel_data, skin_res, save_dir):
     stats = ProjectedStats(name, uuid, session, mode, target, hypixel_data)
     level = int(stats.level_hypixel)
     player_rank_info = stats.player_rank_info
@@ -20,7 +21,9 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
     wins, losses, wlr = stats.get_wins()
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
 
-    image = get_background(path='./assets/projection', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/projection', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -74,7 +77,8 @@ def render_projection(name, uuid, session, mode, target, hypixel_data, skin_res,
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
 
-    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Projection Date
     projection_date_txt = "Projected to hit on: "

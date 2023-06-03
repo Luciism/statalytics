@@ -1,27 +1,28 @@
 import sqlite3
 
 from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
+from helper.functions import uuid_to_discord_id
 
 
 class HistoricalStats:
-    def __init__(self, name: str, uuid: str, method: int, mode: str, hypixel_data: dict) -> None:
+    def __init__(self, name: str, uuid: str, method: int,
+                 mode: str, hypixel_data: dict) -> None:
         self.name, self.uuid = name, uuid
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = hypixel_data.get('player', {})\
+                            if hypixel_data.get('player', {}) is not None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
-            linked_data = cursor.fetchone()
+        discord_id = uuid_to_discord_id(uuid)
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
-            if linked_data:
-                cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{linked_data[0]}'")
+            if discord_id:
+                cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{discord_id}'")
                 self.config_data = cursor.fetchone()
-            else: self.config_data = ()
+            else:
+                self.config_data = ()
 
             cursor.execute(f"SELECT * FROM {method} WHERE uuid = '{uuid}'")
             historical_data = cursor.fetchone()
@@ -32,24 +33,40 @@ class HistoricalStats:
         self.level = self.hypixel_data.get('achievements', {}).get('bedwars_level', 0)
         self.stars_gained = str(self.level - self.historical_data['level'])
 
-        self.items_purchased = self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0) - self.historical_data[f'{self.mode}items_purchased_bedwars']
-        self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0) - self.historical_data[f'{self.mode}games_played_bedwars']
+        self.items_purchased = (self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)
+                                - self.historical_data[f'{self.mode}items_purchased_bedwars'])
+
+        self.games_played = (self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
+                             - self.historical_data[f'{self.mode}games_played_bedwars'])
+
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 
 
     def get_most_played(self):
-        solos = self.hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0) - self.historical_data['eight_one_games_played_bedwars']
-        doubles = self.hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0) - self.historical_data['eight_two_games_played_bedwars']
-        threes = self.hypixel_data_bedwars.get('four_three_games_played_bedwars', 0) - self.historical_data['four_three_games_played_bedwars']
-        fours =  self.hypixel_data_bedwars.get('four_four_games_played_bedwars', 0) - self.historical_data['four_four_games_played_bedwars']
-        findgreatest = {
+        solos = (self.hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0)
+                 - self.historical_data['eight_one_games_played_bedwars'])
+
+        doubles = (self.hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0)
+                   - self.historical_data['eight_two_games_played_bedwars'])
+
+        threes = (self.hypixel_data_bedwars.get('four_three_games_played_bedwars', 0)
+                  - self.historical_data['four_three_games_played_bedwars'])
+
+        fours = (self.hypixel_data_bedwars.get('four_four_games_played_bedwars', 0)
+                 - self.historical_data['four_four_games_played_bedwars'])
+
+        four_vs_four = (self.hypixel_data_bedwars.get('two_four_games_played_bedwars', 0)
+                        - self.historical_data['two_four_games_played_bedwars'])
+
+        modes_dict = {
             'Solos': solos,
             'Doubles': doubles,
             'Threes':  threes,
-            'Fours': fours
+            'Fours': fours,
+            '4v4': four_vs_four
         }
-        return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
+        return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
 
 
     def calc_general_stats(self, key_1, key_2):
@@ -78,8 +95,10 @@ class HistoricalStats:
     def get_time_info(self):
         if self.config_data:
             timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
-            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am',
-                    '12:00pm', '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm', '9:00pm', '10:00pm', '11:00pm']
+            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
+                     '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
+                     '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
+                     '9:00pm', '10:00pm', '11:00pm']
             reset_hour = hours[self.config_data[2]]
         else:
             timezone = 'GMT+0:00'
@@ -89,11 +108,13 @@ class HistoricalStats:
 
 
 class LookbackStats:
-    def __init__(self, name: str, uuid: str, table_name: str, mode: str, hypixel_data: dict) -> None:
+    def __init__(self, name: str, uuid: str, table_name: str,
+                 mode: str, hypixel_data: dict) -> None:
         self.name, self.uuid, self.table_name = name, uuid, table_name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = hypixel_data.get('player', {})\
+                            if hypixel_data.get('player', {}) is not None else {}
         with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
@@ -126,13 +147,15 @@ class LookbackStats:
         doubles = self.historical_data['eight_two_games_played_bedwars']
         threes = self.historical_data['four_three_games_played_bedwars']
         fours = self.historical_data['four_four_games_played_bedwars']
-        findgreatest = {
+        four_vs_vour = self.historical_data['two_four_games_played_bedwars']
+        modes_dict = {
             'Solos': solos,
             'Doubles': doubles,
             'Threes':  threes,
-            'Fours': fours
+            'Fours': fours,
+            '4v4': four_vs_vour
         }
-        return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
+        return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
 
 
     def calc_general_stats(self, key_1, key_2):
@@ -161,8 +184,10 @@ class LookbackStats:
     def get_time_info(self):
         if self.config_data:
             timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
-            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am',
-                    '12:00pm', '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm', '9:00pm', '10:00pm', '11:00pm']
+            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
+                     '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
+                     '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
+                     '9:00pm', '10:00pm', '11:00pm']
             reset_hour = hours[self.config_data[2]]
         else:
             timezone = 'GMT+0:00'

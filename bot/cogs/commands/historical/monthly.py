@@ -14,7 +14,7 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.ui import SelectView
+from helper.ui import ModesView
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
                        get_hypixel_data,
@@ -160,7 +160,7 @@ class Monthly(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        formatted_date = now.strftime(f"%b %d{ordinal(now.day)} %Y")
+        formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
         next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
         if now >= next_occurrence:
@@ -182,10 +182,11 @@ class Monthly(commands.Cog):
         }
 
         render_historical(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(
             content=f':alarm_clock: Resets <t:{timestamp}:R>',
             attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+
         render_historical(mode="Solos", **kwargs)
         render_historical(mode="Doubles", **kwargs)
         render_historical(mode="Threes", **kwargs)
@@ -254,9 +255,10 @@ class Monthly(commands.Cog):
         }
         
         render_historical(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None,
             attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+
         render_historical(mode="Solos", **kwargs)
         render_historical(mode="Doubles", **kwargs)
         render_historical(mode="Threes", **kwargs)

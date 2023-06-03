@@ -52,7 +52,7 @@
         },
         {
           "name": "**Commands:**",
-          "value": "`/daily` - view the current daily stats\n`/weekly` - view the current weekly stats\n`/monthly` - view current monthly stats\n`/yearly` - view current yearly stats\n`/lastday` - view yesterdays stats\n`/lastweek` - view last weeks stats\n`/lastmonth` - view last months stats\n`/lastyear` - view last years stats\n`/resettime` - configure stat reset time"
+          "value": "`/daily` - view a player's current daily stats\n`/weekly` - view a player's current weekly stats\n`/monthly` - view a player's current monthly stats\n`/yearly` - view a player's current yearly stats\n\n`/lastday` - view a player's stats for yesterday\n`/lastweek` - view a player's for last week\n`/lastmonth` - view a player's for last month\n`/lastyear` - view a player's for last year\n\n`/difference daily` - view a player's daily stat difference\n`/difference weekly` - view a player's weekly stat difference\n`/difference monthly` - view a player's monthly stat difference\n`/difference yearly` - view a player's yearly stat difference\n\n`/settings` - configure stat reset time"
         }
       ]
     },
@@ -72,7 +72,7 @@
     },
     {
       "title": "**Other Commands:**",
-      "description": "`/shop` - view the shop of any player\n`/mostplayed` - view most played modes of any player\n`/bedwars` - view general bedwars stats of any player\n`/average` - view average stats and rations of any player\n`/resources` - view resource stats of any player\n`/skin` - view or save the skin of any player\n`/practice` - view practice stats of any player\n`/milestones` - view milestone stats of any player\n`/activecosmetics` - view the active cosmetics of any player\n`/activesession` - get a list of all your active sessions\n`/hotbar` - view the hotbar preference of any player\n`/pointless` - same as /bedwars but really pointless\n`/who` convert name to uuid & vice versa\n`/displayname` - renders the bedwars displayname of a player",
+      "description": "`/shop` - view the shop of any player\n`/mostplayed` - view most played modes of any player\n`/bedwars` - view general bedwars stats of any player\n`/average` - view average stats and rations of any player\n`/resources` - view resource stats of any player\n`/skin` - view or save the skin of any player\n`/practice` - view practice stats of any player\n`/milestones` - view milestone stats of any player\n`/activecosmetics` - view the active cosmetics of any player\n`/activesession` - get a list of all your active sessions\n`/hotbar` - view the hotbar preference of any player\n`/pointless` - same as /bedwars but really pointless\n`/who` - convert name to uuid & vice versa\n`/displayname` - renders the bedwars displayname of a player\n`/settings` - configure your settings for statalytics\n`/vote` - get voting information  and links\n`/info` - get a bunch metrics for the bot",
       "color": 5793266
     }
   ]

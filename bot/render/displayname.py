@@ -16,7 +16,8 @@ def render_displayname(name, hypixel_data):
     image_width = int(draw.textlength(f'[{level}] {rank_prefix} {name}', font=font)) + 18
     actual_image = Image.new('RGBA', (image_width, 20), (0, 0, 0, 0))
 
-    render_level_and_name(name, level, player_rank_info, image=actual_image, box_positions=(0, image_width-6), position_y=0, fontsize=20)
+    render_level_and_name(name, level, player_rank_info, image=actual_image,
+                          box_positions=(0, image_width-6), position_y=0, fontsize=20)
 
     # Return the result
     image_bytes = BytesIO()

@@ -14,7 +14,8 @@ class Denick(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
 
-    async def number_autocomplete(self, interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
+    async def number_autocomplete(self, interaction: discord.Interaction,
+                                  current: str) -> typing.List[app_commands.Choice[str]]:
         data = [
             app_commands.Choice(name="finals", value="finals"),
             app_commands.Choice(name="beds", value="beds")
@@ -40,7 +41,10 @@ class Denick(commands.Cog):
             config = json.load(datafile)
 
         embed_color = int(config['embed_primary_color'], base=16)
-        embed = discord.Embed(title='Number Denicker', description=f'Mode: {mode}\nCount: {count}\nResults: {len(data["data"])}', color=embed_color)
+        embed = discord.Embed(
+            title='Number Denicker',
+            description=f'Mode: {mode}\nCount: {count}\nResults: {len(data["data"])}', color=embed_color
+        )
 
         if data['data']:
             usernames = []

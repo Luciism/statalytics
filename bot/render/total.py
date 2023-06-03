@@ -29,7 +29,9 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         games_played, times_voided, items_purchased, winstreak = stats.get_misc_pointless()
 
 
-    image = get_background(path='./assets/total', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/total', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -80,11 +82,15 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     rank_prefix = get_rank_prefix(player_rank_info)
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 19
-    render_rank(name, position_x=player_x, position_y=31, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, position_x=player_x, position_y=31, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
     # Render the progress
-    render_progress_bar(box_positions=(415, 19), position_y=91, level=level, progress_out_of_10=progress_out_of_10, image=image)
-    render_progress_text(box_positions=(415, 19), position_y=122, progress=progress, target=target, draw=draw)
+    render_progress_bar(box_positions=(415, 19), position_y=91, level=level,
+                        progress_out_of_10=progress_out_of_10, image=image)
+
+    render_progress_text(box_positions=(415, 19), position_y=122,
+                         progress=progress, target=target, draw=draw)
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

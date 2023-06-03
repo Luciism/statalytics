@@ -28,7 +28,8 @@ class Cosmetics(commands.Cog):
 
         hypixel_data = get_hypixel_data(uuid)
         rendered = render_cosmetics(name, uuid, hypixel_data)
-        await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='cosmetics.png')])
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(rendered, filename='cosmetics.png')])
 
         update_command_stats(interaction.user.id, 'cosmetics')
 

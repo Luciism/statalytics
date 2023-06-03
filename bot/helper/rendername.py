@@ -4,26 +4,24 @@ from helper.prescolor import get_prestige_colors
 from helper.rendertools import recolor_pixels
 
 
-def get_color_map():
-    color_map = {
-        "BLACK": (0, 0, 0),
-        "DARK_BLUE": (0, 0, 170),
-        "DARK_GREEN": (0, 170, 0),
-        "DARK_AQUA": (0, 170, 170),
-        "DARK_RED": (170, 0, 0),
-        "DARK_PURPLE": (170, 0, 170),
-        "GOLD": (255, 170, 0),
-        "GRAY": (170, 170, 170),
-        "DARK_GRAY": (85, 85, 85),
-        "BLUE": (85, 85, 255),
-        "GREEN": (85, 255, 85),
-        "AQUA": (85, 255, 255),
-        "RED": (255, 85, 85),
-        "LIGHT_PURPLE": (255, 85, 255),
-        "YELLOW": (255, 255, 85),
-        "WHITE": (255, 255, 255)
-    }
-    return color_map
+color_map = {
+    "BLACK": (0, 0, 0),
+    "DARK_BLUE": (0, 0, 170),
+    "DARK_GREEN": (0, 170, 0),
+    "DARK_AQUA": (0, 170, 170),
+    "DARK_RED": (170, 0, 0),
+    "DARK_PURPLE": (170, 0, 170),
+    "GOLD": (255, 170, 0),
+    "GRAY": (170, 170, 170),
+    "DARK_GRAY": (85, 85, 85),
+    "BLUE": (85, 85, 255),
+    "GREEN": (85, 255, 85),
+    "AQUA": (85, 255, 255),
+    "RED": (255, 85, 85),
+    "LIGHT_PURPLE": (255, 85, 255),
+    "YELLOW": (255, 255, 85),
+    "WHITE": (255, 255, 255)
+}
 
 def get_rank_prefix(player_rank_info: dict):
     """
@@ -40,7 +38,8 @@ def get_rank_prefix(player_rank_info: dict):
     elif old_package_rank in ("VIP", "VIP_PLUS") or new_package_rank in ("VIP", "VIP_PLUS"):
         rank_prefix = "[VIP]" if old_package_rank == "VIP" or new_package_rank == "VIP" else "[VIP+]"
     elif old_package_rank in ("MVP", "MVP_PLUS") or new_package_rank in ("MVP", "MVP_PLUS"):
-        rank_prefix = "[MVP]" if old_package_rank == "MVP" or new_package_rank == "MVP" else "[MVP+]" if monthly_package_rank == "NONE" else "[MVP++]"
+        rank_prefix = "[MVP]" if old_package_rank == "MVP" or new_package_rank == "MVP"\
+            else "[MVP+]" if monthly_package_rank == "NONE" else "[MVP++]"
     else:
         rank_prefix = ""
 
@@ -99,7 +98,8 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
     
     return position_x
 
-def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str, player_rank_info: dict, draw: ImageDraw, fontsize: int):
+def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str,
+                player_rank_info: dict, draw: ImageDraw, fontsize: int):
     """
     Render prefixed rank for a specified player
     :param name: name of player
@@ -112,14 +112,14 @@ def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str, p
     """
 
     font = ImageFont.truetype('./assets/minecraft.ttf', fontsize)
-    color_map = get_color_map()
 
     rank = player_rank_info['rank']
     old_package_rank = player_rank_info['packageRank']
     new_package_rank = player_rank_info['newPackageRank']
     plus_color = player_rank_info['rankPlusColor']
 
-    plus_color = plus_color if plus_color else "GOLD" if "VIP_PLUS" in (old_package_rank, new_package_rank) else None
+    plus_color = plus_color if plus_color else "GOLD"\
+                 if "VIP_PLUS" in (old_package_rank, new_package_rank) else None
     if rank == "TECHNO":
         plus_color = "AQUA"
 
@@ -168,7 +168,8 @@ def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str, p
     draw.text((position_x + 2, position_y + 2), name, fill=color_map["BLACK"], font=font)
     draw.text((position_x, position_y), name, fill=bracket_color, font=font)
 
-def render_level_and_name(name: str, level: int, player_rank_info: dict, image: Image, box_positions: tuple, position_y: int, fontsize: int):
+def render_level_and_name(name: str, level: int, player_rank_info: dict,
+                          image: Image, box_positions: tuple, position_y: int, fontsize: int):
     """
     Render name with bedwars stars
     :param name: The name of the player

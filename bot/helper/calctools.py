@@ -12,14 +12,14 @@ def get_most_played(hypixel_data_bedwars: dict) -> str:
     threes: int = hypixel_data_bedwars.get('four_three_games_played_bedwars', 0)
     fours: int = hypixel_data_bedwars.get('four_four_games_played_bedwars', 0)
     four_vs_four: int = hypixel_data_bedwars.get('two_four_games_played_bedwars', 0)
-    findgreatest: dict = {
+    modes_dict: dict = {
         'Solos': solos,
         'Doubles': doubles,
         'Threes':  threes,
         'Fours': fours,
         '4v4': four_vs_four
     }
-    return "N/A" if max(findgreatest.values()) == 0 else str(max(findgreatest, key=findgreatest.get))
+    return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
 
 
 def get_player_rank_info(hypixel_data: dict) -> dict:

@@ -59,6 +59,9 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
         traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(traceback_str)
 
+        if os.environ.get('STATALYTICS_ENVIRONMENT') != 'production':
+            return
+
         channel = client.get_channel(config.get('error_logs_channel_id'))
         if len(traceback_str) > 1988:
             for i in range(0, len(traceback_str), 1988):

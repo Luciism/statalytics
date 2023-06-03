@@ -13,14 +13,14 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.ui import SelectView
+from helper.ui import ModesView
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
                        start_historical,
-                       get_subscription,
+                       yearly_eligibility,
                        save_historical,
                        uuid_to_discord_id,
                        get_time_config,
@@ -28,25 +28,6 @@ from helper.functions import (username_autocompletion,
                        get_lookback_eligiblility,
                        message_invalid_lookback,
                        ordinal)
-
-
-async def is_eligible(interaction: discord.Interaction, discord_id: int) -> bool:
-    subscription = None
-    if discord_id:
-        subscription = get_subscription(discord_id=discord_id)
-    if not subscription and not get_subscription(interaction.user.id):
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-        embed_color = int(config['embed_primary_color'], base=16)
-        embed = discord.Embed(title="That player doesn't have premium!", description='In order to view yearly stats, a [premium subscription](https://statalytics.net/store) is required!', color=embed_color)
-        embed.add_field(name='How does it work?', value="""
-            \- You can view any player's yearly stats if you have a premium subscription.
-            \- You can view a player's yearly stats if they have a premium subscription.\n
-            Yearly stats can be tracked but not viewed without a premium subscription
-        """.replace('   ', ''))
-        await interaction.response.send_message(embed=embed)
-        return False
-    return True
 
 
 class Yearly(commands.Cog):
@@ -172,7 +153,7 @@ class Yearly(commands.Cog):
             await interaction.followup.send(f'Yearly stats for {refined} will now be tracked.')
             return
 
-        result = await is_eligible(interaction, discord_id)
+        result = await yearly_eligibility(interaction, discord_id)
         if not result: return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
@@ -181,7 +162,7 @@ class Yearly(commands.Cog):
         hypixel_data = get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        relative_date = now.strftime(f"%b %d{ordinal(now.day)} %Y")
+        relative_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
         if hour > 0: hour -= 1
         next_occurrence = datetime(now.year + 1, 1, 1, hour, 0, 0, tzinfo=timezone(timedelta(hours=gmt_offset)))
@@ -200,10 +181,11 @@ class Yearly(commands.Cog):
         }
 
         render_historical(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(
             content=f':alarm_clock: Resets <t:{timestamp}:R>',
             attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+
         render_historical(mode="Solos", **kwargs)
         render_historical(mode="Doubles", **kwargs)
         render_historical(mode="Threes", **kwargs)
@@ -224,7 +206,7 @@ class Yearly(commands.Cog):
         refined = name.replace("_", "\_")
         discord_id = uuid_to_discord_id(uuid)
 
-        result = await is_eligible(interaction, discord_id)
+        result = await yearly_eligibility(interaction, discord_id)
         if not result: return
 
         max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
@@ -276,9 +258,10 @@ class Yearly(commands.Cog):
         }
 
         render_historical(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
         await interaction.edit_original_response(content=None,
             attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+
         render_historical(mode="Solos", **kwargs)
         render_historical(mode="Doubles", **kwargs)
         render_historical(mode="Threes", **kwargs)

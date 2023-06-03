@@ -44,7 +44,9 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     red = (255, 76, 76)
     black = (0, 0, 0)
 
-    image = get_background(path='./assets/average', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/average', uuid=uuid,
+                           default='base', level=level, rank_info=player_rank_info)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -93,17 +95,22 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
     player_x = round((415 - totallength) / 2) + 18
 
-    render_rank(name, position_x=player_x, position_y=26, rank_prefix=rank_prefix, player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, position_x=player_x, position_y=26, rank_prefix=rank_prefix,
+                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
-    render_progress_bar(box_positions=(415, 18), position_y=88, level=level, progress_out_of_10=progress_out_of_10, image=image)
-    render_progress_text(box_positions=(415, 18), position_y=119, progress=progress, target=target, draw=draw)
+    render_progress_bar(box_positions=(415, 18), position_y=88, level=level,
+                        progress_out_of_10=progress_out_of_10, image=image)
+
+    render_progress_text(box_positions=(415, 18), position_y=119,
+                         progress=progress, target=target, draw=draw)
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/average/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 
-    box_center_text("Average Stats", draw, box_width=171, box_start=451, text_y=25, font=minecraft_18)
+    box_center_text("Average Stats", draw, box_width=171,
+                    box_start=451, text_y=25, font=minecraft_18)
 
     # Render skin
     image = paste_skin(skin_res, image, positions=(465, 67))

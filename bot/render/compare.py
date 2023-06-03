@@ -3,7 +3,8 @@ from calc.compare import Compare
 from helper.rendername import render_level_and_name
 from helper.rendertools import get_background
 
-def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2, save_dir):
+def render_compare(name_1, name_2, uuid_1, mode,
+                   hypixel_data_1, hypixel_data_2, save_dir):
     compare = Compare(name_1, name_2, mode, hypixel_data_1, hypixel_data_2)
     level_1, level_2 = compare.level_1, compare.level_2
     rank_info_1, rank_info_2 = compare.player_rank_info
@@ -13,7 +14,9 @@ def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2,
     beds_broken, beds_lost, bblr, beds_broken_diff, beds_lost_diff, bblr_diff = compare.get_beds()
     kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = compare.get_kills()
 
-    image = get_background(path='./assets/compare', uuid=uuid_1, default='base', level=level_1, rank_info=rank_info_1)
+    image = get_background(path='./assets/compare', uuid=uuid_1,
+                           default='base', level=level_1, rank_info=rank_info_1)
+
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -82,8 +85,11 @@ def render_compare(name_1, name_2, uuid_1, mode, hypixel_data_1, hypixel_data_2,
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
     # Render Name
-    render_level_and_name(name_1, level_1, rank_info_1, image=image, box_positions=(17, 401), position_y=14, fontsize=18)
-    render_level_and_name(name_2, level_2, rank_info_2, image=image, box_positions=(17, 401), position_y=51, fontsize=18)
+    render_level_and_name(name_1, level_1, rank_info_1, image=image,
+                          box_positions=(17, 401), position_y=14, fontsize=18)
+
+    render_level_and_name(name_2, level_2, rank_info_2, image=image,
+                          box_positions=(17, 401), position_y=51, fontsize=18)
 
     # Paste overlay
     overlay_image = Image.open(f'./assets/compare/overlay.png')

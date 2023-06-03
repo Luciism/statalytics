@@ -18,7 +18,10 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
         with open('./config.json', 'r') as datafile:
             config = load_json(datafile)
         embed_color = int(config['embed_primary_color'], base=16)
-        submit_embed = discord.Embed(title=f'Suggestion by {interaction.user} ({interaction.user.id})', description=f'**Suggestion:**\n{self.suggestion}', color=embed_color)
+        submit_embed = discord.Embed(
+            title=f'Suggestion by {interaction.user} ({interaction.user.id})',
+            description=f'**Suggestion:**\n{self.suggestion}', color=embed_color
+        )
 
         await self.channel.send(embed=submit_embed)
         await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
@@ -56,7 +59,7 @@ class ManageSession(discord.ui.View):
 
 
 # ------------------------------------------------------------------------------------------ #
-class Select(discord.ui.Select):
+class SelectModes(discord.ui.Select):
     def __init__(self, user, inter, mode):
         self.user = user
         self.inter = inter
@@ -76,16 +79,19 @@ class Select(discord.ui.Select):
         await interaction.response.defer()
         mode = self.values[0].lower()
         if not interaction.user.id == self.user:
-            await interaction.followup.send(file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'),ephemeral=True)
+            await interaction.followup.send(
+                file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'),ephemeral=True)
+
         else:
-            view = SelectView(user=self.user, inter=self.inter, mode=mode)
-            await self.inter.edit_original_response(attachments=[discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png')], view=view)
+            view = ModesView(user=self.user, inter=self.inter, mode=mode)
+            await self.inter.edit_original_response(
+                attachments=[discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png')], view=view)
 
 
-class SelectView(discord.ui.View):
+class ModesView(discord.ui.View):
     def __init__(self, user, inter, mode, *, timeout = 300):
         super().__init__(timeout=timeout)
-        self.add_item(Select(user, inter, mode))
+        self.add_item(SelectModes(user, inter, mode))
         self.inter = inter
 
 

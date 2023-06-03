@@ -3,22 +3,48 @@
 
 ### Links
 
-<p>🔗 <a href="https://statalytics.net/invite" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Invite</a></p>
-<p style="line-height: 0">🔗 <a href="https://statalytics.net/" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0">Website</a></p>
-<p>🔗 <a href="https://statalytics.net/discord" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Support</a></p>
+🔗 <a href="https://statalytics.net/invite" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Invite</a>\
+🔗 <a href="https://statalytics.net/" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0">Website</a>\
+🔗 <a href="https://statalytics.net/discord" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Support</a>
 
 ## Commands
+#### Future stats
 | Command | Function |
 | ------- | -------- |
-| `/link` | Link your account (recommended) |
-| `/unlink` | Unlink your account |
-| `/prestige` | View projected stats of a player (requires session)|
 | `/2024` | View projected next years stats a player (requires session)|
+| `/prestige` | View projected stats of a player (requires session)|
+| `/milestones` | View milestone stats of any player |
+
+#### Historical Stats
+| Command | Function |
+| ------- | -------- |
+| `/daily` | View the daily stats of any player. |
+| `/weekly` | View the weekly stats of any player. |
+| `/monthly` | View the monthly stats of any player |
+| `/yearly` | View the yearly stats of any player. |
+|||
+| `/lastday` | View the previous day's stats of any player. |
+| `/lastweek` | View the previous week's stats of any player. |
+| `/lastmonth` | View the previous month's stats of any player. |
+| `/lastyear` | View the previous year's stats of any player. |
+|||
+| `/difference daily` | View the daily stat difference of a player |
+| `/difference weekly` | View the weekly stat difference of a player |
+| `/difference monthly` | View the monthly stat difference of a player |
+| `/difference yearly` | View the yearly stat difference of a player |
+|||
 | `/session` | View an active session of a player (requires session)|
 | `/startsession` | Create a new session (requires linking) |
 | `/endsession` | End a specified session (requires linking) |
 | `/resetsession` | Reset a specified session (requires linking) |
 | `/activesessions` | Get a list of all your active sessions |
+
+#### Current Stats
+| Command | Function |
+| ------- | -------- |
+
+| `/link` | Link your account (recommended) |
+| `/unlink` | Unlink your account |
 | `/shop` | View the shop of any player |
 | `/mostplayed` | View the most played modes of any player |
 | `/bedwars` | View general Bedwars stats of any player |
@@ -26,7 +52,6 @@
 | `/resources` | View resource stats of any player |
 | `/skin` | View or save the skin of any player |
 | `/practice` | View practice stats of any player |
-| `/milestones` | View milestone stats of any player |
 | `/activecosmetics` | View the active cosmetics of any player |
 | `/hotbar` | View the hotbar preference of any player |
 | `/pointless` | Same as `/bedwars` but really pointless |
@@ -35,14 +60,6 @@
 | `/who` | Get the name of uuid of any player. |
 | `/displayname` | Render the hypixel display name of any player. |
 | `/credits` | View the people who made Statalytics possible |
-| `/daily` | View the daily stats of any player. |
-| `/weekly` | View the weekly stats of any player. |
-| `/monthly` | View the monthly stats of any player |
-| `/yearly` | View the yearly stats of any player. |
-| `/lastday` | View the previous day's stats of any player. |
-| `/lastweek` | View the previous week's stats of any player. |
-| `/lastmonth` | View the previous month's stats of any player. |
-| `/lastyear` | View the previous year's stats of any player. |
 | `/settings` | Configure historical reset time & theme packs. |
 | `/vote` | Get a bunch of voting information for the bot. |
 

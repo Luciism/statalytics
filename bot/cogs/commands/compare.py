@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SelectView
+from helper.ui import ModesView
 from render.compare import render_compare
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
@@ -50,8 +50,9 @@ class Compare(commands.Cog):
         }
 
         render_compare(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None,attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
         render_compare(mode="Solos", **kwargs)
         render_compare(mode="Doubles", **kwargs)
         render_compare(mode="Threes", **kwargs)

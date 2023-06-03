@@ -20,7 +20,12 @@ class Voting(commands.Cog):
         vote_links = config['links']['voting']
         embed_color = int(config['embed_primary_color'], base=16)
 
-        embed = discord.Embed(title='Vote For Statalytics', description='Voting helps Statalytics grow by increasing public exposure.', color=embed_color)
+        embed = discord.Embed(
+            title='Vote For Statalytics',
+            description='Voting helps Statalytics grow by increasing public exposure.',
+            color=embed_color
+        )
+
         embed.add_field(name='Links', value=f"""
             Vote on [top.gg]({vote_links["top.gg"]})
             Vote on [discordbotlist.com]({vote_links["discordbotlist.com"]})

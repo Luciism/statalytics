@@ -18,7 +18,7 @@ from helper.functions import (username_autocompletion,
                        fetch_skin_model)
 
 from render.session import render_session
-from helper.ui import SelectView, ManageSession
+from helper.ui import ModesView, ManageSession
 
 
 class Sessions(commands.Cog):
@@ -56,8 +56,9 @@ class Sessions(commands.Cog):
         }
 
         render_session(mode="Overall", **kwargs)
-        view = SelectView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
+        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+        await interaction.edit_original_response(
+            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
 
         render_session(mode="Solos", **kwargs)
         render_session(mode="Doubles", **kwargs)
@@ -92,12 +93,15 @@ class Sessions(commands.Cog):
                 else:
                     sessionid = len(sessions) + 1
                     start_session(uuid, session=sessionid)
-                await interaction.followup.send(f'A new session was successfully created! Session ID: `{sessionid}`')
+                await interaction.followup.send(
+                    f'A new session was successfully created! Session ID: `{sessionid}`')
             else:
-                await interaction.followup.send('You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
+                await interaction.followup.send(
+                    'You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
         else:
-            await interaction.response.send_message("""You don't have an account linked! In order to link use `/link`!
-                                                    Otherwise `/session <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
+            await interaction.response.send_message
+            ("""You don't have an account linked! In order to link use `/link`!
+                Otherwise `/session <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
 
         update_command_stats(interaction.user.id, 'startsession')
 
@@ -119,12 +123,15 @@ class Sessions(commands.Cog):
                 session_data = cursor.fetchone()
             if session_data:
                 view = ManageSession(session, uuid, method="delete")
-                await interaction.response.send_message(f'Are you sure you want to delete session {session}?', view=view, ephemeral=True)
+                await interaction.response.send_message(
+                    f'Are you sure you want to delete session {session}?', view=view, ephemeral=True)
                 view.message = await interaction.original_response()
             else:
-                await interaction.response.send_message(f"You don't have an active session with ID: `{session}`!")
+                await interaction.response.send_message(
+                    f"You don't have an active session with ID: `{session}`!")
         else:
-            await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+            await interaction.response.send_message(
+                "You don't have an account linked! In order to link use `/link`!")
 
         update_command_stats(interaction.user.id, 'endsession')
 
@@ -147,12 +154,15 @@ class Sessions(commands.Cog):
 
             if session_data:
                 view = ManageSession(session, uuid, method="reset")
-                await interaction.response.send_message(f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
+                await interaction.response.send_message(
+                    f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
                 view.message = await interaction.original_response()
             else:
-                await interaction.response.send_message(f"You don't have an active session with ID: `{session}`!")
+                await interaction.response.send_message(
+                    f"You don't have an active session with ID: `{session}`!")
         else:
-            await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+            await interaction.response.send_message(
+                "You don't have an account linked! In order to link use `/link`!")
         
         update_command_stats(interaction.user.id, 'resetsession')
 
@@ -173,11 +183,14 @@ class Sessions(commands.Cog):
 
             if session_list:
                 session_string = ", ".join(session_list)
-                await interaction.followup.send(f'Your active sessions: `{session_string}`')
+                await interaction.followup.send(
+                    f'Your active sessions: `{session_string}`')
             else:
-                await interaction.followup.send("You don't have any sessions active! Use `/startsession` to create one!")
+                await interaction.followup.send(
+                    "You don't have any sessions active! Use `/startsession` to create one!")
         else:
-            await interaction.response.send_message("You don't have an account linked! In order to link use `/link`!")
+            await interaction.response.send_message
+            ("You don't have an account linked! In order to link use `/link`!")
 
         update_command_stats(interaction.user.id, 'activesessions')
 

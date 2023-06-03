@@ -10,6 +10,14 @@ from PIL import Image, UnidentifiedImageError, ImageDraw
 from helper.prescolor import ColorMaps
 
 
+def shadow(rgb: tuple) -> tuple[int, int, int]:
+    """
+    Returns drop shadow RGB relative to passed RGB value
+    :param rgb: The RGB value to get a shadow color for
+    """
+    return tuple([int(c * 0.25) for c in rgb])
+
+
 def box_center_text(text: str, draw: ImageDraw, box_width: int, box_start: int,
                          text_y: int, font: int, color: tuple=(255, 255, 255)) -> None:
     """
@@ -56,10 +64,15 @@ def get_rank_color(player_rank_info: dict) -> tuple:
     elif player_rank_info['rank'] == "NONE":
         if (player_rank_info['packageRank'], player_rank_info['newPackageRank']) == ("NONE", "NONE"):
             rankcolor = (170, 170, 170)
-        elif player_rank_info['packageRank'] in ("VIP", "VIP_PLUS") or player_rank_info['newPackageRank'] in ("VIP", "VIP_PLUS"):
+
+        elif player_rank_info['packageRank'] in ("VIP", "VIP_PLUS")\
+            or player_rank_info['newPackageRank'] in ("VIP", "VIP_PLUS"):
             rankcolor = (85, 255, 85)
-        elif player_rank_info['packageRank'] in ("MVP", "MVP_PLUS") or player_rank_info['newPackageRank'] in ("MVP", "MVP_PLUS"):
+    
+        elif player_rank_info['packageRank'] in ("MVP", "MVP_PLUS")\
+            or player_rank_info['newPackageRank'] in ("MVP", "MVP_PLUS"):
             rankcolor = (85, 255, 255) if player_rank_info['monthlyPackageRank'] == "NONE" else (255, 170, 0)
+
     else:
         rankcolor = (255, 85, 85) if player_rank_info['rank'] in ("YOUTUBER", "ADMIN") else (0, 170, 0)
     return rankcolor
