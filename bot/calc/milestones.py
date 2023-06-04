@@ -1,7 +1,7 @@
 import math
 import sqlite3
 
-from helper.calctools import get_player_rank_info, get_mode, get_progress
+from helper.calctools import get_player_rank_info, get_mode, get_progress, get_level
 
 
 class Stats:
@@ -24,7 +24,7 @@ class Stats:
                             if hypixel_data.get('player', {}) != None else {}
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
+        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 

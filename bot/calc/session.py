@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
+from helper.calctools import get_progress, get_player_rank_info, get_mode, rround, get_level
 
 
 class SessionStats:
@@ -25,7 +25,7 @@ class SessionStats:
             cursor.execute(f"SELECT COUNT(*) FROM sessions WHERE uuid = '{uuid}'")
             self.total_sessions = str(cursor.fetchone()[0])
 
-        self.level = self.hypixel_data.get('achievements', {}).get('bedwars_level', 0)
+        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
         self.stars_gained = str(self.level - self.session_data['level'])
 
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d")

@@ -1,6 +1,6 @@
 import sqlite3
 
-from helper.calctools import get_progress, get_player_rank_info, get_mode, rround
+from helper.calctools import get_progress, get_player_rank_info, get_mode, rround, get_level
 from helper.functions import uuid_to_discord_id
 
 
@@ -30,7 +30,7 @@ class HistoricalStats:
             column_names = [desc[0] for desc in cursor.description]
             self.historical_data = dict(zip(column_names, historical_data))
 
-        self.level = self.hypixel_data.get('achievements', {}).get('bedwars_level', 0)
+        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
         self.stars_gained = str(self.level - self.historical_data['level'])
 
         self.items_purchased = (self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)

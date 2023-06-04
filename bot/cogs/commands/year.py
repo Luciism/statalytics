@@ -5,7 +5,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import ModesView
 from render.year import render_year
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -16,7 +15,8 @@ from helper.functions import (username_autocompletion,
                        get_smart_session,
                        uuid_to_discord_id,
                        get_subscription,
-                       fetch_skin_model)
+                       fetch_skin_model,
+                       send_generic_renders)
 
 
 class Year(commands.Cog):
@@ -49,20 +49,7 @@ class Year(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_year(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=None,
-            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")],
-            view=view
-        )
-
-        render_year(mode="Solos", **kwargs)
-        render_year(mode="Doubles", **kwargs)
-        render_year(mode="Threes", **kwargs)
-        render_year(mode="Fours", **kwargs)
-        render_year(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_year, kwargs)
         update_command_stats(interaction.user.id, f'year_{year}')
 
 

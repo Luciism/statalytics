@@ -14,7 +14,6 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.ui import ModesView
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
                        get_hypixel_data,
@@ -27,7 +26,8 @@ from helper.functions import (username_autocompletion,
                        fetch_skin_model,
                        get_lookback_eligiblility,
                        message_invalid_lookback,
-                       ordinal)
+                       ordinal,
+                       send_generic_renders)
 
 
 class Monthly(commands.Cog):
@@ -181,18 +181,12 @@ class Monthly(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_historical(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=f':alarm_clock: Resets <t:{timestamp}:R>',
-            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_historical(mode="Solos", **kwargs)
-        render_historical(mode="Doubles", **kwargs)
-        render_historical(mode="Threes", **kwargs)
-        render_historical(mode="Fours", **kwargs)
-        render_historical(mode="4v4", **kwargs)
-
+        await send_generic_renders(
+            interaction=interaction,
+            func=render_historical,
+            kwargs=kwargs, 
+            message=f':alarm_clock: Resets <t:{timestamp}:R>'
+        )
         update_command_stats(interaction.user.id, 'monthly')
 
 
@@ -254,17 +248,7 @@ class Monthly(commands.Cog):
             "save_dir": interaction.id
         }
         
-        render_historical(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(content=None,
-            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_historical(mode="Solos", **kwargs)
-        render_historical(mode="Doubles", **kwargs)
-        render_historical(mode="Threes", **kwargs)
-        render_historical(mode="Fours", **kwargs)
-        render_historical(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_historical, kwargs)
         update_command_stats(interaction.user.id, 'lastmonth')
 
 async def setup(client: commands.Bot) -> None:

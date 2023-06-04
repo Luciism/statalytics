@@ -7,7 +7,6 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.difference import render_difference
-from helper.ui import ModesView
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
                        get_hypixel_data,
@@ -18,7 +17,8 @@ from helper.functions import (username_autocompletion,
                        yearly_eligibility,
                        get_time_config,
                        fetch_skin_model,
-                       ordinal)
+                       ordinal,
+                       send_generic_renders)
 
 
 class Difference(commands.Cog):
@@ -73,17 +73,7 @@ class Difference(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_difference(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=None,
-            attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-        render_difference(mode="Solos", **kwargs)
-        render_difference(mode="Doubles", **kwargs)
-        render_difference(mode="Threes", **kwargs)
-        render_difference(mode="Fours", **kwargs)
-        render_difference(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_difference, kwargs)
         update_command_stats(interaction.user.id, f'difference_{method}')
 
 

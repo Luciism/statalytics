@@ -5,7 +5,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import ModesView
 from render.milestones import render_milestones
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -13,7 +12,8 @@ from helper.functions import (username_autocompletion,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
-                       fetch_skin_model)
+                       fetch_skin_model,
+                       send_generic_renders)
 
 
 class Milestones(commands.Cog):
@@ -54,17 +54,7 @@ class Milestones(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_milestones(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_milestones(mode="Solos", **kwargs)
-        render_milestones(mode="Doubles", **kwargs)
-        render_milestones(mode="Threes", **kwargs)
-        render_milestones(mode="Fours", **kwargs)
-        render_milestones(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_milestones, kwargs)
         update_command_stats(interaction.user.id, 'milestones')
 
 

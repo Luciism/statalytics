@@ -7,12 +7,13 @@ import typing
 import sqlite3
 import discord
 import requests
+from datetime import datetime
 
 from discord import app_commands
 from mcuuid import MCUUID
 from requests_cache import CachedSession
 
-from datetime import datetime
+from helper.ui import ModesView
 
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
 skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
@@ -525,7 +526,12 @@ def get_owned_themes(discord_id: int) -> list:
     return []
 
 
-async def yearly_eligibility(interaction: discord.Interaction, discord_id: int) -> bool:
+async def yearly_eligibility(interaction: discord.Interaction, discord_id: int | None) -> bool:
+    """
+    Checks if a user is able to use yearly stats commands and responds accordingly
+    :param interaction: the discord interaction object
+    :param discord_id: the discord id of the linked player being checked
+    """
     subscription = None
     if discord_id:
         subscription = get_subscription(discord_id=discord_id)
@@ -549,3 +555,57 @@ async def yearly_eligibility(interaction: discord.Interaction, discord_id: int) 
         await interaction.response.send_message(embed=embed)
         return False
     return True
+
+
+
+def discord_message(discord_id):
+    """
+    Chooses a random message to send if the discord id has no subscription
+    :param discord_id: the discord id of the relative user
+    """
+    if get_subscription(discord_id):
+        return None
+
+    if random.choice(([False]*5) + ([True]*2)):
+        with open('./database/discord_messages.json', 'r') as datafile:
+            data = json.load(datafile)
+        return random.choice(data['active_messages'])
+    return None
+
+
+async def send_generic_renders(interaction: discord.Interaction,
+                               func: object, kwargs: dict, message=None):
+    """
+    Renders and sends all modes to discord for the selected render
+    :param interaction: the relative discord interaction object
+    :param func: the function object to render with
+    :param kwargs: the keyword arguments needed to render the image
+    :param message: the message to send to discord with the image
+    """
+    if not message:
+        message = discord_message(interaction.user.id)
+
+    func(mode="Overall", **kwargs)
+    view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+    await interaction.edit_original_response(
+        content=message,
+        attachments=[
+            discord.File(f"./database/activerenders/{interaction.id}/overall.png")],
+        view=view
+    )
+    
+    func(mode="Solos", **kwargs)
+    func(mode="Doubles", **kwargs)
+    func(mode="Threes", **kwargs)
+    func(mode="Fours", **kwargs)
+    func(mode="4v4", **kwargs)
+
+
+def get_embed_color(embed_type: str) -> int:
+    """
+    Returns a base 16 integer from a hex code.
+    :param embed_type: the embed color type (primary, warning, danger)
+    """
+    with open('./config.json', 'r') as datafile:
+        config = json.load(datafile)
+    return int(config[f'embed_{embed_type}_color'], base=16)

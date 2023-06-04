@@ -4,13 +4,13 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import ModesView
 from render.resources import render_resources
 from helper.functions import (username_autocompletion,
                        get_command_cooldown,
                        get_hypixel_data,
                        update_command_stats,
-                       authenticate_user)
+                       authenticate_user,
+                       send_generic_renders)
 
 
 class Resources(commands.Cog):
@@ -38,17 +38,7 @@ class Resources(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_resources(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_resources(mode="Solos", **kwargs)
-        render_resources(mode="Doubles", **kwargs)
-        render_resources(mode="Threes", **kwargs)
-        render_resources(mode="Fours", **kwargs)
-        render_resources(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_resources, kwargs)
         update_command_stats(interaction.user.id, 'resources')
 
 

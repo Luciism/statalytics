@@ -1,4 +1,4 @@
-from helper.calctools import get_mode, rround, get_progress, get_player_rank_info
+from helper.calctools import get_mode, rround, get_progress, get_player_rank_info, get_level
 
 
 class Resources:
@@ -13,7 +13,7 @@ class Resources:
         self.progress = get_progress(self.hypixel_data_bedwars)
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
-        self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
+        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
         self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
         self.total_resources = self.hypixel_data_bedwars.get(f'{self.mode}resources_collected_bedwars', 0)
 

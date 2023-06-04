@@ -4,7 +4,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import ModesView
 from render.projection import render_projection
 from helper.functions import (username_autocompletion,
                        session_autocompletion,
@@ -13,7 +12,8 @@ from helper.functions import (username_autocompletion,
                        update_command_stats,
                        get_smart_session,
                        authenticate_user,
-                       fetch_skin_model)
+                       fetch_skin_model,
+                       send_generic_renders)
 
 
 class Projection(commands.Cog):
@@ -28,15 +28,16 @@ class Projection(commands.Cog):
                            prestige='The prestige you want to view',
                            session='The session you want to use as a benchmark (defaults to 1)')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
-    async def projected_stats(self, interaction: discord.Interaction, prestige: int=None, username: str=None, session: int=None):
+    async def projected_stats(self, interaction: discord.Interaction, prestige: int=None, username: str=None, session: int=100):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
-
         refined = name.replace('_', r'\_')
-        if session is None: session = 100
+
         session_data = await get_smart_session(interaction, session, refined, uuid)
-        if not session_data: return
-        if session == 100: session = session_data[0]
+        if not session_data:
+            return
+        if session == 100:
+            session = session_data[0]
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
@@ -46,7 +47,8 @@ class Projection(commands.Cog):
         if not prestige:
             if hypixel_data.get('player'):
                 current_star = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)
-            else: current_star = 0
+            else:
+                current_star = 0
             prestige = (current_star // 100 + 1) * 100
         if prestige <= 0: prestige = 1
 
@@ -60,18 +62,7 @@ class Projection(commands.Cog):
             "save_dir": interaction.id
         }
 
-        current_star = render_projection(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        content = ":warning: THE LEVEL YOU ENTERED IS LOWER THAN THE CURRENT STAR! :warning:" if current_star > prestige else None
-        await interaction.edit_original_response(
-            content=content, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_projection(mode="Solos", **kwargs)
-        render_projection(mode="Doubles", **kwargs)
-        render_projection(mode="Threes", **kwargs)
-        render_projection(mode="Fours", **kwargs)
-        render_projection(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_projection, kwargs)
         update_command_stats(interaction.user.id, 'projection')
 
 

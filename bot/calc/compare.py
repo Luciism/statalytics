@@ -1,4 +1,4 @@
-from helper.calctools import get_player_rank_info, get_mode, rround
+from helper.calctools import get_player_rank_info, get_mode, rround, get_level
 
 
 class Compare:
@@ -15,8 +15,8 @@ class Compare:
         self.hypixel_data_bedwars_1 = self.hypixel_data_1.get('stats', {}).get('Bedwars', {})
         self.hypixel_data_bedwars_2 = self.hypixel_data_2.get('stats', {}).get('Bedwars', {})
 
-        self.level_1 = self.hypixel_data_1.get("achievements", {}).get("bedwars_level", 0)
-        self.level_2 = self.hypixel_data_2.get("achievements", {}).get("bedwars_level", 0)
+        self.level_1 = int(get_level(self.hypixel_data_bedwars_1.get('Experience', 0)))
+        self.level_2 = int(get_level(self.hypixel_data_bedwars_2.get('Experience', 0)))
 
         self.player_rank_info = get_player_rank_info(self.hypixel_data_1), get_player_rank_info(self.hypixel_data_2)
 

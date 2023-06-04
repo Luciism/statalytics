@@ -1,4 +1,4 @@
-from helper.calctools import get_player_rank_info
+from helper.calctools import get_player_rank_info, get_level
 
 
 class ActiveCosmetics:
@@ -8,7 +8,7 @@ class ActiveCosmetics:
         bedwars_data = self.hypixel_data.get('stats', {}).get('Bedwars', {})
         self.name = name
 
-        self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
+        self.level = int(get_level(bedwars_data.get('Experience', 0)))
 
         def get_cosmetic(key, replace):
             cosmetic = bedwars_data.get(key, 'none')

@@ -6,19 +6,50 @@ from discord import app_commands
 from discord.ext import commands
 
 from helper.functions import (username_autocompletion,
-                       session_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       get_linked_data,
-                       get_subscription,
-                       start_session,
-                       get_smart_session,
-                       authenticate_user,
-                       fetch_skin_model)
+                            session_autocompletion,
+                            get_command_cooldown,
+                            get_hypixel_data,
+                            update_command_stats,
+                            get_linked_data,
+                            get_subscription,
+                            start_session,
+                            get_smart_session,
+                            authenticate_user,
+                            fetch_skin_model,
+                            send_generic_renders)
 
 from render.session import render_session
-from helper.ui import ModesView, ManageSession
+
+
+class ManageSession(discord.ui.View):
+    def __init__(self, session: int, uuid: str, method: str) -> None:
+        super().__init__(timeout = 20)
+        self.method = method
+        self.session = session
+        self.uuid = uuid
+
+    async def on_timeout(self) -> None:
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(view=self)
+
+
+    @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.danger, custom_id = "confirm")
+    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        button.disabled = True
+        await self.message.edit(view=self)
+        await interaction.response.defer()
+        with sqlite3.connect('./database/sessions.db') as conn:
+            cursor = conn.cursor()
+            if self.method == "delete":
+                cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
+                message = f'Session `{self.session}` has been deleted successfully!'
+            else:
+                cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
+        if self.method != "delete":
+            start_session(self.uuid, self.session)
+            message = f'Session `{self.session}` has been reset successfully!'
+        await interaction.followup.send(message, ephemeral=True)
 
 
 class Sessions(commands.Cog):
@@ -31,15 +62,16 @@ class Sessions(commands.Cog):
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
-    async def session(self, interaction: discord.Interaction, username: str=None, session: int=None):
+    async def session(self, interaction: discord.Interaction, username: str=None, session: int=100):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
         refined = name.replace('_', r'\_')
-        if session is None: session = 100
         session_data = await get_smart_session(interaction, session, refined, uuid)
-        if not session_data: return
-        if session == 100: session = session_data[0]
+        if not session_data:
+            return
+        if session == 100:
+            session = session_data[0]
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
         os.makedirs(f'./database/activerenders/{interaction.id}')
@@ -55,17 +87,7 @@ class Sessions(commands.Cog):
             "save_dir": interaction.id
         }
 
-        render_session(mode="Overall", **kwargs)
-        view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-        await interaction.edit_original_response(
-            content=None, attachments=[discord.File(f"./database/activerenders/{interaction.id}/overall.png")], view=view)
-
-        render_session(mode="Solos", **kwargs)
-        render_session(mode="Doubles", **kwargs)
-        render_session(mode="Threes", **kwargs)
-        render_session(mode="Fours", **kwargs)
-        render_session(mode="4v4", **kwargs)
-
+        await send_generic_renders(interaction, render_session, kwargs)
         update_command_stats(interaction.user.id, 'session')
 
 

@@ -5,8 +5,27 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.ui import SubmitSuggestion
 from helper.functions import update_command_stats
+
+
+class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
+    def __init__(self, channel, **kwargs):
+        self.channel = channel
+        super().__init__(**kwargs)
+
+    suggestion = discord.ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        with open('./config.json', 'r') as datafile:
+            config = load_json(datafile)
+        embed_color = int(config['embed_primary_color'], base=16)
+        submit_embed = discord.Embed(
+            title=f'Suggestion by {interaction.user} ({interaction.user.id})',
+            description=f'**Suggestion:**\n{self.suggestion}', color=embed_color
+        )
+
+        await self.channel.send(embed=submit_embed)
+        await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
 
 
 class Misc(commands.Cog):

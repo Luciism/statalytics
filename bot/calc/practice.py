@@ -1,4 +1,4 @@
-from helper.calctools import get_player_rank_info, get_progress, rround
+from helper.calctools import get_player_rank_info, get_progress, rround, get_level
 
 
 class Practice:
@@ -9,7 +9,9 @@ class Practice:
                             if hypixel_data.get('player', {}) is not None else {}
         self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
 
-        self.level = self.hypixel_data.get("achievements", {}).get("bedwars_level", 0)
+        self.level = int(get_level(
+            self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('Experience', 0)))
+
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
 
