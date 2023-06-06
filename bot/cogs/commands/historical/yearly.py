@@ -149,8 +149,8 @@ class Yearly(commands.Cog):
 
         if not historical_data:
             await interaction.response.defer()
-            start_historical(uuid=uuid, method='yearly')
-            await interaction.followup.send(f'Yearly stats for {refined} will now be tracked.')
+            start_historical(uuid=uuid)
+            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
         result = await yearly_eligibility(interaction, discord_id)

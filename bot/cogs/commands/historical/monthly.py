@@ -150,8 +150,8 @@ class Monthly(commands.Cog):
 
         if not historical_data:
             await interaction.response.defer()
-            start_historical(uuid=uuid, method='monthly')
-            await interaction.followup.send(f'Monthly stats for {refined} will now be tracked.')
+            start_historical(uuid=uuid)
+            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)
@@ -205,7 +205,8 @@ class Monthly(commands.Cog):
         if -1 != max_lookback < (months * 30):
             await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
             return
-        if months < 1: months = 1
+        if months < 1:
+            months = 1
 
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 

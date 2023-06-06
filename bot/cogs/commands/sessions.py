@@ -58,7 +58,13 @@ class Sessions(commands.Cog):
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
 
-    @app_commands.command(name = "session", description = "View the session stats of a player")
+    session_group = app_commands.Group(
+        name='session', 
+        description='View and manage active sessions'
+    )
+
+
+    @session_group.command(name = "stats", description = "View the session stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -91,7 +97,7 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'session')
 
 
-    @app_commands.command(name = "startsession", description = "Starts a new session")
+    @session_group.command(name = "start", description = "Starts a new session")
     async def start_session(self, interaction: discord.Interaction):
         linked_data = get_linked_data(interaction.user.id)
 
@@ -128,7 +134,7 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'startsession')
 
 
-    @app_commands.command(name = "endsession", description = "Ends an active session")
+    @session_group.command(name = "end", description = "Ends an active session")
     @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
     async def end_session(self, interaction: discord.Interaction, session: int = None):
@@ -158,7 +164,7 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'endsession')
 
 
-    @app_commands.command(name = "resetsession", description = "Resets an active session")
+    @session_group.command(name = "reset", description = "Resets an active session")
     @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to reset')
     async def reset_session(self, interaction: discord.Interaction, session: int = None):
@@ -189,7 +195,7 @@ class Sessions(commands.Cog):
         update_command_stats(interaction.user.id, 'resetsession')
 
 
-    @app_commands.command(name = "activesessions", description = "View all active sessions")
+    @session_group.command(name = "active", description = "View all active sessions")
     async def active_sessions(self, interaction: discord.Interaction):
         linked_data = get_linked_data(interaction.user.id)
 

@@ -16,6 +16,7 @@ class Counts(commands.Cog):
         self.DISCORDS_TOKEN = os.environ.get('STATALYTICS_DISCORDS_TOKEN')
         self.BOTLIST_TOKEN = os.environ.get('STATALYTICS_BOTLIST_TOKEN')
 
+
     @tasks.loop(hours=1)
     async def update_counts(self):
         guild_count = len(self.client.guilds)
@@ -27,7 +28,8 @@ class Counts(commands.Cog):
         requests.post(
             url='https://top.gg/api/bots/903765373181112360/stats',
             data={'server_count': guild_count},
-            headers={'Authorization': self.TOPGG_TOKEN}
+            headers={'Authorization': self.TOPGG_TOKEN},
+            timeout=10
         )
 
         requests.post(
@@ -36,19 +38,22 @@ class Counts(commands.Cog):
                 'guilds': guild_count,
                 'users': total_users
             },
-            headers={'Authorization': self.DBL_TOKEN}
+            headers={'Authorization': self.DBL_TOKEN},
+            timeout=10
         )
 
         requests.post(
             url='https://discords.com/bots/api/bot/903765373181112360',
             data={'server_count': guild_count},
-            headers={'Authorization': self.DISCORDS_TOKEN}
+            headers={'Authorization': self.DISCORDS_TOKEN},
+            timeout=10
         )
 
         requests.post(
             url='https://api.botlist.me/api/v1/bots/903765373181112360/stats',
             data={'server_count': guild_count},
-            headers={'Authorization': self.BOTLIST_TOKEN}
+            headers={'Authorization': self.BOTLIST_TOKEN},
+            timeout=10
         )
 
 

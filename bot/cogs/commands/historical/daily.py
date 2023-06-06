@@ -144,8 +144,8 @@ class Daily(commands.Cog):
 
         if not historical_data:
             await interaction.response.defer()
-            start_historical(uuid=uuid, method='daily')
-            await interaction.followup.send(f'Daily stats for {refined} will now be tracked.')
+            start_historical(uuid=uuid)
+            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
         await interaction.response.send_message(self.GENERATING_MESSAGE)

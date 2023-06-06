@@ -2,7 +2,6 @@
 ### Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with exceptional functionalities.
 
 ### Links
-
 🔗 <a href="https://statalytics.net/invite" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Invite</a>\
 🔗 <a href="https://statalytics.net/" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0">Website</a>\
 🔗 <a href="https://statalytics.net/discord" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Support</a>
@@ -28,9 +27,6 @@
 | `/activecosmetics` | View the active cosmetics of any player |
 | `/hotbar` | View the hotbar preference of any player |
 | `/shop` | View the shop of any player |
-| `/skin` | View or save the skin of any player |
-| `/who` | Get the name of uuid of any player. |
-| `/displayname` | Render the hypixel display name of any player. |
 
 #### Historical Stats
 | Command | Function |
@@ -56,13 +52,16 @@
 | `/resetsession` | Reset a specified session (requires linking) |
 | `/activesessions` | Get a list of all your active sessions |
 
-#### QOL Commands
+#### Extra Commands
 | Command | Function |
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
 | `/unlink` | Unlink your account |
 | `/usage` | View your command usage with Statalytics |
-| `/credits` | See the contributers Statalytics possible |
+| `/skin` | View or save the skin of any player |
+| `/who` | Get the name of uuid of any player. |
+| `/displayname` | Render the hypixel display name of any player. |
+| `/credits` | See the contributers that made Statalytics possible |
 | `/settings` | Configure historical reset time & theme packs. |
 | `/vote` | Get a bunch of voting information for the bot. |
 

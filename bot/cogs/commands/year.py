@@ -24,6 +24,7 @@ class Year(commands.Cog):
         self.client: discord.Client = client
         self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
+
     async def year_command(self, interaction: discord.Interaction,
                            name: str, uuid: str, session: int, year: int):
         refined = name.replace('_', r'\_')
@@ -53,7 +54,13 @@ class Year(commands.Cog):
         update_command_stats(interaction.user.id, f'year_{year}')
 
 
-    @app_commands.command(name = "2024", description = "View the a players projected stats for 2024")
+    year_group = app_commands.Group(
+        name='year', 
+        description='View the a players projected stats for a future year'
+    )
+
+
+    @year_group.command(name = "2024", description = "View the a players projected stats for 2024")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -63,7 +70,7 @@ class Year(commands.Cog):
         await self.year_command(interaction, name, uuid, session, 2024)
 
 
-    @app_commands.command(name = "2025", description = "View the a players projected stats for 2025")
+    @year_group.command(name = "2025", description = "View the a players projected stats for 2025")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)

@@ -347,11 +347,10 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     return session_data
 
 
-def start_historical(uuid: str, method: str) -> None:
+def start_historical(uuid: str) -> None:
     """
     Initiates historical stat tracking (daily, weekly, etc)
     :param uuid: The uuid of the player's historical stats being initiated
-    :param method: The type of historical data being tracked (daily, weekly, etc)
     """
     hypixel_data: dict = get_hypixel_data(uuid, cache=False)
 
@@ -363,12 +362,15 @@ def start_historical(uuid: str, method: str) -> None:
         stat_values.append(hypixel_data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0))
     stat_keys.insert(0, 'level')
     stat_keys.insert(0, 'uuid')
+    keys = ', '.join(stat_keys)
 
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        keys = ', '.join(stat_keys)
-        cursor.execute(f"INSERT INTO {method} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
+    trackers = ('daily', 'weekly', 'monthly', 'yearly')
+    for tracker in trackers:
+        with sqlite3.connect('./database/historical.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT uuid FROM {tracker} WHERE uuid = '{uuid}'")
+            if not cursor.fetchone():
+                cursor.execute(f"INSERT INTO {tracker} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
 
 
 def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
