@@ -28,9 +28,6 @@ class MyClient(commands.Bot):
 
 
 intents = discord.Intents(messages=True)
-intents.message_content = True
-intents.guilds = True
-intents.members = True
 client = MyClient(intents=intents)
 
 

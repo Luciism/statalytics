@@ -611,3 +611,14 @@ def get_embed_color(embed_type: str) -> int:
     with open('./config.json', 'r') as datafile:
         config = json.load(datafile)
     return int(config[f'embed_{embed_type}_color'], base=16)
+
+
+def get_command_users():
+    """
+    Returns total amount of users to have run a command
+    """
+    with sqlite3.connect('./database/command_usage.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM overall')
+        total_users = cursor.fetchone()[0] - 1
+    return total_users

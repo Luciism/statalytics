@@ -10,7 +10,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats
+from helper.functions import update_command_stats, get_command_users
 
 
 class Info(commands.Cog):
@@ -34,7 +34,7 @@ class Info(commands.Cog):
             total_linked_accounts = cursor.fetchone()[0]
 
         total_guilds = len(self.client.guilds)
-        total_members = len(self.client.users)
+        total_members = get_command_users()
 
         with open('./database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']

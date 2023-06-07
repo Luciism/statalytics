@@ -1,11 +1,12 @@
 import os
 import requests
-import sqlite3
 import asyncio
 from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
+
+from helper.functions import get_command_users
 
 
 class Counts(commands.Cog):
@@ -20,10 +21,7 @@ class Counts(commands.Cog):
     @tasks.loop(hours=1)
     async def update_counts(self):
         guild_count = len(self.client.guilds)
-        with sqlite3.connect('./database/command_usage.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) FROM overall')
-            total_users = cursor.fetchone()[0] - 1
+        total_users = get_command_users()
 
         requests.post(
             url='https://top.gg/api/bots/903765373181112360/stats',
