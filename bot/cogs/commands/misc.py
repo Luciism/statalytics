@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats
+from helper.functions import update_command_stats, get_embed_color, get_config
 
 
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
@@ -16,9 +16,7 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     suggestion = discord.ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
 
     async def on_submit(self, interaction: discord.Interaction):
-        with open('./config.json', 'r') as datafile:
-            config = load_json(datafile)
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
         submit_embed = discord.Embed(
             title=f'Suggestion by {interaction.user} ({interaction.user.id})',
             description=f'**Suggestion:**\n{self.suggestion}', color=embed_color
@@ -31,9 +29,6 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
 class Misc(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
-        with open('./config.json', 'r') as datafile:
-            self.config = load_json(datafile)
 
 
     @app_commands.command(name = "help", description = "Help Page")
@@ -49,7 +44,7 @@ class Misc(commands.Cog):
 
     @app_commands.command(name='invite', description=f'Invite Statalytics to your server')
     async def invite(self, interaction: discord.Interaction):
-        invite_url = self.config['links']['invite_url']
+        invite_url = get_config()['links']['invite_url']
         await interaction.response.send_message(f'To add Statalytics to your server, click [here]({invite_url})')
 
         update_command_stats(interaction.user.id, 'invite')
@@ -89,7 +84,7 @@ class Misc(commands.Cog):
         for key, value in sorted(usage_values.items(), key=lambda x: x[1], reverse=True):
             description.append(f'`{key}` - `{value}`')
 
-        embed_color = int(self.config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
         embed = discord.Embed(title="Your Command Usage", description=overall, color=embed_color)
         for i in range(0, len(description), 10):
             sublist = description[i:i+10]

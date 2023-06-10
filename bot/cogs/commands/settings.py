@@ -1,11 +1,10 @@
-import json
 import sqlite3
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import get_owned_themes, update_command_stats
+from helper.functions import get_owned_themes, update_command_stats, get_embed_color, get_config
 
 
 global HOURS
@@ -98,9 +97,7 @@ class SettingsButtons(discord.ui.View):
         )
 
         owned_themes = get_owned_themes(interaction.user.id)
-
-        with open('./config.json', 'r') as datafile:
-            theme_packs: dict = json.load(datafile)['theme_packs']
+        theme_packs: dict = get_config()['theme_packs']
 
         available_themes: dict = theme_packs['voter_themes']
         for owned_theme in owned_themes:
@@ -119,9 +116,7 @@ class SettingsButtons(discord.ui.View):
 
     @discord.ui.button(label = "Reset Time", style = discord.ButtonStyle.gray, custom_id = "reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction, button: discord.ui.Button):
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
             title='Configure reset time',
@@ -161,9 +156,7 @@ class Settings(commands.Cog):
 
     @app_commands.command(name = "settings", description = "Edit your configuration for statalytics")
     async def settings(self, interaction: discord.Interaction):
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
             title='Configure your settings for Statalytics',

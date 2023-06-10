@@ -7,16 +7,44 @@ import typing
 import sqlite3
 import discord
 import requests
-from datetime import datetime
+import traceback
+from datetime import datetime, timedelta
 
 from discord import app_commands
 from mcuuid import MCUUID
 from requests_cache import CachedSession
 
 from helper.ui import ModesView
+from helper.calctools import get_player_dict
 
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
 skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
+
+
+
+def get_config() -> dict:
+    """
+    Returns json data from the `config.json` file
+    """
+    with open('./config.json', 'r') as datafile:
+        config_data = json.load(datafile)
+    return config_data
+
+
+def get_embed_color(embed_type: str) -> int:
+    """
+    Returns a base 16 integer from a hex code.
+    :param embed_type: the embed color type (primary, warning, danger)
+    """
+    config = get_config()
+    return int(config[f'embed_{embed_type}_color'], base=16)
+
+
+def loading_message() -> str:
+    """
+    Returns loading message from the `config.json` file
+    """
+    return get_config()['loading_message']
 
 
 def get_voting_data(discord_id: int) -> tuple:
@@ -230,8 +258,7 @@ def start_session(uuid: str, session: int) -> bool:
     if data['player'] is None:
         return False
 
-    with open('./config.json', 'r') as datafile:
-        stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
+    stat_keys = get_config()['tracked_bedwars_stats']
 
     stat_values: dict = {
         "session": session,
@@ -353,13 +380,15 @@ def start_historical(uuid: str) -> None:
     :param uuid: The uuid of the player's historical stats being initiated
     """
     hypixel_data: dict = get_hypixel_data(uuid, cache=False)
+    hypixel_data = hypixel_data.get('player', {})\
+                              if hypixel_data.get('player', {}) is not None else {}
 
-    with open('./config.json', 'r') as datafile:
-        stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
-    stat_values = [uuid, hypixel_data["player"].get("achievements", {}).get("bedwars_level", 0)]
+    stat_keys: dict = get_config()['tracked_bedwars_stats']
+    stat_values = [uuid, hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
 
     for key in stat_keys:
-        stat_values.append(hypixel_data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0))
+        stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
+
     stat_keys.insert(0, 'level')
     stat_keys.insert(0, 'uuid')
     keys = ', '.join(stat_keys)
@@ -386,9 +415,8 @@ def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
     for i, value in enumerate(hypixel_data[1:]):
         historical_values.append(value - local_data[i+1])
 
-    with open('./config.json', 'r') as datafile:
-        stat_keys = ['uuid', 'level', 'stars_gained']
-        stat_keys.extend(json.load(datafile)['tracked_bedwars_stats'])
+    stat_keys = ['uuid', 'level', 'stars_gained']
+    stat_keys.extend(get_config()['tracked_bedwars_stats'])
 
     with sqlite3.connect('./database/historical.db') as conn:
         cursor = conn.cursor()
@@ -430,8 +458,10 @@ def get_time_config(discord_id: int) -> tuple:
             config_data = cursor.fetchone()
             if config_data:
                 return config_data[1:]
-            else: return 0, 0
-        else: return 0, 0
+            else:
+                return 0, 0
+        else:
+            return 0, 0
 
 
 async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id: int) -> bool:
@@ -443,6 +473,7 @@ async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id
     subscription = None
     if discord_id:
         subscription = get_subscription(discord_id=discord_id)
+
     if not subscription or not discord_id:
         subscription = get_subscription(discord_id=interaction.user.id)
 
@@ -461,20 +492,18 @@ async def message_invalid_lookback(interaction: discord.Interaction, max_lookbac
     :param interaction: The discord interaction object used
     :param max_lookback: The maximum lookback the user had availiable
     """
-    with open('./config.json', 'r') as datafile:
-        config: dict = json.load(datafile)
-
-    embed_color = int(config['embed_primary_color'], base=16)
+    embed_color = get_embed_color('primary')
     embed = discord.Embed(
         title='Maximum lookback exceeded!',
         description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!",
         color=embed_color
-        )
+    )
 
     embed.add_field(name="How it works:", value=f"""
         \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
         \- You can view longer history if you or the checked player has a premium plan.
     """.replace('   ', ''), inline=False)
+
     embed.add_field(name='Limits', value="""
         \- Free tier maximum lookback - 30 days
         \- Basic tier maxmum lookback  - 60 days
@@ -539,10 +568,7 @@ async def yearly_eligibility(interaction: discord.Interaction, discord_id: int |
         subscription = get_subscription(discord_id=discord_id)
 
     if not subscription and not get_subscription(interaction.user.id):
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
         embed = discord.Embed(
             title="That player doesn't have premium!",
             description='In order to view yearly stats, a [premium subscription](https://statalytics.net/store) is required!',
@@ -603,16 +629,6 @@ async def send_generic_renders(interaction: discord.Interaction,
     func(mode="4v4", **kwargs)
 
 
-def get_embed_color(embed_type: str) -> int:
-    """
-    Returns a base 16 integer from a hex code.
-    :param embed_type: the embed color type (primary, warning, danger)
-    """
-    with open('./config.json', 'r') as datafile:
-        config = json.load(datafile)
-    return int(config[f'embed_{embed_type}_color'], base=16)
-
-
 def get_command_users():
     """
     Returns total amount of users to have run a command
@@ -622,3 +638,103 @@ def get_command_users():
         cursor.execute('SELECT COUNT(*) FROM overall')
         total_users = cursor.fetchone()[0] - 1
     return total_users
+
+
+def reset_historical(method: str, table_format: str, condition: str):
+    """
+    Loops through historical and resets each row if a condition is met
+    :param method: The historical type (daily, weekly, etc)
+    :param table_format: The datetime strftime format for the table name
+    :param condition: The condition to be evaluated to determine whether or not to reset
+    """
+    # Get all linked accounts
+    with sqlite3.connect('./database/linked_accounts.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM linked_accounts')
+        row = cursor.fetchone()
+
+        linked_data = {}
+        while row:
+            linked_data[row[1]] = row[0]
+            row = cursor.fetchone()
+
+    # Get all configuration and historical
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM configuration')
+        row = cursor.fetchone()
+
+        config_data = {}
+        while row:
+            config_data[row[0]] = row
+            row = cursor.fetchone()
+
+        cursor.execute(f'SELECT * FROM {method}')
+        historical_data = cursor.fetchall()
+
+    # Reset all historical that is at the correct time
+    utc_now = datetime.utcnow()
+    for historical in historical_data:
+        start_time = time.time()
+        linked_account = linked_data.get(historical[0])
+        if linked_account:
+            time_preference = config_data.get(linked_account, (0, 0, 0))
+            gmt_offset, hour = time_preference[1], time_preference[2]
+        else:
+            gmt_offset, hour = 0, 0
+
+        timezone = utc_now + timedelta(hours=gmt_offset)
+
+        print(f'\nCurrent hour: {timezone.hour}')
+        print(f'GMT offset: {gmt_offset}')
+        print(f'Reset hour: {hour}')
+        print(f'Condition: {eval(condition)}')
+        print(f'Is reset hour: {timezone.hour == hour}')
+
+        if eval(condition) and timezone.hour == hour:
+            hypixel_data = get_hypixel_data(historical[0], cache=False)
+            hypixel_data = get_player_dict(hypixel_data)
+
+            stat_keys: list = get_config()['tracked_bedwars_stats']
+            stat_values = [hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
+
+            for key in stat_keys:
+                stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
+            stat_keys.insert(0, 'level')
+
+            with sqlite3.connect('./database/historical.db') as conn:
+                cursor = conn.cursor()
+
+                set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
+                cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{historical[0]}'", stat_values)
+
+            stat_values.insert(0, historical[0])
+            table_name = (timezone - timedelta(days=1)).strftime(table_format)
+            save_historical(historical, stat_values, table=table_name)
+
+            time_elapsed = time.time() - start_time
+            if time_elapsed < 2:
+                sleep_time = 2 - (time_elapsed)
+                time.sleep(sleep_time)
+            print(f'Reset: {method}')
+
+
+async def log_error_msg(client: discord.Client, error: Exception):
+    """
+    Prints and sends an error message to discord error logs channel
+    :param client: The discord.py client object
+    :param error: The exception object for the error
+    """
+    traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+    print(traceback_str)
+
+    config = get_config()
+    await client.wait_until_ready()
+    channel = client.get_channel(config.get('error_logs_channel_id'))
+
+    if len(traceback_str) > 1988:
+        for i in range(0, len(traceback_str), 1988):
+            substring = traceback_str[i:i+1988]
+            await channel.send(f'```cmd\n{substring}\n```')
+    else:
+        await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')

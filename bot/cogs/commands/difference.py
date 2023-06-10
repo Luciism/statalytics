@@ -17,14 +17,14 @@ from helper.functions import (username_autocompletion,
                        yearly_eligibility,
                        get_time_config,
                        fetch_skin_model,
-                       ordinal,
+                       ordinal, loading_message,
                        send_generic_renders)
 
 
 class Difference(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
     difference_group = app_commands.Group(
         name='difference', 
@@ -55,7 +55,7 @@ class Difference(commands.Cog):
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)

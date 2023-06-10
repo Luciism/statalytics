@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
 
-from helper.calctools import get_player_rank_info, add_suffixes, get_mode, get_level, rround
+from helper.calctools import (get_player_rank_info, add_suffixes,
+                              get_mode,get_level, rround, get_player_dict)
 
 
 class YearStats:
@@ -10,8 +11,7 @@ class YearStats:
         self.name = name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         with sqlite3.connect('./database/sessions.db') as conn:

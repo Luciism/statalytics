@@ -8,13 +8,14 @@ from helper.functions import (username_autocompletion,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
-                       fetch_skin_model)
+                       fetch_skin_model,
+                       loading_message)
 
 
 class Practice(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @app_commands.command(name = "practice", description = "View the practice stats of a player")
@@ -25,7 +26,7 @@ class Practice(commands.Cog):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
 
         hypixel_data = get_hypixel_data(uuid)
         skin_res = fetch_skin_model(uuid, 144)

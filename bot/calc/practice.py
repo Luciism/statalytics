@@ -1,12 +1,12 @@
-from helper.calctools import get_player_rank_info, get_progress, rround, get_level
+from helper.calctools import (get_player_rank_info, get_progress,
+                              rround, get_level, get_player_dict)
 
 
 class Practice:
     def __init__(self, name: str, hypixel_data: dict) -> None:
         self.name = name
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
 
         self.level = int(get_level(

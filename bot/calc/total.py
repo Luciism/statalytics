@@ -1,5 +1,5 @@
-from helper.calctools import get_player_rank_info, get_progress,\
-                             get_most_played, get_mode, rround, get_level
+from helper.calctools import (get_player_rank_info, get_progress, get_most_played,
+                              get_mode, rround, get_level, get_player_dict)
 
 
 class Stats:
@@ -7,8 +7,7 @@ class Stats:
         self.name = name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))

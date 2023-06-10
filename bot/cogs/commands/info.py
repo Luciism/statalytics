@@ -10,7 +10,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats, get_command_users
+from helper.functions import (update_command_stats, get_command_users,
+                              get_embed_color, get_config)
 
 
 class Info(commands.Cog):
@@ -40,9 +41,7 @@ class Info(commands.Cog):
             start_time = load_json(datafile)['start_time']
 
         uptime = str(datetime.timedelta(seconds=int(round(time.time()-start_time))))
-
-        with open('./config.json', 'r') as datafile:
-            config = load_json(datafile)
+        config = get_config()
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
@@ -50,8 +49,8 @@ class Info(commands.Cog):
         embed = discord.Embed(
             title='Statalytics Info',
             description=None,
-            color=int(config['embed_primary_color'], base=16)
-            )
+            color=get_embed_color('primary')
+        )
 
         embed.add_field(name='Key Metrics', value=f"""
             `┌` **Uptime:** `{uptime}`

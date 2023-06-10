@@ -1,21 +1,21 @@
 import sqlite3
-from json import load as load_json
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from mcuuid import MCUUID
-from helper.functions import link_account, update_command_stats
+from helper.functions import (link_account, update_command_stats,
+                              get_embed_color, get_command_cooldown)
 
 
 class Linking(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
 
     @app_commands.command(name = "link", description = "Link your account")
+    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     @app_commands.describe(username='The player you want to link to')
     async def link(self, interaction: discord.Interaction, username: str):
         try:
@@ -26,15 +26,17 @@ class Linking(commands.Cog):
             return
 
         # Linking Logic
-        response = link_account(str(interaction.user), interaction.user.id, name, uuid)
+        discord_tag = str(interaction.user)
+        if discord_tag.endswith('#0'):
+            discord_tag = discord_tag[:-2]
+
+        response = link_account(discord_tag, interaction.user.id, name, uuid)
         refined = name.replace('_', r'\_')
-        if response is True: await interaction.response.send_message(f"Successfully linked to **{refined}** ({interaction.user})")
+        if response is True: await interaction.response.send_message(f"Successfully linked to **{refined}** ({discord_tag})")
         # If discord isnt connected to hypixel
         else:
             await interaction.response.defer()
-            with open('./config.json', 'r') as datafile:
-                config = load_json(datafile)
-            embed_color = int(config['embed_primary_color'], base=16)
+            embed_color = get_embed_color('primary')
             if response is None:
                 embed = discord.Embed(
                     title=f"{refined}'s discord isn't connected on hypixel!",

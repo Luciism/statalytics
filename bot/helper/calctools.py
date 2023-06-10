@@ -2,6 +2,17 @@
 A set of functions used for calculating and fetching an assortment of data.
 """
 
+
+def get_player_dict(hypixel_data: dict):
+    """
+    Checks if player key exits and returns data or empty dict
+    :param hypixel_data: The hypixel data to the player of
+    """
+    if hypixel_data.get('player'):
+        return hypixel_data['player']
+    return {}
+
+
 def get_most_played(hypixel_data_bedwars: dict) -> str:
     """
     Gets most played bedwars modes (solos, doubles, etc)

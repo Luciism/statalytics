@@ -2,12 +2,13 @@ import os
 import time
 import traceback
 
-from json import load as load_json
 from json import dump as dump_json
 
 import discord
 from discord.ext import commands
 from discord import app_commands
+
+from helper.functions import get_config, get_embed_color, log_error_msg
 
 
 TOKEN = os.environ.get('STATALYTICS_TOKEN')
@@ -18,16 +19,20 @@ class MyClient(commands.Bot):
         super().__init__(intents=intents, command_prefix=commands.when_mentioned_or('$'))
 
     async def setup_hook(self):
-        with open('./config.json', 'r') as datafile:
-            cogs = load_json(datafile)['enabled_cogs']
+        cogs = get_config()['enabled_cogs']
         for ext in cogs:
-            await client.load_extension(f'cogs.{ext}')
+            try:
+                await client.load_extension(f'cogs.{ext}')
+                print(f"Loaded cog: {ext}")
+            except commands.errors.ExtensionNotFound:
+                print(f"Cog doesn't exist: {ext}")
         await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 
 
 intents = discord.Intents(messages=True)
+intents.guilds = True
 client = MyClient(intents=intents)
 
 
@@ -39,34 +44,37 @@ async def on_ready():
 
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    with open('./config.json', 'r') as datafile:
-        config = load_json(datafile)
+    config = get_config()
+    
+    # Handle command cooldown errors
     if isinstance(error, app_commands.CommandOnCooldown):
-        embed_color = int(config['embed_warning_color'], base=16)
-        embed = discord.Embed(title="Command on cooldown!", description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.', color=embed_color)
-        embed.set_thumbnail(url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
+        embed_color = get_embed_color(embed_type='warning')
+        embed = discord.Embed(
+            title="Command on cooldown!",
+            description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.',
+            color=embed_color
+        )
+        embed.set_thumbnail(
+            url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    # All other cases
     else:
-        # respond to interaction
-        embed_color = int(config['embed_danger_color'], base=16)
-        embed = discord.Embed(title=f'An error occured running /{interaction.data["name"]}', description=f'```{error}```\nIf the problem persists, please [get in touch]({config["links"]["support_server"]})', color=embed_color)
-        await interaction.edit_original_response(embed=embed)
+        # respond to interaction with error embed
+        try:
+            embed_color = get_embed_color(embed_type='danger')
+            embed = discord.Embed(
+                title=f'An error occured running /{interaction.data["name"]}',
+                description=f'```{error}```\nIf the problem persists, please [get in touch]({config["links"]["support_server"]})',
+                color=embed_color
+            )
+            await interaction.edit_original_response(embed=embed)
+        except discord.errors.NotFound:
+            pass
 
-        # show full error traceback
-        traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        print(traceback_str)
-
-        if os.environ.get('STATALYTICS_ENVIRONMENT') != 'production':
-            return
-
-        channel = client.get_channel(config.get('error_logs_channel_id'))
-        if len(traceback_str) > 1988:
-            for i in range(0, len(traceback_str), 1988):
-                # Get the substring from i to i+max_length
-                substring = traceback_str[i:i+1988]
-                await channel.send(f'```cmd\n{substring}\n```')
-        else:
-            await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
+        # log traceback to discord channel
+        if os.environ.get('STATALYTICS_ENVIRONMENT') != 'development':
+            await log_error_msg(client, error)
 
 
 @client.event

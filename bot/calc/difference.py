@@ -1,6 +1,7 @@
 import sqlite3
 
-from helper.calctools import get_player_rank_info, get_mode, get_progress, get_level
+from helper.calctools import (get_player_rank_info, get_mode,
+                              get_progress, get_level, get_player_dict)
 from helper.functions import uuid_to_discord_id
 
 
@@ -26,7 +27,7 @@ class Difference:
             column_names = [desc[0] for desc in cursor.description]
             self.historical_data = dict(zip(column_names, historical_data))
 
-        self.hypixel_data = hypixel_data.get('player', {}) if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))

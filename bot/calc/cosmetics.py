@@ -1,12 +1,12 @@
-from helper.calctools import get_player_rank_info, get_level
+from helper.calctools import get_player_rank_info, get_level, get_player_dict
 
 
 class ActiveCosmetics:
     def __init__(self, name: str, hypixel_data: dict) -> None:
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
-        bedwars_data = self.hypixel_data.get('stats', {}).get('Bedwars', {})
         self.name = name
+
+        self.hypixel_data = get_player_dict(hypixel_data)
+        bedwars_data = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.level = int(get_level(bedwars_data.get('Experience', 0)))
 

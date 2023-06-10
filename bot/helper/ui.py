@@ -8,7 +8,7 @@ class SelectModes(discord.ui.Select):
     def __init__(self, user, inter, mode):
         self.user = user
         self.inter = inter
-        self.mode = f'{mode[0].upper()}{mode[1:]}'
+        self.mode = mode.title()
         options=[
             discord.SelectOption(label="Overall"),
             discord.SelectOption(label="Solos"),

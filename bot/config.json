@@ -1,7 +1,7 @@
 {
     "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.5.2",
+    "version": "1.5.3",
     "developers": [
         "Luca.#6666"
     ],
@@ -59,7 +59,6 @@
         "commands.voting",
         "commands.settings",
         "commands.difference",
-        "commands.historical.reset_time",
         "commands.historical.daily",
         "commands.historical.weekly",
         "commands.historical.monthly",

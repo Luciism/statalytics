@@ -10,13 +10,14 @@ from helper.functions import (username_autocompletion,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
-                       send_generic_renders)
+                       send_generic_renders,
+                       loading_message)
 
 
 class Resources(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @app_commands.command(name = "resources", description = "View the resource stats of a player")
@@ -27,7 +28,7 @@ class Resources(commands.Cog):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = get_hypixel_data(uuid)
 

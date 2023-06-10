@@ -7,7 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import get_command_cooldown, update_command_stats
+from helper.functions import get_command_cooldown, update_command_stats, get_embed_color
 
 
 class Denick(commands.Cog):
@@ -37,10 +37,7 @@ class Denick(commands.Cog):
             key = all_keys[random.choice(list(all_keys.keys()))]
         data = requests.get(f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}').json()
 
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color(embed_type='primary')
         embed = discord.Embed(
             title='Number Denicker',
             description=f'Mode: {mode}\nCount: {count}\nResults: {len(data["data"])}', color=embed_color

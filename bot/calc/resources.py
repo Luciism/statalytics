@@ -1,4 +1,5 @@
-from helper.calctools import get_mode, rround, get_progress, get_player_rank_info, get_level
+from helper.calctools import (get_mode, rround, get_progress,
+                              get_player_rank_info, get_level, get_player_dict)
 
 
 class Resources:
@@ -6,8 +7,7 @@ class Resources:
         self.name = name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.progress = get_progress(self.hypixel_data_bedwars)
@@ -49,28 +49,28 @@ class Resources:
 
     def get_most_modes(self):
         iron = {
-            "Solos": self.hypixel_data_bedwars.get(f'eight_one_iron_resources_collected_bedwars', 0),
-            "Doubles": self.hypixel_data_bedwars.get(f'eight_two_iron_resources_collected_bedwars', 0),
-            "Threes": self.hypixel_data_bedwars.get(f'four_three_iron_resources_collected_bedwars', 0),
-            "Fours": self.hypixel_data_bedwars.get(f'four_four_iron_resources_collected_bedwars', 0)
+            "Solos": self.hypixel_data_bedwars.get('eight_one_iron_resources_collected_bedwars', 0),
+            "Doubles": self.hypixel_data_bedwars.get('eight_two_iron_resources_collected_bedwars', 0),
+            "Threes": self.hypixel_data_bedwars.get('four_three_iron_resources_collected_bedwars', 0),
+            "Fours": self.hypixel_data_bedwars.get('four_four_iron_resources_collected_bedwars', 0)
         }
         gold = {
-            "Solos": self.hypixel_data_bedwars.get(f'eight_one_gold_resources_collected_bedwars', 0),
-            "Doubles": self.hypixel_data_bedwars.get(f'eight_two_gold_resources_collected_bedwars', 0),
-            "Threes": self.hypixel_data_bedwars.get(f'four_three_gold_resources_collected_bedwars', 0),
-            "Fours": self.hypixel_data_bedwars.get(f'four_four_gold_resources_collected_bedwars', 0)
+            "Solos": self.hypixel_data_bedwars.get('eight_one_gold_resources_collected_bedwars', 0),
+            "Doubles": self.hypixel_data_bedwars.get('eight_two_gold_resources_collected_bedwars', 0),
+            "Threes": self.hypixel_data_bedwars.get('four_three_gold_resources_collected_bedwars', 0),
+            "Fours": self.hypixel_data_bedwars.get('four_four_gold_resources_collected_bedwars', 0)
         }
         diamonds = {
-            "Solos": self.hypixel_data_bedwars.get(f'eight_one_diamond_resources_collected_bedwars', 0),
-            "Doubles": self.hypixel_data_bedwars.get(f'eight_two_diamond_resources_collected_bedwars', 0),
-            "Threes": self.hypixel_data_bedwars.get(f'four_three_diamond_resources_collected_bedwars', 0),
-            "Fours": self.hypixel_data_bedwars.get(f'four_four_diamond_resources_collected_bedwars', 0)
+            "Solos": self.hypixel_data_bedwars.get('eight_one_diamond_resources_collected_bedwars', 0),
+            "Doubles": self.hypixel_data_bedwars.get('eight_two_diamond_resources_collected_bedwars', 0),
+            "Threes": self.hypixel_data_bedwars.get('four_three_diamond_resources_collected_bedwars', 0),
+            "Fours": self.hypixel_data_bedwars.get('four_four_diamond_resources_collected_bedwars', 0)
         }
         emeralds = {
-            "Solos": self.hypixel_data_bedwars.get(f'eight_one_emerald_resources_collected_bedwars', 0),
-            "Doubles": self.hypixel_data_bedwars.get(f'eight_two_emerald_resources_collected_bedwars', 0),
-            "Threes": self.hypixel_data_bedwars.get(f'four_three_emerald_resources_collected_bedwars', 0),
-            "Fours": self.hypixel_data_bedwars.get(f'four_four_emerald_resources_collected_bedwars', 0)
+            "Solos": self.hypixel_data_bedwars.get('eight_one_emerald_resources_collected_bedwars', 0),
+            "Doubles": self.hypixel_data_bedwars.get('eight_two_emerald_resources_collected_bedwars', 0),
+            "Threes": self.hypixel_data_bedwars.get('four_three_emerald_resources_collected_bedwars', 0),
+            "Fours": self.hypixel_data_bedwars.get('four_four_emerald_resources_collected_bedwars', 0)
         }
 
         values = (iron, gold, diamonds, emeralds)

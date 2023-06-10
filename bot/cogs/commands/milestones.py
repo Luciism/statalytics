@@ -13,13 +13,14 @@ from helper.functions import (username_autocompletion,
                        update_command_stats,
                        authenticate_user,
                        fetch_skin_model,
-                       send_generic_renders)
+                       send_generic_renders,
+                       loading_message)
 
 
 class Milestones(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @app_commands.command(name = "milestones", description = "View the milestone stats of a player")
@@ -39,7 +40,7 @@ class Milestones(commands.Cog):
                     f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
                 return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         session = 1 if session == 100 else session
         hypixel_data = get_hypixel_data(uuid)

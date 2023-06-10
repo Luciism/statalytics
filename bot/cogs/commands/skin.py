@@ -1,5 +1,4 @@
 from io import BytesIO
-from json import load as load_json
 from requests import ConnectTimeout, ReadTimeout
 
 import discord
@@ -7,16 +6,16 @@ from discord import app_commands
 from discord.ext import commands
 
 from helper.functions import (username_autocompletion,
-                       get_command_cooldown,
-                       update_command_stats,
-                       authenticate_user,
-                       skin_session)
+                            get_command_cooldown,
+                            update_command_stats,
+                            authenticate_user,
+                            get_embed_color,
+                            skin_session)
 
 
 class Skin(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
 
 
     @app_commands.command(name = "skin", description = "View the skin of a player")
@@ -38,9 +37,7 @@ class Skin(commands.Cog):
             await interaction.followup.send('Failed to fetch skin, please try again later. (Skin API error)')
             return
 
-        with open('./config.json', 'r') as datafile:
-            config = load_json(datafile)
-        embed_color = int(config['embed_primary_color'], base=16)
+        embed_color = get_embed_color('primary')
         embed = discord.Embed(
             title=f"{refined}'s skin",
             url=f"https://namemc.com/profile/{uuid}",

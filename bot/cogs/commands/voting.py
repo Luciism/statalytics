@@ -1,5 +1,3 @@
-import json
-
 from datetime import datetime, timezone
 from tzlocal import get_localzone
 
@@ -7,18 +5,17 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats, get_voting_data
+from helper.functions import update_command_stats, get_voting_data, get_embed_color, get_config
 
 class Voting(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
 
+
     @app_commands.command(name = "vote", description = "Get a list of our vote links")
     async def vote(self, interaction: discord.Interaction):
-        with open('./config.json', 'r') as datafile:
-            config = json.load(datafile)
-        vote_links = config['links']['voting']
-        embed_color = int(config['embed_primary_color'], base=16)
+        vote_links = get_config()['links']['voting']
+        embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
             title='Vote For Statalytics',
@@ -67,7 +64,6 @@ class Voting(commands.Cog):
         )
 
         await interaction.response.send_message(embed=embed)
-
         update_command_stats(interaction.user.id, command='vote')
 
 

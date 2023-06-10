@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from render.session import render_session
 from helper.functions import (username_autocompletion,
                             session_autocompletion,
                             get_command_cooldown,
@@ -16,9 +17,8 @@ from helper.functions import (username_autocompletion,
                             get_smart_session,
                             authenticate_user,
                             fetch_skin_model,
-                            send_generic_renders)
-
-from render.session import render_session
+                            send_generic_renders,
+                            loading_message)
 
 
 class ManageSession(discord.ui.View):
@@ -55,7 +55,7 @@ class ManageSession(discord.ui.View):
 class Sessions(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     session_group = app_commands.Group(
@@ -79,7 +79,7 @@ class Sessions(commands.Cog):
         if session == 100:
             session = session_data[0]
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = get_hypixel_data(uuid)
         skin_res = fetch_skin_model(uuid, 144)
@@ -125,11 +125,11 @@ class Sessions(commands.Cog):
                     f'A new session was successfully created! Session ID: `{sessionid}`')
             else:
                 await interaction.followup.send(
-                    'You already have the maximum sessions active for your plan! To remove a session use `/endsession <id>`!')
+                    'You already have the maximum sessions active for your plan! To remove a session use `/session end <id>`!')
         else:
             await interaction.response.send_message
             ("""You don't have an account linked! In order to link use `/link`!
-                Otherwise `/session <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
+                Otherwise `/session stats <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
 
         update_command_stats(interaction.user.id, 'startsession')
 
@@ -215,7 +215,7 @@ class Sessions(commands.Cog):
                     f'Your active sessions: `{session_string}`')
             else:
                 await interaction.followup.send(
-                    "You don't have any sessions active! Use `/startsession` to create one!")
+                    "You don't have any sessions active! Use `/session start` to create one!")
         else:
             await interaction.response.send_message
             ("You don't have an account linked! In order to link use `/link`!")

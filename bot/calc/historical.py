@@ -1,6 +1,7 @@
 import sqlite3
 
-from helper.calctools import get_progress, get_player_rank_info, get_mode, rround, get_level
+from helper.calctools import (get_progress, get_player_rank_info,
+                              get_mode,rround, get_level, get_player_dict)
 from helper.functions import uuid_to_discord_id
 
 
@@ -10,8 +11,7 @@ class HistoricalStats:
         self.name, self.uuid = name, uuid
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         discord_id = uuid_to_discord_id(uuid)
@@ -30,8 +30,10 @@ class HistoricalStats:
             column_names = [desc[0] for desc in cursor.description]
             self.historical_data = dict(zip(column_names, historical_data))
 
-        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
-        self.stars_gained = str(self.level - self.historical_data['level'])
+        level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0))
+        level_local = get_level(self.historical_data['Experience'])
+        self.level = int(level_hypixel)
+        self.stars_gained = f'{rround(level_hypixel - level_local, 2):,}'
 
         self.items_purchased = (self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)
                                 - self.historical_data[f'{self.mode}items_purchased_bedwars'])
@@ -113,8 +115,7 @@ class LookbackStats:
         self.name, self.uuid, self.table_name = name, uuid, table_name
         self.mode = get_mode(mode)
 
-        self.hypixel_data = hypixel_data.get('player', {})\
-                            if hypixel_data.get('player', {}) is not None else {}
+        self.hypixel_data = get_player_dict(hypixel_data)
         with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
@@ -134,7 +135,7 @@ class LookbackStats:
             self.historical_data = dict(zip(column_names, historical_data))
 
         self.level = self.historical_data['level']
-        self.stars_gained = f"{self.historical_data['stars_gained']:,}"
+        self.stars_gained = f"{rround(get_level(self.historical_data['Experience']), 2):,}"
 
         self.items_purchased = self.historical_data[f'{self.mode}items_purchased_bedwars']
         self.games_played = self.historical_data[f'{self.mode}games_played_bedwars']

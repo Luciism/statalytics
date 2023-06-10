@@ -13,13 +13,14 @@ from helper.functions import (username_autocompletion,
                        get_smart_session,
                        authenticate_user,
                        fetch_skin_model,
-                       send_generic_renders)
+                       send_generic_renders,
+                       loading_message)
 
 
 class Projection(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @app_commands.command(name = "prestige", description = "View the projected stats of a player")
@@ -39,7 +40,7 @@ class Projection(commands.Cog):
         if session == 100:
             session = session_data[0]
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
 

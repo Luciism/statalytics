@@ -11,20 +11,21 @@ from helper.functions import (username_autocompletion,
                        update_command_stats,
                        authenticate_user,
                        fetch_skin_model,
-                       send_generic_renders)
+                       send_generic_renders,
+                       loading_message)
 
 
 class Total(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     async def total_command(self, interaction: discord.Interaction, username: str, method: str):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)

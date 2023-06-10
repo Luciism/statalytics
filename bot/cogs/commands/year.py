@@ -1,5 +1,4 @@
 import os
-import json
 
 import discord
 from discord import app_commands
@@ -16,13 +15,15 @@ from helper.functions import (username_autocompletion,
                        uuid_to_discord_id,
                        get_subscription,
                        fetch_skin_model,
-                       send_generic_renders)
+                       send_generic_renders,
+                       get_embed_color,
+                       loading_message)
 
 
 class Year(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     async def year_command(self, interaction: discord.Interaction,
@@ -34,7 +35,7 @@ class Year(commands.Cog):
         if not session_data: return
         if session == 100: session = session_data[0]
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
 
@@ -82,10 +83,9 @@ class Year(commands.Cog):
         subscription = None
         if discord_id:
             subscription = get_subscription(discord_id=discord_id)
+
         if not subscription and not get_subscription(interaction.user.id):
-            with open('./config.json', 'r') as datafile:
-                config = json.load(datafile)
-            embed_color = int(config['embed_primary_color'], base=16)
+            embed_color = get_embed_color('primary')
             embed = discord.Embed(
                 title="That player doesn't have premium!",
                 description='In order to view stats for 2025, a [premium subscription](https://statalytics.net/store) is required!',

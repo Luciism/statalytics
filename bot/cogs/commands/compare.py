@@ -10,13 +10,14 @@ from helper.functions import (username_autocompletion,
                        get_hypixel_data,
                        update_command_stats,
                        authenticate_user,
-                       send_generic_renders)
+                       send_generic_renders,
+                       loading_message)
 
 
 class Compare(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @app_commands.command(name = "compare", description = "Compare a player's stats to another player's stats")
@@ -30,7 +31,7 @@ class Compare(commands.Cog):
         except TypeError:
             return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data_1 = get_hypixel_data(uuid_1)
         hypixel_data_2 = get_hypixel_data(uuid_2)

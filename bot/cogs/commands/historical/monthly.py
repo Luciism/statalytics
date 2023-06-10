@@ -1,6 +1,4 @@
 import os
-import json
-import time
 import sqlite3
 import traceback
 import asyncio
@@ -20,20 +18,21 @@ from helper.functions import (username_autocompletion,
                        update_command_stats,
                        authenticate_user,
                        start_historical,
-                       save_historical,
+                       log_error_msg,
                        uuid_to_discord_id,
                        get_time_config,
                        fetch_skin_model,
                        get_lookback_eligiblility,
                        message_invalid_lookback,
-                       ordinal,
-                       send_generic_renders)
+                       ordinal, loading_message,
+                       send_generic_renders,
+                       reset_historical)
 
 
 class Monthly(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.GENERATING_MESSAGE = 'Generating please wait <a:loading1:1062561739989860462>'
+        self.LOADING_MSG = loading_message()
 
 
     @tasks.loop(hours=1)
@@ -41,62 +40,12 @@ class Monthly(commands.Cog):
         utc_now = datetime.utcnow()
         if not utc_now.day in (1, 2) and not utc_now.day == monthrange(utc_now.year, utc_now.month)[1]:
             return
-
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM linked_accounts')
-            row = cursor.fetchone()
-
-            linked_data = {}
-            while row:
-                linked_data[row[1]] = row[0]
-                row = cursor.fetchone()
-
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM configuration')
-            row = cursor.fetchone()
-
-            config_data = {}
-            while row:
-                config_data[row[0]] = row
-                row = cursor.fetchone()
-
-            cursor.execute('SELECT * FROM monthly')
-            monthly_data = cursor.fetchall()
-
-        for monthly in monthly_data:
-            start_time = time.time()
-            linked_account = linked_data.get(monthly[0])
-            if linked_account:
-                time_preference = config_data.get(linked_account, (0, 0, 0))
-                gmt_offset, hour = time_preference[1], time_preference[2]
-            else: gmt_offset, hour = 0, 0
-
-            timezone = utc_now + timedelta(hours=gmt_offset)
-            if timezone.day == 1 and timezone.hour == hour:
-                hypixel_data = get_hypixel_data(monthly[0], cache=False)
-
-                with open('./config.json', 'r') as datafile:
-                    stat_keys: list = json.load(datafile)['tracked_bedwars_stats']
-                stat_values = [hypixel_data["player"].get("achievements", {}).get("bedwars_level", 0)]
-
-                for key in stat_keys:
-                    stat_values.append(hypixel_data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0))
-                stat_keys.insert(0, 'level')
-
-                with sqlite3.connect('./database/historical.db') as conn:
-                    cursor = conn.cursor()
-
-                    set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
-                    cursor.execute(f"UPDATE monthly SET {set_clause} WHERE uuid = '{monthly[0]}'", stat_values)
-
-                stat_values.insert(0, monthly[0])
-                table_name = (timezone - timedelta(days=1)).strftime("monthly_%Y_%m")
-                save_historical(monthly, stat_values, table=table_name)
-
-                sleep_time = 1 - (time.time() - start_time)
-                await asyncio.sleep(sleep_time)
+        
+        reset_historical(
+            method='monthly',
+            table_format='monthly_%Y_%m',
+            condition='timezone.day == 1'
+        )
 
 
     def cog_load(self):
@@ -116,19 +65,7 @@ class Monthly(commands.Cog):
 
     @reset_monthly.error
     async def on_reset_monthly_error(self, error):
-        traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        print(traceback_str)
-
-        with open('./config.json', 'r') as datafile: config = json.load(datafile)
-        await self.client.wait_until_ready()
-        channel = self.client.get_channel(config.get('error_logs_channel_id'))
-
-        if len(traceback_str) > 1988:
-            for i in range(0, len(traceback_str), 1988):
-                substring = traceback_str[i:i+1988]
-                await channel.send(f'```cmd\n{substring}\n```')
-        else:
-            await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
+        await log_error_msg(self.client, error)
 
 
     @app_commands.command(name = "monthly", description = "View the monthly stats of a player")
@@ -154,7 +91,7 @@ class Monthly(commands.Cog):
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
@@ -232,7 +169,7 @@ class Monthly(commands.Cog):
             await interaction.response.send_message(f'{refined} has no tracked data for {months} month(s) ago!')
             return
 
-        await interaction.response.send_message(self.GENERATING_MESSAGE)
+        await interaction.response.send_message(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)

@@ -3,7 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.displayname import render_displayname
-from helper.functions import get_command_cooldown, username_autocompletion, authenticate_user, get_hypixel_data, update_command_stats
+from helper.functions import (get_command_cooldown,
+                              username_autocompletion,
+                              authenticate_user,
+                              get_hypixel_data,
+                              update_command_stats)
 
 
 class DisplayName(commands.Cog):
