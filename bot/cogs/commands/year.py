@@ -5,19 +5,21 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.year import render_year
-from helper.functions import (username_autocompletion,
-                       session_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       get_smart_session,
-                       uuid_to_discord_id,
-                       get_subscription,
-                       fetch_skin_model,
-                       send_generic_renders,
-                       get_embed_color,
-                       loading_message)
+from helper.functions import (
+    username_autocompletion,
+    session_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    get_smart_session,
+    uuid_to_discord_id,
+    get_subscription,
+    fetch_skin_model,
+    send_generic_renders,
+    get_embed_color,
+    loading_message
+)
 
 
 class Year(commands.Cog):
@@ -30,12 +32,16 @@ class Year(commands.Cog):
                            name: str, uuid: str, session: int, year: int):
         refined = name.replace('_', r'\_')
 
-        if session is None: session = 100
+        if session is None:
+            session = 100
         session_data = await get_smart_session(interaction, session, refined, uuid)
-        if not session_data: return
-        if session == 100: session = session_data[0]
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        if not session_data:
+            return
+        if session == 100:
+            session = session_data[0]
+
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
 
@@ -66,6 +72,7 @@ class Year(commands.Cog):
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2024(self, interaction: discord.Interaction, username: str=None, session: int=None):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
         await self.year_command(interaction, name, uuid, session, 2024)
@@ -76,6 +83,7 @@ class Year(commands.Cog):
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction, username: str=None, session: int=None):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
@@ -96,7 +104,7 @@ class Year(commands.Cog):
                 \- You can view any player's stats for 2025 if you have a premium subscription.
                 \- You can view a player's stats for 2025 if they have a premium subscription.
             """.replace('   ', ''))
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
             return
 
         await self.year_command(interaction, name, uuid, session, 2025)

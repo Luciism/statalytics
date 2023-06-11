@@ -6,15 +6,17 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.milestones import render_milestones
-from helper.functions import (username_autocompletion,
-                       session_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       fetch_skin_model,
-                       send_generic_renders,
-                       loading_message)
+from helper.functions import (
+    username_autocompletion,
+    session_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    fetch_skin_model,
+    send_generic_renders,
+    loading_message
+)
 
 
 class Milestones(commands.Cog):
@@ -23,11 +25,12 @@ class Milestones(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name = "milestones", description = "View the milestone stats of a player")
+    @app_commands.command(name="milestones", description="View the milestone stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def milestones(self, interaction: discord.Interaction, username: str=None, session: int=None):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
@@ -40,9 +43,10 @@ class Milestones(commands.Cog):
                     f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
                 return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         session = 1 if session == 100 else session
+
         hypixel_data = get_hypixel_data(uuid)
         skin_res = fetch_skin_model(uuid, 128)
 

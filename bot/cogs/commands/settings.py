@@ -4,10 +4,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import get_owned_themes, update_command_stats, get_embed_color, get_config
+from helper.functions import (
+    get_owned_themes,
+    update_command_stats,
+    get_embed_color,
+    get_config
+)
 
 
-global HOURS
 HOURS = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am',
          '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
 
@@ -18,7 +22,9 @@ class Select(discord.ui.Select):
                          min_values=min_values, options=options)
         self.placeholder = placeholder
 
+
     async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         discord_id = interaction.user.id
 
         value = self.values[0]
@@ -36,7 +42,7 @@ class Select(discord.ui.Select):
                 else:
                     cursor.execute(
                         "INSERT INTO rewards_data (discord_id, enabled_theme) VALUES (?, ?)", (discord_id, value))
-            await interaction.response.send_message('Successfully updated theme!', ephemeral=True)
+            await interaction.followup.send('Successfully updated theme!', ephemeral=True)
             return
 
         if self.placeholder in ('Select your GMT offset', 'Select your reset hour'):
@@ -58,7 +64,7 @@ class Select(discord.ui.Select):
                 message = f'Successfully updated timezone to `GMT{"+" if int(value) >= 0 else ""}{value}:00`'
             else:
                 message = f'Successfully updated reset hour to `{HOURS[int(value)]}`'
-            await interaction.response.send_message(message, ephemeral=True)
+            await interaction.followup.send(message, ephemeral=True)
             return
 
 
@@ -88,8 +94,9 @@ class SettingsButtons(discord.ui.View):
         await self.interaction.edit_original_response(view=self)
 
 
-    @discord.ui.button(label = "Active Theme", style = discord.ButtonStyle.gray, custom_id = "active_theme", row=1)
+    @discord.ui.button(label="Active Theme", style=discord.ButtonStyle.gray, custom_id="active_theme", row=1)
     async def active_theme(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         embed = discord.Embed(
             title="Select a theme pack!",
             description="In order for your selected theme pack to take effect, you must have voted in the past 24 HOURS.\n\n [Premium](https://statalytics.net/store) users bypass this restriction.",
@@ -111,11 +118,12 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
         view = SelectView(interaction=interaction, view_data=view_data)
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
 
 
-    @discord.ui.button(label = "Reset Time", style = discord.ButtonStyle.gray, custom_id = "reset_time", row=1)
+    @discord.ui.button(label="Reset Time", style=discord.ButtonStyle.gray, custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
@@ -143,7 +151,7 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=embed,
             view=SelectView(interaction=interaction, view_data=view_data),
             ephemeral=True
@@ -154,8 +162,9 @@ class Settings(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
 
-    @app_commands.command(name = "settings", description = "Edit your configuration for statalytics")
+    @app_commands.command(name="settings", description="Edit your configuration for statalytics")
     async def settings(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
@@ -163,7 +172,7 @@ class Settings(commands.Cog):
             description='Use the buttons below to customize your experience.',
             color=embed_color
         )
-        await interaction.response.send_message(embed=embed, view=SettingsButtons(interaction=interaction))
+        await interaction.followup.send(embed=embed, view=SettingsButtons(interaction=interaction))
 
         update_command_stats(interaction.user.id, 'settings')
 

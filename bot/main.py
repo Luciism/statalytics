@@ -26,6 +26,7 @@ class MyClient(commands.Bot):
                 print(f"Loaded cog: {ext}")
             except commands.errors.ExtensionNotFound:
                 print(f"Cog doesn't exist: {ext}")
+
         await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
@@ -73,8 +74,7 @@ async def on_tree_error(interaction: discord.Interaction, error: app_commands.Ap
             pass
 
         # log traceback to discord channel
-        if os.environ.get('STATALYTICS_ENVIRONMENT') != 'development':
-            await log_error_msg(client, error)
+        await log_error_msg(client, error)
 
 
 @client.event

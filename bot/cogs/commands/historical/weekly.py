@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import traceback
 import asyncio
 from datetime import datetime, timedelta, timezone
 
@@ -9,21 +8,23 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.functions import (username_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       start_historical,
-                       uuid_to_discord_id,
-                       get_time_config,
-                       fetch_skin_model,
-                       get_lookback_eligiblility,
-                       message_invalid_lookback,
-                       ordinal, loading_message,
-                       send_generic_renders,
-                       reset_historical,
-                       log_error_msg)
+from helper.functions import (
+    username_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    start_historical,
+    uuid_to_discord_id,
+    get_time_config,
+    fetch_skin_model,
+    get_lookback_eligiblility,
+    message_invalid_lookback,
+    ordinal, loading_message,
+    send_generic_renders,
+    reset_historical,
+    log_error_msg
+)
 
 
 class Weekly(commands.Cog):
@@ -65,11 +66,12 @@ class Weekly(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    @app_commands.command(name = "weekly", description = "View the weekly stats of a player")
+    @app_commands.command(name="weekly", description="View the weekly stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, username: str=None):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
         refined = name.replace("_", "\_")
@@ -83,12 +85,11 @@ class Weekly(commands.Cog):
             historical_data = cursor.fetchone()
 
         if not historical_data:
-            await interaction.response.defer()
             start_historical(uuid=uuid)
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
@@ -122,11 +123,12 @@ class Weekly(commands.Cog):
         update_command_stats(interaction.user.id, 'weekly')
 
 
-    @app_commands.command(name = "lastweek", description = "View last weeks stats of a player")
+    @app_commands.command(name="lastweek", description="View last weeks stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', weeks='The lookback amount in weeks')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastweek(self, interaction: discord.Interaction, username: str=None, weeks: int=1):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
@@ -137,7 +139,8 @@ class Weekly(commands.Cog):
         if -1 != max_lookback < (weeks * 7):
             await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
             return
-        if weeks < 1: weeks = 1
+        if weeks < 1:
+            weeks = 1
 
         gmt_offset = get_time_config(discord_id=discord_id)[0]
 
@@ -148,7 +151,7 @@ class Weekly(commands.Cog):
         try:
             table_name = relative_date.strftime("weekly_%Y_%U")
         except OverflowError:
-            await interaction.response.send_message('Big, big number... too big number...')
+            await interaction.followup.send('Big, big number... too big number...')
             return
 
         with sqlite3.connect('./database/historical.db') as conn:
@@ -160,10 +163,10 @@ class Weekly(commands.Cog):
                 historical_data = ()
 
         if not historical_data:
-            await interaction.response.send_message(f'{refined} has no tracked data for {weeks} week(s) ago!')
+            await interaction.followup.send(f'{refined} has no tracked data for {weeks} week(s) ago!')
             return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)

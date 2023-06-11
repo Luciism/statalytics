@@ -1,5 +1,6 @@
 """A set of useful functions used throughout the bot"""
 
+import os
 import random
 import json
 import time
@@ -325,7 +326,7 @@ async def authenticate_user(username: str, interaction: discord.Interaction) -> 
             name: str = MCUUID(uuid=uuid).name
             update_autofill(interaction.user.id, uuid, name)
         else:
-            await interaction.response.send_message("You are not linked! Either specify a player or link your account using `/link`!")
+            await interaction.followup.send("You are not linked! Either specify a player or link your account using `/link`!")
             return
     else:
         try:
@@ -338,7 +339,7 @@ async def authenticate_user(username: str, interaction: discord.Interaction) -> 
                 if not name:
                     raise KeyError
         except KeyError:
-            await interaction.response.send_message("That player does not exist!")
+            await interaction.followup.send("That player does not exist!")
             return
     return name, uuid
 
@@ -356,19 +357,22 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
         session_data: tuple = cursor.fetchone()
+
         if not session_data:
             cursor.execute(f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             session_data: tuple = cursor.fetchone()
 
     if not session_data:
-        await interaction.response.defer()
         response: bool = start_session(uuid, session=1)
 
-        if response is True: await interaction.followup.send(f"**{username}** has no active sessions so one was created!")
-        else: await interaction.followup.send(f"**{username}** has never played before!")
+        if response is True:
+            await interaction.followup.send(f"**{username}** has no active sessions so one was created!")
+        else:
+            await interaction.followup.send(f"**{username}** has never played before!")
         return False
+
     elif session_data[0] != session and session != 100: 
-        await interaction.response.send_message(f"**{username}** doesn't have an active session with ID: `{session}`!")
+        await interaction.followup.send(f"**{username}** doesn't have an active session with ID: `{session}`!")
         return False
 
     return session_data
@@ -380,8 +384,7 @@ def start_historical(uuid: str) -> None:
     :param uuid: The uuid of the player's historical stats being initiated
     """
     hypixel_data: dict = get_hypixel_data(uuid, cache=False)
-    hypixel_data = hypixel_data.get('player', {})\
-                              if hypixel_data.get('player', {}) is not None else {}
+    hypixel_data = get_player_dict(hypixel_data)
 
     stat_keys: dict = get_config()['tracked_bedwars_stats']
     stat_values = [uuid, hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
@@ -510,7 +513,7 @@ async def message_invalid_lookback(interaction: discord.Interaction, max_lookbac
         \- Pro tier maximum lookback - unlimited
     """.replace('   ', ''), inline=False)
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 
 def skin_from_file() -> bytes:
@@ -580,10 +583,9 @@ async def yearly_eligibility(interaction: discord.Interaction, discord_id: int |
             \- You can view a player's yearly stats if they have a premium subscription.\n
             Yearly stats can be tracked but not viewed without a premium subscription
         """.replace('   ', ''))
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         return False
     return True
-
 
 
 def discord_message(discord_id):
@@ -685,12 +687,6 @@ def reset_historical(method: str, table_format: str, condition: str):
 
         timezone = utc_now + timedelta(hours=gmt_offset)
 
-        print(f'\nCurrent hour: {timezone.hour}')
-        print(f'GMT offset: {gmt_offset}')
-        print(f'Reset hour: {hour}')
-        print(f'Condition: {eval(condition)}')
-        print(f'Is reset hour: {timezone.hour == hour}')
-
         if eval(condition) and timezone.hour == hour:
             hypixel_data = get_hypixel_data(historical[0], cache=False)
             hypixel_data = get_player_dict(hypixel_data)
@@ -716,7 +712,6 @@ def reset_historical(method: str, table_format: str, condition: str):
             if time_elapsed < 2:
                 sleep_time = 2 - (time_elapsed)
                 time.sleep(sleep_time)
-            print(f'Reset: {method}')
 
 
 async def log_error_msg(client: discord.Client, error: Exception):
@@ -727,6 +722,9 @@ async def log_error_msg(client: discord.Client, error: Exception):
     """
     traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
     print(traceback_str)
+
+    if os.environ.get('STATALYTICS_ENVIRONMENT') == 'development':
+        return
 
     config = get_config()
     await client.wait_until_ready()

@@ -5,14 +5,16 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.total import render_total
-from helper.functions import (username_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       fetch_skin_model,
-                       send_generic_renders,
-                       loading_message)
+from helper.functions import (
+    username_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    fetch_skin_model,
+    send_generic_renders,
+    loading_message
+)
 
 
 class Total(commands.Cog):
@@ -22,10 +24,11 @@ class Total(commands.Cog):
 
 
     async def total_command(self, interaction: discord.Interaction, username: str, method: str):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
@@ -43,7 +46,7 @@ class Total(commands.Cog):
         update_command_stats(interaction.user.id, method)
 
 
-    @app_commands.command(name = "bedwars", description = "View the general stats of a player")
+    @app_commands.command(name="bedwars", description="View the general stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -51,7 +54,7 @@ class Total(commands.Cog):
         await self.total_command(interaction, username, method='generic')
 
 
-    @app_commands.command(name = "pointless", description = "View the general pointless stats of a player")
+    @app_commands.command(name="pointless", description="View the general pointless stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)

@@ -5,15 +5,22 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats, get_voting_data, get_embed_color, get_config
+from helper.functions import (
+    update_command_stats,
+    get_voting_data,
+    get_embed_color,
+    get_config
+)
+
 
 class Voting(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name = "vote", description = "Get a list of our vote links")
+    @app_commands.command(name="vote", description="Get a list of our vote links")
     async def vote(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         vote_links = get_config()['links']['voting']
         embed_color = get_embed_color('primary')
 
@@ -63,7 +70,7 @@ class Voting(commands.Cog):
             inline=False
         )
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         update_command_stats(interaction.user.id, command='vote')
 
 

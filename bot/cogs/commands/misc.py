@@ -16,6 +16,7 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
     suggestion = discord.ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         embed_color = get_embed_color('primary')
         submit_embed = discord.Embed(
             title=f'Suggestion by {interaction.user} ({interaction.user.id})',
@@ -23,7 +24,7 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
         )
 
         await self.channel.send(embed=submit_embed)
-        await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
+        await interaction.followup.send('Successfully submitted suggestion!', ephemeral=True)
 
 
 class Misc(commands.Cog):
@@ -31,7 +32,7 @@ class Misc(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name = "help", description = "Help Page")
+    @app_commands.command(name="help", description="Help Page")
     async def get_help(self, interaction: discord.Interaction):
         with open('./assets/help.json', 'r') as datafile:
             embed_data = load_json(datafile)
@@ -58,8 +59,9 @@ class Misc(commands.Cog):
         update_command_stats(interaction.user.id, 'suggest')
 
 
-    @app_commands.command(name = "usage", description = "View Command Usage")
+    @app_commands.command(name="usage", description="View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         with open('./assets/command_map.json', 'r') as datafile:
             command_map: dict = load_json(datafile)['commands']
 
@@ -89,12 +91,12 @@ class Misc(commands.Cog):
         for i in range(0, len(description), 10):
             sublist = description[i:i+10]
             embed.add_field(name='', value='\n'.join(sublist))
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
         update_command_stats(interaction.user.id, 'usage')
 
 
-    @app_commands.command(name = "credits", description = "The people who made Statalytics possible")
+    @app_commands.command(name="credits", description="The people who made Statalytics possible")
     async def credits(self, interaction: discord.Interaction):
         with open('./assets/credits.json', 'r') as datafile:
             credits = load_json(datafile)

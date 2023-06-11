@@ -3,12 +3,14 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.hotbar import render_hotbar
-from helper.functions import (username_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       loading_message)
+from helper.functions import (
+    username_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    loading_message
+)
 
 
 class Hotbar(commands.Cog):
@@ -17,15 +19,16 @@ class Hotbar(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name = "hotbar", description = "View the hotbar preferences of a player")
+    @app_commands.command(name="hotbar", description="View the hotbar preferences of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def hotbar(self, interaction: discord.Interaction,username: str=None):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
 
         hypixel_data = get_hypixel_data(uuid)
         rendered = render_hotbar(name, uuid, hypixel_data)

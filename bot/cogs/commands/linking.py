@@ -5,8 +5,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from mcuuid import MCUUID
-from helper.functions import (link_account, update_command_stats,
-                              get_embed_color, get_command_cooldown)
+from helper.functions import (
+    link_account,
+    update_command_stats,
+    get_embed_color,
+    get_command_cooldown
+)
 
 
 class Linking(commands.Cog):
@@ -14,15 +18,16 @@ class Linking(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name = "link", description = "Link your account")
+    @app_commands.command(name="link", description="Link your account")
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     @app_commands.describe(username='The player you want to link to')
     async def link(self, interaction: discord.Interaction, username: str):
+        await interaction.response.defer()
         try:
             uuid = MCUUID(name=username).uuid
             name = MCUUID(name=username).name
         except Exception:
-            await interaction.response.send_message("That player does not exist!")
+            await interaction.followup.send("That player does not exist!")
             return
 
         # Linking Logic
@@ -32,10 +37,12 @@ class Linking(commands.Cog):
 
         response = link_account(discord_tag, interaction.user.id, name, uuid)
         refined = name.replace('_', r'\_')
-        if response is True: await interaction.response.send_message(f"Successfully linked to **{refined}** ({discord_tag})")
+
+        if response is True:
+            await interaction.followup.send(f"Successfully linked to **{refined}** ({discord_tag})")
+
         # If discord isnt connected to hypixel
         else:
-            await interaction.response.defer()
             embed_color = get_embed_color('primary')
             if response is None:
                 embed = discord.Embed(
@@ -49,24 +56,30 @@ class Linking(commands.Cog):
                     title="How to connect discord to hypixel",
                     description=f'''That player is connected to a different discord tag on hypixel!
                     If you own the **{refined}** account, you must __update your hypixel connection__ to match your current discord tag:'''.replace('   ', ''),
-                    color=embed_color)
+                    color=embed_color
+                )
+
             embed.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
             await interaction.followup.send(embed=embed)
 
         update_command_stats(interaction.user.id, 'link')
 
 
-    @app_commands.command(name = "unlink", description = "Unlink your account")
+    @app_commands.command(name="unlink", description="Unlink your account")
     async def unlink(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
         with sqlite3.connect('./database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
+
             if cursor.fetchone():
                 cursor.execute(f"DELETE FROM linked_accounts WHERE discord_id = {interaction.user.id}")
                 message = 'Successfully unlinked your account!'
-            else: message = "You don't have an account linked! In order to link use `/link`!"
-            await interaction.response.send_message(message)
+            else:
+                message = "You don't have an account linked! In order to link use `/link`!"
 
+        await interaction.followup.send(message)
         update_command_stats(interaction.user.id, 'unlink')
 
 

@@ -10,8 +10,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import (update_command_stats, get_command_users,
-                              get_embed_color, get_config)
+from helper.functions import (
+    update_command_stats,
+    get_command_users,
+    get_embed_color,
+    get_config
+)
 
 
 class Info(commands.Cog):
@@ -23,6 +27,7 @@ class Info(commands.Cog):
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
+        # Usage metrics
         with sqlite3.connect('./database/command_usage.db') as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -34,6 +39,7 @@ class Info(commands.Cog):
             cursor.execute('SELECT COUNT(discord_id) FROM linked_accounts')
             total_linked_accounts = cursor.fetchone()[0]
 
+        # Other shit
         total_guilds = len(self.client.guilds)
         total_members = get_command_users()
 
@@ -46,6 +52,7 @@ class Info(commands.Cog):
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
+        # Embed
         embed = discord.Embed(
             title='Statalytics Info',
             description=None,

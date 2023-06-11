@@ -7,24 +7,27 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.difference import render_difference
-from helper.functions import (username_autocompletion,
-                       get_command_cooldown,
-                       get_hypixel_data,
-                       update_command_stats,
-                       authenticate_user,
-                       start_historical,
-                       uuid_to_discord_id,
-                       yearly_eligibility,
-                       get_time_config,
-                       fetch_skin_model,
-                       ordinal, loading_message,
-                       send_generic_renders)
+from helper.functions import (
+    username_autocompletion,
+    get_command_cooldown,
+    get_hypixel_data,
+    update_command_stats,
+    authenticate_user,
+    start_historical,
+    uuid_to_discord_id,
+    yearly_eligibility,
+    get_time_config,
+    fetch_skin_model,
+    ordinal, loading_message,
+    send_generic_renders
+)
 
 
 class Difference(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.LOADING_MSG = loading_message()
+
 
     difference_group = app_commands.Group(
         name='difference', 
@@ -33,6 +36,7 @@ class Difference(commands.Cog):
 
 
     async def difference_command(self, interaction: discord.Interaction, username: str, method: str):
+        await interaction.response.defer()
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
         refined = name.replace("_", "\_")
@@ -50,12 +54,11 @@ class Difference(commands.Cog):
             historical_data = cursor.fetchone()
 
         if not historical_data:
-            await interaction.response.defer()
             start_historical(uuid=uuid)
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
-        await interaction.response.send_message(self.LOADING_MSG)
+        await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = fetch_skin_model(uuid, 144)
         hypixel_data = get_hypixel_data(uuid)
@@ -77,7 +80,7 @@ class Difference(commands.Cog):
         update_command_stats(interaction.user.id, f'difference_{method}')
 
 
-    @difference_group.command(name = "daily", description = "View the daily stas difference of a player")
+    @difference_group.command(name="daily", description="View the daily stas difference of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -85,7 +88,7 @@ class Difference(commands.Cog):
         await self.difference_command(interaction, username, 'daily')
 
 
-    @difference_group.command(name = "weekly", description = "View the weekly stat difference of a player")
+    @difference_group.command(name="weekly", description="View the weekly stat difference of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -93,7 +96,7 @@ class Difference(commands.Cog):
         await self.difference_command(interaction, username, 'weekly')
 
 
-    @difference_group.command(name = "monthly", description = "View the monthly stat difference of a player")
+    @difference_group.command(name="monthly", description="View the monthly stat difference of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
@@ -101,7 +104,7 @@ class Difference(commands.Cog):
         await self.difference_command(interaction, username, 'monthly')
 
 
-    @difference_group.command(name = "yearly", description = "View the yearly stat difference of a player")
+    @difference_group.command(name="yearly", description="View the yearly stat difference of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)

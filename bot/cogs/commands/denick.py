@@ -7,12 +7,17 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import get_command_cooldown, update_command_stats, get_embed_color
+from helper.functions import (
+    get_command_cooldown,
+    update_command_stats,
+    get_embed_color
+)
 
 
 class Denick(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
+
 
     async def number_autocomplete(self, interaction: discord.Interaction,
                                   current: str) -> typing.List[app_commands.Choice[str]]:
@@ -23,18 +28,21 @@ class Denick(commands.Cog):
         return data
 
 
-    @app_commands.command(name = "numberdenick", description = "Find the ign of a nick based on their kill messages (powered by antisniper)")
+    @app_commands.command(name="numberdenick", description="Find the ign of a nick based on their kill messages (powered by antisniper)")
     @app_commands.describe(mode='The stat to denick with (finals / beds)', count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction, mode: str, count: int):
+        await interaction.response.defer()
         mode = mode.lower()
         if not mode in ('finals', 'beds'):
-            await interaction.response.send_message('Invalid mode! Valid options: (finals / beds)')
+            await interaction.followup.send('Invalid mode! Valid options: (finals / beds)')
             return
+
         with open('./database/apikeys.json', 'r') as datafile:
             all_keys: dict = json.load(datafile)['antisniper']
             key = all_keys[random.choice(list(all_keys.keys()))]
+
         data = requests.get(f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}').json()
 
         embed_color = get_embed_color(embed_type='primary')
@@ -62,7 +70,7 @@ class Denick(commands.Cog):
         else:
             embed.description = "No data."
         embed.set_footer(text="Powered by antisniper.net", icon_url='https://statalytics.net/image/antisniper.png')
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         
         update_command_stats(interaction.user.id, 'numberdenick')
 

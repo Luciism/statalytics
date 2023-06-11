@@ -61,9 +61,13 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
     star_y = round(((fontsize - 17) / 2) + position_y)
     star_type = "0_to_1000" if level < 1100 else "1100_to_2000" if level < 2100 else\
                "2100_to_3000" if level < 3100 else "3100_to_5000"
+
     star = Image.open(f'./assets/stars/{star_type}.png')
     star = star.convert("RGBA")
-    star = recolor_pixels(star, ((214, 214, 214),), (pos_colors if level < 1000 else pos_colors[5],))
+    star = recolor_pixels(
+        image=star,
+        rgb_from=((214, 214, 214),),
+        rgb_to=(pos_colors if level < 1000 or level >= 10000 else pos_colors[5],))
 
     if level < 1000 or level >= 10000:
         draw.text((position_x + 2, position_y + 2), f"[{level}", fill=(0, 0, 0), font=font)

@@ -91,4 +91,4 @@ def get_prestige_colors(level: int) -> tuple:
     prestige = (level // 100) * 100
     if level >= 1000 and level < 10000:
         return colors.color_map_2.get(prestige, colors.color_map_2.get(5000))
-    return colors.color_map.get(prestige)
+    return colors.color_map.get(prestige, colors.color_map.get(10000))

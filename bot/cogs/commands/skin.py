@@ -5,12 +5,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import (username_autocompletion,
-                            get_command_cooldown,
-                            update_command_stats,
-                            authenticate_user,
-                            get_embed_color,
-                            skin_session)
+from helper.functions import (
+    username_autocompletion,
+    get_command_cooldown,
+    update_command_stats,
+    authenticate_user,
+    get_embed_color,
+    skin_session
+)
 
 
 class Skin(commands.Cog):
@@ -18,7 +20,7 @@ class Skin(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name = "skin", description = "View the skin of a player")
+    @app_commands.command(name="skin", description="View the skin of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
