@@ -20,13 +20,13 @@ from helper.functions import (
     start_historical,
     log_error_msg,
     uuid_to_discord_id,
-    get_time_config,
     fetch_skin_model,
     get_lookback_eligiblility,
     message_invalid_lookback,
     ordinal, loading_message,
     send_generic_renders,
-    reset_historical
+    reset_historical,
+    get_reset_time
 )
 
 
@@ -79,8 +79,7 @@ class Monthly(commands.Cog):
         except TypeError: return
         refined = name.replace("_", "\_")
 
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        gmt_offset, hour = get_time_config(discord_id=discord_id)
+        gmt_offset, hour = get_reset_time(uuid)
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -147,13 +146,13 @@ class Monthly(commands.Cog):
         if months < 1:
             months = 1
 
-        gmt_offset = get_time_config(discord_id=discord_id)[0]
+        gmt_offset = get_reset_time(uuid)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        relative_date = now - relativedelta(months=months)
-        formatted_date = relative_date.strftime("%b %Y")
 
         try:
+            relative_date = now - relativedelta(months=months)
+            formatted_date = relative_date.strftime("%b %Y")
             table_name = relative_date.strftime("monthly_%Y_%m")
         except ValueError:
             await interaction.followup.send('Big, big number... too big number...')

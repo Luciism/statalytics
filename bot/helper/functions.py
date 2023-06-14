@@ -21,6 +21,7 @@ from helper.ui import ModesView
 from helper.calctools import get_player_dict
 
 
+historic_cache = CachedSession(cache_name='cache/historic_cache', expire_after=300, ignored_parameters=['key'])
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
 skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=900, ignored_parameters=['key'])
 
@@ -141,18 +142,22 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
 
 
 @to_thread
-def get_hypixel_data(uuid: str, cache: bool=True) -> dict:
+def get_hypixel_data(uuid: str, cache: bool=True, cache_obj: CachedSession=None) -> dict:
     """
     Fetch a users hypixel data from hypixel's api
     :param uuid: The uuid of the user's data to fetch
     :param cache: Whether to use caching or not
+    :param cache_obj: Use a custom cache instead of the default stats cache
     """
     with open('./database/apikeys.json', 'r') as keyfile:
         all_keys: dict = json.load(keyfile)['hypixel']
-    key: str = "bb662211-a7e0-42ca-91a0-e7a2b2cda611"
+    key: str = all_keys[random.choice(list(all_keys.keys()))]
 
     if cache:
-        data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+        if not cache_obj:
+            data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+        else:
+            data: dict = cache_obj.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     else:
         data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
     return data
@@ -356,7 +361,7 @@ async def authenticate_user(username: str, interaction: discord.Interaction) -> 
 
 async def get_smart_session(interaction: discord.Interaction, session: int, username: str, uuid: str) -> tuple | bool:
     """
-    Dynamically gets a session of a user
+    Dynamically gets a session of a user\n
     If session is 100, the first session to exist will be returned
     :param interaction: The discord interaction object used
     :param session: The session to attempt to be retrieved
@@ -388,11 +393,99 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     return session_data
 
 
+def get_reset_time_default(uuid: str) -> tuple | None:
+    """
+    Gets the default reset time assigned randomly for a player
+    :param uuid: The uuid of the relative player
+    """
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
+        default_data = cursor.fetchone()
+    return (0, 0) if not default_data else default_data[1:3]
+
+
+def get_reset_time_configured(discord_id: int):
+    """
+    Gets the configured reset time set by the linked discord user
+    :param discord_id: The discord id of the relative user
+    """
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM configuration WHERE discord_id = {discord_id}")
+        configuration_data = cursor.fetchone()
+    return (0, 0) if not configuration_data else configuration_data[1:3]
+
+
+def get_reset_time(uuid: str) -> tuple | None:
+    """
+    Attempts to get the configured reset time of the discord user\n
+    If the discord user has not configured a reset time, the player's default reset time will be used
+    :param discord_id: The discord id of the relative user
+    :param uuid: The backup uuid if the discord user has no configured reset time
+    """
+    reset_time = False
+
+    discord_id = uuid_to_discord_id(uuid)
+    if discord_id:
+        reset_time = get_reset_time_configured(discord_id)
+
+    elif not reset_time:
+        reset_time = get_reset_time_default(uuid)
+    return reset_time
+
+
+def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
+    """
+    Sets default reset time in historical database (player bound)
+    :param uuid: The uuid of the relative player
+    :param timezone: The GMT offset to insert
+    :param reset_hour: The reset hour to insert
+    """
+    with sqlite3.connect('./database/historical.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
+        if not cursor.fetchone():
+            cursor.execute(
+                'INSERT INTO default_reset_times (uuid, timezone, reset_hour) VALUES (?, ?, ?)',
+                (uuid, timezone, reset_hour)
+            )
+        else:
+            cursor.execute(
+                f"UPDATE default_reset_times SET timezone = ?, reset_hour = ? WHERE uuid = ?",
+                (timezone, reset_hour, uuid)
+            )
+
+
+def update_reset_time_default(uuid: str):
+    """
+    Updates a player's default reset time
+    :param uuid: The uuid of the relative player
+    """
+    current_default = get_reset_time_default(uuid)
+
+    if not current_default:
+        discord_id = uuid_to_discord_id(uuid)
+
+        if discord_id:
+            current_configured = get_reset_time_configured(discord_id)
+
+            if current_configured:
+                set_reset_time_default(uuid, *current_configured)
+                return
+
+        set_reset_time_default(uuid, 0, random.randint(0, 23))
+
+
 async def start_historical(uuid: str) -> None:
     """
     Initiates historical stat tracking (daily, weekly, etc)
     :param uuid: The uuid of the player's historical stats being initiated
     """
+    update_reset_time_default(uuid)
     hypixel_data: dict = await get_hypixel_data(uuid, cache=False)
     hypixel_data = get_player_dict(hypixel_data)
 
@@ -688,18 +781,18 @@ async def reset_historical(method: str, table_format: str, condition: str):
     # Reset all historical that is at the correct time
     utc_now = datetime.utcnow()
     for historical in historical_data:
+        if not historical:
+            continue
+
+        uuid = historical[0]
         start_time = time.time()
-        linked_account = linked_data.get(historical[0])
-        if linked_account:
-            time_preference = config_data.get(linked_account, (0, 0, 0))
-            gmt_offset, hour = time_preference[1], time_preference[2]
-        else:
-            gmt_offset, hour = 0, 0
+
+        gmt_offset, hour = get_reset_time(uuid)
 
         timezone = utc_now + timedelta(hours=gmt_offset)
 
         if eval(condition) and timezone.hour == hour:
-            hypixel_data = await get_hypixel_data(historical[0], cache=False)
+            hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
             hypixel_data = get_player_dict(hypixel_data)
 
             stat_keys: list = get_config()['tracked_bedwars_stats']
@@ -713,9 +806,9 @@ async def reset_historical(method: str, table_format: str, condition: str):
                 cursor = conn.cursor()
 
                 set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
-                cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{historical[0]}'", stat_values)
+                cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{uuid}'", stat_values)
 
-            stat_values.insert(0, historical[0])
+            stat_values.insert(0, uuid)
             table_name = (timezone - timedelta(days=1)).strftime(table_format)
             save_historical(historical, stat_values, table=table_name)
 

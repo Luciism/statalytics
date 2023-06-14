@@ -49,7 +49,7 @@ class Difference:
         current_ratio = round(val_1_hypixel / (val_2_hypixel or 1), 2)
         old_ratio = round(val_1_historical / (val_2_historical or 1), 2)
 
-        ratio_diff = current_ratio - old_ratio
+        ratio_diff = round(current_ratio - old_ratio, 2)
         ratio_diff = f'({"+" if ratio_diff >= 0 else ""}{ratio_diff})'
 
         return (f'{val_1_gained:,}', f'{val_2_gained:,}',

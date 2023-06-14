@@ -8,7 +8,9 @@ from helper.functions import (
     get_owned_themes,
     update_command_stats,
     get_embed_color,
-    get_config
+    get_config,
+    set_reset_time_default,
+    get_linked_data
 )
 
 
@@ -59,6 +61,14 @@ class Select(discord.ui.Select):
                     values = (interaction.user.id, value, 0) if method == 'timezone' else (interaction.user.id, 0, value)
                     cursor.execute(
                         'INSERT INTO configuration (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
+                    
+                cursor.execute(
+                    f'SELECT timezone, reset_hour FROM configuration WHERE discord_id = {interaction.user.id}')
+                current_data = cursor.fetchone()
+
+            linked_data = get_linked_data(discord_id)
+            if linked_data:
+                set_reset_time_default(linked_data[1], *current_data)
 
             if method == 'timezone':
                 message = f'Successfully updated timezone to `GMT{"+" if int(value) >= 0 else ""}{value}:00`'
@@ -76,6 +86,7 @@ class SelectView(discord.ui.View):
                 Select(view['placeholder'], view['options'],
                        view['min_values'], view['max_values']))
         self.interaction = interaction
+
 
     async def on_timeout(self) -> None:
         for child in self.children:
@@ -175,6 +186,7 @@ class Settings(commands.Cog):
         await interaction.followup.send(embed=embed, view=SettingsButtons(interaction=interaction))
 
         update_command_stats(interaction.user.id, 'settings')
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Settings(client))

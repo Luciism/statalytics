@@ -16,14 +16,14 @@ from helper.functions import (
     authenticate_user,
     start_historical,
     uuid_to_discord_id,
-    get_time_config,
     get_lookback_eligiblility,
     message_invalid_lookback,
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders,
     reset_historical,
-    log_error_msg
+    log_error_msg,
+    get_reset_time
 )
 
 
@@ -55,11 +55,11 @@ class Daily(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    @reset_daily.before_loop
-    async def before_reset_daily(self):
-        now = datetime.now()
-        sleep_seconds = (60 - now.minute) * 60 - now.second
-        await asyncio.sleep(sleep_seconds)
+    # @reset_daily.before_loop
+    # async def before_reset_daily(self):
+    #     now = datetime.now()
+    #     sleep_seconds = (60 - now.minute) * 60 - now.second
+    #     await asyncio.sleep(sleep_seconds)
 
 
     @app_commands.command(name="daily", description="View the daily stats of a player")
@@ -72,8 +72,7 @@ class Daily(commands.Cog):
         except TypeError: return
         refined = name.replace("_", "\_")
 
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        gmt_offset, hour = get_time_config(discord_id=discord_id)
+        gmt_offset, hour = get_reset_time(uuid)
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -138,13 +137,13 @@ class Daily(commands.Cog):
         if days < 1:
             days = 1
 
-        gmt_offset = get_time_config(discord_id=discord_id)[0]
+        gmt_offset = get_reset_time(uuid)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        relative_date = now - timedelta(days=days)
-        formatted_date = relative_date.strftime(f"%b {relative_date.day}{ordinal(relative_date.day)}, %Y")
 
         try:
+            relative_date = now - timedelta(days=days)
+            formatted_date = relative_date.strftime(f"%b {relative_date.day}{ordinal(relative_date.day)}, %Y")
             table_name = relative_date.strftime("daily_%Y_%m_%d")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')

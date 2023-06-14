@@ -2,7 +2,7 @@ import sqlite3
 
 from helper.calctools import (get_progress, get_player_rank_info,
                               get_mode,rround, get_level, get_player_dict)
-from helper.functions import uuid_to_discord_id
+from helper.functions import get_reset_time
 
 
 class HistoricalStats:
@@ -14,15 +14,8 @@ class HistoricalStats:
         self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        discord_id = uuid_to_discord_id(uuid)
-
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
-            if discord_id:
-                cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{discord_id}'")
-                self.config_data = cursor.fetchone()
-            else:
-                self.config_data = ()
 
             cursor.execute(f"SELECT * FROM {method} WHERE uuid = '{uuid}'")
             historical_data = cursor.fetchone()
@@ -95,16 +88,14 @@ class HistoricalStats:
 
 
     def get_time_info(self):
-        if self.config_data:
-            timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
-            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
-                     '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
-                     '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
-                     '9:00pm', '10:00pm', '11:00pm']
-            reset_hour = hours[self.config_data[2]]
-        else:
-            timezone = 'GMT+0:00'
-            reset_hour = '12:00am'
+        gmt_offset, hour = get_reset_time(self.uuid)
+
+        timezone = f'GMT{"+" if gmt_offset >= 0 else ""}{gmt_offset}:00'
+        hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
+                    '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
+                    '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
+                    '9:00pm', '10:00pm', '11:00pm']
+        reset_hour = hours[hour]
 
         return timezone, reset_hour
 
@@ -183,15 +174,13 @@ class LookbackStats:
 
 
     def get_time_info(self):
-        if self.config_data:
-            timezone = f'GMT{"+" if self.config_data[1] >= 0 else ""}{self.config_data[1]}:00'
-            hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
-                     '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
-                     '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
-                     '9:00pm', '10:00pm', '11:00pm']
-            reset_hour = hours[self.config_data[2]]
-        else:
-            timezone = 'GMT+0:00'
-            reset_hour = '12:00am'
+        gmt_offset, hour = get_reset_time(self.uuid)
+
+        timezone = f'GMT{"+" if gmt_offset >= 0 else ""}{gmt_offset}:00'
+        hours = ['12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
+                    '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm',
+                    '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm',
+                    '9:00pm', '10:00pm', '11:00pm']
+        reset_hour = hours[hour]
 
         return timezone, reset_hour

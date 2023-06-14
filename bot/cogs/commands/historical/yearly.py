@@ -26,7 +26,8 @@ from helper.functions import (
     ordinal, loading_message,
     send_generic_renders,
     reset_historical,
-    log_error_msg
+    log_error_msg,
+    get_reset_time
 )
 
 
@@ -78,8 +79,7 @@ class Yearly(commands.Cog):
         except TypeError: return
         refined = name.replace("_", "\_")
 
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        gmt_offset, hour = get_time_config(discord_id=discord_id)
+        gmt_offset, hour = get_reset_time(uuid)
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -91,6 +91,7 @@ class Yearly(commands.Cog):
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
+        discord_id = uuid_to_discord_id(uuid=uuid)
         result = await yearly_eligibility(interaction, discord_id)
         if not result:
             return
@@ -157,12 +158,12 @@ class Yearly(commands.Cog):
             years = 1
 
         # Get time / date information
-        gmt_offset = get_time_config(discord_id=discord_id)[0]
+        gmt_offset = get_reset_time(uuid)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        relative_date = now - relativedelta(years=years)
-        formatted_date = relative_date.strftime("Year %Y")
         try:
+            relative_date = now - relativedelta(years=years)
+            formatted_date = relative_date.strftime("Year %Y")
             table_name = relative_date.strftime("yearly_%Y")
         except ValueError:
             await interaction.followup.send('Big, big number... too big number...')

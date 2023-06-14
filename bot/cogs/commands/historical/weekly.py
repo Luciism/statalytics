@@ -16,14 +16,14 @@ from helper.functions import (
     authenticate_user,
     start_historical,
     uuid_to_discord_id,
-    get_time_config,
     fetch_skin_model,
     get_lookback_eligiblility,
     message_invalid_lookback,
     ordinal, loading_message,
     send_generic_renders,
     reset_historical,
-    log_error_msg
+    log_error_msg,
+    get_reset_time
 )
 
 
@@ -76,8 +76,7 @@ class Weekly(commands.Cog):
         except TypeError: return
         refined = name.replace("_", "\_")
 
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        gmt_offset, hour = get_time_config(discord_id=discord_id)
+        gmt_offset, hour = get_reset_time(uuid)
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
@@ -142,13 +141,13 @@ class Weekly(commands.Cog):
         if weeks < 1:
             weeks = 1
 
-        gmt_offset = get_time_config(discord_id=discord_id)[0]
+        gmt_offset = get_reset_time(uuid)[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        relative_date = now - timedelta(weeks=weeks)
-        formatted_date = relative_date.strftime("Week %U, %Y")
 
         try:
+            relative_date = now - timedelta(weeks=weeks)
+            formatted_date = relative_date.strftime("Week %U, %Y")
             table_name = relative_date.strftime("weekly_%Y_%U")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')

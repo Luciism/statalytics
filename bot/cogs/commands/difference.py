@@ -16,7 +16,7 @@ from helper.functions import (
     start_historical,
     uuid_to_discord_id,
     yearly_eligibility,
-    get_time_config,
+    get_reset_time,
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders
@@ -46,7 +46,7 @@ class Difference(commands.Cog):
             result = await yearly_eligibility(interaction, discord_id)
             if not result: return
 
-        gmt_offset, _ = get_time_config(discord_id=discord_id)
+        gmt_offset = get_reset_time(uuid)[0]
 
         with sqlite3.connect('./database/historical.db') as conn:
             cursor = conn.cursor()
