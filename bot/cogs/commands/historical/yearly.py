@@ -41,7 +41,7 @@ class Yearly(commands.Cog):
         if not utc_now.timetuple().tm_yday in (1, 2, 365, 366):
             return
         
-        reset_historical(
+        await reset_historical(
             method='yearly',
             table_format='yearly_%Y',
             condition='timezone.timetuple().tm_yday == 1'
@@ -87,7 +87,7 @@ class Yearly(commands.Cog):
             historical_data = cursor.fetchone()
 
         if not historical_data:
-            start_historical(uuid=uuid)
+            await start_historical(uuid=uuid)
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
@@ -97,8 +97,8 @@ class Yearly(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         relative_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
@@ -184,8 +184,8 @@ class Yearly(commands.Cog):
         # Render and send
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

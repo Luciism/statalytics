@@ -33,7 +33,7 @@ class Resources(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        hypixel_data = get_hypixel_data(uuid)
+        hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

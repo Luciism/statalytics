@@ -35,7 +35,7 @@ class Daily(commands.Cog):
 
     @tasks.loop(hours=1)
     async def reset_daily(self):
-        reset_historical(
+        await reset_historical(
             method='daily',
             table_format='daily_%Y_%m_%d',
             condition='True'
@@ -81,14 +81,14 @@ class Daily(commands.Cog):
             historical_data = cursor.fetchone()
 
         if not historical_data:
-            start_historical(uuid=uuid)
+            await start_historical(uuid=uuid)
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
@@ -164,8 +164,8 @@ class Daily(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

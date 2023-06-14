@@ -10,7 +10,7 @@
 #### Future stats
 | Command | Function |
 | ------- | -------- |
-| `/2024` | View projected next years stats a player (requires session)|
+| `/year 2024` | View projected next years stats a player (requires session)|
 | `/prestige` | View projected stats of a player (requires session)|
 | `/milestones` | View milestone stats of any player |
 
@@ -46,11 +46,11 @@
 | `/difference monthly` | View the monthly stat difference of a player |
 | `/difference yearly` | View the yearly stat difference of a player |
 |||
-| `/session` | View an active session of a player (requires session)|
-| `/startsession` | Create a new session (requires linking) |
-| `/endsession` | End a specified session (requires linking) |
-| `/resetsession` | Reset a specified session (requires linking) |
-| `/activesessions` | Get a list of all your active sessions |
+| `/session stats` | View an active session of a player (requires session)|
+| `/session start` | Create a new session (requires linking) |
+| `/session end` | End a specified session (requires linking) |
+| `/session reset` | Reset a specified session (requires linking) |
+| `/session active` | Get a list of all your active sessions |
 
 #### Extra Commands
 | Command | Function |

@@ -46,9 +46,9 @@ class Projection(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
+        skin_res = await fetch_skin_model(uuid, 144)
 
-        hypixel_data = get_hypixel_data(uuid)
+        hypixel_data = await get_hypixel_data(uuid)
         if not prestige:
             if hypixel_data.get('player'):
                 current_star = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)

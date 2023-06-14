@@ -11,6 +11,7 @@ from helper.functions import (
     update_command_stats,
     authenticate_user,
     get_embed_color,
+    to_thread,
     skin_session
 )
 
@@ -18,6 +19,11 @@ from helper.functions import (
 class Skin(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
+
+
+    @to_thread
+    def fetch_skin(self, uuid):
+        return skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
 
 
     @app_commands.command(name="skin", description="View the skin of a player")
@@ -30,14 +36,14 @@ class Skin(commands.Cog):
         except TypeError: return
 
         refined = name.replace('_', r'\_')
-        image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
-        file = discord.File(BytesIO(image_bytes), filename='skin.png')
 
         try:
-            image_bytes = skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
+            image_bytes = await self.fetch_skin(uuid)
         except (ReadTimeout, ConnectTimeout):
             await interaction.followup.send('Failed to fetch skin, please try again later. (Skin API error)')
             return
+
+        file = discord.File(BytesIO(image_bytes), filename='skin.png')
 
         embed_color = get_embed_color('primary')
         embed = discord.Embed(

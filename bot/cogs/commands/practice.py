@@ -31,8 +31,8 @@ class Practice(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        hypixel_data = get_hypixel_data(uuid)
-        skin_res = fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
         rendered = render_practice(name, uuid, hypixel_data, skin_res)
         await interaction.edit_original_response(content=None, attachments=[discord.File(rendered, filename='practice.png')])
 

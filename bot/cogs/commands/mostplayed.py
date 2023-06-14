@@ -30,7 +30,7 @@ class MostPlayed(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        hypixel_data = get_hypixel_data(uuid)
+        hypixel_data = await get_hypixel_data(uuid)
         rendered = render_mostplayed(name, uuid, hypixel_data)
         await interaction.edit_original_response(
             content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])

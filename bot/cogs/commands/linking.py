@@ -35,7 +35,7 @@ class Linking(commands.Cog):
         if discord_tag.endswith('#0'):
             discord_tag = discord_tag[:-2]
 
-        response = link_account(discord_tag, interaction.user.id, name, uuid)
+        response = await link_account(discord_tag, interaction.user.id, name, uuid)
         refined = name.replace('_', r'\_')
 
         if response is True:

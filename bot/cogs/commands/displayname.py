@@ -26,7 +26,7 @@ class DisplayName(commands.Cog):
         try: name, uuid = await authenticate_user(username, interaction)
         except TypeError: return
 
-        hypixel_data = get_hypixel_data(uuid)
+        hypixel_data = await get_hypixel_data(uuid)
         if not hypixel_data.get('player'):
             hypixel_data['player'] = {}
         rendered = render_displayname(name, hypixel_data)

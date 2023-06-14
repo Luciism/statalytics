@@ -36,8 +36,8 @@ class Compare(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        hypixel_data_1 = get_hypixel_data(uuid_1)
-        hypixel_data_2 = get_hypixel_data(uuid_2)
+        hypixel_data_1 = await get_hypixel_data(uuid_1)
+        hypixel_data_2 = await get_hypixel_data(uuid_2)
 
         kwargs = {
             "name_1": name_1,

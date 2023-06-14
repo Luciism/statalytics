@@ -47,8 +47,8 @@ class Milestones(commands.Cog):
         os.makedirs(f'./database/activerenders/{interaction.id}')
         session = 1 if session == 100 else session
 
-        hypixel_data = get_hypixel_data(uuid)
-        skin_res = fetch_skin_model(uuid, 128)
+        hypixel_data = await get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 128)
 
         kwargs = {
             "name": name,

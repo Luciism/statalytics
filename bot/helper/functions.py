@@ -9,6 +9,8 @@ import sqlite3
 import discord
 import requests
 import traceback
+import asyncio
+import functools
 from datetime import datetime, timedelta
 
 from discord import app_commands
@@ -18,9 +20,16 @@ from requests_cache import CachedSession
 from helper.ui import ModesView
 from helper.calctools import get_player_dict
 
-stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
-skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=300, ignored_parameters=['key'])
 
+stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
+skin_session = CachedSession(cache_name='cache/skin_cache', expire_after=900, ignored_parameters=['key'])
+
+
+def to_thread(func: typing.Callable) -> typing.Coroutine:
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        return await asyncio.to_thread(func, *args, **kwargs)
+    return wrapper
 
 
 def get_config() -> dict:
@@ -131,6 +140,7 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
     return app_commands.Cooldown(1, 3.5)
 
 
+@to_thread
 def get_hypixel_data(uuid: str, cache: bool=True) -> dict:
     """
     Fetch a users hypixel data from hypixel's api
@@ -139,7 +149,7 @@ def get_hypixel_data(uuid: str, cache: bool=True) -> dict:
     """
     with open('./database/apikeys.json', 'r') as keyfile:
         all_keys: dict = json.load(keyfile)['hypixel']
-    key: str = all_keys[random.choice(list(all_keys))]
+    key: str = "bb662211-a7e0-42ca-91a0-e7a2b2cda611"
 
     if cache:
         data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
@@ -219,7 +229,7 @@ def insert_linked_data(discord_id: int, uuid: str) -> None:
             cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
 
 
-def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> bool | None:
+async def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> bool | None:
     """
     Attempt to link an discord account to a hypixel account
     :param discord_tag: The discord user's full tag eg: Example#1234
@@ -227,7 +237,7 @@ def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> boo
     :param name: The username of the hypixel account being linked
     :param uuid: The uuid of the hypixel account being linked
     """
-    hypixel_data = get_hypixel_data(uuid=uuid, cache=False)
+    hypixel_data = await get_hypixel_data(uuid=uuid, cache=False)
     if not hypixel_data['player']:
         return None
     hypixel_discord_tag: str = hypixel_data.get('player', {}
@@ -378,12 +388,12 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     return session_data
 
 
-def start_historical(uuid: str) -> None:
+async def start_historical(uuid: str) -> None:
     """
     Initiates historical stat tracking (daily, weekly, etc)
     :param uuid: The uuid of the player's historical stats being initiated
     """
-    hypixel_data: dict = get_hypixel_data(uuid, cache=False)
+    hypixel_data: dict = await get_hypixel_data(uuid, cache=False)
     hypixel_data = get_player_dict(hypixel_data)
 
     stat_keys: dict = get_config()['tracked_bedwars_stats']
@@ -522,6 +532,7 @@ def skin_from_file() -> bytes:
         return f.read()
 
 
+@to_thread
 def fetch_skin_model(uuid: int, size: int) -> bytes:
     """
     Fetches a 3d skin model visage.surgeplay.com
@@ -642,7 +653,7 @@ def get_command_users():
     return total_users
 
 
-def reset_historical(method: str, table_format: str, condition: str):
+async def reset_historical(method: str, table_format: str, condition: str):
     """
     Loops through historical and resets each row if a condition is met
     :param method: The historical type (daily, weekly, etc)
@@ -688,7 +699,7 @@ def reset_historical(method: str, table_format: str, condition: str):
         timezone = utc_now + timedelta(hours=gmt_offset)
 
         if eval(condition) and timezone.hour == hour:
-            hypixel_data = get_hypixel_data(historical[0], cache=False)
+            hypixel_data = await get_hypixel_data(historical[0], cache=False)
             hypixel_data = get_player_dict(hypixel_data)
 
             stat_keys: list = get_config()['tracked_bedwars_stats']
@@ -709,9 +720,8 @@ def reset_historical(method: str, table_format: str, condition: str):
             save_historical(historical, stat_values, table=table_name)
 
             time_elapsed = time.time() - start_time
-            if time_elapsed < 2:
-                sleep_time = 2 - (time_elapsed)
-                time.sleep(sleep_time)
+            sleep_time = 2 - (time_elapsed)
+            await asyncio.sleep(sleep_time)
 
 
 async def log_error_msg(client: discord.Client, error: Exception):

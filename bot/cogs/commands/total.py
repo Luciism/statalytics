@@ -30,8 +30,8 @@ class Total(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

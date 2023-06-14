@@ -10,7 +10,8 @@ from discord.ext import commands
 from helper.functions import (
     get_command_cooldown,
     update_command_stats,
-    get_embed_color
+    get_embed_color,
+    to_thread
 )
 
 
@@ -28,6 +29,16 @@ class Denick(commands.Cog):
         return data
 
 
+    @to_thread
+    def fetch_denick_data(self, mode, count):
+        with open('./database/apikeys.json', 'r') as datafile:
+            all_keys: dict = json.load(datafile)['antisniper']
+            key = all_keys[random.choice(list(all_keys.keys()))]
+
+        res = requests.get(f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}')
+        return res.json()
+
+
     @app_commands.command(name="numberdenick", description="Find the ign of a nick based on their kill messages (powered by antisniper)")
     @app_commands.describe(mode='The stat to denick with (finals / beds)', count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
@@ -39,11 +50,7 @@ class Denick(commands.Cog):
             await interaction.followup.send('Invalid mode! Valid options: (finals / beds)')
             return
 
-        with open('./database/apikeys.json', 'r') as datafile:
-            all_keys: dict = json.load(datafile)['antisniper']
-            key = all_keys[random.choice(list(all_keys.keys()))]
-
-        data = requests.get(f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}').json()
+        data = await self.fetch_denick_data(mode, count)
 
         embed_color = get_embed_color(embed_type='primary')
         embed = discord.Embed(

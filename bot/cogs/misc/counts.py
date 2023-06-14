@@ -6,7 +6,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands, tasks
 
-from helper.functions import get_command_users
+from helper.functions import get_command_users, to_thread
 
 
 class Counts(commands.Cog):
@@ -18,8 +18,8 @@ class Counts(commands.Cog):
         self.BOTLIST_TOKEN = os.environ.get('STATALYTICS_BOTLIST_TOKEN')
 
 
-    @tasks.loop(hours=1)
-    async def update_counts(self):
+    @to_thread
+    def update_counts(self):
         guild_count = len(self.client.guilds)
         total_users = get_command_users()
 
@@ -55,16 +55,21 @@ class Counts(commands.Cog):
         )
 
 
+    @tasks.loop(hours=1)
+    async def update_counts_loop(self):
+        await self.update_counts()
+
+
     def cog_load(self):
         if os.environ.get('STATALYTICS_ENVIRONMENT') == 'production':
-            self.update_counts.start()
+            self.update_counts_loop.start()
 
 
     def cog_unload(self):
-        self.update_counts.cancel()
+        self.update_counts_loop.cancel()
 
 
-    @update_counts.before_loop
+    @update_counts_loop.before_loop
     async def before_update_counts(self):
         now = datetime.now()
         sleep_seconds = (60 - now.minute) * 60 - now.second

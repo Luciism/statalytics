@@ -10,7 +10,7 @@
         },
         {
           "name": "**Commands:**",
-          "value": "`/session` - view session\n`/startsession` - start a session\n`/resetsession` - reset a session\n`/endsession` - delete a session"
+          "value": "`/session stats` - view session\n`/session start` - start a session\n`/session reset` - reset a session\n`/session end` - delete a session"
         }
       ]
     },
@@ -24,7 +24,7 @@
         },
         {
           "name": "**Commands:**",
-          "value": "`/prestige` - view projected stats\n`/2024` - view next year's stats"
+          "value": "`/prestige` - view projected stats\n`/year 2024` - view stat's for the beginning of 2024"
         }
       ]
     },

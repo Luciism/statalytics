@@ -42,7 +42,7 @@ class Monthly(commands.Cog):
         if not utc_now.day in (1, 2) and not utc_now.day == monthrange(utc_now.year, utc_now.month)[1]:
             return
         
-        reset_historical(
+        await reset_historical(
             method='monthly',
             table_format='monthly_%Y_%m',
             condition='timezone.day == 1'
@@ -88,14 +88,14 @@ class Monthly(commands.Cog):
             historical_data = cursor.fetchone()
 
         if not historical_data:
-            start_historical(uuid=uuid)
+            await start_historical(uuid=uuid)
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
@@ -173,8 +173,8 @@ class Monthly(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')
-        skin_res = fetch_skin_model(uuid, 144)
-        hypixel_data = get_hypixel_data(uuid)
+        skin_res = await fetch_skin_model(uuid, 144)
+        hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
             "name": name,
