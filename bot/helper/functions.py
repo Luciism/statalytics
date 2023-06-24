@@ -20,7 +20,7 @@ from requests_cache import CachedSession
 from .ui import ModesView
 
 
-REL_PATH = os.path.abspath(f'{__file__}\..\..')
+REL_PATH = os.path.abspath(f'{__file__}/../..')
 
 historic_cache = CachedSession(cache_name='cache/historic_cache', expire_after=300, ignored_parameters=['key'])
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
