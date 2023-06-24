@@ -1,8 +1,14 @@
 import sqlite3
 
-from helper.calctools import (get_progress, get_player_rank_info,
-                              get_mode,rround, get_level, get_player_dict)
-from helper.functions import get_reset_time
+from helper.historical import get_reset_time
+from helper.calctools import (
+    get_progress,
+    get_player_rank_info,
+    get_mode,
+    rround,
+    get_level,
+    get_player_dict
+)
 
 
 class HistoricalStats:

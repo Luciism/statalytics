@@ -1,5 +1,12 @@
-from helper.calctools import (get_player_rank_info, get_progress, get_most_played,
-                              get_mode, rround, get_level, get_player_dict)
+from helper.calctools import (
+    get_progress,
+    get_player_rank_info,
+    get_mode,
+    rround,
+    get_level,
+    get_player_dict,
+    get_most_played
+)
 
 
 class Stats:

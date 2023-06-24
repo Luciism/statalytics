@@ -6,17 +6,16 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.session import render_session
+from helper.linking import fetch_player_info, get_linked_data
 from helper.functions import (
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    get_linked_data,
     get_subscription,
     start_session,
     get_smart_session,
-    authenticate_user,
     fetch_skin_model,
     send_generic_renders,
     loading_message
@@ -42,13 +41,16 @@ class ManageSession(discord.ui.View):
         await interaction.response.defer()
         button.disabled = True
         await self.message.edit(view=self)
+
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
+
             if self.method == "delete":
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
                 message = f'Session `{self.session}` has been deleted successfully!'
             else:
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
+
         if self.method != "delete":
             start_session(self.uuid, self.session)
             message = f'Session `{self.session}` has been reset successfully!'
@@ -73,8 +75,7 @@ class Sessions(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def session(self, interaction: discord.Interaction, username: str=None, session: int=100):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         refined = name.replace('_', r'\_')
         session_data = await get_smart_session(interaction, session, refined, uuid)

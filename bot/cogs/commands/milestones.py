@@ -6,13 +6,13 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.milestones import render_milestones
+from helper.linking import fetch_player_info
 from helper.functions import (
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
     fetch_skin_model,
     send_generic_renders,
     loading_message
@@ -31,10 +31,11 @@ class Milestones(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def milestones(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
-        if session is None: session = 100
+        if session is None:
+            session = 100
+
         with sqlite3.connect('./database/sessions.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))

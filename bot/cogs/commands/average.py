@@ -5,12 +5,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.average import render_average
+from helper.linking import fetch_player_info
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
     fetch_skin_model,
     send_generic_renders,
     loading_message
@@ -29,8 +29,7 @@ class Average(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def average(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')

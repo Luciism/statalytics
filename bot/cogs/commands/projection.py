@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.projection import render_projection
+from helper.linking import fetch_player_info
 from helper.functions import (
     username_autocompletion,
     session_autocompletion,
@@ -12,7 +13,6 @@ from helper.functions import (
     get_hypixel_data,
     update_command_stats,
     get_smart_session,
-    authenticate_user,
     fetch_skin_model,
     send_generic_renders,
     loading_message
@@ -34,8 +34,7 @@ class Projection(commands.Cog):
     async def projected_stats(self, interaction: discord.Interaction,
                               prestige: int=None, username: str=None, session: int=100):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace('_', r'\_')
 
         session_data = await get_smart_session(interaction, session, refined, uuid)

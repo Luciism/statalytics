@@ -1,13 +1,14 @@
 import os
 import time
-import json
 import sqlite3
 from io import BytesIO
 
 import numpy as np
 from PIL import Image, UnidentifiedImageError, ImageDraw
 
-from helper.prescolor import ColorMaps
+from .prescolor import ColorMaps
+from .linking import uuid_to_discord_id
+from .functions import get_subscription, get_config
 
 
 def shadow(rgb: tuple) -> tuple[int, int, int]:
@@ -117,7 +118,7 @@ def theme_color_sync_fusion(path: str, **kwargs) -> Image.Image:
     return recolor_pixels(image, rgb_from=rgb_from, rgb_to=rgb_to)
 
 
-def get_theme(theme: str, path: str, **kwargs) -> Image:
+def get_theme_img(theme: str, path: str, **kwargs) -> Image:
     """
     Returns an image based on a passed theme
     :param theme: The theme you are attempting to get
@@ -137,25 +138,18 @@ def get_background(path, uuid, default, **kwargs):
     :param default: The default file name of the background (excluding .png extension)
     :param **kwargs: Any additional keyword arguments that may be used to get a background
     """
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
-        linked_data = cursor.fetchone()
-
-    if not linked_data:
+    discord_id = uuid_to_discord_id(uuid)
+    if not discord_id:
         return Image.open(f'{path}/{default}.png')
-    discord_id = linked_data[0]
 
-    with sqlite3.connect('./database/subscriptions.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
-        subscription = cursor.fetchone()
+    subscription = get_subscription(discord_id)
+    subscription = '' if not subscription else subscription[1]
 
-    # User has a pro subscription
-    if subscription and 'pro' in subscription[1] and os.path.exists(f'{path}/custom/{discord_id}.png'):
+    # User has a pro subscription and a custom background
+    if 'pro' in subscription and os.path.exists(f'{path}/custom/{discord_id}.png'):
         return Image.open(f'{path}/custom/{discord_id}.png')
 
-    # User has a active theme pack
+    # Voting and rewards data for active theme pack
     with sqlite3.connect('./database/voting.db') as conn:
         cursor = conn.cursor()
 
@@ -165,15 +159,26 @@ def get_background(path, uuid, default, **kwargs):
         cursor.execute(f'SELECT * FROM rewards_data WHERE discord_id = {discord_id}')
         rewards_data = cursor.fetchone()
 
-    with open('config.json', 'r') as datafile:
-        voter_themes: dict = json.load(datafile)['theme_packs']['voter_themes'].keys()
+        cursor.execute(f'SELECT * FROM owned_themes WHERE discord_id = {discord_id}')
+        owned_themes = cursor.fetchone()
 
+    voter_themes = get_config()['theme_packs']['voter_themes'].keys()
+
+    # If the user has configured a theme
     if rewards_data and rewards_data[1]:
+        # If the user has voted in the past 24 hours
         current_time = time.time()
         voted_recently = voting_data and ((current_time - voting_data[3]) / 3600 < 24)
-        theme = rewards_data[1]
 
-        if voted_recently or subscription or not theme in voter_themes:
-            return get_theme(theme=theme, path=path, **kwargs)
+        theme = rewards_data[1]
+        if owned_themes:
+            owned_themes = owned_themes[1].split(',')
+
+        # If the user has voted, is premium, or is using an exclusive theme
+        is_exclusive = not theme in voter_themes
+        if voted_recently or subscription or is_exclusive:
+            # Check if the user is using a selected unowned exclusive theme
+            if not is_exclusive or theme in owned_themes:
+                return get_theme_img(theme=theme, path=path, **kwargs)
 
     return Image.open(f'{path}/{default}.png')

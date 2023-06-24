@@ -1,16 +1,15 @@
-import sqlite3
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from helper.errors import MCUserNotFoundError
+from helper.themes import get_owned_themes, set_active_theme
+from helper.historical import update_reset_time_configured
+from helper.linking import linking_interaction
 from helper.functions import (
-    get_owned_themes,
     update_command_stats,
     get_embed_color,
-    get_config,
-    set_reset_time_default,
-    get_linked_data
+    get_config
 )
 
 
@@ -32,43 +31,13 @@ class Select(discord.ui.Select):
         value = self.values[0]
         if self.placeholder == "Select Theme":
             if value == 'none': value = None
-            with sqlite3.connect('./database/voting.db') as conn:
-                cursor = conn.cursor()
-
-                cursor.execute(f'SELECT * FROM rewards_data WHERE discord_id = {discord_id}')
-                current_theme = cursor.fetchone()
-
-                if current_theme:
-                    cursor.execute(
-                        "UPDATE rewards_data SET enabled_theme = ? WHERE discord_id = ?", (value, discord_id))
-                else:
-                    cursor.execute(
-                        "INSERT INTO rewards_data (discord_id, enabled_theme) VALUES (?, ?)", (discord_id, value))
+            set_active_theme(discord_id, value)
             await interaction.followup.send('Successfully updated theme!', ephemeral=True)
             return
 
         if self.placeholder in ('Select your GMT offset', 'Select your reset hour'):
             method = 'timezone' if self.placeholder == 'Select your GMT offset' else 'reset_hour'
-            with sqlite3.connect('./database/historical.db') as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    f'SELECT timezone FROM configuration WHERE discord_id = {interaction.user.id}')
-
-                if cursor.fetchone():
-                    cursor.execute(
-                        f'UPDATE configuration SET {method} = ? WHERE discord_id = ?', (value, interaction.user.id))
-                else:
-                    values = (interaction.user.id, value, 0) if method == 'timezone' else (interaction.user.id, 0, value)
-                    cursor.execute(
-                        'INSERT INTO configuration (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
-                    
-                cursor.execute(
-                    f'SELECT timezone, reset_hour FROM configuration WHERE discord_id = {interaction.user.id}')
-                current_data = cursor.fetchone()
-
-            linked_data = get_linked_data(discord_id)
-            if linked_data:
-                set_reset_time_default(linked_data[1], *current_data)
+            update_reset_time_configured(interaction.user.id, value, method)
 
             if method == 'timezone':
                 message = f'Successfully updated timezone to `GMT{"+" if int(value) >= 0 else ""}{value}:00`'
@@ -85,13 +54,25 @@ class SelectView(discord.ui.View):
             self.add_item(
                 Select(view['placeholder'], view['options'],
                        view['min_values'], view['max_values']))
+
         self.interaction = interaction
 
 
     async def on_timeout(self) -> None:
         for child in self.children:
             child.disabled = True
+
         await self.interaction.edit_original_response(view=self)
+
+
+class LinkAccountModal(discord.ui.Modal, title='Link Account'):
+    username = discord.ui.TextInput(label='Username', placeholder='Statalytics', style=discord.TextStyle.short)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            await linking_interaction(interaction, str(self.username))
+        except MCUserNotFoundError:
+            return
 
 
 class SettingsButtons(discord.ui.View):
@@ -107,11 +88,10 @@ class SettingsButtons(discord.ui.View):
 
     @discord.ui.button(label="Active Theme", style=discord.ButtonStyle.gray, custom_id="active_theme", row=1)
     async def active_theme(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
         embed = discord.Embed(
             title="Select a theme pack!",
             description="In order for your selected theme pack to take effect, you must have voted in the past 24 HOURS.\n\n [Premium](https://statalytics.net/store) users bypass this restriction.",
-            color=0x9470DC
+            color=get_embed_color('primary')
         )
 
         owned_themes = get_owned_themes(interaction.user.id)
@@ -129,13 +109,11 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
         view = SelectView(interaction=interaction, view_data=view_data)
-        await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
     @discord.ui.button(label="Reset Time", style=discord.ButtonStyle.gray, custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        embed_color = get_embed_color('primary')
 
         embed = discord.Embed(
             title='Configure reset time',
@@ -145,7 +123,7 @@ class SettingsButtons(discord.ui.View):
                 Reset hour - the hour which your historical stats will rollover
 
                 Click [here](https://greenwichmeantime.com/current-time/) if you are unsure of your GMT offset.""".replace('    ', ''),
-            color=embed_color
+            color=get_embed_color('primary')
         )
         options_1 = [discord.SelectOption(label=f'GMT{"+" if i-12 >= 0 else ""}{i-12}', value=i-12) for i in reversed(range(25))]
         options_2 = [discord.SelectOption(label=hour, value=i) for i, hour in zip(range(24), HOURS)]
@@ -162,11 +140,16 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
 
-        await interaction.followup.send(
+        await interaction.response.send_message(
             embed=embed,
             view=SelectView(interaction=interaction, view_data=view_data),
             ephemeral=True
         )
+
+
+    @discord.ui.button(label="Linked Account", style=discord.ButtonStyle.gray, custom_id="linked_account", row=1)
+    async def linked_account(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(LinkAccountModal())
 
 
 class Settings(commands.Cog):

@@ -1,5 +1,7 @@
 from io import BytesIO
+
 from PIL import Image, ImageFont, ImageDraw
+
 from helper.rendertools import get_background, get_rank_color
 from helper.calctools import get_player_rank_info
 

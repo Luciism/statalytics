@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 
-from helper.prescolor import get_prestige_colors
-from helper.rendertools import recolor_pixels
+from .prescolor import get_prestige_colors
+from .rendertools import recolor_pixels
 
 
 color_map = {

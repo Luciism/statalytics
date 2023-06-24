@@ -1,5 +1,4 @@
 import os
-import sqlite3
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -7,19 +6,17 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.difference import render_difference
+from helper.historical import HistoricalManager
+from helper.linking import fetch_player_info, uuid_to_discord_id
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
-    start_historical,
-    uuid_to_discord_id,
-    yearly_eligibility,
-    get_reset_time,
     fetch_skin_model,
     ordinal, loading_message,
-    send_generic_renders
+    send_generic_renders,
+    yearly_eligibility
 )
 
 
@@ -37,24 +34,22 @@ class Difference(commands.Cog):
 
     async def difference_command(self, interaction: discord.Interaction, username: str, method: str):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace("_", "\_")
+
+        historic = HistoricalManager(interaction.user.id, uuid)
 
         discord_id = uuid_to_discord_id(uuid=uuid)
         if method == 'yearly':
             result = await yearly_eligibility(interaction, discord_id)
-            if not result: return
+            if not result:
+                return
 
-        gmt_offset = get_reset_time(uuid)[0]
-
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM {method} WHERE uuid = '{uuid}'")
-            historical_data = cursor.fetchone()
+        gmt_offset = historic.get_reset_time()[0]
+        historical_data = historic.get_historical(table_name=method)
 
         if not historical_data:
-            await start_historical(uuid=uuid)
+            await historic.start_historical()
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 

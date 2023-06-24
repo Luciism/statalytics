@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.resources import Resources
 from helper.rendername import get_rank_prefix, render_rank
 from helper.rendertools import get_background

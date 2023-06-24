@@ -1,5 +1,10 @@
-from helper.calctools import (get_player_rank_info, get_mode,
-                              rround, get_level, get_player_dict)
+from helper.calctools import (
+    get_player_rank_info,
+    get_mode,
+    rround,
+    get_level,
+    get_player_dict
+)
 
 
 class Compare:

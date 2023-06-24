@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+
 from calc.compare import Compare
 from helper.rendername import render_level_and_name
 from helper.rendertools import get_background

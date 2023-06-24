@@ -5,11 +5,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from helper.linking import fetch_player_info
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     update_command_stats,
-    authenticate_user,
     get_embed_color,
     to_thread,
     skin_session
@@ -32,8 +32,7 @@ class Skin(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def skin(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         refined = name.replace('_', r'\_')
 

@@ -1,8 +1,14 @@
 import sqlite3
 from datetime import datetime
 
-from helper.calctools import (get_player_rank_info, add_suffixes,
-                              get_mode,get_level, rround, get_player_dict)
+from helper.calctools import (
+    get_player_rank_info,
+    add_suffixes,
+    get_mode,
+    get_level,
+    rround,
+    get_player_dict
+)
 
 
 class YearStats:

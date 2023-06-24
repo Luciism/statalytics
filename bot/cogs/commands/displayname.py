@@ -3,10 +3,10 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.displayname import render_displayname
+from helper.linking import fetch_player_info
 from helper.functions import (
     get_command_cooldown,
     username_autocompletion,
-    authenticate_user,
     get_hypixel_data,
     update_command_stats
 )
@@ -23,8 +23,7 @@ class DisplayName(commands.Cog):
     @app_commands.describe(username='The player whos display name to generate')
     async def displayname(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         hypixel_data = await get_hypixel_data(uuid)
         if not hypixel_data.get('player'):

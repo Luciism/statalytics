@@ -1,5 +1,7 @@
 from io import BytesIO
+
 from PIL import Image, ImageDraw, ImageFont
+
 from helper.rendername import render_level_and_name
 from calc.cosmetics import ActiveCosmetics
 from helper.rendertools import get_background

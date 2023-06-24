@@ -5,12 +5,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.compare import render_compare
+from helper.linking import fetch_player_info
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
     send_generic_renders,
     loading_message
 )
@@ -28,11 +28,8 @@ class Compare(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def compare(self, interaction: discord.Interaction, player_1: str, player_2: str=None):
         await interaction.response.defer()
-        try:
-            name_1, uuid_1 = await authenticate_user(player_1 if player_2 else None, interaction)
-            name_2, uuid_2 = await authenticate_user(player_2 if player_2 else player_1, interaction)
-        except TypeError:
-            return
+        name_1, uuid_1 = await fetch_player_info(player_1 if player_2 else None, interaction)
+        name_2, uuid_2 = await fetch_player_info(player_2 if player_2 else player_1, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
         os.makedirs(f'./database/activerenders/{interaction.id}')

@@ -1,8 +1,13 @@
 import sqlite3
 
-from helper.calctools import (get_player_rank_info, get_mode,
-                              get_progress, get_level, get_player_dict)
-from helper.functions import uuid_to_discord_id
+from helper.calctools import (
+    get_player_rank_info,
+    get_mode,
+    get_progress,
+    get_level,
+    get_player_dict
+)
+from helper.linking import uuid_to_discord_id
 
 
 class Difference:

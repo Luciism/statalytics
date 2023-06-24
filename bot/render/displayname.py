@@ -1,5 +1,7 @@
 from io import BytesIO
+
 from PIL import Image, ImageFont, ImageDraw
+
 from helper.calctools import get_player_rank_info
 from helper.rendername import get_rank_prefix, render_level_and_name
 

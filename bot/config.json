@@ -1,7 +1,7 @@
 {
     "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.5.6",
+    "version": "1.5.7",
     "developers": [
         "Luca.#6666"
     ],
@@ -23,15 +23,16 @@
     "theme_packs": {
         "voter_themes": {
             "none": "None",
-            "color_sync_fusion": "Color Sync Fusion",
+            "color_sync_fusion": "High Contrast",
             "cold_feet": "Cold Feet",
             "crystal_dawn": "Crystal Dawn",
             "mooner_eclipse": "Mooner Eclipse",
             "blue_retreat": "Blue Retreat",
-            "technoblade": "Legends Never Die"
+            "technoblade": "The Blood God"
         },
         "exclusive_themes": {
-            "summer_2023": "Summer Exclusive 2023"
+            "summer_2023": "Summer Exclusive 2023",
+            "mono": "Grayscale"
         }
     },
     "enabled_cogs": [

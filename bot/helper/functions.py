@@ -11,15 +11,16 @@ import requests
 import traceback
 import asyncio
 import functools
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from discord import app_commands
 from mcuuid import MCUUID
 from requests_cache import CachedSession
 
-from helper.ui import ModesView
-from helper.calctools import get_player_dict
+from .ui import ModesView
 
+
+REL_PATH = os.path.abspath(f'{__file__}\..\..')
 
 historic_cache = CachedSession(cache_name='cache/historic_cache', expire_after=300, ignored_parameters=['key'])
 stats_session = CachedSession(cache_name='cache/stats_cache', expire_after=300, ignored_parameters=['key'])
@@ -37,7 +38,7 @@ def get_config() -> dict:
     """
     Returns json data from the `config.json` file
     """
-    with open('./config.json', 'r') as datafile:
+    with open(f'{REL_PATH}/config.json', 'r') as datafile:
         config_data = json.load(datafile)
     return config_data
 
@@ -63,7 +64,7 @@ def get_voting_data(discord_id: int) -> tuple:
     Returns a users voting data
     :param discord_id: The discord id of the user's voting data to be fetched
     """
-    with sqlite3.connect('./database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
@@ -77,7 +78,7 @@ async def username_autocompletion(interaction: discord.Interaction, current: str
     """
     data: list = []
 
-    with sqlite3.connect('./database/autofill.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/autofill.db') as conn:
         cursor = conn.cursor()
         result = cursor.execute("SELECT * FROM autofill WHERE LOWER(username) LIKE LOWER(?)", (fr'%{current.lower()}%',))
 
@@ -99,14 +100,14 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
         username = username_option.get('value')
         uuid: str = MCUUID(name=username).uuid
     else:
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
+        with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
             linked_data: tuple = cursor.fetchone()
         if not linked_data:
             return []
         uuid: str = linked_data[1]
-    with sqlite3.connect('./database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
         session_data = cursor.fetchall()
@@ -125,7 +126,7 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
 
     Paramaters will be handled automatically by discord.py
     """
-    with sqlite3.connect('./database/subscriptions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}")
         subscription = cursor.fetchone()
@@ -149,29 +150,19 @@ def get_hypixel_data(uuid: str, cache: bool=True, cache_obj: CachedSession=None)
     :param cache: Whether to use caching or not
     :param cache_obj: Use a custom cache instead of the default stats cache
     """
-    with open('./database/apikeys.json', 'r') as keyfile:
+    with open(f'{REL_PATH}/database/apikeys.json', 'r') as keyfile:
         all_keys: dict = json.load(keyfile)['hypixel']
     key: str = all_keys[random.choice(list(all_keys.keys()))]
 
+    url = f"https://api.hypixel.net/player?key={key}&uuid={uuid}"
     if cache:
         if not cache_obj:
-            data: dict = stats_session.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+            data: dict = stats_session.get(url, timeout=10).json()
         else:
-            data: dict = cache_obj.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+            data: dict = cache_obj.get(url, timeout=10).json()
     else:
-        data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+        data: dict = requests.get(url, timeout=10).json()
     return data
-
-
-def get_linked_data(discord_id: int) -> tuple:
-    """
-    Returns a users linked data from linked database
-    :param discord_id: The discord id of user's linked data to be retrieved
-    """
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
-        return cursor.fetchone()
 
 
 def get_subscription(discord_id: int) -> tuple:
@@ -179,7 +170,7 @@ def get_subscription(discord_id: int) -> tuple:
     Returns a users subscription data from subscription database
     :param discord_id: The discord id of user's subscription data to be retrieved
     """
-    with sqlite3.connect('./database/subscriptions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/subscriptions.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
         return cursor.fetchone()
@@ -191,7 +182,7 @@ def update_command_stats(discord_id: int, command: str) -> None:
     If command doesn't exist in database, a new table will be created.
     :param discord_id: The user that ran he command
     """
-    with sqlite3.connect('./database/command_usage.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/command_usage.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT * FROM overall WHERE discord_id = {discord_id}")
@@ -217,56 +208,13 @@ def update_command_stats(discord_id: int, command: str) -> None:
         cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
 
 
-def insert_linked_data(discord_id: int, uuid: str) -> None:
-    """
-    Inserts linked account data into database
-    :param discord_id: the discord id of the relative user
-    :param uuid: the minecraft uuid of the relvative user
-    """
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
-        linked_data = cursor.fetchone()
-
-        if not linked_data:
-            cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
-        else:
-            cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
-
-
-async def link_account(discord_tag: str, discord_id: int, name: str, uuid: str) -> bool | None:
-    """
-    Attempt to link an discord account to a hypixel account
-    :param discord_tag: The discord user's full tag eg: Example#1234
-    :param discord_id: The discord user's id
-    :param name: The username of the hypixel account being linked
-    :param uuid: The uuid of the hypixel account being linked
-    """
-    hypixel_data = await get_hypixel_data(uuid=uuid, cache=False)
-    if not hypixel_data['player']:
-        return None
-    hypixel_discord_tag: str = hypixel_data.get('player', {}
-        ).get('socialMedia', {}
-        ).get('links', {}
-        ).get('DISCORD', None)
-
-    # Linking Logic
-    if hypixel_discord_tag:
-        if discord_tag == hypixel_discord_tag:
-            insert_linked_data(discord_id=discord_id, uuid=uuid)
-            update_autofill(discord_id=discord_id, uuid=uuid, username=name)
-            return True
-        return False
-    return None
-
-
 def start_session(uuid: str, session: int) -> bool:
     """
     Initiate a bedwars stats session
     :param uuid: The uuid of the player to initiate a session for
     :param session: The id of the session being initiated
     """
-    with open('./database/apikeys.json', 'r') as keyfile:
+    with open(f'{REL_PATH}/database/apikeys.json', 'r') as keyfile:
         all_keys: dict = json.load(keyfile)['hypixel']
     key: str = all_keys[random.choice(list(all_keys))]
 
@@ -286,7 +234,7 @@ def start_session(uuid: str, session: int) -> bool:
     for key in stat_keys:
         stat_values[key] = data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0)
 
-    with sqlite3.connect('./database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
@@ -306,59 +254,6 @@ def start_session(uuid: str, session: int) -> bool:
     return True
 
 
-def update_autofill(discord_id: int, uuid: str, username: str) -> None:
-    """
-    Updates autofill for a user, this will be helpful if a user has changed their ign
-    :param discord_id: The discord id of the target linked user
-    :param uuid: The uuid of the target linked user
-    :param username: The updated username of the target linked user
-    """
-    subscription: tuple = get_subscription(discord_id)
-    if subscription:
-        with sqlite3.connect('../bot/database/autofill.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
-            autofill_data: tuple = cursor.fetchone()
-
-            if not autofill_data:
-                query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
-                cursor.execute(query, (discord_id, uuid, username))
-            elif autofill_data[2] != username:
-                query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
-                cursor.execute(query, (uuid, username, discord_id))
-
-
-async def authenticate_user(username: str, interaction: discord.Interaction) -> tuple[str, str] | None:
-    """
-    Get formatted username & uuid of a user from their minecraft ign / uuid
-    :param username: The minecraft ign of the player to return (can also take a uuid)
-    :param interaction: The discord interaction object used
-    """
-    if username is None:
-        linked_data = get_linked_data(interaction.user.id)
-        if linked_data:
-            uuid: str = linked_data[1]
-            name: str = MCUUID(uuid=uuid).name
-            update_autofill(interaction.user.id, uuid, name)
-        else:
-            await interaction.followup.send("You are not linked! Either specify a player or link your account using `/link`!")
-            return
-    else:
-        try:
-            if len(username) <= 16:
-                uuid: str = MCUUID(name=username).uuid
-                name: str = MCUUID(name=username).name
-            else:
-                name: str = MCUUID(uuid=username).name
-                uuid: str = username
-                if not name:
-                    raise KeyError
-        except KeyError:
-            await interaction.followup.send("That player does not exist!")
-            return
-    return name, uuid
-
-
 async def get_smart_session(interaction: discord.Interaction, session: int, username: str, uuid: str) -> tuple | bool:
     """
     Dynamically gets a session of a user\n
@@ -368,7 +263,7 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     :param username: The username of the session owner
     :param uuid: The uuid of the session owner
     """
-    with sqlite3.connect('./database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
         session_data: tuple = cursor.fetchone()
@@ -393,235 +288,9 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     return session_data
 
 
-def get_reset_time_default(uuid: str) -> tuple | None:
-    """
-    Gets the default reset time assigned randomly for a player
-    :param uuid: The uuid of the relative player
-    """
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
-        default_data = cursor.fetchone()
-    return (0, 0) if not default_data else default_data[1:3]
-
-
-def get_reset_time_configured(discord_id: int):
-    """
-    Gets the configured reset time set by the linked discord user
-    :param discord_id: The discord id of the relative user
-    """
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT * FROM configuration WHERE discord_id = {discord_id}")
-        configuration_data = cursor.fetchone()
-    return (0, 0) if not configuration_data else configuration_data[1:3]
-
-
-def get_reset_time(uuid: str) -> tuple | None:
-    """
-    Attempts to get the configured reset time of the discord user\n
-    If the discord user has not configured a reset time, the player's default reset time will be used
-    :param discord_id: The discord id of the relative user
-    :param uuid: The backup uuid if the discord user has no configured reset time
-    """
-    reset_time = False
-
-    discord_id = uuid_to_discord_id(uuid)
-    if discord_id:
-        reset_time = get_reset_time_configured(discord_id)
-
-    elif not reset_time:
-        reset_time = get_reset_time_default(uuid)
-    return reset_time
-
-
-def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
-    """
-    Sets default reset time in historical database (player bound)
-    :param uuid: The uuid of the relative player
-    :param timezone: The GMT offset to insert
-    :param reset_hour: The reset hour to insert
-    """
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
-        if not cursor.fetchone():
-            cursor.execute(
-                'INSERT INTO default_reset_times (uuid, timezone, reset_hour) VALUES (?, ?, ?)',
-                (uuid, timezone, reset_hour)
-            )
-        else:
-            cursor.execute(
-                f"UPDATE default_reset_times SET timezone = ?, reset_hour = ? WHERE uuid = ?",
-                (timezone, reset_hour, uuid)
-            )
-
-
-def update_reset_time_default(uuid: str):
-    """
-    Updates a player's default reset time
-    :param uuid: The uuid of the relative player
-    """
-    current_default = get_reset_time_default(uuid)
-
-    if not current_default:
-        discord_id = uuid_to_discord_id(uuid)
-
-        if discord_id:
-            current_configured = get_reset_time_configured(discord_id)
-
-            if current_configured:
-                set_reset_time_default(uuid, *current_configured)
-                return
-
-        set_reset_time_default(uuid, 0, random.randint(0, 23))
-
-
-async def start_historical(uuid: str) -> None:
-    """
-    Initiates historical stat tracking (daily, weekly, etc)
-    :param uuid: The uuid of the player's historical stats being initiated
-    """
-    update_reset_time_default(uuid)
-    hypixel_data: dict = await get_hypixel_data(uuid, cache=False)
-    hypixel_data = get_player_dict(hypixel_data)
-
-    stat_keys: dict = get_config()['tracked_bedwars_stats']
-    stat_values = [uuid, hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
-
-    for key in stat_keys:
-        stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
-
-    stat_keys.insert(0, 'level')
-    stat_keys.insert(0, 'uuid')
-    keys = ', '.join(stat_keys)
-
-    trackers = ('daily', 'weekly', 'monthly', 'yearly')
-    for tracker in trackers:
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM {tracker} WHERE uuid = '{uuid}'")
-            if not cursor.fetchone():
-                cursor.execute(f"INSERT INTO {tracker} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
-
-
-def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
-    """
-    Saves historical data to a specified table, typically used when historical stats reset.
-    Creates new table if specified table doesn't exist
-    :param local_data: The historical starting data
-    :param hypixel_data: The current hypixel data
-    :param table: The name of the table to save the historical data to
-    """
-    historical_values = [hypixel_data[0], hypixel_data[1]]
-
-    for i, value in enumerate(hypixel_data[1:]):
-        historical_values.append(value - local_data[i+1])
-
-    stat_keys = ['uuid', 'level', 'stars_gained']
-    stat_keys.extend(get_config()['tracked_bedwars_stats'])
-
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
-        if not cursor.fetchone():
-            columns = ', '.join([f'{key} INTEGER' for key in stat_keys[1:]])
-            cursor.execute(f"CREATE TABLE {table} (uuid TEXT PRIMARY KEY, {columns})")
-
-        cursor.execute(f"SELECT uuid FROM {table} WHERE uuid = '{hypixel_data[0]}'")
-    
-        if not cursor.fetchone():
-            keys = ', '.join(stat_keys)
-            cursor.execute(f"INSERT INTO {table} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", historical_values)
-
-
-def uuid_to_discord_id(uuid: str) -> int | None:
-    """
-    Attempts to fetch discord id from linked database
-    :param uuid: The uuid of the player to find linked data for
-    """
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
-        discord_id = cursor.fetchone()
-    return None if not discord_id else discord_id[0]
-
-
-def get_time_config(discord_id: int) -> tuple:
-    """
-    Attempt to get time configuration data for specified discord id
-    :param discord_id: The discord id of the relative user
-    """
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-
-        if discord_id:
-            cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{discord_id}'")
-            config_data = cursor.fetchone()
-            if config_data:
-                return config_data[1:]
-            else:
-                return 0, 0
-        else:
-            return 0, 0
-
-
-async def get_lookback_eligiblility(interaction: discord.Interaction, discord_id: int) -> bool:
-    """
-    Returns the amount of days back a user can check a player's historical stats
-    :param interaction: The discord interaction object used
-    :param discord_id: The relative discord_id to be checked
-    """
-    subscription = None
-    if discord_id:
-        subscription = get_subscription(discord_id=discord_id)
-
-    if not subscription or not discord_id:
-        subscription = get_subscription(discord_id=interaction.user.id)
-
-    if subscription:
-        if 'basic' in subscription[1]:
-            return 60
-        elif 'pro' in subscription[1]:
-            return -1
-        return 30
-    return 30
-
-
-async def message_invalid_lookback(interaction: discord.Interaction, max_lookback) -> None:
-    """
-    Responds to a interaction with an max lookback exceeded message
-    :param interaction: The discord interaction object used
-    :param max_lookback: The maximum lookback the user had availiable
-    """
-    embed_color = get_embed_color('primary')
-    embed = discord.Embed(
-        title='Maximum lookback exceeded!',
-        description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!",
-        color=embed_color
-    )
-
-    embed.add_field(name="How it works:", value=f"""
-        \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
-        \- You can view longer history if you or the checked player has a premium plan.
-    """.replace('   ', ''), inline=False)
-
-    embed.add_field(name='Limits', value="""
-        \- Free tier maximum lookback - 30 days
-        \- Basic tier maxmum lookback  - 60 days
-        \- Pro tier maximum lookback - unlimited
-    """.replace('   ', ''), inline=False)
-
-    await interaction.followup.send(embed=embed)
-
-
 def skin_from_file() -> bytes:
     """Loads a steve skin from file"""
-    with open('./assets/steve.png', 'rb') as f:
+    with open(f'{REL_PATH}/assets/steve.png', 'rb') as f:
         return f.read()
 
 
@@ -646,22 +315,6 @@ def ordinal(n: int) -> str:
     :param n: The number to format
     """
     return "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-
-
-def get_owned_themes(discord_id: int) -> list:
-    """
-    Returns a list of themes owned by user relative to the passed discord id
-    :param discord_id: The relative discord user
-    """
-    with sqlite3.connect('./database/voting.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}")
-        owned_themes = cursor.fetchone()
-
-    if owned_themes and owned_themes[0]:
-        themes_list = owned_themes[0].split(',')
-        return themes_list
-    return []
 
 
 async def yearly_eligibility(interaction: discord.Interaction, discord_id: int | None) -> bool:
@@ -695,13 +348,13 @@ async def yearly_eligibility(interaction: discord.Interaction, discord_id: int |
 def discord_message(discord_id):
     """
     Chooses a random message to send if the discord id has no subscription
-    :param discord_id: the discord id of the relative user
+    :param discord_id: the discord id of the respective user
     """
     if get_subscription(discord_id):
         return None
 
     if random.choice(([False]*5) + ([True]*2)):
-        with open('./database/discord_messages.json', 'r') as datafile:
+        with open(f'{REL_PATH}/database/discord_messages.json', 'r') as datafile:
             data = json.load(datafile)
         return random.choice(data['active_messages'])
     return None
@@ -721,12 +374,15 @@ async def send_generic_renders(interaction: discord.Interaction,
 
     func(mode="Overall", **kwargs)
     view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
-    await interaction.edit_original_response(
-        content=message,
-        attachments=[
-            discord.File(f"./database/activerenders/{interaction.id}/overall.png")],
-        view=view
-    )
+    try:
+        await interaction.edit_original_response(
+            content=message,
+            attachments=[
+                discord.File(f"{REL_PATH}/database/activerenders/{interaction.id}/overall.png")],
+            view=view
+        )
+    except discord.errors.NotFound:
+        return
     
     func(mode="Solos", **kwargs)
     func(mode="Doubles", **kwargs)
@@ -739,82 +395,11 @@ def get_command_users():
     """
     Returns total amount of users to have run a command
     """
-    with sqlite3.connect('./database/command_usage.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/command_usage.db') as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT COUNT(*) FROM overall')
         total_users = cursor.fetchone()[0] - 1
     return total_users
-
-
-async def reset_historical(method: str, table_format: str, condition: str):
-    """
-    Loops through historical and resets each row if a condition is met
-    :param method: The historical type (daily, weekly, etc)
-    :param table_format: The datetime strftime format for the table name
-    :param condition: The condition to be evaluated to determine whether or not to reset
-    """
-    # Get all linked accounts
-    with sqlite3.connect('./database/linked_accounts.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM linked_accounts')
-        row = cursor.fetchone()
-
-        linked_data = {}
-        while row:
-            linked_data[row[1]] = row[0]
-            row = cursor.fetchone()
-
-    # Get all configuration and historical
-    with sqlite3.connect('./database/historical.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM configuration')
-        row = cursor.fetchone()
-
-        config_data = {}
-        while row:
-            config_data[row[0]] = row
-            row = cursor.fetchone()
-
-        cursor.execute(f'SELECT * FROM {method}')
-        historical_data = cursor.fetchall()
-
-    # Reset all historical that is at the correct time
-    utc_now = datetime.utcnow()
-    for historical in historical_data:
-        if not historical:
-            continue
-
-        uuid = historical[0]
-        start_time = time.time()
-
-        gmt_offset, hour = get_reset_time(uuid)
-
-        timezone = utc_now + timedelta(hours=gmt_offset)
-
-        if eval(condition) and timezone.hour == hour:
-            hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
-            hypixel_data = get_player_dict(hypixel_data)
-
-            stat_keys: list = get_config()['tracked_bedwars_stats']
-            stat_values = [hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
-
-            for key in stat_keys:
-                stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
-            stat_keys.insert(0, 'level')
-
-            with sqlite3.connect('./database/historical.db') as conn:
-                cursor = conn.cursor()
-
-                set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
-                cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{uuid}'", stat_values)
-
-            stat_values.insert(0, uuid)
-            table_name = (timezone - timedelta(days=1)).strftime(table_format)
-            save_historical(historical, stat_values, table=table_name)
-
-            time_elapsed = time.time() - start_time
-            sleep_time = 2 - (time_elapsed)
-            await asyncio.sleep(sleep_time)
 
 
 async def log_error_msg(client: discord.Client, error: Exception):

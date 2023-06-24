@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import asyncio
 from datetime import datetime, timedelta, timezone
 
@@ -8,22 +7,17 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
+from helper.historical import HistoricalManager, reset_historical
+from helper.linking import fetch_player_info, uuid_to_discord_id
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
-    start_historical,
-    uuid_to_discord_id,
-    get_lookback_eligiblility,
-    message_invalid_lookback,
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders,
-    reset_historical,
     log_error_msg,
-    get_reset_time
 )
 
 
@@ -55,11 +49,11 @@ class Daily(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    # @reset_daily.before_loop
-    # async def before_reset_daily(self):
-    #     now = datetime.now()
-    #     sleep_seconds = (60 - now.minute) * 60 - now.second
-    #     await asyncio.sleep(sleep_seconds)
+    @reset_daily.before_loop
+    async def before_reset_daily(self):
+        now = datetime.now()
+        sleep_seconds = (60 - now.minute) * 60 - now.second
+        await asyncio.sleep(sleep_seconds)
 
 
     @app_commands.command(name="daily", description="View the daily stats of a player")
@@ -68,19 +62,17 @@ class Daily(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def daily(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace("_", "\_")
 
-        gmt_offset, hour = get_reset_time(uuid)
+        historic = HistoricalManager(interaction.user.id, uuid)
+        gmt_offset, hour = historic.get_reset_time()
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM daily WHERE uuid = '{uuid}'")
-            historical_data = cursor.fetchone()
+        historical_data = historic.get_historical(table_name='daily')
 
         if not historical_data:
-            await start_historical(uuid=uuid)
+            await historic.start_historical()
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
@@ -124,20 +116,23 @@ class Daily(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastday(self, interaction: discord.Interaction, username: str=None, days: int=1):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace("_", "\_")
 
+        historic = HistoricalManager(interaction.user.id, uuid)
+        
         discord_id = uuid_to_discord_id(uuid=uuid)
-        max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
+
+        max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
         if -1 != max_lookback < days:
-            await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
+            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
             return
 
         if days < 1:
             days = 1
 
-        gmt_offset = get_reset_time(uuid)[0]
+        gmt_offset = historic.get_reset_time()[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
 
@@ -149,13 +144,7 @@ class Daily(commands.Cog):
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute(f"SELECT uuid FROM {table_name} WHERE uuid = '{uuid}'")
-                historical_data = cursor.fetchone()
-            except sqlite3.OperationalError:
-                historical_data = ()
+        historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
             await interaction.followup.send(f'{refined} has no tracked data for {days} day(s) ago!')

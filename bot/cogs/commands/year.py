@@ -5,15 +5,14 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.year import render_year
+from helper.linking import fetch_player_info, uuid_to_discord_id
 from helper.functions import (
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
     get_smart_session,
-    uuid_to_discord_id,
     get_subscription,
     fetch_skin_model,
     send_generic_renders,
@@ -73,8 +72,7 @@ class Year(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2024(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
         await self.year_command(interaction, name, uuid, session, 2024)
 
 
@@ -84,8 +82,7 @@ class Year(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         discord_id = uuid_to_discord_id(uuid)
         subscription = None

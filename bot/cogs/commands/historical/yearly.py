@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import asyncio
 
 from datetime import datetime, timedelta, timezone
@@ -10,24 +9,18 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
+from helper.historical import reset_historical, HistoricalManager
+from helper.linking import fetch_player_info, uuid_to_discord_id
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
-    start_historical,
     yearly_eligibility,
-    uuid_to_discord_id,
-    get_time_config,
     fetch_skin_model,
-    get_lookback_eligiblility,
-    message_invalid_lookback,
     ordinal, loading_message,
     send_generic_renders,
-    reset_historical,
     log_error_msg,
-    get_reset_time
 )
 
 
@@ -75,19 +68,17 @@ class Yearly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def yearly(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace("_", "\_")
 
-        gmt_offset, hour = get_reset_time(uuid)
+        historic = HistoricalManager(interaction.user.id, uuid)
+        gmt_offset, hour = historic.get_reset_time()
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM yearly WHERE uuid = '{uuid}'")
-            historical_data = cursor.fetchone()
+        historical_data = historic.get_historical(table_name='monthly')
 
         if not historical_data:
-            await start_historical(uuid=uuid)
+            await historic.start_historical()
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
@@ -104,7 +95,8 @@ class Yearly(commands.Cog):
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         relative_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
-        if hour > 0: hour -= 1
+        if hour > 0:
+            hour -= 1
         next_occurrence = datetime(now.year + 1, 1, 1, hour, 0, 0, tzinfo=timezone(timedelta(hours=gmt_offset)))
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
         timestamp = int(utc_next_occurrence.timestamp())
@@ -136,29 +128,32 @@ class Yearly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastyear(self, interaction: discord.Interaction, username: str=None, years: int=1):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         refined = name.replace("_", "\_")
-        discord_id = uuid_to_discord_id(uuid)
+
+        historic = HistoricalManager(interaction.user.id, uuid)
+        
+        discord_id = uuid_to_discord_id(uuid=uuid)
 
         # Check if user is allowed to use command
         result = await yearly_eligibility(interaction, discord_id)
         if not result:
             return
-
+ 
         # Check if user is within their lookback limitations
-        max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
-        if max_lookback == 60 and years == 1:
-            pass
-        elif -1 != max_lookback < (years * 365):
-            await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
+        # First checks if a user is checking 1 year back with a basic plan
+        # and then checks if the max lookback days are within the given amount of 
+        max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
+        if not (max_lookback == 60 and years == 1) and -1 != max_lookback < (years * 365):
+            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
             return
+
         if years < 1:
             years = 1
 
         # Get time / date information
-        gmt_offset = get_reset_time(uuid)[0]
+        gmt_offset = historic.get_reset_time()[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         try:
@@ -170,13 +165,7 @@ class Yearly(commands.Cog):
             return
 
         # Check if historical data exists
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute(f"SELECT uuid FROM {table_name} WHERE uuid = '{uuid}'")
-                historical_data = cursor.fetchone()
-            except sqlite3.OperationalError:
-                historical_data = ()
+        historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
             await interaction.followup.send(f'{refined} has no tracked data for {years} year(s) ago!')

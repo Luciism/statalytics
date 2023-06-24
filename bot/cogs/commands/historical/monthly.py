@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import asyncio
 
 from calendar import monthrange
@@ -11,22 +10,17 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
+from helper.historical import reset_historical, HistoricalManager
+from helper.linking import fetch_player_info, uuid_to_discord_id
 from helper.functions import (
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    authenticate_user,
-    start_historical,
     log_error_msg,
-    uuid_to_discord_id,
     fetch_skin_model,
-    get_lookback_eligiblility,
-    message_invalid_lookback,
     ordinal, loading_message,
     send_generic_renders,
-    reset_historical,
-    get_reset_time
 )
 
 
@@ -75,19 +69,17 @@ class Monthly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+
+        name, uuid = await fetch_player_info(username, interaction)
         refined = name.replace("_", "\_")
 
-        gmt_offset, hour = get_reset_time(uuid)
+        historic = HistoricalManager(interaction.user.id, uuid)
+        gmt_offset, hour = historic.get_reset_time()
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM monthly WHERE uuid = '{uuid}'")
-            historical_data = cursor.fetchone()
+        historical_data = historic.get_historical(table_name='monthly')
 
         if not historical_data:
-            await start_historical(uuid=uuid)
+            await historic.start_historical()
             await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
             return
 
@@ -102,6 +94,7 @@ class Monthly(commands.Cog):
         next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
         if now >= next_occurrence:
             next_occurrence = next_occurrence.replace(day=1, month=next_occurrence.month + 1)
+
         while next_occurrence.day != 1:
             next_occurrence += timedelta(days=1)
         utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
@@ -133,20 +126,23 @@ class Monthly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(get_command_cooldown)
     async def lastmonth(self, interaction: discord.Interaction, username: str=None, months: int=1):
         await interaction.response.defer()
-        try: name, uuid = await authenticate_user(username, interaction)
-        except TypeError: return
+        name, uuid = await fetch_player_info(username, interaction)
 
         refined = name.replace("_", "\_")
+
+        historic = HistoricalManager(interaction.user.id, uuid)
+        
         discord_id = uuid_to_discord_id(uuid=uuid)
 
-        max_lookback = await get_lookback_eligiblility(interaction=interaction, discord_id=discord_id)
+        max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
         if -1 != max_lookback < (months * 30):
-            await message_invalid_lookback(interaction=interaction, max_lookback=max_lookback)
+            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
             return
+
         if months < 1:
             months = 1
 
-        gmt_offset = get_reset_time(uuid)[0]
+        gmt_offset = historic.get_reset_time()[0]
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
 
@@ -158,13 +154,7 @@ class Monthly(commands.Cog):
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute(f"SELECT uuid FROM {table_name} WHERE uuid = '{uuid}'")
-                historical_data = cursor.fetchone()
-            except sqlite3.OperationalError:
-                historical_data = ()
+        historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
             await interaction.followup.send(f'{refined} has no tracked data for {months} month(s) ago!')

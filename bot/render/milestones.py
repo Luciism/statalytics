@@ -1,4 +1,5 @@
 from PIL import ImageDraw, ImageFont
+
 from calc.milestones import Stats
 from helper.rendername import render_level, get_rank_prefix, render_rank
 from helper.rendertools import get_background, paste_skin, box_center_text
