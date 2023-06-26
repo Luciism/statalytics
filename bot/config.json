@@ -63,7 +63,8 @@
         "commands.historical.daily",
         "commands.historical.weekly",
         "commands.historical.monthly",
-        "commands.historical.yearly"
+        "commands.historical.yearly",
+        "commands.status"
     ],
     "tracked_bedwars_stats": [
         "Experience",

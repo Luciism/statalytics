@@ -12,7 +12,7 @@ from helper.functions import (
 )
 
 
-class Compare(commands.Cog):
+class Status(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
 
@@ -64,4 +64,4 @@ class Compare(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Compare(client))
+    await client.add_cog(Status(client))
