@@ -28,37 +28,51 @@ class Status(commands.Cog):
         await interaction.response.defer()
 
         try:
-            d: dict = requests.get(f"https://api.polsu.xyz/polsu/minecraft/server?key={self.key}&ip=mc.hypixel.net", timeout=10).json()
+            d: dict = requests.get(
+                f"https://api.polsu.xyz/polsu/minecraft/server?key={self.key}&ip=mc.hypixel.net", timeout=10).json()
         except:
             # In case the API doesn't respond or reponds with HTML instead of JSON.
             d = {"success": False}
         
+        if not d["success"]:
+            await interaction.followup.send(content="Something went wrong...\nCouldn't load the data.", ephemeral=True)
+            return
+
         # Generating a unique timestamp & image url to avoid Discord's image cache.
         t: int = int(time())
 
-        if d["success"]:
-            data = d["data"]
+        data = d["data"]
 
-            embeds = []
-            embed = discord.Embed(title=f"Bedwars Practice Info", description=f"BWP's current server information.\n\n**` > ` Status**: `{'Online' if data['online'] else 'Offline'}`\n**` > ` IP**: **`{data['ip']}`**\n**` > ` Version**: `{data['version']}`\n\n**` > ` Updated**: <t:{data['time']['last']}>", colour=0x2f3136)
-            embed.set_image(url=f'{data["image"]["motd"]}?t={t}')
-            embed.set_thumbnail(url=f'{data["image"]["icon"]}?t={t}')
-            embed.set_footer(text=f"Powered by Polsu's API - https://api.polsu.xyz")
-            embeds.append(embed)
+        embeds = []
+        embed = discord.Embed(
+            title="Hypixel Status",
+            description=f"Hypixel's current server information.\n\n**` > ` Status**: `{'Online' if data['online'] else 'Offline'}`\n**` > ` IP**: **`{data['ip']}`**\n**` > ` Version**: `{data['version']}`\n\n**` > ` Updated**: <t:{data['time']['last']}>",
+            colour=0x2f3136
+        )
+        embed.set_image(url=f'{data["image"]["motd"]}?t={t}')
+        embed.set_thumbnail(url=f'{data["image"]["icon"]}?t={t}')
+        embed.set_footer(text=f"Powered by Polsu's API - https://api.polsu.xyz")
+        embeds.append(embed)
 
-            embed = discord.Embed(title="Ping", description=f"**` > ` Ping**: `{data['ping']['last']}`\n\n**` > ` Max**: `{data['ping']['max']}`\n**` > ` Average**: `{data['ping']['average']}`\n**` > ` Min**: `{data['ping']['min']}`\n", colour=0x2f3136)
-            embed.set_image(url=f'{data["image"]["ping"]}?t={t}')
-            embed.set_footer(text=f"UTC Time  -  Ping in ms (USA - Los Angeles)")
-            embeds.append(embed)
+        embed = discord.Embed(
+            title="Ping",
+            description=f"**` > ` Ping**: `{data['ping']['last']}`\n\n**` > ` Max**: `{data['ping']['max']}`\n**` > ` Average**: `{data['ping']['average']}`\n**` > ` Min**: `{data['ping']['min']}`\n",
+            colour=0x2f313
+        )
+        embed.set_image(url=f'{data["image"]["ping"]}?t={t}')
+        embed.set_footer(text="UTC Time  -  Ping in ms (USA - Los Angeles)")
+        embeds.append(embed)
 
-            embed = discord.Embed(title="Players", description=f"**` > ` Players**: `{data['players']['current']}/{data['players']['server_max']}`\n\n**` > ` Max**: `{data['players']['max']}`\n**` > ` Average**: `{data['players']['average']}`\n**` > ` Min**: `{data['players']['min']}`\n", colour=0x2f3136)
-            embed.set_image(url=f'{data["image"]["players"]}?t={t}')
-            embed.set_footer(text=f"Hypixel Status")
-            embeds.append(embed)
+        embed = discord.Embed(
+            title="Players",
+            description=f"**` > ` Players**: `{data['players']['current']}/{data['players']['server_max']}`\n\n**` > ` Max**: `{data['players']['max']}`\n**` > ` Average**: `{data['players']['average']}`\n**` > ` Min**: `{data['players']['min']}`\n",
+            colour=0x2f3136
+        )
+        embed.set_image(url=f'{data["image"]["players"]}?t={t}')
+        embed.set_footer(text="Hypixel Status")
+        embeds.append(embed)
 
-            await interaction.response.send_message(embeds=embeds)
-        else:
-            await interaction.response.send_message(content=f"Something went wrong...\nCouldn't load the data.", ephemeral=True)
+        await interaction.followup.send(embeds=embeds)
 
         update_command_stats(interaction.user.id, 'status_hypixel')
 
