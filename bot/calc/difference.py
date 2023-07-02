@@ -41,7 +41,7 @@ class Difference:
         self.progress = get_progress(hypixel_data_bedwars=self.hypixel_data_bedwars)
 
 
-    def calc_general_stats(self, key_1, key_2):
+    def _calc_general_stats(self, key_1, key_2):
         val_1_hypixel = self.hypixel_data_bedwars.get(key_1, 0)
         val_2_hypixel = self.hypixel_data_bedwars.get(key_2, 0)
 
@@ -62,19 +62,19 @@ class Difference:
 
 
     def get_wins(self):
-        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        return self._calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
 
     def get_finals(self):
-        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
 
     def get_beds(self):
-        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+        return self._calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
 
     def get_kills(self):
-        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
 
     def get_stars_gained(self):

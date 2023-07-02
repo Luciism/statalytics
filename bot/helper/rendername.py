@@ -23,6 +23,7 @@ color_map = {
     "WHITE": (255, 255, 255)
 }
 
+
 def get_rank_prefix(player_rank_info: dict):
     """
     Returns rank prefix relative to rankinfo
@@ -44,6 +45,7 @@ def get_rank_prefix(player_rank_info: dict):
         rank_prefix = ""
 
     return rank_prefix
+
 
 def render_level(level: int, position_x: int, position_y: int, fontsize: int, image: Image):
     """
@@ -101,6 +103,7 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
         position_x += draw.textlength('] ', font=font)
     
     return position_x
+
 
 def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str,
                 player_rank_info: dict, draw: ImageDraw, fontsize: int):
@@ -171,6 +174,8 @@ def render_rank(name: str, position_x: int, position_y: int, rank_prefix: str,
 
     draw.text((position_x + 2, position_y + 2), name, fill=color_map["BLACK"], font=font)
     draw.text((position_x, position_y), name, fill=bracket_color, font=font)
+
+
 
 def render_level_and_name(name: str, level: int, player_rank_info: dict,
                           image: Image, box_positions: tuple, position_y: int, fontsize: int):

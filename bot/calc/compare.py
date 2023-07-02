@@ -25,7 +25,7 @@ class Compare:
         self.player_rank_info = get_player_rank_info(self.hypixel_data_1), get_player_rank_info(self.hypixel_data_2)
 
 
-    def calc_general_stats(self, key_1, key_2):
+    def _calc_general_stats(self, key_1, key_2):
         val_1_1 = self.hypixel_data_bedwars_1.get(key_1, 0)
         val_2_1 = self.hypixel_data_bedwars_1.get(key_2, 0)
         ratio_1 = rround(val_1_1 / (val_2_1 or 1), 2)
@@ -48,16 +48,16 @@ class Compare:
 
 
     def get_wins(self):
-        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        return self._calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
 
     def get_finals(self):
-        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
 
     def get_beds(self):
-        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+        return self._calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
 
     def get_kills(self):
-        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')

@@ -22,7 +22,7 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
     iron_percentage, gold_percentage, diamond_percentage, emerald_percentage = resources.get_percentages()
     iron_most_mode, gold_most_mode, diamond_most_mode, emerald_most_mode = resources.get_most_modes()
 
-    image = get_background(path='./assets/resources', uuid=uuid,
+    image = get_background(path='./assets/bg/resources', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -98,7 +98,7 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
     draw.text((leng(f'({mode})', 174)+450, 65), f'({mode})', fill=white, font=minecraft_16)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/resources/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/resources/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

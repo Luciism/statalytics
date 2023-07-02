@@ -28,7 +28,7 @@ def render_historical(name, uuid, method, relative_date, title, mode,
     beds_broken, beds_lost, bblr = stats.get_beds()
     kills, deaths, kdr = stats.get_kills()
 
-    image = get_background(path=f'./assets/historical/{method}', uuid=uuid,
+    image = get_background(path=f'./assets/bg/historical/{method}', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -99,7 +99,7 @@ def render_historical(name, uuid, method, relative_date, title, mode,
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/historical/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/historical/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

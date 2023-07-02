@@ -69,7 +69,7 @@ class SessionStats:
         return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
 
 
-    def calc_general_stats(self, key_1, key_2):
+    def _calc_general_stats(self, key_1, key_2):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0) - self.session_data[key_1]
         val_2 = self.hypixel_data_bedwars.get(key_2, 0) - self.session_data[key_2]
         ratio = rround(val_1 / (val_2 or 1), 2)
@@ -77,19 +77,19 @@ class SessionStats:
 
 
     def get_wins(self):
-        return self.calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        return self._calc_general_stats(f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
 
     def get_finals(self):
-        return self.calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
 
     def get_kills(self):
-        return self.calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
+        return self._calc_general_stats(f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
 
     def get_beds(self):
-        return self.calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+        return self._calc_general_stats(f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
 
     def get_per_day(self):

@@ -80,6 +80,7 @@ class ColorMaps:
         1000: (red, gold, yellow, green, aqua, light_purple, dark_purple)
     }
 
+
 def get_prestige_colors(level: int) -> tuple:
     """
     Returns prestige colors based on level.

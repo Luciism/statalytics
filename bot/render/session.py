@@ -23,7 +23,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     kills, deaths, kdr = stats.get_kills()
     wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
-    image = get_background(path='./assets/session', uuid=uuid,
+    image = get_background(path='./assets/bg/session', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -95,7 +95,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/session/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/session/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

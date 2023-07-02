@@ -1,3 +1,5 @@
+# api.antisniper.net
+
 import json
 import random
 import typing

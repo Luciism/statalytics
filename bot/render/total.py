@@ -29,7 +29,7 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         games_played, times_voided, items_purchased, winstreak = stats.get_misc_pointless()
 
 
-    image = get_background(path='./assets/total', uuid=uuid,
+    image = get_background(path='./assets/bg/total', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -95,7 +95,7 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/total/overlay_{method}.png')
+    overlay_image = Image.open(f'./assets/bg/total/overlay_{method}.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

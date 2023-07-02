@@ -27,7 +27,7 @@ def render_difference(name, uuid, relative_date, method,
     light_purple = (255, 85, 255)
     gold = (255, 170, 0)
 
-    image = get_background(path='./assets/difference', uuid=uuid,
+    image = get_background(path='./assets/bg/difference', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
     image = image.convert("RGBA")
 
@@ -98,7 +98,7 @@ def render_difference(name, uuid, relative_date, method,
                          progress=progress, target=target, draw=draw)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/difference/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/difference/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

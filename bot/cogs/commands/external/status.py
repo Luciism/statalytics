@@ -1,3 +1,5 @@
+# api.polsu.xyz
+
 import os
 import requests
 from time import time
@@ -51,13 +53,13 @@ class Status(commands.Cog):
         )
         embed.set_image(url=f'{data["image"]["motd"]}?t={t}')
         embed.set_thumbnail(url=f'{data["image"]["icon"]}?t={t}')
-        embed.set_footer(text=f"Powered by Polsu's API - https://api.polsu.xyz")
+        embed.set_footer(text=f"Powered by api.polsu.xyz")
         embeds.append(embed)
 
         embed = discord.Embed(
             title="Ping",
-            description=f"**` > ` Ping**: `{data['ping']['last']}`\n\n**` > ` Max**: `{data['ping']['max']}`\n**` > ` Average**: `{data['ping']['average']}`\n**` > ` Min**: `{data['ping']['min']}`\n",
-            colour=0x2f313
+            description=f"**` > ` Ping**: `{data['ping']['last']:,}`\n\n**` > ` Max**: `{data['ping']['max']:,}`\n**` > ` Average**: `{data['ping']['average']:,}`\n**` > ` Min**: `{data['ping']['min']:,}`\n",
+            colour=0x2f3136
         )
         embed.set_image(url=f'{data["image"]["ping"]}?t={t}')
         embed.set_footer(text="UTC Time  -  Ping in ms (USA - Los Angeles)")
@@ -65,7 +67,7 @@ class Status(commands.Cog):
 
         embed = discord.Embed(
             title="Players",
-            description=f"**` > ` Players**: `{data['players']['current']}/{data['players']['server_max']}`\n\n**` > ` Max**: `{data['players']['max']}`\n**` > ` Average**: `{data['players']['average']}`\n**` > ` Min**: `{data['players']['min']}`\n",
+            description=f"**` > ` Players**: `{data['players']['current']:,} / {data['players']['server_max']:,}`\n\n**` > ` Max**: `{data['players']['max']:,}`\n**` > ` Average**: `{data['players']['average']:,}`\n**` > ` Min**: `{data['players']['min']:,}`\n",
             colour=0x2f3136
         )
         embed.set_image(url=f'{data["image"]["players"]}?t={t}')

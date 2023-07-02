@@ -26,7 +26,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
         tnt_completed, tnt_failed, mlg_completed, mlg_failed, pearl_completed, pearl_failed)))
     attempts = f'{attempts:,}'
 
-    image = get_background(path='./assets/practice', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/bg/practice', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -90,7 +90,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/practice/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/practice/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

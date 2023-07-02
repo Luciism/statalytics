@@ -15,7 +15,7 @@ def render_compare(name_1, name_2, uuid_1, mode,
     beds_broken, beds_lost, bblr, beds_broken_diff, beds_lost_diff, bblr_diff = compare.get_beds()
     kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = compare.get_kills()
 
-    image = get_background(path='./assets/compare', uuid=uuid_1,
+    image = get_background(path='./assets/bg/compare', uuid=uuid_1,
                            default='base', level=level_1, rank_info=rank_info_1)
 
     image = image.convert("RGBA")
@@ -93,7 +93,7 @@ def render_compare(name_1, name_2, uuid_1, mode,
                           box_positions=(17, 401), position_y=51, fontsize=18)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/compare/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/compare/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

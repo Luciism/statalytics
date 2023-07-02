@@ -18,7 +18,7 @@ def render_hotbar(name, uuid, hypixel_data):
     player_rank_info = get_player_rank_info(hypixel_data)
     rankcolor = get_rank_color(player_rank_info)
 
-    base_image = get_background(path='./assets/hotbar', uuid=uuid,
+    base_image = get_background(path='./assets/bg/hotbar', uuid=uuid,
                                 default='base', level=0, rank_info=player_rank_info)
 
     base_image = base_image.convert("RGBA")
@@ -26,11 +26,11 @@ def render_hotbar(name, uuid, hypixel_data):
     composite_image = Image.new("RGBA", base_image.size)
 
     for i, item in enumerate(hotbar):
-        top_image = Image.open(f"./assets/hotbar/{item.lower()}.png")
+        top_image = Image.open(f"./assets/bg/hotbar/{item.lower()}.png")
         top_image = top_image.convert("RGBA")
         composite_image.paste(top_image, slots[i], top_image)
 
-    overlay_image = Image.open('./assets/hotbar/overlay.png')
+    overlay_image = Image.open('./assets/bg/hotbar/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     composite_image.paste(overlay_image, (0, 0), overlay_image)
 

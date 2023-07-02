@@ -21,7 +21,7 @@ def render_projection(name, uuid, session, mode, target,
     wins, losses, wlr = stats.get_wins()
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
 
-    image = get_background(path='./assets/projection', uuid=uuid,
+    image = get_background(path='./assets/bg/projection', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -114,7 +114,7 @@ def render_projection(name, uuid, session, mode, target,
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open('./assets/projection/overlay.png')
+    overlay_image = Image.open('./assets/bg/projection/overlay.png')
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image

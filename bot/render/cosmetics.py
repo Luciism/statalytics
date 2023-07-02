@@ -25,7 +25,7 @@ def render_cosmetics(name, uuid, hypixel_data):
         'kill_message': (299, 430)
     }
 
-    image = get_background(path='./assets/cosmetics', uuid=uuid,
+    image = get_background(path='./assets/bg/cosmetics', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -42,7 +42,7 @@ def render_cosmetics(name, uuid, hypixel_data):
         draw.text((x, y), cosmetic_text, fill=white, font=font)
 
     # Render the titles
-    title_image = Image.open('./assets/cosmetics/overlay.png')
+    title_image = Image.open('./assets/bg/cosmetics/overlay.png')
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name

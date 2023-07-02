@@ -29,7 +29,7 @@ def render_mostplayed(name, uuid, hypixel_data):
     positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
     # Open Images
-    base_image = get_background(path='./assets/mostplayed', uuid=uuid,
+    base_image = get_background(path='./assets/bg/mostplayed', uuid=uuid,
                                 default='base', level=0, rank_info=player_rank_info)
 
     base_image = base_image.convert("RGBA")
@@ -72,7 +72,7 @@ def render_mostplayed(name, uuid, hypixel_data):
     draw.text((startpoint, player_y), player_txt, fill=white, font=font)
 
     # Render the titles
-    overlay_image = Image.open('./assets/mostplayed/overlay.png')
+    overlay_image = Image.open('./assets/bg/mostplayed/overlay.png')
     base_image = Image.alpha_composite(base_image, overlay_image)
 
     # Return the image

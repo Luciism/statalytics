@@ -3,7 +3,7 @@
     "bot_name": "Statalytics",
     "version": "1.5.7",
     "developers": [
-        "Luca.#6666"
+        "lukism"
     ],
     "links": {
         "website": "https://statalytics.net/",
@@ -36,35 +36,44 @@
         }
     },
     "enabled_cogs": [
-        "misc.counts",
-        "commands.year",
-        "commands.denick",
-        "commands.sessions",
+        "tasks.counts",
+
         "commands.linking",
-        "commands.projection",
-        "commands.shop",
-        "commands.mostplayed",
-        "commands.total",
-        "commands.average",
-        "commands.misc",
-        "commands.resources",
         "commands.skin",
-        "commands.practice",
-        "commands.milestones",
-        "commands.cosmetics",
-        "commands.hotbar",
-        "commands.compare",
         "commands.who",
-        "commands.displayname",
-        "commands.info",
-        "commands.voting",
         "commands.settings",
-        "commands.difference",
-        "commands.historical.daily",
-        "commands.historical.weekly",
-        "commands.historical.monthly",
-        "commands.historical.yearly",
-        "commands.status"
+
+
+        "commands.misc.credits",
+        "commands.misc.help",
+        "commands.misc.info",
+        "commands.misc.invite",
+        "commands.misc.suggest",
+        "commands.misc.usage",
+        "commands.misc.vote",
+
+        "commands.bedwars.year",
+        "commands.bedwars.sessions",
+        "commands.bedwars.projection",
+        "commands.bedwars.shop",
+        "commands.bedwars.mostplayed",
+        "commands.bedwars.total",
+        "commands.bedwars.average",
+        "commands.bedwars.resources",
+        "commands.bedwars.practice",
+        "commands.bedwars.milestones",
+        "commands.bedwars.cosmetics",
+        "commands.bedwars.hotbar",
+        "commands.bedwars.compare",
+        "commands.bedwars.displayname",
+        "commands.bedwars.difference",
+        "commands.bedwars.historical.daily",
+        "commands.bedwars.historical.weekly",
+        "commands.bedwars.historical.monthly",
+        "commands.bedwars.historical.yearly",
+
+        "commands.external.denick",
+        "commands.external.status"
     ],
     "tracked_bedwars_stats": [
         "Experience",

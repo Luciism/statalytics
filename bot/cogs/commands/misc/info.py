@@ -1,4 +1,5 @@
 import os
+import json
 import psutil
 import sys
 import time
@@ -41,7 +42,7 @@ class Info(commands.Cog):
 
         # Other shit
         total_guilds = len(self.client.guilds)
-        total_members = get_command_users()
+        total_users = get_command_users()
 
         with open('./database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']
@@ -52,49 +53,31 @@ class Info(commands.Cog):
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
-        # Embed
-        embed = discord.Embed(
-            title='Statalytics Info',
-            description=None,
-            color=get_embed_color('primary')
-        )
-
-        embed.add_field(name='Key Metrics', value=f"""
-            `┌` **Uptime:** `{uptime}`
-            `├` **Ping:** `{ping:,}ms`
-            `├` **Commands:** `{total_commands:,}`
-            `└` **Version:** `{config['version']}`
-        """.replace('   ', ''))
-
-        embed.add_field(name='', value='')
-
-        embed.add_field(name='Bot Usage Stats', value=f"""
-            `┌` **Servers:** `{total_guilds:,}`
-            `├` **Users:** `{total_members:,}`
-            `├` **Commands Ran:** `{total_commands_ran:,}`
-            `└` **Linked Users**: `{total_linked_accounts:,}`
-            ​
-        """.replace('   ', ''))
-
         python_version = '.'.join((str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])))
         ram_usage = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, 2)
-        embed.add_field(name='Specifications', value=f"""
-            `┌` **Devs:** `{', '.join(config['developers'])}`
-            `├` **Library:** `discord.py`
-            `├` **Python:** `{python_version}`
-            `└` **Used RAM:** `{ram_usage:,}mb`
-        """.replace('   ', ''))
 
-        embed.add_field(name='', value='')
+        with open('./assets/embeds/info.json', 'r') as datafile:
+            info_embed_str: str = json.load(datafile)['embeds'][0]
 
-        embed.add_field(name='Links', value=f"""
-            `┌` [Invite]({config['links']['invite_url']})
-            `├` [Website]({config['links']['website']})
-            `├` [Support]({config['links']['support_server']})
-            `└` [Github]({config['links']['github']})
-        """.replace('   ', ''))
+        info_embed_str = info_embed_str.format(
+            t='┌', c='├', b='└', br='​', # Special chars
+            embed_color=get_embed_color('primary'),
+            uptime=uptime,
+            ping=f'{ping:,}',
+            commands=f'{total_commands:,}',
+            version=config['version'],
+            servers=f'{total_guilds:,}',
+            users=f'{total_users:,}',
+            commands_ran=f'{total_commands_ran:,}',
+            linked_users=f'{total_linked_accounts:,}',
+            devs=', '.join(config["developers"]),
+            library='discord.py',
+            python_ver=python_version,
+            ram_usage=ram_usage
+        ).replace("{{", "{").replace("}}", "}")
 
-        embed.set_thumbnail(url='https://statalytics.net/image/logo.png?v=2')
+        embed = discord.Embed.from_dict(json.loads(info_embed_str))
+
         await interaction.followup.send(embed=embed)
 
         update_command_stats(discord_id=interaction.user.id, command='info')

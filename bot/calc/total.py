@@ -23,7 +23,7 @@ class Stats:
         self.most_played = get_most_played(self.hypixel_data_bedwars)
 
 
-    def calc_general_stats(self, key_1, key_2):
+    def _calc_general_stats(self, key_1, key_2):
         val_1 = self.hypixel_data_bedwars.get(key_1, 0)
         val_2 = self.hypixel_data_bedwars.get(key_2, 0)
         ratio = rround(val_1 / (val_2 or 1), 2)
@@ -31,42 +31,42 @@ class Stats:
 
 
     def get_kills(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
 
 
     def get_finals(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
 
 
     def get_beds(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
 
 
     def get_wins(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
 
 
     def get_falling_kills(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}fall_kills_bedwars', f'{self.mode}fall_deaths_bedwars')
 
 
     def get_void_kills(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}void_kills_bedwars', f'{self.mode}void_deaths_bedwars')
 
 
     def get_ranged_kills(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}projectile_kills_bedwars', f'{self.mode}projectile_deaths_bedwars')
 
 
     def get_fire_kills(self):
-        return self.calc_general_stats(
+        return self._calc_general_stats(
             f'{self.mode}fire_tick_kills_bedwars', f'{self.mode}fire_tick_deaths_bedwars')
 
 

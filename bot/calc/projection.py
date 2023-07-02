@@ -41,7 +41,7 @@ class ProjectedStats:
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
 
-    def get_increase_factor(self, value):
+    def _get_increase_factor(self, value):
         if self.level_repetition > 0:
             try: increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
             except OverflowError: increase_factor = 0
@@ -51,7 +51,7 @@ class ProjectedStats:
         return increased_value
 
 
-    def get_trajectory(self, value_1, value_2):
+    def _get_trajectory(self, value_1, value_2):
         value_1_hypixel = self.hypixel_data_bedwars.get(value_1, 0)
         value_2_hypixel = self.hypixel_data_bedwars.get(value_2, 0)
 
@@ -61,7 +61,7 @@ class ProjectedStats:
         value_1_repetition = value_1_local * self.level_repetition
         value_2_repetition = value_2_local * self.level_repetition
 
-        projected_value_1 = self.get_increase_factor(value_1_repetition) + value_1_hypixel
+        projected_value_1 = self._get_increase_factor(value_1_repetition) + value_1_hypixel
         projected_value_2 = round(value_2_repetition + value_2_hypixel)
         projected_ratio = rround(projected_value_1 / (projected_value_2 or 1), 2)
 
@@ -69,7 +69,7 @@ class ProjectedStats:
 
 
     def get_kills(self):
-        self.kills = self.get_trajectory(
+        self.kills = self._get_trajectory(
             value_1=f'{self.mode}kills_bedwars', value_2=f'{self.mode}deaths_bedwars')
 
         formatted_values = add_suffixes(*self.kills)
@@ -77,7 +77,7 @@ class ProjectedStats:
 
 
     def get_finals(self):
-        self.finals = self.get_trajectory(
+        self.finals = self._get_trajectory(
             value_1=f'{self.mode}final_kills_bedwars', value_2=f'{self.mode}final_deaths_bedwars')
 
         formatted_values = add_suffixes(*self.finals)
@@ -85,7 +85,7 @@ class ProjectedStats:
 
 
     def get_beds(self):
-        self.beds = self.get_trajectory(
+        self.beds = self._get_trajectory(
             value_1=f'{self.mode}beds_broken_bedwars', value_2=f'{self.mode}beds_lost_bedwars')
 
         formatted_values = add_suffixes(*self.beds)
@@ -93,7 +93,7 @@ class ProjectedStats:
 
 
     def get_wins(self):
-        self.wins = self.get_trajectory(
+        self.wins = self._get_trajectory(
             value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
 
         formatted_values = add_suffixes(*self.wins)

@@ -27,7 +27,7 @@ def render_year(name, uuid, session, year, mode,
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
     year = str(year)
 
-    image = get_background(path='./assets/year', uuid=uuid,
+    image = get_background(path='./assets/bg/year', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -124,7 +124,7 @@ def render_year(name, uuid, session, year, mode,
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open('./assets/year/overlay.png')
+    overlay_image = Image.open('./assets/bg/year/overlay.png')
     overlay_image = overlay_image.convert('RGBA')
     image.paste(overlay_image, (0, 0), overlay_image)
 

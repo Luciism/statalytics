@@ -44,7 +44,7 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     red = (255, 76, 76)
     black = (0, 0, 0)
 
-    image = get_background(path='./assets/average', uuid=uuid,
+    image = get_background(path='./assets/bg/average', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")
@@ -105,7 +105,7 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
                          progress=progress, target=target, draw=draw)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/average/overlay.png')
+    overlay_image = Image.open(f'./assets/bg/average/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

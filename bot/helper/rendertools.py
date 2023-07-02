@@ -1,7 +1,7 @@
 import os
-import time
 import sqlite3
 from io import BytesIO
+from datetime import datetime
 
 import numpy as np
 from PIL import Image, UnidentifiedImageError, ImageDraw
@@ -167,7 +167,7 @@ def get_background(path, uuid, default, **kwargs):
     # If the user has configured a theme
     if rewards_data and rewards_data[1]:
         # If the user has voted in the past 24 hours
-        current_time = time.time()
+        current_time = datetime.utcnow().timestamp()
         voted_recently = voting_data and ((current_time - voting_data[3]) / 3600 < 24)
 
         theme = rewards_data[1]

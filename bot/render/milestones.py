@@ -53,7 +53,7 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
         ((342, 430), (deaths_until_deaths, red), target_deaths, " Deaths Until ")
     )
 
-    image = get_background(path='./assets/milestones', uuid=uuid,
+    image = get_background(path='./assets/bg/milestones', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")

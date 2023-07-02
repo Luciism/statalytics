@@ -23,7 +23,7 @@ def render_shop(name, uuid, hypixel_data):
 
     player_rank_info = get_player_rank_info(hypixel_data=hypixel_data['player'])
 
-    base_image = get_background(path='./assets/shop', uuid=uuid,
+    base_image = get_background(path='./assets/bg/shop', uuid=uuid,
                                 default='base', level=0, rank_info=player_rank_info)
 
     base_image = base_image.convert("RGBA")
@@ -31,10 +31,10 @@ def render_shop(name, uuid, hypixel_data):
     composite_image = Image.new("RGBA", base_image.size)
 
     for i, item in enumerate(shop):
-        if os.path.exists(f"./assets/shop/{item}.png"):
-            top_image = Image.open(f"./assets/shop/{item}.png")
+        if os.path.exists(f"./assets/bg/shop/{item}.png"):
+            top_image = Image.open(f"./assets/bg/shop/{item}.png")
         else:
-            top_image = Image.open(f"./assets/shop/rotational_item.png")
+            top_image = Image.open(f"./assets/bg/shop/rotational_item.png")
         top_image = top_image.convert("RGBA")
         composite_image.paste(top_image, slots[i], top_image)
 
