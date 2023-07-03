@@ -2,9 +2,11 @@ import time
 import sqlite3
 import random
 from datetime import datetime, timedelta
+from json import JSONDecodeError
+from requests import HTTPError
 
 import asyncio
-from discord import Embed
+from discord import Embed, Client
 
 from .errors import NoLinkedAccountError
 from .calctools import get_player_dict
@@ -15,7 +17,8 @@ from .functions import (
     get_subscription,
     get_hypixel_data,
     get_config,
-    historic_cache
+    historic_cache,
+    log_error_msg
 )
 
 
@@ -288,12 +291,14 @@ def get_lookback_eligiblility(discord_id_primary: int, discord_id_secondary: int
     return 30
 
 
-async def reset_historical(method: str, table_format: str, condition: str):
+async def reset_historical(method: str, table_format: str,
+                           condition: str, client: Client | None = None):
     """
     Loops through historical and resets each row if a condition is met
     :param method: The historical type (daily, weekly, etc)
     :param table_format: The datetime strftime format for the table name
     :param condition: The condition to be evaluated to determine whether or not to reset
+    :param client: discord client object for error logging
     """
     # Get all linked accounts
     with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
@@ -326,37 +331,42 @@ async def reset_historical(method: str, table_format: str, condition: str):
         if not historical:
             continue
 
-        uuid = historical[0]
-        start_time = time.time()
+        try:
+            uuid = historical[0]
+            start_time = time.time()
 
-        gmt_offset, hour = get_reset_time(uuid)
+            gmt_offset, hour = get_reset_time(uuid)
 
-        timezone = utc_now + timedelta(hours=gmt_offset)
+            timezone = utc_now + timedelta(hours=gmt_offset)
 
-        if eval(condition) and timezone.hour == hour:
-            hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
-            hypixel_data = get_player_dict(hypixel_data)
+            if eval(condition) and timezone.hour == hour:
+                hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
+                hypixel_data = get_player_dict(hypixel_data)
 
-            stat_keys: list = get_config()['tracked_bedwars_stats']
-            stat_values = [hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
+                stat_keys: list = get_config()['tracked_bedwars_stats']
+                stat_values = [hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
 
-            for key in stat_keys:
-                stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
-            stat_keys.insert(0, 'level')
+                for key in stat_keys:
+                    stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
+                stat_keys.insert(0, 'level')
 
-            with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
-                cursor = conn.cursor()
+                with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+                    cursor = conn.cursor()
 
-                set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
-                cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{uuid}'", stat_values)
+                    set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
+                    cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{uuid}'", stat_values)
 
-            stat_values.insert(0, uuid)
-            table_name = (timezone - timedelta(days=1)).strftime(table_format)
-            save_historical(historical, stat_values, table=table_name)
+                stat_values.insert(0, uuid)
+                table_name = (timezone - timedelta(days=1)).strftime(table_format)
+                save_historical(historical, stat_values, table=table_name)
 
-            time_elapsed = time.time() - start_time
-            sleep_time = 2 - (time_elapsed)
-            await asyncio.sleep(sleep_time)
+                time_elapsed = time.time() - start_time
+                sleep_time = 2 - (time_elapsed)
+                await asyncio.sleep(sleep_time)
+
+        except Exception as error:
+            await log_error_msg(client=client, error=error)
+            continue
 
 
 class HistoricalManager:

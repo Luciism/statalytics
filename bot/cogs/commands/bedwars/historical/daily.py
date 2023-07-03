@@ -32,7 +32,8 @@ class Daily(commands.Cog):
         await reset_historical(
             method='daily',
             table_format='daily_%Y_%m_%d',
-            condition='True'
+            condition='True',
+            client=self.client
         )
 
 
@@ -49,11 +50,11 @@ class Daily(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    @reset_daily.before_loop
-    async def before_reset_daily(self):
-        now = datetime.now()
-        sleep_seconds = (60 - now.minute) * 60 - now.second
-        await asyncio.sleep(sleep_seconds)
+    # @reset_daily.before_loop
+    # async def before_reset_daily(self):
+    #     now = datetime.now()
+    #     sleep_seconds = (60 - now.minute) * 60 - now.second
+    #     await asyncio.sleep(sleep_seconds)
 
 
     @app_commands.command(name="daily", description="View the daily stats of a player")

@@ -39,7 +39,8 @@ class Monthly(commands.Cog):
         await reset_historical(
             method='monthly',
             table_format='monthly_%Y_%m',
-            condition='timezone.day == 1'
+            condition='timezone.day == 1',
+            client=self.client
         )
 
 

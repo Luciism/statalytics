@@ -411,7 +411,7 @@ async def log_error_msg(client: discord.Client, error: Exception):
     traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
     print(traceback_str)
 
-    if os.environ.get('STATALYTICS_ENVIRONMENT') == 'development':
+    if os.environ.get('STATALYTICS_ENVIRONMENT') == 'development' or not client:
         return
 
     config = get_config()

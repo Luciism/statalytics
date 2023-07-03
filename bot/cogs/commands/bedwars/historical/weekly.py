@@ -36,7 +36,8 @@ class Weekly(commands.Cog):
         await reset_historical(
             method='weekly',
             table_format='weekly_%Y_%U',
-            condition='timezone.weekday() == 6'
+            condition='timezone.weekday() == 6',
+            client=self.client
         )
 
 

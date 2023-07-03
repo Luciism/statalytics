@@ -38,7 +38,8 @@ class Yearly(commands.Cog):
         await reset_historical(
             method='yearly',
             table_format='yearly_%Y',
-            condition='timezone.timetuple().tm_yday == 1'
+            condition='timezone.timetuple().tm_yday == 1',
+            client=self.client
         )
 
 
