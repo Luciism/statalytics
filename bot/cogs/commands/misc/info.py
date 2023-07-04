@@ -29,16 +29,17 @@ class Info(commands.Cog):
         await interaction.response.defer()
 
         # Usage metrics
-        with sqlite3.connect('./database/command_usage.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                f'SELECT commands_ran FROM overall WHERE discord_id = 0')
-            total_commands_ran = cursor.fetchone()[0]
+            cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
+            result = cursor.fetchone()
+            commands_ran = 0 if not result else result[0]
 
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT COUNT(discord_id) FROM linked_accounts')
-            total_linked_accounts = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            linked_accounts = 0 if not result else result[0]
 
         # Other shit
         total_guilds = len(self.client.guilds)
@@ -68,8 +69,8 @@ class Info(commands.Cog):
             version=config['version'],
             servers=f'{total_guilds:,}',
             users=f'{total_users:,}',
-            commands_ran=f'{total_commands_ran:,}',
-            linked_users=f'{total_linked_accounts:,}',
+            commands_ran=f'{commands_ran:,}',
+            linked_users=f'{linked_accounts:,}',
             devs=', '.join(config["developers"]),
             library='discord.py',
             python_ver=python_version,

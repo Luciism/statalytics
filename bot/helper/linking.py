@@ -17,7 +17,7 @@ def uuid_to_discord_id(uuid: str) -> int | None:
     Attempts to fetch discord id from linked database
     :param uuid: The uuid of the player to find linked data for
     """
-    with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
@@ -31,7 +31,7 @@ def get_linked_data(discord_id: int) -> tuple:
     Returns a users linked data from linked database
     :param discord_id: The discord id of user's linked data to be retrieved
     """
-    with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
         return cursor.fetchone()
@@ -43,7 +43,7 @@ def set_linked_data(discord_id: int, uuid: str) -> None:
     :param discord_id: the discord id of the respective user
     :param uuid: the minecraft uuid of the relvative user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
         linked_data = cursor.fetchone()
@@ -63,7 +63,7 @@ def update_autofill(discord_id: int, uuid: str, username: str) -> None:
     """
     subscription: tuple = get_subscription(discord_id)
     if subscription:
-        with sqlite3.connect(f'{REL_PATH}/database/autofill.db') as conn:
+        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
             autofill_data: tuple = cursor.fetchone()

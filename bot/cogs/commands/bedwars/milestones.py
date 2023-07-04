@@ -36,7 +36,7 @@ class Milestones(commands.Cog):
         if session is None:
             session = 100
 
-        with sqlite3.connect('./database/sessions.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
             if not cursor.fetchone() and not session in (0, 100):

@@ -9,14 +9,14 @@ def get_owned_themes(discord_id: int) -> list:
     Returns list of themes owned by a discord user
     :param discord_id: the discord id of the respective user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(
-            f'SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}')
+            f'SELECT owned_themes FROM themes_data WHERE discord_id = {discord_id}')
         owned_themes: tuple = cursor.fetchone()
-    
-    if owned_themes:
+
+    if owned_themes and owned_themes[0]:
         return owned_themes[0].split(',')
     return []
 
@@ -47,22 +47,26 @@ def add_owned_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to be given to the user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(
-            f"SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}")
+            f"SELECT * FROM themes_data WHERE discord_id = {discord_id}")
 
-        owned_themes = cursor.fetchone()
+        themes_data = cursor.fetchone()
 
-        if owned_themes:
-            if not theme_name in owned_themes[0].split(','):
+        if themes_data:
+            owned_str = themes_data[1]
+            owned_list = owned_str.split(',') if owned_str else []
+
+            if not theme_name in owned_list:
+                owned_list.append(theme_name)
                 cursor.execute(
-                    f"UPDATE owned_themes SET owned_themes = ? WHERE discord_id = ?",
-                    (f'{owned_themes[0]},{theme_name}', discord_id)
+                    f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    (','.join(owned_list), discord_id)
                 )
         else:
             cursor.execute(
-                f'INSERT INTO owned_themes (discord_id, owned_themes) VALUES (?, ?)',
+                f'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
                 (discord_id, theme_name)
             )
 
@@ -73,25 +77,22 @@ def remove_owned_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to be taken from the user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(
-            f"SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}")
+            f"SELECT owned_themes FROM themes_data WHERE discord_id = {discord_id}")
 
         owned_themes = cursor.fetchone()
 
-        if owned_themes:
-            owned_themes: list = owned_themes[0].split(',')
+        if owned_themes and (owned_str := owned_themes[0]):
+            owned_themes: list = owned_str.split(',')
 
             if theme_name in owned_themes:
-                if len(owned_themes) > 1:
-                    owned_themes.remove(theme_name)
-                    cursor.execute(
-                        f"UPDATE owned_themes SET owned_themes = ? WHERE discord_id = ?",
-                        (','.join(owned_themes), discord_id)
-                    )
-                else:
-                    cursor.execute(f'DELETE FROM owned_themes WHERE discord_id = {discord_id}')
+                owned_themes.remove(theme_name)
+                cursor.execute(
+                    f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    (','.join(owned_themes) if owned_themes else None, discord_id)
+                )
 
 
 def set_owned_themes(discord_id: int, themes: list | tuple):
@@ -103,15 +104,15 @@ def set_owned_themes(discord_id: int, themes: list | tuple):
     if not themes:
         return
 
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT owned_themes FROM owned_themes WHERE discord_id = {discord_id}")
+        cursor.execute(f"SELECT * FROM themes_data WHERE discord_id = {discord_id}")
 
-        owned_themes = cursor.fetchone()
+        themes_data = cursor.fetchone()
 
-        if owned_themes:
+        if themes_data:
             cursor.execute(
-                f"UPDATE owned_themes SET owned_themes = ? WHERE discord_id = ?",
+                f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
                 (','.join(themes), discord_id)
             )
         else:
@@ -121,21 +122,21 @@ def set_owned_themes(discord_id: int, themes: list | tuple):
             )
 
 
-def get_active_theme(discord_id: int, default='none'):
+def get_active_theme(discord_id: int, default='none') -> str:
     """
     Get a user's current active theme pack
     :param discord_id: the discord id of the respective user
     :param default: the default value to return if the user has no active theme
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(
-            f'SELECT enabled_theme FROM rewards_data WHERE discord_id = {discord_id}')
-        rewards_data = cursor.fetchone()
+            f'SELECT selected_theme FROM themes_data WHERE discord_id = {discord_id}')
+        selected = cursor.fetchone()
 
-    if rewards_data:
-        return rewards_data[0]
+    if selected and (active := selected[0]):
+        return active
     return default
 
 
@@ -145,21 +146,21 @@ def set_active_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to set as active
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(
-            f'SELECT enabled_theme FROM rewards_data WHERE discord_id = {discord_id}')
-        rewards_data = cursor.fetchone()
+            f'SELECT * FROM themes_data WHERE discord_id = {discord_id}')
+        themes_data = cursor.fetchone()
 
-        if rewards_data:
+        if themes_data and themes_data[2]:
             cursor.execute(
-                f"UPDATE rewards_data SET enabled_theme = ? WHERE discord_id = ?",
+                f"UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
                 (theme_name, discord_id)    
             )
         else:
             cursor.execute(
-                f"INSERT INTO rewards_data (discord_id, enabled_theme) VALUES (?, ?)",
+                f"INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
                 (discord_id, theme_name)
             )
 

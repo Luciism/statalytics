@@ -16,7 +16,7 @@ class Stats:
         self.name = name
         self.mode = get_mode(mode)
 
-        with sqlite3.connect('./database/sessions.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()

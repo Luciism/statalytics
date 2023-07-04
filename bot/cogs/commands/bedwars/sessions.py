@@ -42,7 +42,7 @@ class ManageSession(discord.ui.View):
         button.disabled = True
         await self.message.edit(view=self)
 
-        with sqlite3.connect('./database/sessions.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
 
             if self.method == "delete":
@@ -52,7 +52,7 @@ class ManageSession(discord.ui.View):
                 cursor.execute("DELETE FROM sessions WHERE session = ? AND uuid = ?", (self.session, self.uuid))
 
         if self.method != "delete":
-            start_session(self.uuid, self.session)
+            await start_session(self.uuid, self.session)
             message = f'Session `{self.session}` has been reset successfully!'
         await interaction.followup.send(message, ephemeral=True)
 
@@ -103,14 +103,14 @@ class Sessions(commands.Cog):
 
 
     @session_group.command(name="start", description="Starts a new session")
-    async def start_session(self, interaction: discord.Interaction):
+    async def session_start(self, interaction: discord.Interaction):
         await interaction.response.defer()
         linked_data = get_linked_data(interaction.user.id)
 
         if linked_data:
             uuid = linked_data[1]
 
-            with sqlite3.connect('./database/sessions.db') as conn:
+            with sqlite3.connect('./database/core.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
                 sessions = cursor.fetchall()
@@ -121,11 +121,11 @@ class Sessions(commands.Cog):
                 for i, session in enumerate(sessions):
                     if session[0] != i + 1:
                         sessionid = i + 1
-                        start_session(uuid, session=sessionid)
+                        await start_session(uuid, session=sessionid)
                         break
                 else:
                     sessionid = len(sessions) + 1
-                    start_session(uuid, session=sessionid)
+                    await start_session(uuid, session=sessionid)
                 await interaction.followup.send(
                     f'A new session was successfully created! Session ID: `{sessionid}`')
             else:
@@ -151,7 +151,7 @@ class Sessions(commands.Cog):
         if linked_data:
             uuid = linked_data[1]
 
-            with sqlite3.connect('./database/sessions.db') as conn:
+            with sqlite3.connect('./database/core.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
                 session_data = cursor.fetchone()
@@ -184,7 +184,7 @@ class Sessions(commands.Cog):
             if session is None:
                 session = 1
 
-            with sqlite3.connect('./database/sessions.db') as conn:
+            with sqlite3.connect('./database/core.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
                 session_data = cursor.fetchone()
@@ -213,7 +213,7 @@ class Sessions(commands.Cog):
         if linked_data:
             uuid = linked_data[1]
 
-            with sqlite3.connect('./database/sessions.db') as conn:
+            with sqlite3.connect('./database/core.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
                 sessions = cursor.fetchall()

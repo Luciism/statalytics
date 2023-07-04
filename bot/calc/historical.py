@@ -113,7 +113,7 @@ class LookbackStats:
         self.mode = get_mode(mode)
 
         self.hypixel_data = get_player_dict(hypixel_data)
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
             linked_data = cursor.fetchone()

@@ -301,7 +301,7 @@ async def reset_historical(method: str, table_format: str,
     :param client: discord client object for error logging
     """
     # Get all linked accounts
-    with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM linked_accounts')
         row = cursor.fetchone()

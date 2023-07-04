@@ -9,7 +9,7 @@
         "projection": "/prestige",
         "resources": "/resources",
         "shop": "/shop",
-        "total": "/bedwars",
+        "generic": "/bedwars",
         "skin": "/skin",
         "pointless": "/pointless",
         "compare": "/compare",

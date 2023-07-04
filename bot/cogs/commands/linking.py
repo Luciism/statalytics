@@ -28,7 +28,7 @@ class Linking(commands.Cog):
     async def unlink(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        with sqlite3.connect('./database/linked_accounts.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
 

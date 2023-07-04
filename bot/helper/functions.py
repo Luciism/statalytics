@@ -64,7 +64,7 @@ def get_voting_data(discord_id: int) -> tuple:
     Returns a users voting data
     :param discord_id: The discord id of the user's voting data to be fetched
     """
-    with sqlite3.connect(f'{REL_PATH}/database/voting.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
@@ -78,7 +78,7 @@ async def username_autocompletion(interaction: discord.Interaction, current: str
     """
     data: list = []
 
-    with sqlite3.connect(f'{REL_PATH}/database/autofill.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         result = cursor.execute("SELECT * FROM autofill WHERE LOWER(username) LIKE LOWER(?)", (fr'%{current.lower()}%',))
 
@@ -100,14 +100,14 @@ async def session_autocompletion(interaction: discord.Interaction, current: str)
         username = username_option.get('value')
         uuid: str = MCUUID(name=username).uuid
     else:
-        with sqlite3.connect(f'{REL_PATH}/database/linked_accounts.db') as conn:
+        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
             linked_data: tuple = cursor.fetchone()
         if not linked_data:
             return []
         uuid: str = linked_data[1]
-    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
         session_data = cursor.fetchall()
@@ -126,7 +126,7 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
 
     Paramaters will be handled automatically by discord.py
     """
-    with sqlite3.connect(f'{REL_PATH}/database/subscriptions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {interaction.user.id}")
         subscription = cursor.fetchone()
@@ -154,14 +154,18 @@ def get_hypixel_data(uuid: str, cache: bool=True, cache_obj: CachedSession=None)
         all_keys: dict = json.load(keyfile)['hypixel']
     key: str = all_keys[random.choice(list(all_keys.keys()))]
 
-    url = f"https://api.hypixel.net/player?key={key}&uuid={uuid}"
+    options = {
+        'url': f"https://api.hypixel.net/player?uuid={uuid}",
+        'headers': {"API-Key": key},
+        'timeout': 10
+    }
     if cache:
         if not cache_obj:
-            data: dict = stats_session.get(url, timeout=10).json()
+            data: dict = stats_session.get(**options).json()
         else:
-            data: dict = cache_obj.get(url, timeout=10).json()
+            data: dict = cache_obj.get(**options).json()
     else:
-        data: dict = requests.get(url, timeout=10).json()
+        data: dict = requests.get(**options).json()
     return data
 
 
@@ -170,45 +174,53 @@ def get_subscription(discord_id: int) -> tuple:
     Returns a users subscription data from subscription database
     :param discord_id: The discord id of user's subscription data to be retrieved
     """
-    with sqlite3.connect(f'{REL_PATH}/database/subscriptions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
         return cursor.fetchone()
 
 
-def update_command_stats(discord_id: int, command: str) -> None:
-    """
-    Updates command usage stats for passed command.
-    If command doesn't exist in database, a new table will be created.
-    :param discord_id: The user that ran he command
-    """
-    with sqlite3.connect(f'{REL_PATH}/database/command_usage.db') as conn:
+def _update_usage(command, discord_id):
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT * FROM overall WHERE discord_id = {discord_id}")
-        if not cursor.fetchone():
-            cursor.execute('INSERT INTO overall (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
+        # Check if command column exists
+        cursor.execute('SELECT * FROM command_usage WHERE discord_id = 0')
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Add column if it doesnt exist
+        if not command in column_names:
+            cursor.execute(f'ALTER TABLE command_usage ADD COLUMN {command} INTEGER')
+
+        # Update users command usage stats
+        cursor.execute(f"SELECT overall, {command} FROM command_usage WHERE discord_id = {discord_id}")
+        result = cursor.fetchone()
+
+        if result and result[0]:
+            cursor.execute(f"""
+                UPDATE command_usage
+                SET overall = overall + 1,
+                {command} = {f'{command} + 1' if result[1] else 1}
+                WHERE discord_id = {discord_id}
+            """) # if command current is null, it will be set to 1
         else:
-            cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
-
-        try:
-            cursor.execute(f"SELECT * FROM {command} WHERE discord_id = {discord_id}")
-            current_commands_ran: tuple = cursor.fetchone()
-        except sqlite3.OperationalError:
-            cursor.execute(f"CREATE TABLE {command}( discord_id INTEGER PRIMARY KEY, commands_ran INTEGER )")
-            cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (0, 0))
-            current_commands_ran = None
-
-        if not current_commands_ran:
-            cursor.execute(f'INSERT INTO {command} (discord_id, commands_ran) VALUES (?, ?)', (discord_id, 1))
-        else:
-            cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = {discord_id}')
-
-        cursor.execute(f'UPDATE overall SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
-        cursor.execute(f'UPDATE {command} SET commands_ran = commands_ran + 1 WHERE discord_id = 0')
+            cursor.execute(
+                f"INSERT INTO command_usage (discord_id, overall, {command}) VALUES (?, ?, ?)",
+                (discord_id, 1, 1)
+            )
 
 
-def start_session(uuid: str, session: int) -> bool:
+def update_command_stats(discord_id: int, command: str) -> None:
+    """
+    Updates command usage stats for respective command.
+    :param discord_id: the user that ran he command
+    :param command: the command run by the user to increment
+    """
+    _update_usage(command, discord_id)
+    _update_usage(command, 0) # Global commands
+
+
+async def start_session(uuid: str, session: int) -> bool:
     """
     Initiate a bedwars stats session
     :param uuid: The uuid of the player to initiate a session for
@@ -218,7 +230,7 @@ def start_session(uuid: str, session: int) -> bool:
         all_keys: dict = json.load(keyfile)['hypixel']
     key: str = all_keys[random.choice(list(all_keys))]
 
-    data: dict = requests.get(f"https://api.hypixel.net/player?key={key}&uuid={uuid}", timeout=10).json()
+    data = await get_hypixel_data(uuid, cache=False)
     if data['player'] is None:
         return False
 
@@ -234,7 +246,7 @@ def start_session(uuid: str, session: int) -> bool:
     for key in stat_keys:
         stat_values[key] = data["player"].get("stats", {}).get("Bedwars", {}).get(key, 0)
 
-    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
@@ -263,7 +275,7 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
     :param username: The username of the session owner
     :param uuid: The uuid of the session owner
     """
-    with sqlite3.connect(f'{REL_PATH}/database/sessions.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
         session_data: tuple = cursor.fetchone()
@@ -273,7 +285,7 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
             session_data: tuple = cursor.fetchone()
 
     if not session_data:
-        response: bool = start_session(uuid, session=1)
+        response: bool = await start_session(uuid, session=1)
 
         if response is True:
             await interaction.followup.send(f"**{username}** has no active sessions so one was created!")
@@ -395,9 +407,9 @@ def get_command_users():
     """
     Returns total amount of users to have run a command
     """
-    with sqlite3.connect(f'{REL_PATH}/database/command_usage.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT COUNT(*) FROM overall')
+        cursor.execute('SELECT COUNT(discord_id) FROM command_usage')
         total_users = cursor.fetchone()[0] - 1
     return total_users
 

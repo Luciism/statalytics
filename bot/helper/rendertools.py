@@ -150,29 +150,27 @@ def get_background(path, uuid, default, **kwargs):
         return Image.open(f'{path}/custom/{discord_id}.png')
 
     # Voting and rewards data for active theme pack
-    with sqlite3.connect('./database/voting.db') as conn:
+    with sqlite3.connect('./database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
         voting_data = cursor.fetchone()
 
-        cursor.execute(f'SELECT * FROM rewards_data WHERE discord_id = {discord_id}')
-        rewards_data = cursor.fetchone()
+        cursor.execute(f'SELECT * FROM themes_data WHERE discord_id = {discord_id}')
+        themes_data = cursor.fetchone()
 
-        cursor.execute(f'SELECT * FROM owned_themes WHERE discord_id = {discord_id}')
-        owned_themes = cursor.fetchone()
 
     voter_themes = get_config()['theme_packs']['voter_themes'].keys()
 
     # If the user has configured a theme
-    if rewards_data and rewards_data[1]:
+    if themes_data and themes_data[2]:
         # If the user has voted in the past 24 hours
         current_time = datetime.utcnow().timestamp()
         voted_recently = voting_data and ((current_time - voting_data[3]) / 3600 < 24)
 
-        theme = rewards_data[1]
-        if owned_themes:
-            owned_themes = owned_themes[1].split(',')
+        theme = themes_data[2]
+        if themes_data[1]:
+            owned_themes = themes_data[1].split(',')
 
         # If the user has voted, is premium, or is using an exclusive theme
         is_exclusive = not theme in voter_themes
