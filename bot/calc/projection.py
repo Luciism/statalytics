@@ -34,7 +34,8 @@ class ProjectedStats:
         self.stars_to_go = add_suffixes(int(self.target - int(self.level_hypixel)))[0]
 
         self.levels_gained = self.level_hypixel - self.level_local  # how many levels gained during session
-        if self.levels_gained == 0: self.levels_gained = 0.0001
+        if self.levels_gained == 0:
+            self.levels_gained = 0.0001
 
         self.level_repetition = self.levels_to_go / self.levels_gained  # how many times they have to gain the session amount of levels to get to the goal
         self.complete_percent = f"{round((self.level_hypixel / self.target) * 100, 2)}%"
@@ -42,10 +43,12 @@ class ProjectedStats:
 
 
     def _get_increase_factor(self, value):
+        increase_factor = 0
         if self.level_repetition > 0:
-            try: increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
-            except OverflowError: increase_factor = 0
-        else: increase_factor = 0
+            try:
+                increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
+            except OverflowError:
+                pass
 
         increased_value = round(float(value) + (increase_factor * value))
         return increased_value
@@ -117,7 +120,8 @@ class ProjectedStats:
         current_time = datetime.now()
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d")
         days = (current_time - old_time).days
-        if days == 0: days = 1
+        if days == 0:
+            days = 1
         return str(rround(self.levels_gained / days if self.levels_gained != 0 else 0, 2))
 
 
@@ -126,7 +130,8 @@ class ProjectedStats:
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d")
         try:
             days = (current_time - old_time).days
-            if days == 0: days = 1
+            if days == 0:
+                days = 1
 
             daystogo = int((0 if self.levels_gained == 0 else days / self.levels_gained) * self.levels_to_go)
             future_date = current_time + timedelta(days=daystogo)

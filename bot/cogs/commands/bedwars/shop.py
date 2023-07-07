@@ -3,8 +3,8 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.shop import render_shop
-from helper.linking import fetch_player_info
-from helper.functions import (
+from helper import (
+    fetch_player_info,
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,

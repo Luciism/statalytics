@@ -1,4 +1,5 @@
 {
+  "type": "dict",
   "embeds": [
     {
       "title": "Credits",
@@ -14,7 +15,7 @@
           "inline": true
         },
         {
-          "name": "Chief Marketing Officer",
+          "name": "Chief Growth Officer",
           "value": "[cas42](https://discordapp.com/users/327097602350907393)",
           "inline": true
         },

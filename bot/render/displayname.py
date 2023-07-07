@@ -9,7 +9,7 @@ def render_displayname(name, hypixel_data):
     level = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)
     player_rank_info = get_player_rank_info(hypixel_data=hypixel_data.get('player', {}))
     rank_prefix = get_rank_prefix(player_rank_info)
-    
+
     # Open the base image
     sample_image = Image.new('RGBA', (0, 0), (0, 0, 0, 0))
     draw = ImageDraw.Draw(sample_image)

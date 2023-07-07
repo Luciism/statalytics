@@ -6,8 +6,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.session import render_session
-from helper.linking import fetch_player_info, get_linked_data
-from helper.functions import (
+from helper import (
+    fetch_player_info,
+    get_linked_data,
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
@@ -64,7 +65,7 @@ class Sessions(commands.Cog):
 
 
     session_group = app_commands.Group(
-        name='session', 
+        name='session',
         description='View and manage active sessions'
     )
 
@@ -201,7 +202,7 @@ class Sessions(commands.Cog):
         else:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
-        
+
         update_command_stats(interaction.user.id, 'resetsession')
 
 

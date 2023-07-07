@@ -1,5 +1,3 @@
-import json
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -7,8 +5,8 @@ from discord.ext import commands
 from helper.functions import (
     update_command_stats,
     get_voting_data,
-    get_embed_color,
-    get_config
+    get_config,
+    load_embeds
 )
 
 
@@ -22,7 +20,6 @@ class Vote(commands.Cog):
         await interaction.response.defer()
 
         vote_links = get_config()['links']['voting']
-        embed_color = get_embed_color('primary')
 
         voting_data = get_voting_data(interaction.user.id)
         if voting_data:
@@ -33,21 +30,17 @@ class Vote(commands.Cog):
             total_votes = 0
             last_vote_timestamp = 'N/A'
 
-        with open('./assets/embeds/vote.json', 'r') as datafile:
-            vote_embed_str: str = json.load(datafile)['embeds'][0]
+        format_values = {
+            'top_gg': vote_links["top.gg"],
+            'discordbotlist_com': vote_links["discordbotlist.com"],
+            'discords_com': vote_links["discords.com"],
+            'last_vote': last_vote_timestamp,
+            'total_votes': total_votes
+        }
 
-        vote_embed_str = vote_embed_str.format(
-            embed_color=embed_color,
-            top_gg=vote_links["top.gg"],
-            discordbotlist_com=vote_links["discordbotlist.com"],
-            discords_com=vote_links["discords.com"],
-            last_vote=last_vote_timestamp,
-            total_votes=total_votes
-        ).replace("{{", "{").replace("}}", "}")
+        embeds = load_embeds('vote', format_values, color='primary')
 
-        embed = discord.Embed.from_dict(json.loads(vote_embed_str))
-
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embeds=embeds)
         update_command_stats(interaction.user.id, command='vote')
 
 

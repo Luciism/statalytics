@@ -6,18 +6,18 @@ import json
 import time
 import typing
 import sqlite3
-import discord
-import requests
-import traceback
 import asyncio
 import functools
 from datetime import datetime
 
+import discord
+import requests
+from requests.exceptions import ConnectTimeout, ReadTimeout
 from discord import app_commands
-from mcuuid import MCUUID
 from requests_cache import CachedSession
 
 from .ui import ModesView
+from .errors import HypixelInvalidResponseError
 
 
 REL_PATH = os.path.abspath(f'{__file__}/../..')
@@ -71,53 +71,8 @@ def get_voting_data(discord_id: int) -> tuple:
         return cursor.fetchone()
 
 
-async def username_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
-    """
-    Interaction username autocomplete
-    Paramaters will be handled automatically by discord.py
-    """
-    data: list = []
-
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-        result = cursor.execute("SELECT * FROM autofill WHERE LOWER(username) LIKE LOWER(?)", (fr'%{current.lower()}%',))
-
-    for row in result:
-        if len(data) < 25:
-            data.append(app_commands.Choice(name=row[2], value=row[2]))
-        else:
-            break
-    return data
-
-
-async def session_autocompletion(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
-    """
-    Interaction session autocomplete
-    Paramaters will be handled automatically by discord.py
-    """
-    username_option = next((opt for opt in interaction.data['options'] if opt['name'] == 'username'), None)
-    if username_option:
-        username = username_option.get('value')
-        uuid: str = MCUUID(name=username).uuid
-    else:
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
-            linked_data: tuple = cursor.fetchone()
-        if not linked_data:
-            return []
-        uuid: str = linked_data[1]
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
-        session_data = cursor.fetchall()
-    data = []
-    for session in session_data:
-        data.append(app_commands.Choice(name=session[0], value=session[0]))
-    return data
-
-
-def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[app_commands.Cooldown]:
+def get_command_cooldown(interaction: discord.Interaction
+                         ) -> typing.Optional[app_commands.Cooldown]:
     """
     Gets interaction cooldown based on subscription and voting status.
     Subscription = 0 seconds
@@ -132,7 +87,7 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
         subscription = cursor.fetchone()
     if subscription:
         return app_commands.Cooldown(1, 0.0)
-        
+
     # If user has voted in past 24 hours
     voting_data = get_voting_data(interaction.user.id)
     current_time = time.time()
@@ -143,7 +98,8 @@ def get_command_cooldown(interaction: discord.Interaction) -> typing.Optional[ap
 
 
 @to_thread
-def get_hypixel_data(uuid: str, cache: bool=True, cache_obj: CachedSession=None) -> dict:
+def get_hypixel_data(uuid: str, cache: bool=True,
+                     cache_obj: CachedSession=stats_session) -> dict:
     """
     Fetch a users hypixel data from hypixel's api
     :param uuid: The uuid of the user's data to fetch
@@ -159,14 +115,13 @@ def get_hypixel_data(uuid: str, cache: bool=True, cache_obj: CachedSession=None)
         'headers': {"API-Key": key},
         'timeout': 10
     }
-    if cache:
-        if not cache_obj:
-            data: dict = stats_session.get(**options).json()
-        else:
-            data: dict = cache_obj.get(**options).json()
-    else:
-        data: dict = requests.get(**options).json()
-    return data
+    try:
+        if not cache:
+            return requests.get(**options).json()
+        return cache_obj.get(**options).json()
+
+    except (ReadTimeout, ConnectTimeout, json.JSONDecodeError) as exc:
+        raise HypixelInvalidResponseError from exc
 
 
 def get_subscription(discord_id: int) -> tuple:
@@ -258,7 +213,7 @@ async def start_session(uuid: str, session: int) -> bool:
             query = f"INSERT INTO sessions ({columns}) VALUES ({values})"
             cursor.execute(query, tuple(stat_values.values()))
         else:
-            set_clause = ', '.join([f"{column} = ?" for column in stat_values.keys()])
+            set_clause = ', '.join([f"{column} = ?" for column in stat_values])
             query = f"UPDATE sessions SET {set_clause} WHERE session=? AND uuid=?"
             values = list(stat_values.values()) + [session, uuid]
             cursor.execute(query, tuple(values))
@@ -266,7 +221,8 @@ async def start_session(uuid: str, session: int) -> bool:
     return True
 
 
-async def get_smart_session(interaction: discord.Interaction, session: int, username: str, uuid: str) -> tuple | bool:
+async def get_smart_session(interaction: discord.Interaction, session: int,
+                            username: str, uuid: str) -> tuple | bool:
     """
     Dynamically gets a session of a user\n
     If session is 100, the first session to exist will be returned
@@ -293,17 +249,17 @@ async def get_smart_session(interaction: discord.Interaction, session: int, user
             await interaction.followup.send(f"**{username}** has never played before!")
         return False
 
-    elif session_data[0] != session and session != 100: 
+    if session not in (session_data[0], 100):
         await interaction.followup.send(f"**{username}** doesn't have an active session with ID: `{session}`!")
         return False
 
     return session_data
 
 
-def skin_from_file() -> bytes:
+def skin_from_file(skin_type: str='bust') -> bytes:
     """Loads a steve skin from file"""
-    with open(f'{REL_PATH}/assets/steve.png', 'rb') as f:
-        return f.read()
+    with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
+        return skin.read()
 
 
 @to_thread
@@ -316,7 +272,7 @@ def fetch_skin_model(uuid: int, size: int) -> bytes:
     """
     try:
         skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/{size}/{uuid}', timeout=3).content
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+    except (ReadTimeout, ConnectTimeout):
         skin_res = skin_from_file()
     return skin_res
 
@@ -327,34 +283,6 @@ def ordinal(n: int) -> str:
     :param n: The number to format
     """
     return "th" if 4 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-
-
-async def yearly_eligibility(interaction: discord.Interaction, discord_id: int | None) -> bool:
-    """
-    Checks if a user is able to use yearly stats commands and responds accordingly
-    :param interaction: the discord interaction object
-    :param discord_id: the discord id of the linked player being checked
-    """
-    subscription = None
-    if discord_id:
-        subscription = get_subscription(discord_id=discord_id)
-
-    if not subscription and not get_subscription(interaction.user.id):
-        embed_color = get_embed_color('primary')
-        embed = discord.Embed(
-            title="That player doesn't have premium!",
-            description='In order to view yearly stats, a [premium subscription](https://statalytics.net/store) is required!',
-            color=embed_color
-        )
-
-        embed.add_field(name='How does it work?', value="""
-            \- You can view any player's yearly stats if you have a premium subscription.
-            \- You can view a player's yearly stats if they have a premium subscription.\n
-            Yearly stats can be tracked but not viewed without a premium subscription
-        """.replace('   ', ''))
-        await interaction.followup.send(embed=embed)
-        return False
-    return True
 
 
 def discord_message(discord_id):
@@ -395,7 +323,7 @@ async def send_generic_renders(interaction: discord.Interaction,
         )
     except discord.errors.NotFound:
         return
-    
+
     func(mode="Solos", **kwargs)
     func(mode="Doubles", **kwargs)
     func(mode="Threes", **kwargs)
@@ -414,25 +342,45 @@ def get_command_users():
     return total_users
 
 
-async def log_error_msg(client: discord.Client, error: Exception):
+def _set_embed_color(embed: discord.Embed, color: str | int):
+    if color is not None:
+        embed.color = color if isinstance(color, int) else get_embed_color(color)
+    return embed
+
+
+def load_embeds(filename: str, format_values: dict=None, color: int | str=None):
     """
-    Prints and sends an error message to discord error logs channel
-    :param client: The discord.py client object
-    :param error: The exception object for the error
+    Loads a dictionary of embeds into discord.Embed objects\n
+    Embeds can either be in string form or in dictionary formstring embeds must\n
+    use double curly braces `'{{"a": 1, "b": 2}}'` in order to escape formatting\n
+    Only string embeds can have values formatted into them
+    :param filename: the name of the file containing the embed json data (.json ext optional)
+    :param format_values: format values into the dict (string dicts only)
+    :param color: override embed color, can be integer directly or 'primary', 'warning', etc
     """
-    traceback_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-    print(traceback_str)
+    if not filename.endswith('.json'):
+        filename += '.json'
 
-    if os.environ.get('STATALYTICS_ENVIRONMENT') == 'development' or not client:
-        return
+    with open(f'{REL_PATH}/assets/embeds/{filename}', 'r') as datafile:
+        embed_dict: str = json.load(datafile)
 
-    config = get_config()
-    await client.wait_until_ready()
-    channel = client.get_channel(config.get('error_logs_channel_id'))
+    embeds = []
+    if embed_dict.get('type') == 'string':
+        for embed_str in embed_dict['embeds']:
+            embed_str: str = embed_str.format(
+                **format_values).replace("{{", "{").replace("}}", "}")
 
-    if len(traceback_str) > 1988:
-        for i in range(0, len(traceback_str), 1988):
-            substring = traceback_str[i:i+1988]
-            await channel.send(f'```cmd\n{substring}\n```')
+            embed = discord.Embed.from_dict(json.loads(embed_str))
+            embeds.append(_set_embed_color(embed, color))
     else:
-        await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
+        for embed_json in embed_dict['embeds']:
+            embed = discord.Embed.from_dict(embed_json)
+            embeds.append(_set_embed_color(embed, color))
+    return embeds
+
+
+def fname(username: str):
+    """
+    Returns an escaped version of a username to avoid discord markdown
+    """
+    return username.replace("_", "\_")

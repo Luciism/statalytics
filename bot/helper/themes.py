@@ -61,12 +61,12 @@ def add_owned_theme(discord_id: int, theme_name: str):
             if not theme_name in owned_list:
                 owned_list.append(theme_name)
                 cursor.execute(
-                    f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
                     (','.join(owned_list), discord_id)
                 )
         else:
             cursor.execute(
-                f'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
+                'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
                 (discord_id, theme_name)
             )
 
@@ -90,7 +90,7 @@ def remove_owned_theme(discord_id: int, theme_name: str):
             if theme_name in owned_themes:
                 owned_themes.remove(theme_name)
                 cursor.execute(
-                    f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
                     (','.join(owned_themes) if owned_themes else None, discord_id)
                 )
 
@@ -112,12 +112,12 @@ def set_owned_themes(discord_id: int, themes: list | tuple):
 
         if themes_data:
             cursor.execute(
-                f"UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
                 (','.join(themes), discord_id)
             )
         else:
             cursor.execute(
-                f'INSERT INTO owned_themes (discord_id, owned_themes) VALUES (?, ?)',
+                'INSERT INTO owned_themes (discord_id, owned_themes) VALUES (?, ?)',
                 (discord_id, ','.join(themes))
             )
 
@@ -155,12 +155,12 @@ def set_active_theme(discord_id: int, theme_name: str):
 
         if themes_data and themes_data[2]:
             cursor.execute(
-                f"UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
-                (theme_name, discord_id)    
+                "UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
+                (theme_name, discord_id)
             )
         else:
             cursor.execute(
-                f"INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
+                "INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
                 (discord_id, theme_name)
             )
 
@@ -172,7 +172,7 @@ class ThemeManager:
 
     def _check_exclusive_exists(self, theme_name: str):
         exclusive_themes = get_exclusive_themes()
-        if not theme_name in exclusive_themes:       
+        if not theme_name in exclusive_themes:
             raise ThemeNotFoundError('The respective theme is not a valid exclusive theme!')
 
 
@@ -181,7 +181,7 @@ class ThemeManager:
         Returns a list of owned themes
         """
         return get_owned_themes(self.discord_id)
-    
+
 
     def get_available_themes(self):
         """

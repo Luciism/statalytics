@@ -38,12 +38,11 @@ def render_difference(name, uuid, relative_date, method,
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
-    
+
     def diff_color(diff: str) -> tuple:
         if diff[1] == '+':
             return green
-        else:
-            return red
+        return red
 
     data = (
         ((leng(wins, 141)+18, 249), ((wins, green),)),
@@ -98,7 +97,7 @@ def render_difference(name, uuid, relative_date, method,
                          progress=progress, target=target, draw=draw)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/bg/difference/overlay.png')
+    overlay_image = Image.open('./assets/bg/difference/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

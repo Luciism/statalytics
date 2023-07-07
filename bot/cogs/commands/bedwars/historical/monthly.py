@@ -10,9 +10,11 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.historical import reset_historical, HistoricalManager
-from helper.linking import fetch_player_info, uuid_to_discord_id
-from helper.functions import (
+from helper import (
+    HistoricalManager,
+    reset_historical,
+    fetch_player_info,
+    uuid_to_discord_id,
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
@@ -21,6 +23,7 @@ from helper.functions import (
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders,
+    fname
 )
 
 
@@ -35,7 +38,7 @@ class Monthly(commands.Cog):
         utc_now = datetime.utcnow()
         if not utc_now.day in (1, 2) and not utc_now.day == monthrange(utc_now.year, utc_now.month)[1]:
             return
-        
+
         await reset_historical(
             method='monthly',
             table_format='monthly_%Y_%m',
@@ -44,11 +47,11 @@ class Monthly(commands.Cog):
         )
 
 
-    def cog_load(self):
+    async def cog_load(self):
         self.reset_monthly.start()
 
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.reset_monthly.cancel()
 
 
@@ -72,7 +75,6 @@ class Monthly(commands.Cog):
         await interaction.response.defer()
 
         name, uuid = await fetch_player_info(username, interaction)
-        refined = name.replace("_", "\_")
 
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
@@ -81,7 +83,7 @@ class Monthly(commands.Cog):
 
         if not historical_data:
             await historic.start_historical()
-            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
+            await interaction.followup.send(f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -115,7 +117,7 @@ class Monthly(commands.Cog):
         await send_generic_renders(
             interaction=interaction,
             func=render_historical,
-            kwargs=kwargs, 
+            kwargs=kwargs,
             message=f':alarm_clock: Resets <t:{timestamp}:R>'
         )
         update_command_stats(interaction.user.id, 'monthly')
@@ -129,19 +131,15 @@ class Monthly(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
-        refined = name.replace("_", "\_")
-
         historic = HistoricalManager(interaction.user.id, uuid)
-        
         discord_id = uuid_to_discord_id(uuid=uuid)
 
         max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
         if -1 != max_lookback < (months * 30):
-            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
+            await interaction.followup.send(embeds=historic.build_invalid_lookback_embeds(max_lookback))
             return
 
-        if months < 1:
-            months = 1
+        months = max(months, 1)
 
         gmt_offset = historic.get_reset_time()[0]
 
@@ -158,7 +156,7 @@ class Monthly(commands.Cog):
         historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
-            await interaction.followup.send(f'{refined} has no tracked data for {months} month(s) ago!')
+            await interaction.followup.send(f'{fname(name)} has no tracked data for {months} month(s) ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -177,7 +175,7 @@ class Monthly(commands.Cog):
             "skin_res": skin_res,
             "save_dir": interaction.id
         }
-        
+
         await send_generic_renders(interaction, render_historical, kwargs)
         update_command_stats(interaction.user.id, 'lastmonth')
 

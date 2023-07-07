@@ -25,5 +25,5 @@ class ActiveCosmetics:
         self.spray = _get_cosmetic('activeSprays', 'sprays_')
         self.bed_destroy = _get_cosmetic('activeBedDestroy', 'beddestroy_')
         self.kill_message = _get_cosmetic('activeKillMessages', 'killmessages_')
-        
+
         self.player_rank_info = get_player_rank_info(self.hypixel_data)

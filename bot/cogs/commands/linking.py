@@ -4,8 +4,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.linking import linking_interaction
-from helper.functions import (
+from helper import (
+    linking_interaction,
     update_command_stats,
     get_command_cooldown,
 )

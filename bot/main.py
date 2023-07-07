@@ -7,11 +7,17 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from helper.errors import MCUserNotFoundError
-from helper.functions import get_config, get_embed_color, log_error_msg
+from helper import (
+    PlayerNotFoundError,
+    HypixelInvalidResponseError,
+    handle_cooldown_error,
+    handle_hypixel_error,
+    handle_all_errors,
+    get_config,
+)
 
 
-TOKEN = os.environ.get('STATALYTICS_TOKEN')
+TOKEN = os.getenv('STATALYTICS_TOKEN')
 
 
 class MyClient(commands.Bot):
@@ -45,40 +51,18 @@ async def on_ready():
 
 @client.tree.error
 async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    config = get_config()
-
-    if isinstance(error, MCUserNotFoundError):
+    if isinstance(error, PlayerNotFoundError):
         return
 
-    # Handle command cooldown errors
     if isinstance(error, app_commands.CommandOnCooldown):
-        embed_color = get_embed_color(embed_type='warning')
-        embed = discord.Embed(
-            title="Command on cooldown!",
-            description=f'Wait another `{round(error.retry_after, 2)}` and try again!\nPremium users bypass this restriction.',
-            color=embed_color
-        )
-        embed.set_thumbnail(
-            url='https://media.discordapp.net/attachments/1027817138095915068/1076015715301208134/hourglass.png')
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await handle_cooldown_error(interaction, error)
         return
 
+    if isinstance(error, HypixelInvalidResponseError):
+        await handle_hypixel_error(interaction)
+        return
 
-    # All other cases --
-    # respond to interaction with error embed
-    try:
-        embed_color = get_embed_color(embed_type='danger')
-        embed = discord.Embed(
-            title=f'An error occured running /{interaction.data["name"]}',
-            description=f'```{error}```\nIf the problem persists, please [get in touch]({config["links"]["support_server"]})',
-            color=embed_color
-        )
-        await interaction.edit_original_response(embed=embed)
-    except discord.errors.NotFound:
-        pass
-
-    # log traceback to discord channel
-    await log_error_msg(client, error)
+    await handle_all_errors(interaction, client, error)
 
 
 @client.event

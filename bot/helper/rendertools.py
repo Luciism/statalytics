@@ -69,7 +69,7 @@ def get_rank_color(player_rank_info: dict) -> tuple:
         elif player_rank_info['packageRank'] in ("VIP", "VIP_PLUS")\
             or player_rank_info['newPackageRank'] in ("VIP", "VIP_PLUS"):
             rankcolor = (85, 255, 85)
-    
+
         elif player_rank_info['packageRank'] in ("MVP", "MVP_PLUS")\
             or player_rank_info['newPackageRank'] in ("MVP", "MVP_PLUS"):
             rankcolor = (85, 255, 255) if player_rank_info['monthlyPackageRank'] == "NONE" else (255, 170, 0)
@@ -126,8 +126,7 @@ def get_theme_img(theme: str, path: str, **kwargs) -> Image:
     """
     if theme == 'color_sync_fusion':
         return theme_color_sync_fusion(path=path, **kwargs)
-    else:
-        return Image.open(f'{path}/themes/{theme}.png')
+    return Image.open(f'{path}/themes/{theme}.png')
 
 
 def get_background(path, uuid, default, **kwargs):

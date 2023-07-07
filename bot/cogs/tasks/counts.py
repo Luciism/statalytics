@@ -1,8 +1,8 @@
 import os
-import requests
 import asyncio
 from datetime import datetime
 
+import requests
 import discord
 from discord.ext import commands, tasks
 
@@ -12,10 +12,10 @@ from helper.functions import get_command_users, to_thread
 class Counts(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.TOPGG_TOKEN = os.environ.get('STATALYTICS_TOPGG_TOKEN')
-        self.DBL_TOKEN = os.environ.get('STATALYTICS_DBL_TOKEN')
-        self.DISCORDS_TOKEN = os.environ.get('STATALYTICS_DISCORDS_TOKEN')
-        self.BOTLIST_TOKEN = os.environ.get('STATALYTICS_BOTLIST_TOKEN')
+        self.TOPGG_TOKEN = os.getenv('STATALYTICS_TOPGG_TOKEN')
+        self.DBL_TOKEN = os.getenv('STATALYTICS_DBL_TOKEN')
+        self.DISCORDS_TOKEN = os.getenv('STATALYTICS_DISCORDS_TOKEN')
+        self.BOTLIST_TOKEN = os.getenv('STATALYTICS_BOTLIST_TOKEN')
 
 
     @to_thread
@@ -60,12 +60,12 @@ class Counts(commands.Cog):
         await self.update_counts()
 
 
-    def cog_load(self):
-        if os.environ.get('STATALYTICS_ENVIRONMENT') == 'production':
+    async def cog_load(self):
+        if os.getenv('STATALYTICS_ENVIRONMENT') == 'production':
             self.update_counts_loop.start()
 
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.update_counts_loop.cancel()
 
 

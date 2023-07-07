@@ -1,13 +1,13 @@
 import sqlite3
 
 from mcuuid import MCUUID
-from discord import Interaction, Embed
+from discord import Interaction
 
-from .errors import MCUserNotFoundError
+from .errors import PlayerNotFoundError
 from .functions import (
     get_hypixel_data,
     get_subscription,
-    get_embed_color,
+    load_embeds,
     REL_PATH
 )
 
@@ -126,7 +126,7 @@ async def fetch_player_info(username: str, interaction: Interaction,
                 await interaction.followup.send(msg)
             else:
                 await interaction.response.send_message(msg, ephemeral=eph)
-            raise MCUserNotFoundError
+            raise PlayerNotFoundError
     else:
         try:
             if len(username) <= 16:
@@ -142,48 +142,34 @@ async def fetch_player_info(username: str, interaction: Interaction,
                 await interaction.followup.send("That player does not exist!")
             else:
                 await interaction.response.send_message("That player does not exist!", ephemeral=eph)
-            raise MCUserNotFoundError
+            raise PlayerNotFoundError
     return name, uuid
 
 
 async def linking_interaction(interaction: Interaction, username: str):
-        """
-        discord.py interaction for account linking
-        :param interaction: the discord interaction to be used
-        :param username: the username of the respective player
-        """
-        await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+    """
+    discord.py interaction for account linking
+    :param interaction: the discord interaction to be used
+    :param username: the username of the respective player
+    """
+    await interaction.response.defer()
+    name, uuid = await fetch_player_info(username, interaction)
 
-        # Linking Logic
-        discord_tag = str(interaction.user)
-        if discord_tag.endswith('#0'):
-            discord_tag = discord_tag[:-2]
+    # Linking Logic
+    discord_tag = str(interaction.user)
+    if discord_tag.endswith('#0'):
+        discord_tag = discord_tag[:-2]
 
-        response = await link_account(discord_tag, interaction.user.id, name, uuid)
-        refined = name.replace('_', r'\_')
+    response = await link_account(discord_tag, interaction.user.id, name, uuid)
+    refined = name.replace('_', r'\_')
 
-        if response == 1:
-            await interaction.followup.send(f"Successfully linked to **{refined}** ({discord_tag})")
+    if response == 1:
+        await interaction.followup.send(f"Successfully linked to **{refined}** ({discord_tag})")
+        return
 
-        # If discord isnt connected to hypixel
-        else:
-            if response == 0:
-                embed = Embed(
-                    title="How to connect discord to hypixel",
-                    description=f'''That player is connected to a different discord tag on hypixel!
-                    If you own the **{refined}** account, you must __update your hypixel connection__ to match your current discord tag:'''.replace('   ', ''),
-                )
-            else:
-                embed = Embed(
-                    title=f"{refined}'s discord isn't connected on hypixel!",
-                    description='Example of how to connect your discord to hypixel:',
-                )
-
-            embed.set_image(url='https://cdn.discordapp.com/attachments/1027817138095915068/1061647399266811985/result.gif')
-            embed.color = get_embed_color('primary')
-            await interaction.followup.send(embed=embed)
-
+    # Player not linked embed
+    embeds = load_embeds('linking', color='primary')
+    await interaction.followup.send(embeds=embeds)
 
 
 class LinkingManager:
@@ -196,7 +182,7 @@ class LinkingManager:
         Returns a users linked data from linked database
         """
         return get_linked_data(self._discord_id)
-    
+
 
     def set_linked_data(self, uuid: str):
         """
@@ -212,7 +198,7 @@ class LinkingManager:
         :param uuid: The uuid of the player to find linked data for
         """
         return uuid_to_discord_id(uuid)
-    
+
 
     def update_autofill(self, uuid: str, username: str):
         """

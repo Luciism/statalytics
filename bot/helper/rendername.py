@@ -101,7 +101,7 @@ def render_level(level: int, position_x: int, position_y: int, fontsize: int, im
         draw.text((position_x, position_y), '] ', fill=pos_colors[6], font=font)
 
         position_x += draw.textlength('] ', font=font)
-    
+
     return position_x
 
 

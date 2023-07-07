@@ -1,0 +1,6 @@
+{
+  "type": "string",
+  "embeds": [
+    "{{\"title\": \"Suggestion by {user} ({discord_id})\", \"description\": null, \"color\": 3092790, \"fields\": [{{\"name\": \"Suggestion:\", \"value\": \"{suggestion}\"}}]}}"
+  ]
+}

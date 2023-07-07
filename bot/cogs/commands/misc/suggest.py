@@ -2,7 +2,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import update_command_stats, get_embed_color
+from helper.functions import (
+    update_command_stats,
+    load_embeds
+)
 
 
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
@@ -10,18 +13,22 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
         self.channel = channel
         super().__init__(**kwargs)
 
-    suggestion = discord.ui.TextInput(label='Suggestion:', placeholder='You should add...', style=discord.TextStyle.long)
+    suggestion = discord.ui.TextInput(
+        label='Suggestion:',
+        placeholder='You should add...',
+        style=discord.TextStyle.long
+    )
 
     async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        embed_color = get_embed_color('primary')
-        submit_embed = discord.Embed(
-            title=f'Suggestion by {interaction.user} ({interaction.user.id})',
-            description=f'**Suggestion:**\n{self.suggestion}', color=embed_color
-        )
+        format_values = {
+            'user': interaction.user,
+            'discord_id': interaction.user.id,
+            'suggestion': str(self.suggestion)
+        }
+        embeds = load_embeds('suggestion', format_values, color='primary')
 
-        await self.channel.send(embed=submit_embed)
-        await interaction.followup.send('Successfully submitted suggestion!', ephemeral=True)
+        await self.channel.send(embeds=embeds)
+        await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
 
 
 class Suggest(commands.Cog):

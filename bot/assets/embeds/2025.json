@@ -1,0 +1,17 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "That player doesn't have premium!",
+      "description": "In order to view stats for 2025, a [premium subscription](https://statalytics.net/store) is required!",
+      "color": 5793266,
+      "fields": [
+        {
+          "name": "How does it work?",
+          "value": "`-` You can view any player's stats for 2025 if you have a premium subscription.\n `-` You can view a player's stats for 2025 if they have a premium subscription.",
+          "inline": true
+        }
+      ]
+    }
+  ]
+}

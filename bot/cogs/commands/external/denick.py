@@ -37,7 +37,10 @@ class Denick(commands.Cog):
             all_keys: dict = json.load(datafile)['antisniper']
             key = all_keys[random.choice(list(all_keys.keys()))]
 
-        res = requests.get(f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}')
+        res = requests.get(
+            f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}',
+            timeout=10
+        )
         return res.json()
 
 
@@ -80,7 +83,7 @@ class Denick(commands.Cog):
             embed.description = "No data."
         embed.set_footer(text="Powered by antisniper.net", icon_url='https://statalytics.net/image/antisniper.png')
         await interaction.followup.send(embed=embed)
-        
+
         update_command_stats(interaction.user.id, 'numberdenick')
 
 

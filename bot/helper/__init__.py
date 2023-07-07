@@ -9,6 +9,8 @@ from .renderprogress import *
 from .rendertools import *
 from .themes import *
 from .ui import *
+from .autocomplete import *
+from .handlers import *
 
 __all__ = [
     'calctools',
@@ -21,5 +23,6 @@ __all__ = [
     'renderprogress',
     'rendertools',
     'themes',
-    'ui'
+    'ui',
+    'autocomplete'
 ]

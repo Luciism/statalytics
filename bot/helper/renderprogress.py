@@ -8,7 +8,7 @@ class Values:
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
     minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
     minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-    arial_24 = ImageFont.truetype(f"./assets/arial.ttf", 24)
+    arial_24 = ImageFont.truetype("./assets/arial.ttf", 24)
 
     white = (255, 255, 255)
     black = (0, 0, 0)

@@ -30,30 +30,43 @@ class YearStats:
         self.current_time = datetime.now().date()
         old_time = datetime.strptime(self.session_data['date'], "%Y-%m-%d").date()
 
-        if not year: year = self.current_time.year + 1
+        if not year:
+            year = self.current_time.year + 1
+
         self.days = (self.current_time - old_time).days
         self.days_to_go = (datetime(year, 1, 1).date() - self.current_time).days
-        if self.days == 0: self.days = 1
-        if self.days_to_go == 0: self.days_to_go = 1
+        if self.days == 0:
+            self.days = 1
+
+        if self.days_to_go == 0:
+            self.days_to_go = 1
 
         self.level_local = get_level(self.session_data['Experience'])  # how many levels player had when they started session
         self.level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0))  # current hypixel level
         self.levels_gained = self.level_hypixel - self.level_local  # how many levels gained during session
-        if self.levels_gained == 0: self.levels_gained = 0.0001
+
+        if self.levels_gained == 0:
+            self.levels_gained = 0.0001
+
         self.stars_per_day = self.levels_gained / self.days
         self.projected_star = int(self.stars_per_day * self.days_to_go + self.level_hypixel)
         self.levels_to_go = self.projected_star - self.level_hypixel
-        if self.levels_to_go == 0: self.levels_to_go = 0.0001
+
+        if self.levels_to_go == 0:
+            self.levels_to_go = 0.0001
+
         self.level_repetition = self.levels_to_go / self.levels_gained
 
         self.player_rank_info = get_player_rank_info(self.hypixel_data)
 
 
     def _get_increase_factor(self, value):
+        increase_factor = 0
         if self.level_repetition > 0:
-            try: increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
-            except OverflowError: increase_factor = 0
-        else: increase_factor = 0
+            try:
+                increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
+            except OverflowError:
+                pass
 
         increased_value = round(float(value) + (increase_factor * value))
         return increased_value

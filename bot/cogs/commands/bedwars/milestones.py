@@ -6,8 +6,8 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.milestones import render_milestones
-from helper.linking import fetch_player_info
-from helper.functions import (
+from helper import (
+    fetch_player_info,
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
@@ -40,7 +40,7 @@ class Milestones(commands.Cog):
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
             if not cursor.fetchone() and not session in (0, 100):
-                await interaction.response.send_message(
+                await interaction.followup.send(
                     f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
                 return
 

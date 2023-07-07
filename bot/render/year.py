@@ -16,7 +16,7 @@ def render_year(name, uuid, session, year, mode,
     days_to_go = str(stats.days_to_go)
     stars_per_day = f'{round(stats.stars_per_day, 2):,}'
     items_purchased = stats.get_items_purchased()
-    
+
     years_to_go = year - datetime.now().year
     complete_percent = f'{round(((365 * years_to_go) - int(days_to_go)) / (365 * years_to_go) * 100, 2)}%'
 

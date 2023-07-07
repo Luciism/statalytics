@@ -2,14 +2,15 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.errors import MCUserNotFoundError
-from helper.themes import get_owned_themes, set_active_theme
-from helper.historical import update_reset_time_configured
-from helper.linking import linking_interaction
-from helper.functions import (
+from helper import (
+    PlayerNotFoundError,
+    get_owned_themes,
+    set_active_theme,
+    update_reset_time_configured,
+    linking_interaction,
     update_command_stats,
-    get_embed_color,
-    get_config
+    get_config,
+    load_embeds
 )
 
 
@@ -30,7 +31,8 @@ class Select(discord.ui.Select):
 
         value = self.values[0]
         if self.placeholder == "Select Theme":
-            if value == 'none': value = None
+            if value == 'none':
+                value = None
             set_active_theme(discord_id, value)
             await interaction.followup.send('Successfully updated theme!', ephemeral=True)
             return
@@ -71,7 +73,7 @@ class LinkAccountModal(discord.ui.Modal, title='Link Account'):
     async def on_submit(self, interaction: discord.Interaction):
         try:
             await linking_interaction(interaction, str(self.username))
-        except MCUserNotFoundError:
+        except PlayerNotFoundError:
             return
 
 
@@ -88,11 +90,7 @@ class SettingsButtons(discord.ui.View):
 
     @discord.ui.button(label="Active Theme", style=discord.ButtonStyle.gray, custom_id="active_theme", row=1)
     async def active_theme(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = discord.Embed(
-            title="Select a theme pack!",
-            description="In order for your selected theme pack to take effect, you must have voted in the past 24 HOURS.\n\n [Premium](https://statalytics.net/store) users bypass this restriction.",
-            color=get_embed_color('primary')
-        )
+        embeds = load_embeds('active_theme', color='primary')
 
         owned_themes = get_owned_themes(interaction.user.id)
         theme_packs: dict = get_config()['theme_packs']
@@ -109,23 +107,16 @@ class SettingsButtons(discord.ui.View):
             'max_values': 1
         }]
         view = SelectView(interaction=interaction, view_data=view_data)
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embeds=embeds, view=view, ephemeral=True)
 
 
     @discord.ui.button(label="Reset Time", style=discord.ButtonStyle.gray, custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction, button: discord.ui.Button):
 
-        embed = discord.Embed(
-            title='Configure reset time',
-            description="""
-                This will determine when your daily, weekly, monthly, and yearly stats roll over.
-                GMT offset - your timezone offset to Greenwich Mean Time
-                Reset hour - the hour which your historical stats will rollover
+        embeds = load_embeds('reset_time', color='primary')
 
-                Click [here](https://greenwichmeantime.com/current-time/) if you are unsure of your GMT offset.""".replace('    ', ''),
-            color=get_embed_color('primary')
-        )
-        options_1 = [discord.SelectOption(label=f'GMT{"+" if i-12 >= 0 else ""}{i-12}', value=i-12) for i in reversed(range(25))]
+        options_1 = [discord.SelectOption(
+            label=f'GMT{"+" if i-12 >= 0 else ""}{i-12}', value=i-12) for i in reversed(range(25))]
         options_2 = [discord.SelectOption(label=hour, value=i) for i, hour in zip(range(24), HOURS)]
         view_data = [{
             'placeholder': 'Select your GMT offset',
@@ -141,7 +132,7 @@ class SettingsButtons(discord.ui.View):
         }]
 
         await interaction.response.send_message(
-            embed=embed,
+            embeds=embeds,
             view=SelectView(interaction=interaction, view_data=view_data),
             ephemeral=True
         )
@@ -159,14 +150,10 @@ class Settings(commands.Cog):
     @app_commands.command(name="settings", description="Edit your configuration for statalytics")
     async def settings(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        embed_color = get_embed_color('primary')
 
-        embed = discord.Embed(
-            title='Configure your settings for Statalytics',
-            description='Use the buttons below to customize your experience.',
-            color=embed_color
-        )
-        await interaction.followup.send(embed=embed, view=SettingsButtons(interaction=interaction))
+        embeds = load_embeds('settings', color='primary')
+        await interaction.followup.send(
+            embeds=embeds, view=SettingsButtons(interaction=interaction))
 
         update_command_stats(interaction.user.id, 'settings')
 

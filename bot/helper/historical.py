@@ -2,23 +2,21 @@ import time
 import sqlite3
 import random
 from datetime import datetime, timedelta
-from json import JSONDecodeError
-from requests import HTTPError
 
 import asyncio
-from discord import Embed, Client
+from discord import Client, Interaction
 
 from .errors import NoLinkedAccountError
+from .handlers import log_error_msg
 from .calctools import get_player_dict
 from .linking import get_linked_data, uuid_to_discord_id
 from .functions import (
     REL_PATH,
-    get_embed_color,
     get_subscription,
     get_hypixel_data,
     get_config,
-    historic_cache,
-    log_error_msg
+    load_embeds,
+    historic_cache
 )
 
 
@@ -33,7 +31,7 @@ def get_reset_time_default(uuid: str) -> tuple | None:
 
         cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
         default_data = cursor.fetchone()
-    
+
     if default_data:
         return default_data[1:3]
 
@@ -95,7 +93,7 @@ def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
             )
         else:
             cursor.execute(
-                f"UPDATE default_reset_times SET timezone = ?, reset_hour = ? WHERE uuid = ?",
+                "UPDATE default_reset_times SET timezone = ?, reset_hour = ? WHERE uuid = ?",
                 (timezone, reset_hour, uuid)
             )
 
@@ -128,7 +126,7 @@ def update_reset_time_default(uuid: str):
 # If the user is linked to a player, it will attempt to update
 # the default reset time of that player to match the configured
 # discord account bound time. This will only succeed if the
-# player does not already have a default reset time set 
+# player does not already have a default reset time set
 def update_reset_time_configured(discord_id: int, value: int, method: str):
     """
     Updates discord id based reset time configuration
@@ -215,7 +213,7 @@ def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
             cursor.execute(f"CREATE TABLE {table} (uuid TEXT PRIMARY KEY, {columns})")
 
         cursor.execute(f"SELECT uuid FROM {table} WHERE uuid = '{hypixel_data[0]}'")
-    
+
         if not cursor.fetchone():
             keys = ', '.join(stat_keys)
             cursor.execute(f"INSERT INTO {table} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", historical_values)
@@ -242,30 +240,15 @@ def get_historical(uuid: str, table_name: str):
 
 
 # Builds invalid lookback embed
-def build_invalid_lookback_embed(max_lookback) -> Embed:
+def build_invalid_lookback_embeds(max_lookback) -> list:
     """
     Responds to a interaction with an max lookback exceeded message
     :param max_lookback: The maximum lookback the user had availiable
     """
-    embed_color = get_embed_color('primary')
-    embed = Embed(
-        title='Maximum lookback exceeded!',
-        description=f"The maximum lookback for viewing that player's historical stats is {max_lookback}!",
-        color=embed_color
-    )
+    format_values = {'max_lookback': max_lookback}
+    embeds = load_embeds('max_lookback', format_values, color='primary')
 
-    embed.add_field(name="How it works:", value=f"""
-        \- You can view history up to `{max_lookback}` days with your's or the checked player's plan.
-        \- You can view longer history if you or the checked player has a premium plan.
-    """.replace('   ', ''), inline=False)
-
-    embed.add_field(name='Limits', value="""
-        \- Free tier maximum lookback - 30 days
-        \- Basic tier maxmum lookback  - 60 days
-        \- Pro tier maximum lookback - unlimited
-    """.replace('   ', ''), inline=False)
-
-    return embed
+    return embeds
 
 
 # Returns total amount of days back a player's stats can be
@@ -286,9 +269,27 @@ def get_lookback_eligiblility(discord_id_primary: int, discord_id_secondary: int
     if subscription:
         if 'basic' in subscription[1]:
             return 60
-        elif 'pro' in subscription[1]:
+        if 'pro' in subscription[1]:
             return -1
     return 30
+
+
+async def yearly_eligibility_check(interaction: Interaction,
+                             discord_id: int | None) -> bool:
+    """
+    Checks if a user is able to use yearly stats commands and responds accordingly
+    :param interaction: the discord interaction object
+    :param discord_id: the discord id of the linked player being checked
+    """
+    subscription = None
+    if discord_id:
+        subscription = get_subscription(discord_id=discord_id)
+
+    if not subscription and not get_subscription(interaction.user.id):
+        embeds = load_embeds('yearly_eligibility_check', color='primary')
+        await interaction.followup.send(embeds=embeds)
+        return False
+    return True
 
 
 async def reset_historical(method: str, table_format: str,
@@ -464,12 +465,12 @@ class HistoricalManager:
         return get_historical(uuid, table_name)
 
 
-    def build_invalid_lookback_embed(self, max_lookback: int) -> Embed:
+    def build_invalid_lookback_embeds(self, max_lookback: int) -> list:
         """
         Responds to a interaction with an max lookback exceeded message
         :param max_lookback: The maximum lookback the user had availiable
         """
-        return build_invalid_lookback_embed(max_lookback)
+        return build_invalid_lookback_embeds(max_lookback)
 
 
     def get_lookback_eligiblility(self, discord_id_primary: int, discord_id_secondary: int) -> int:

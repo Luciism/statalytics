@@ -34,9 +34,9 @@ def render_compare(name_1, name_2, uuid_1, mode,
     gold = (255, 170, 0)
 
     def color(value, method):
-        if method == 'g': color = green if value[0] == '+' else red
-        elif method == 'b': color = red if value[0] == '+' else green
-        return color
+        if method == 'g':
+            return green if value[0] == '+' else red
+        return red if value[0] == '+' else green
 
     data = (
         ((leng(wins, 195)+17, 110), wins, green),
@@ -93,7 +93,7 @@ def render_compare(name_1, name_2, uuid_1, mode,
                           box_positions=(17, 401), position_y=51, fontsize=18)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/bg/compare/overlay.png')
+    overlay_image = Image.open('./assets/bg/compare/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

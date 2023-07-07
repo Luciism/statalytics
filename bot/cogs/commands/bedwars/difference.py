@@ -6,9 +6,10 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.difference import render_difference
-from helper.historical import HistoricalManager
-from helper.linking import fetch_player_info, uuid_to_discord_id
-from helper.functions import (
+from helper import (
+    HistoricalManager,
+    fetch_player_info,
+    uuid_to_discord_id,
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
@@ -16,7 +17,8 @@ from helper.functions import (
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders,
-    yearly_eligibility
+    yearly_eligibility_check,
+    fname
 )
 
 
@@ -27,7 +29,7 @@ class Difference(commands.Cog):
 
 
     difference_group = app_commands.Group(
-        name='difference', 
+        name='difference',
         description='View the stat difference of a player over a period of time'
     )
 
@@ -35,13 +37,12 @@ class Difference(commands.Cog):
     async def difference_command(self, interaction: discord.Interaction, username: str, method: str):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
-        refined = name.replace("_", "\_")
 
         historic = HistoricalManager(interaction.user.id, uuid)
 
         discord_id = uuid_to_discord_id(uuid=uuid)
         if method == 'yearly':
-            result = await yearly_eligibility(interaction, discord_id)
+            result = await yearly_eligibility_check(interaction, discord_id)
             if not result:
                 return
 
@@ -50,7 +51,7 @@ class Difference(commands.Cog):
 
         if not historical_data:
             await historic.start_historical()
-            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
+            await interaction.followup.send(f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)

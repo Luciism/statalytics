@@ -9,18 +9,21 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.historical import reset_historical, HistoricalManager
-from helper.linking import fetch_player_info, uuid_to_discord_id
-from helper.functions import (
+from helper import (
+    HistoricalManager,
+    reset_historical,
+    fetch_player_info,
+    uuid_to_discord_id,
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    yearly_eligibility,
+    yearly_eligibility_check,
     fetch_skin_model,
     ordinal, loading_message,
     send_generic_renders,
     log_error_msg,
+    fname
 )
 
 
@@ -34,7 +37,7 @@ class Yearly(commands.Cog):
         utc_now = datetime.utcnow()
         if not utc_now.timetuple().tm_yday in (1, 2, 365, 366):
             return
-        
+
         await reset_historical(
             method='yearly',
             table_format='yearly_%Y',
@@ -43,11 +46,11 @@ class Yearly(commands.Cog):
         )
 
 
-    def cog_load(self):
+    async def cog_load(self):
         self.reset_yearly.start()
 
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.reset_yearly.cancel()
 
 
@@ -71,7 +74,6 @@ class Yearly(commands.Cog):
         await interaction.response.defer()
 
         name, uuid = await fetch_player_info(username, interaction)
-        refined = name.replace("_", "\_")
 
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
@@ -80,11 +82,11 @@ class Yearly(commands.Cog):
 
         if not historical_data:
             await historic.start_historical()
-            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
+            await interaction.followup.send(f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         discord_id = uuid_to_discord_id(uuid=uuid)
-        result = await yearly_eligibility(interaction, discord_id)
+        result = await yearly_eligibility_check(interaction, discord_id)
         if not result:
             return
 
@@ -116,7 +118,7 @@ class Yearly(commands.Cog):
         await send_generic_renders(
             interaction=interaction,
             func=render_historical,
-            kwargs=kwargs, 
+            kwargs=kwargs,
             message=f':alarm_clock: Resets <t:{timestamp}:R>'
         )
 
@@ -131,27 +133,23 @@ class Yearly(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
-        refined = name.replace("_", "\_")
-
         historic = HistoricalManager(interaction.user.id, uuid)
-        
         discord_id = uuid_to_discord_id(uuid=uuid)
 
         # Check if user is allowed to use command
-        result = await yearly_eligibility(interaction, discord_id)
+        result = await yearly_eligibility_check(interaction, discord_id)
         if not result:
             return
- 
+
         # Check if user is within their lookback limitations
         # First checks if a user is checking 1 year back with a basic plan
-        # and then checks if the max lookback days are within the given amount of 
+        # and then checks if the max lookback days are within the given amount
         max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
         if not (max_lookback == 60 and years == 1) and -1 != max_lookback < (years * 365):
-            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
+            await interaction.followup.send(embeds=historic.build_invalid_lookback_embeds(max_lookback))
             return
 
-        if years < 1:
-            years = 1
+        years = max(years, 1)
 
         # Get time / date information
         gmt_offset = historic.get_reset_time()[0]
@@ -169,7 +167,7 @@ class Yearly(commands.Cog):
         historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
-            await interaction.followup.send(f'{refined} has no tracked data for {years} year(s) ago!')
+            await interaction.followup.send(f'{fname(name)} has no tracked data for {years} year(s) ago!')
             return
 
         # Render and send

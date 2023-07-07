@@ -5,8 +5,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.year import render_year
-from helper.linking import fetch_player_info, uuid_to_discord_id
-from helper.functions import (
+from helper import (
+    fetch_player_info,
+    uuid_to_discord_id,
     username_autocompletion,
     session_autocompletion,
     get_command_cooldown,
@@ -16,8 +17,8 @@ from helper.functions import (
     get_subscription,
     fetch_skin_model,
     send_generic_renders,
-    get_embed_color,
-    loading_message
+    loading_message,
+    load_embeds
 )
 
 
@@ -61,7 +62,7 @@ class Year(commands.Cog):
 
 
     year_group = app_commands.Group(
-        name='year', 
+        name='year',
         description='View the a players projected stats for a future year'
     )
 
@@ -90,18 +91,8 @@ class Year(commands.Cog):
             subscription = get_subscription(discord_id=discord_id)
 
         if not subscription and not get_subscription(interaction.user.id):
-            embed_color = get_embed_color('primary')
-            embed = discord.Embed(
-                title="That player doesn't have premium!",
-                description='In order to view stats for 2025, a [premium subscription](https://statalytics.net/store) is required!',
-                color=embed_color
-            )
-
-            embed.add_field(name='How does it work?', value="""
-                \- You can view any player's stats for 2025 if you have a premium subscription.
-                \- You can view a player's stats for 2025 if they have a premium subscription.
-            """.replace('   ', ''))
-            await interaction.followup.send(embed=embed)
+            embeds = load_embeds('2025', color='primary')
+            await interaction.followup.send(embeds=embeds)
             return
 
         await self.year_command(interaction, name, uuid, session, 2025)

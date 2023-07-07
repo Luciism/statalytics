@@ -7,9 +7,11 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper.historical import reset_historical, HistoricalManager
-from helper.linking import fetch_player_info, uuid_to_discord_id
-from helper.functions import (
+from helper import (
+    HistoricalManager,
+    reset_historical,
+    fetch_player_info,
+    uuid_to_discord_id,
     username_autocompletion,
     get_command_cooldown,
     get_hypixel_data,
@@ -18,6 +20,7 @@ from helper.functions import (
     ordinal, loading_message,
     send_generic_renders,
     log_error_msg,
+    fname
 )
 
 
@@ -41,11 +44,11 @@ class Weekly(commands.Cog):
         )
 
 
-    def cog_load(self):
+    async def cog_load(self):
         self.reset_weekly.start()
 
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.reset_weekly.cancel()
 
 
@@ -69,7 +72,6 @@ class Weekly(commands.Cog):
         await interaction.response.defer()
 
         name, uuid = await fetch_player_info(username, interaction)
-        refined = name.replace("_", "\_")
 
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
@@ -78,7 +80,7 @@ class Weekly(commands.Cog):
 
         if not historical_data:
             await historic.start_historical()
-            await interaction.followup.send(f'Historical stats for {refined} will now be tracked.')
+            await interaction.followup.send(f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -109,7 +111,7 @@ class Weekly(commands.Cog):
         await send_generic_renders(
             interaction=interaction,
             func=render_historical,
-            kwargs=kwargs, 
+            kwargs=kwargs,
             message=f':alarm_clock: Resets <t:{timestamp}:R>'
         )
         update_command_stats(interaction.user.id, 'weekly')
@@ -123,19 +125,15 @@ class Weekly(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
-        refined = name.replace("_", "\_")
-
         historic = HistoricalManager(interaction.user.id, uuid)
-        
         discord_id = uuid_to_discord_id(uuid=uuid)
 
         max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
         if -1 != max_lookback < (weeks * 7):
-            await interaction.followup.send(embed=historic.build_invalid_lookback_embed(max_lookback))
+            await interaction.followup.send(embeds=historic.build_invalid_lookback_embeds(max_lookback))
             return
 
-        if weeks < 1:
-            weeks = 1
+        weeks = max(weeks, 1)
 
         gmt_offset = historic.get_reset_time()[0]
 
@@ -152,7 +150,7 @@ class Weekly(commands.Cog):
         historical_data = historic.get_historical(table_name=table_name)
 
         if not historical_data:
-            await interaction.followup.send(f'{refined} has no tracked data for {weeks} week(s) ago!')
+            await interaction.followup.send(f'{fname(name)} has no tracked data for {weeks} week(s) ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)

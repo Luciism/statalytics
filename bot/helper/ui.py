@@ -5,11 +5,10 @@ import discord
 
 
 class SelectModes(discord.ui.Select):
-    def __init__(self, user, inter, mode):
+    def __init__(self, user: int, inter: discord.Interaction, mode: str):
         self.user = user
         self.inter = inter
-        self.mode = mode.title()
-        options=[
+        options = [
             discord.SelectOption(label="Overall"),
             discord.SelectOption(label="Solos"),
             discord.SelectOption(label="Doubles"),
@@ -17,15 +16,16 @@ class SelectModes(discord.ui.Select):
             discord.SelectOption(label="Fours"),
             discord.SelectOption(label="4v4")
             ]
-        super().__init__(placeholder=self.mode, max_values=1, min_values=1, options=options)
-    
-    
+        super().__init__(placeholder=mode.title(), max_values=1, min_values=1, options=options)
+
+
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         mode = self.values[0].lower()
-        if not interaction.user.id == self.user:
+
+        if interaction.user.id != self.user:
             await interaction.followup.send(
-                file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'),ephemeral=True)
+                file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'), ephemeral=True)
 
         else:
             view = ModesView(user=self.user, inter=self.inter, mode=mode)
@@ -48,3 +48,10 @@ class ModesView(discord.ui.View):
             pass
         if os.path.isdir(f'./database/activerenders/{self.inter.id}'):
             shutil.rmtree(f'./database/activerenders/{self.inter.id}')
+
+
+class LinkButton:
+    def __init__(self, label, url, emoji=None) -> None:
+        button = discord.ui.Button(label=label, url=url, emoji=emoji)
+        self.view = discord.ui.View()
+        self.view.add_item(button)

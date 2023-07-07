@@ -1,12 +1,11 @@
 import os
-import json
-import psutil
 import sys
 import time
 import datetime
 import sqlite3
 from json import load as load_json
 
+import psutil
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -14,8 +13,8 @@ from discord.ext import commands
 from helper.functions import (
     update_command_stats,
     get_command_users,
-    get_embed_color,
-    get_config
+    get_config,
+    load_embeds
 )
 
 
@@ -54,32 +53,27 @@ class Info(commands.Cog):
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
-        python_version = '.'.join((str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])))
+        python_version = '.'.join(str(ver) for ver in sys.version_info[0:3])
         ram_usage = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, 2)
 
-        with open('./assets/embeds/info.json', 'r') as datafile:
-            info_embed_str: str = json.load(datafile)['embeds'][0]
+        format_values = {
+            't': '┌', 'c': '├', 'b': '└', 'br': '\u200B', # Special chars
+            'uptime': uptime,
+            'ping': f'{ping:,}',
+            'commands': f'{total_commands:,}',
+            'version': config['version'],
+            'servers': f'{total_guilds:,}',
+            'users': f'{total_users:,}',
+            'commands_ran': f'{commands_ran:,}',
+            'linked_users': f'{linked_accounts:,}',
+            'devs': ', '.join(config["developers"]),
+            'library': 'discord.py',
+            'python_ver': python_version,
+            'ram_usage': ram_usage
+        }
 
-        info_embed_str = info_embed_str.format(
-            t='┌', c='├', b='└', br='​', # Special chars
-            embed_color=get_embed_color('primary'),
-            uptime=uptime,
-            ping=f'{ping:,}',
-            commands=f'{total_commands:,}',
-            version=config['version'],
-            servers=f'{total_guilds:,}',
-            users=f'{total_users:,}',
-            commands_ran=f'{commands_ran:,}',
-            linked_users=f'{linked_accounts:,}',
-            devs=', '.join(config["developers"]),
-            library='discord.py',
-            python_ver=python_version,
-            ram_usage=ram_usage
-        ).replace("{{", "{").replace("}}", "}")
-
-        embed = discord.Embed.from_dict(json.loads(info_embed_str))
-
-        await interaction.followup.send(embed=embed)
+        embeds = load_embeds('info', format_values, color='primary')
+        await interaction.followup.send(embeds=embeds)
 
         update_command_stats(discord_id=interaction.user.id, command='info')
 

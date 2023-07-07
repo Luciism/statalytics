@@ -1,0 +1,10 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Configure your settings for Statalytics",
+      "description": "Use the buttons below to customize your experience.",
+      "color": 3092790
+    }
+  ]
+}

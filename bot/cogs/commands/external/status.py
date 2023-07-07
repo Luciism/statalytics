@@ -1,24 +1,39 @@
 # api.polsu.xyz
 
 import os
-import requests
-from time import time
+import time
 
+import requests
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from helper.functions import (
     get_command_cooldown,
-    update_command_stats
+    update_command_stats,
+    load_embeds,
+    to_thread
 )
+
+
+@to_thread
+def _fetch_server_status(key, ip):
+    try:
+        res: dict = requests.get(
+            f"https://api.polsu.xyz/polsu/minecraft/server?key={key}&ip={ip}",
+            timeout=10
+        ).json()
+    except Exception: # polsulpicien wrote this code dont look at me
+        # In case the API doesn't respond or reponds with HTML instead of JSON.
+        res = {"success": False}
+    return res
 
 
 class Status(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-
-        self.key = os.environ.get('POLSU_KEY')
+        self.key = os.getenv('POLSU_KEY')
+        self.ip = 'mc.hypixel.net'
 
 
     status = app_commands.Group(name='status', description='Status Group Command')
@@ -29,51 +44,34 @@ class Status(commands.Cog):
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        try:
-            d: dict = requests.get(
-                f"https://api.polsu.xyz/polsu/minecraft/server?key={self.key}&ip=mc.hypixel.net", timeout=10).json()
-        except:
-            # In case the API doesn't respond or reponds with HTML instead of JSON.
-            d = {"success": False}
-        
-        if not d["success"]:
-            await interaction.followup.send(content="Something went wrong...\nCouldn't load the data.", ephemeral=True)
+        res = await _fetch_server_status(self.key, self.ip)
+
+        if not res["success"]:
+            await interaction.followup.send(
+                content="Something went while contacting `api.polsu.xyz`!\nPlease try again layer",
+                ephemeral=True
+            )
             return
 
-        # Generating a unique timestamp & image url to avoid Discord's image cache.
-        t: int = int(time())
+        data = res["data"]
 
-        data = d["data"]
-
-        embeds = []
-        embed = discord.Embed(
-            title="Hypixel Status",
-            description=f"Hypixel's current server information.\n\n**` > ` Status**: `{'Online' if data['online'] else 'Offline'}`\n**` > ` IP**: **`{data['ip']}`**\n**` > ` Version**: `{data['version']}`\n\n**` > ` Updated**: <t:{data['time']['last']}>",
-            colour=0x2f3136
-        )
-        embed.set_image(url=f'{data["image"]["motd"]}?t={t}')
-        embed.set_thumbnail(url=f'{data["image"]["icon"]}?t={t}')
-        embed.set_footer(text=f"Powered by api.polsu.xyz")
-        embeds.append(embed)
-
-        embed = discord.Embed(
-            title="Ping",
-            description=f"**` > ` Ping**: `{data['ping']['last']:,}`\n\n**` > ` Max**: `{data['ping']['max']:,}`\n**` > ` Average**: `{data['ping']['average']:,}`\n**` > ` Min**: `{data['ping']['min']:,}`\n",
-            colour=0x2f3136
-        )
-        embed.set_image(url=f'{data["image"]["ping"]}?t={t}')
-        embed.set_footer(text="UTC Time  -  Ping in ms (USA - Los Angeles)")
-        embeds.append(embed)
-
-        embed = discord.Embed(
-            title="Players",
-            description=f"**` > ` Players**: `{data['players']['current']:,} / {data['players']['server_max']:,}`\n\n**` > ` Max**: `{data['players']['max']:,}`\n**` > ` Average**: `{data['players']['average']:,}`\n**` > ` Min**: `{data['players']['min']:,}`\n",
-            colour=0x2f3136
-        )
-        embed.set_image(url=f'{data["image"]["players"]}?t={t}')
-        embed.set_footer(text="Hypixel Status")
-        embeds.append(embed)
-
+        format_values = {
+            'now': int(time.time()),
+            'status': 'Online' if data['online'] else 'Offline',
+            'ip': data['ip'],
+            'version': data['version'],
+            'updated_timestamp': data['time']['last'],
+            'ping': f"{data['ping']['last']:,}",
+            'max_ping': f"{data['ping']['max']:,}",
+            'avg_ping': f"{data['ping']['average']:,}",
+            'min_ping': f"{data['ping']['min']:,}",
+            'players': f"{data['players']['current']:,}",
+            'max_players': f"{data['players']['server_max']:,}",
+            'peak_players': f"{data['players']['max']:,}",
+            'avg_players': f"{data['players']['average']:,}",
+            'min_players': f"{data['players']['min']:,}"
+        }
+        embeds = load_embeds('status_hypixel', format_values)
         await interaction.followup.send(embeds=embeds)
 
         update_command_stats(interaction.user.id, 'status_hypixel')

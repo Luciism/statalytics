@@ -1,5 +1,6 @@
 {
+  "type": "string",
   "embeds": [
-    "{{\"title\": \"Vote For Statalytics\", \"description\": \"Voting helps Statalytics grow by increasing public exposure.\", \"color\": {embed_color}, \"thumbnail\": {{\"url\": \"https://statalytics.net/image/logo.png?v=2\"}},\"fields\": [{{\"name\": \"Links\", \"value\": \"Vote on [top.gg]({top_gg})\\nVote on [discordbotlist.com]({discordbotlist_com})\\nVote on [discords.com]({discords_com})\", \"inline\": false}}, {{\"name\": \"Rewards\", \"value\": \"Theme packs for 24 hours.\\n Cooldowns reduced by 50% (1.75s)\\n\\n *You can change your theme pack with `/settings`*\", \"inline\": false}}, {{\"name\": \"Your History\", \"value\": \"Last Vote: {last_vote}\\n Total Votes: {total_votes}\", \"inline\": false}}]}}"
+    "{{\"title\": \"Vote For Statalytics\", \"description\": \"Voting helps Statalytics grow by increasing public exposure.\", \"color\": 3092790, \"thumbnail\": {{\"url\": \"https://statalytics.net/image/logo.png?v=2\"}}, \"fields\": [{{\"name\": \"Links\", \"value\": \"Vote on [top.gg]({top_gg})\\nVote on [discordbotlist.com]({discordbotlist_com})\\nVote on [discords.com]({discords_com})\", \"inline\": false}}, {{\"name\": \"Rewards\", \"value\": \"Theme packs for 24 hours.\\n Cooldowns reduced by 50% (1.75s)\\n\\n *You can change your theme pack with `/settings`*\", \"inline\": false}}, {{\"name\": \"Your History\", \"value\": \"Last Vote: {last_vote}\\n Total Votes: {total_votes}\", \"inline\": false}}]}}"
   ]
 }

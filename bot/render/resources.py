@@ -47,22 +47,22 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
         ((leng(gold_collected, 141)+174, 189), gold_collected, gold),
         ((leng(diamonds_collected, 141)+329, 189), diamonds_collected, aqua),
         ((leng(emeralds_collected, 141)+483, 189), emeralds_collected, green),
-        
+
         ((leng(iron_per_game, 141)+19, 249), iron_per_game, white),
         ((leng(gold_per_game, 141)+174, 249), gold_per_game, gold),
         ((leng(diamonds_per_game, 141)+329, 249), diamonds_per_game, aqua),
         ((leng(emeralds_per_game, 141)+483, 249), emeralds_per_game, green),
-        
+
         ((leng(iron_per_star, 141)+19, 309), iron_per_star, white),
         ((leng(gold_per_star, 141)+174, 309), gold_per_star, gold),
         ((leng(diamonds_per_star, 141)+329, 309), diamonds_per_star, aqua),
         ((leng(emeralds_per_star, 141)+483, 309), emeralds_per_star, green),
-        
+
         ((leng(iron_percentage, 141)+19, 369), iron_percentage, white),
         ((leng(gold_percentage, 141)+174, 369), gold_percentage, gold),
         ((leng(diamond_percentage, 141)+329, 369), diamond_percentage, aqua),
         ((leng(emerald_percentage, 141)+483, 369), emerald_percentage, green),
-        
+
         ((leng(iron_most_mode, 141)+19, 429), iron_most_mode, white),
         ((leng(gold_most_mode, 141)+174, 429), gold_most_mode, gold),
         ((leng(diamond_most_mode, 141)+329, 429), diamond_most_mode, aqua),
@@ -98,7 +98,7 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
     draw.text((leng(f'({mode})', 174)+450, 65), f'({mode})', fill=white, font=minecraft_16)
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/bg/resources/overlay.png')
+    overlay_image = Image.open('./assets/bg/resources/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

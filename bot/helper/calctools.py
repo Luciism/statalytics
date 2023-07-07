@@ -84,7 +84,6 @@ def get_progress(hypixel_data_bedwars: dict) -> tuple[str, str, int]:
 
 
 # Suffixes used to approximate large numbers
-global suffixes
 suffixes = {
     10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc', 10**48: 'QiDc', 10**45: 'QaDc',
     10**42: 'TDc', 10**39: 'DDc', 10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
@@ -133,5 +132,6 @@ def rround(number: float | int, ndigits: int=0) -> float | int:
     :param ndigits: Decimal place to round to
     """
     rounded: float = float(round(number, ndigits))
-    if rounded.is_integer(): rounded = int(rounded)
+    if rounded.is_integer():
+        rounded = int(rounded)
     return rounded

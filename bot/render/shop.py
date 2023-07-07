@@ -9,7 +9,7 @@ from helper.calctools import get_player_rank_info
 def render_shop(name, uuid, hypixel_data):
     # Get shop layout and positions
     slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80),
-             (490, 80), (580, 80), (40, 170), (130, 170), (220, 170), 
+             (490, 80), (580, 80), (40, 170), (130, 170), (220, 170),
              (310, 170),(400, 170), (490, 170), (580, 170), (40, 260),
              (130, 260), (220, 260), (310, 260), (400, 260), (490, 260), (580, 260)]
 
@@ -34,7 +34,7 @@ def render_shop(name, uuid, hypixel_data):
         if os.path.exists(f"./assets/bg/shop/{item}.png"):
             top_image = Image.open(f"./assets/bg/shop/{item}.png")
         else:
-            top_image = Image.open(f"./assets/bg/shop/rotational_item.png")
+            top_image = Image.open("./assets/bg/shop/rotational_item.png")
         top_image = top_image.convert("RGBA")
         composite_image.paste(top_image, slots[i], top_image)
 

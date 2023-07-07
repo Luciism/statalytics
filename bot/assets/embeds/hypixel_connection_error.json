@@ -1,0 +1,10 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Hypixel API Connection Error",
+      "description": "There was an issue connecting to Hypixel's public API!",
+      "color": 5793266
+    }
+  ]
+}

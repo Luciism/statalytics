@@ -90,7 +90,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     image = paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'./assets/bg/practice/overlay.png')
+    overlay_image = Image.open('./assets/bg/practice/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

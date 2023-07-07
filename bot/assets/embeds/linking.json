@@ -1,0 +1,13 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Hypixel Discord Connection Mismatch!",
+      "description": "To successfully link your account, please ensure that your Hypixel Discord connection corresponds accurately with your current Discord tag.",
+      "color": 3092790,
+      "image": {
+        "url": "https://statalytics.net/static/gifs/link.gif"
+      }
+    }
+  ]
+}

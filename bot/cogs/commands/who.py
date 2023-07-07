@@ -2,8 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.linking import fetch_player_info
-from helper.functions import update_command_stats
+from helper import update_command_stats, fetch_player_info
 
 
 class Who(commands.Cog):

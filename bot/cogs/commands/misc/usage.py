@@ -30,7 +30,7 @@ class Usage(commands.Cog):
 
 
         usage_dict = {}
-        
+
         if not command_usage:
             embed = discord.Embed(
                 title='No Command Usage!',
