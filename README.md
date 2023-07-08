@@ -1,19 +1,13 @@
-# Statalytics
-### Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with exceptional functionalities.
-
-### Links
-🔗 <a href="https://statalytics.net/invite" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Invite</a>\
-🔗 <a href="https://statalytics.net/" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0">Website</a>\
-🔗 <a href="https://statalytics.net/discord" style="text-decoration: none; color: #BC92FF; margin: 0; padding: 0;">Support</a>
+<div align="center">
+    <h1>Statalytics</h1>
+  Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with exceptional functionalities.
+    <br>
+    <a href="https://statalytics.net/invite">Invite</a> •
+    <a href="https://statalytics.net/">Website</a> •
+    <a href="https://statalytics.net/discord">Support</a>
+</div>
 
 ## Commands
-#### Future stats
-| Command | Function |
-| ------- | -------- |
-| `/year 2024` | View projected next years stats a player (requires session)|
-| `/prestige` | View projected stats of a player (requires session)|
-| `/milestones` | View milestone stats of any player |
-
 #### Current Stats
 | Command | Function |
 | ------- | -------- |
@@ -27,6 +21,14 @@
 | `/activecosmetics` | View the active cosmetics of any player |
 | `/hotbar` | View the hotbar preference of any player |
 | `/shop` | View the shop of any player |
+
+
+#### Projections & Predictions
+| Command | Function |
+| ------- | -------- |
+| `/year 2024` | View projected next years stats a player (requires session)|
+| `/prestige` | View projected stats of a player (requires session)|
+| `/milestones` | View milestone stats of any player |
 
 #### Historical Stats
 | Command | Function |
@@ -52,7 +54,7 @@
 | `/session reset` | Reset a specified session (requires linking) |
 | `/session active` | Get a list of all your active sessions |
 
-#### Extra Commands
+#### Not so stat related
 | Command | Function |
 | ------- | -------- |
 | `/link` | Link your account (recommended) |
