@@ -18,7 +18,7 @@ from helper import (
     start_session,
     get_smart_session,
     fetch_skin_model,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -86,7 +86,6 @@ class Sessions(commands.Cog):
             session = session_data[0]
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = await get_hypixel_data(uuid)
         skin_res = await fetch_skin_model(uuid, 144)
 
@@ -99,7 +98,7 @@ class Sessions(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_session, kwargs)
+        await handle_modes_renders(interaction, render_session, kwargs)
         update_command_stats(interaction.user.id, 'session')
 
 

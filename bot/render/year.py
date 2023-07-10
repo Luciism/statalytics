@@ -129,6 +129,6 @@ def render_year(name, uuid, session, year, mode,
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
-    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')
     if mode.lower() == "overall":
         return level

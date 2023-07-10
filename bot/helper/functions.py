@@ -300,7 +300,7 @@ def discord_message(discord_id):
     return None
 
 
-async def send_generic_renders(interaction: discord.Interaction,
+async def handle_modes_renders(interaction: discord.Interaction,
                                func: object, kwargs: dict, message=None):
     """
     Renders and sends all modes to discord for the selected render
@@ -312,13 +312,14 @@ async def send_generic_renders(interaction: discord.Interaction,
     if not message:
         message = discord_message(interaction.user.id)
 
+    os.makedirs(f'./database/rendered/{interaction.id}')
     func(mode="Overall", **kwargs)
     view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
     try:
         await interaction.edit_original_response(
             content=message,
             attachments=[
-                discord.File(f"{REL_PATH}/database/activerenders/{interaction.id}/overall.png")],
+                discord.File(f"{REL_PATH}/database/rendered/{interaction.id}/overall.png")],
             view=view
         )
     except discord.errors.NotFound:

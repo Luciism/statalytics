@@ -25,12 +25,12 @@ class SelectModes(discord.ui.Select):
 
         if interaction.user.id != self.user:
             await interaction.followup.send(
-                file=discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png'), ephemeral=True)
+                file=discord.File(f'./database/rendered/{self.inter.id}/{mode}.png'), ephemeral=True)
 
         else:
             view = ModesView(user=self.user, inter=self.inter, mode=mode)
             await self.inter.edit_original_response(
-                attachments=[discord.File(f'./database/activerenders/{self.inter.id}/{mode}.png')], view=view)
+                attachments=[discord.File(f'./database/rendered/{self.inter.id}/{mode}.png')], view=view)
 
 
 class ModesView(discord.ui.View):
@@ -46,8 +46,8 @@ class ModesView(discord.ui.View):
             await self.inter.edit_original_response(view=self)
         except discord.errors.NotFound:
             pass
-        if os.path.isdir(f'./database/activerenders/{self.inter.id}'):
-            shutil.rmtree(f'./database/activerenders/{self.inter.id}')
+        if os.path.isdir(f'./database/rendered/{self.inter.id}'):
+            shutil.rmtree(f'./database/rendered/{self.inter.id}')
 
 
 class LinkButton:

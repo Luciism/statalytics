@@ -108,4 +108,4 @@ def render_difference(name, uuid, relative_date, method,
     image = paste_skin(skin_res, image, positions=(465, 67))
 
     # Save the image
-    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')

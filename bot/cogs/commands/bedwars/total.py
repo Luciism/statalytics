@@ -12,7 +12,7 @@ from helper import (
     get_hypixel_data,
     update_command_stats,
     fetch_skin_model,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -28,7 +28,6 @@ class Total(commands.Cog):
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
         hypixel_data = await get_hypixel_data(uuid)
 
@@ -41,7 +40,7 @@ class Total(commands.Cog):
             "method": method
         }
 
-        await send_generic_renders(interaction, render_total, kwargs)
+        await handle_modes_renders(interaction, render_total, kwargs)
         update_command_stats(interaction.user.id, method)
 
 

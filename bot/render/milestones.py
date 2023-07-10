@@ -126,4 +126,4 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
 
     image = paste_skin(skin_res, image, positions=(472, 61))
 
-    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')

@@ -14,7 +14,7 @@ from helper import (
     get_hypixel_data,
     update_command_stats,
     fetch_skin_model,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -45,7 +45,6 @@ class Milestones(commands.Cog):
                 return
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         session = 1 if session == 100 else session
 
         hypixel_data = await get_hypixel_data(uuid)
@@ -60,7 +59,7 @@ class Milestones(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_milestones, kwargs)
+        await handle_modes_renders(interaction, render_milestones, kwargs)
         update_command_stats(interaction.user.id, 'milestones')
 
 

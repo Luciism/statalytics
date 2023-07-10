@@ -18,7 +18,7 @@ from helper import (
     update_command_stats,
     fetch_skin_model,
     ordinal, loading_message,
-    send_generic_renders,
+    handle_modes_renders,
     log_error_msg,
     fname
 )
@@ -80,7 +80,6 @@ class Daily(commands.Cog):
             return
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
         hypixel_data = await get_hypixel_data(uuid)
 
@@ -104,7 +103,7 @@ class Daily(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(
+        await handle_modes_renders(
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
@@ -149,7 +148,6 @@ class Daily(commands.Cog):
             return
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
         hypixel_data = await get_hypixel_data(uuid)
 
@@ -165,7 +163,7 @@ class Daily(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_historical, kwargs)
+        await handle_modes_renders(interaction, render_historical, kwargs)
         update_command_stats(interaction.user.id, 'lastday')
 
 

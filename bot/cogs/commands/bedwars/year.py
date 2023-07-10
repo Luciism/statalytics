@@ -16,7 +16,7 @@ from helper import (
     get_smart_session,
     get_subscription,
     fetch_skin_model,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message,
     load_embeds
 )
@@ -42,7 +42,6 @@ class Year(commands.Cog):
             session = session_data[0]
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
 
         hypixel_data = await get_hypixel_data(uuid)
@@ -57,7 +56,7 @@ class Year(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_year, kwargs)
+        await handle_modes_renders(interaction, render_year, kwargs)
         update_command_stats(interaction.user.id, f'year_{year}')
 
 

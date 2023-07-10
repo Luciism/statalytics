@@ -104,4 +104,4 @@ def render_historical(name, uuid, method, relative_date, title, mode,
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
-    image.save(f'./database/activerenders/{save_dir}/{mode.lower()}.png')
+    image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')

@@ -16,7 +16,7 @@ from helper import (
     update_command_stats,
     fetch_skin_model,
     ordinal, loading_message,
-    send_generic_renders,
+    handle_modes_renders,
     yearly_eligibility_check,
     fname
 )
@@ -55,7 +55,6 @@ class Difference(commands.Cog):
             return
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
         hypixel_data = await get_hypixel_data(uuid)
 
@@ -72,7 +71,7 @@ class Difference(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_difference, kwargs)
+        await handle_modes_renders(interaction, render_difference, kwargs)
         update_command_stats(interaction.user.id, f'difference_{method}')
 
 

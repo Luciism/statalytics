@@ -11,7 +11,7 @@ from helper import (
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -32,7 +32,6 @@ class Compare(commands.Cog):
         name_2, uuid_2 = await fetch_player_info(player_2 if player_2 else player_1, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data_1 = await get_hypixel_data(uuid_1)
         hypixel_data_2 = await get_hypixel_data(uuid_2)
 
@@ -45,7 +44,7 @@ class Compare(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_compare, kwargs)
+        await handle_modes_renders(interaction, render_compare, kwargs)
         update_command_stats(interaction.user.id, 'compare')
 
 

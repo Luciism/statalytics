@@ -11,7 +11,7 @@ from helper import (
     get_command_cooldown,
     get_hypixel_data,
     update_command_stats,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -31,7 +31,6 @@ class Resources(commands.Cog):
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         hypixel_data = await get_hypixel_data(uuid)
 
         kwargs = {
@@ -41,7 +40,7 @@ class Resources(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_resources, kwargs)
+        await handle_modes_renders(interaction, render_resources, kwargs)
         update_command_stats(interaction.user.id, 'resources')
 
 

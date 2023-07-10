@@ -14,7 +14,7 @@ from helper import (
     update_command_stats,
     get_smart_session,
     fetch_skin_model,
-    send_generic_renders,
+    handle_modes_renders,
     loading_message
 )
 
@@ -44,7 +44,6 @@ class Projection(commands.Cog):
             session = session_data[0]
 
         await interaction.followup.send(self.LOADING_MSG)
-        os.makedirs(f'./database/activerenders/{interaction.id}')
         skin_res = await fetch_skin_model(uuid, 144)
 
         hypixel_data = await get_hypixel_data(uuid)
@@ -67,7 +66,7 @@ class Projection(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await send_generic_renders(interaction, render_projection, kwargs)
+        await handle_modes_renders(interaction, render_projection, kwargs)
         update_command_stats(interaction.user.id, 'projection')
 
 
