@@ -186,7 +186,7 @@ async def start_historical(uuid: str) -> None:
                 "SELECT uuid FROM trackers WHERE uuid = ? and tracker = ?", (uuid, tracker))
             if not cursor.fetchone():
                 cursor.execute(
-                    f"INSERT INTO trackers (uuid, tracker, {keys}) VALUES (?, ?, ?, {question_marks})",
+                    f"INSERT INTO trackers (uuid, tracker, {keys}) VALUES (?, ?, {question_marks})",
                     (uuid, tracker, *stat_values)
                 )
 
