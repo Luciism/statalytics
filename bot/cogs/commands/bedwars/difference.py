@@ -47,7 +47,7 @@ class Difference(commands.Cog):
                 return
 
         gmt_offset = historic.get_reset_time()[0]
-        historical_data = historic.get_historical(table_name=method)
+        historical_data = historic.get_historical(identifier=method)
 
         if not historical_data:
             await historic.start_historical()

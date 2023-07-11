@@ -1,4 +1,3 @@
-import os
 import asyncio
 
 from calendar import monthrange
@@ -40,8 +39,8 @@ class Monthly(commands.Cog):
             return
 
         await reset_historical(
-            method='monthly',
-            table_format='monthly_%Y_%m',
+            tracker='monthly',
+            period_format='monthly_%Y_%m',
             condition='timezone.day == 1',
             client=self.client
         )
@@ -79,7 +78,7 @@ class Monthly(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
-        historical_data = historic.get_historical(table_name='monthly')
+        historical_data = historic.get_historical(identifier='monthly')
 
         if not historical_data:
             await historic.start_historical()
@@ -105,7 +104,7 @@ class Monthly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "monthly",
+            "identifier": "monthly",
             "relative_date": formatted_date,
             "title": "Monthly BW Stats",
             "hypixel_data": hypixel_data,
@@ -147,12 +146,12 @@ class Monthly(commands.Cog):
         try:
             relative_date = now - relativedelta(months=months)
             formatted_date = relative_date.strftime("%b %Y")
-            table_name = relative_date.strftime("monthly_%Y_%m")
+            period = relative_date.strftime("monthly_%Y_%m")
         except ValueError:
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        historical_data = historic.get_historical(table_name=table_name)
+        historical_data = historic.get_historical(identifier=period)
 
         if not historical_data:
             await interaction.followup.send(f'{fname(name)} has no tracked data for {months} month(s) ago!')
@@ -165,10 +164,10 @@ class Monthly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "lastmonth",
+            "identifier": "lastmonth",
             "relative_date": formatted_date,
             "title": f"{months} Months Ago",
-            "table_name": table_name,
+            "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id

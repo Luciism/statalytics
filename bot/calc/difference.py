@@ -7,26 +7,20 @@ from helper.calctools import (
     get_level,
     get_player_dict
 )
-from helper.linking import uuid_to_discord_id
 
 
 class Difference:
-    def __init__(self, name: str, uuid: str, method: str,
+    def __init__(self, name: str, uuid: str, tracker: str,
                  mode: str, hypixel_data: dict) -> None:
         self.name = name
         self.mode = get_mode(mode)
 
-        discord_id = uuid_to_discord_id(uuid)
 
-        with sqlite3.connect('./database/historical.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            if discord_id:
-                cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{discord_id}'")
-                self.config_data = cursor.fetchone()
-            else:
-                self.config_data = ()
 
-            cursor.execute(f"SELECT * FROM {method} WHERE uuid = '{uuid}'")
+            cursor.execute(
+                "SELECT * FROM trackers WHERE uuid = ? and tracker = ?", (uuid, tracker))
             historical_data = cursor.fetchone()
 
             column_names = [desc[0] for desc in cursor.description]

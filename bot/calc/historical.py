@@ -7,12 +7,13 @@ from helper.calctools import (
     get_mode,
     rround,
     get_level,
-    get_player_dict
+    get_player_dict,
+    xp_from_level
 )
 
 
 class HistoricalStats:
-    def __init__(self, name: str, uuid: str, method: int,
+    def __init__(self, name: str, uuid: str, identifier: int,
                  mode: str, hypixel_data: dict) -> None:
         self.name, self.uuid = name, uuid
         self.mode = get_mode(mode)
@@ -20,10 +21,11 @@ class HistoricalStats:
         self.hypixel_data = get_player_dict(hypixel_data)
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        with sqlite3.connect('./database/historical.db') as conn:
+        with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM {method} WHERE uuid = '{uuid}'")
+            cursor.execute(
+                "SELECT * FROM trackers WHERE uuid = ? and tracker = ?", (uuid, identifier))
             historical_data = cursor.fetchone()
 
             column_names = [desc[0] for desc in cursor.description]
@@ -107,32 +109,29 @@ class HistoricalStats:
 
 
 class LookbackStats:
-    def __init__(self, name: str, uuid: str, table_name: str,
+    def __init__(self, name: str, uuid: str, period: str,
                  mode: str, hypixel_data: dict) -> None:
-        self.name, self.uuid, self.table_name = name, uuid, table_name
+        self.name, self.uuid = name, uuid
         self.mode = get_mode(mode)
 
         self.hypixel_data = get_player_dict(hypixel_data)
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linked_accounts WHERE uuid = '{uuid}'")
-            linked_data = cursor.fetchone()
 
-        with sqlite3.connect('./database/historical.db') as conn:
-            cursor = conn.cursor()
-            if linked_data:
-                cursor.execute(f"SELECT * FROM configuration WHERE discord_id = '{linked_data[0]}'")
-                self.config_data = cursor.fetchone()
-            else: self.config_data = ()
-
-            cursor.execute(f"SELECT * FROM {table_name} WHERE uuid = '{uuid}'")
+            cursor.execute(
+                "SELECT * FROM historical WHERE uuid = ? and period = ?", (uuid, period))
             historical_data = cursor.fetchone()
 
             column_names = [desc[0] for desc in cursor.description]
             self.historical_data = dict(zip(column_names, historical_data))
 
-        self.level = self.historical_data['level']
-        self.stars_gained = f"{rround(get_level(self.historical_data['Experience']), 2):,}"
+        level = self.historical_data['level']
+        self.level = int(level)
+
+        xp_total = xp_from_level(level)
+        xp_gained = self.historical_data['Experience']
+        stars_gained = level - get_level(xp_total - xp_gained)
+        self.stars_gained = f"{rround(stars_gained, 2):,}"
 
         self.items_purchased = self.historical_data[f'{self.mode}items_purchased_bedwars']
         self.games_played = self.historical_data[f'{self.mode}games_played_bedwars']

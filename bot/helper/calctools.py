@@ -3,7 +3,7 @@ A set of functions used for calculating and fetching an assortment of data.
 """
 
 
-def get_player_dict(hypixel_data: dict):
+def get_player_dict(hypixel_data: dict) -> dict:
     """
     Checks if player key exits and returns data or empty dict
     :param hypixel_data: The hypixel data to the player of
@@ -47,6 +47,23 @@ def get_player_rank_info(hypixel_data: dict) -> dict:
         'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
     }
     return rank_info
+
+
+def xp_from_level(level: float) -> float | int:
+    """
+    Get the bedwars experience required for a given level
+    :param level: Bedwars level
+    """
+    prestige, level = divmod(level, 100)
+    xp = prestige * 487000
+    xp_map = (0, 500, 1500, 3500, 7000)
+
+    if level < 4:
+        index = int(level)
+        factor = xp_map[index]
+        return int(xp + factor + (level - index) * (xp_map[index + 1] - factor))
+    else:
+        return int(xp + 7000 + (level - 4) * 5000)
 
 
 def get_level(xp: int) -> float | int:

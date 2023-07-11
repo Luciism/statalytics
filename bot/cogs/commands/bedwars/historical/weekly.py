@@ -1,4 +1,3 @@
-import os
 import asyncio
 from datetime import datetime, timedelta, timezone
 
@@ -37,8 +36,8 @@ class Weekly(commands.Cog):
             return
 
         await reset_historical(
-            method='weekly',
-            table_format='weekly_%Y_%U',
+            tracker='weekly',
+            period_format='weekly_%Y_%U',
             condition='timezone.weekday() == 6',
             client=self.client
         )
@@ -76,7 +75,7 @@ class Weekly(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
-        historical_data = historic.get_historical(table_name='monthly')
+        historical_data = historic.get_historical(identifier='monthly')
 
         if not historical_data:
             await historic.start_historical()
@@ -99,7 +98,7 @@ class Weekly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "weekly",
+            "identifier": "weekly",
             "relative_date": formatted_date,
             "title": "Weekly BW Stats",
             "hypixel_data": hypixel_data,
@@ -141,12 +140,12 @@ class Weekly(commands.Cog):
         try:
             relative_date = now - timedelta(weeks=weeks)
             formatted_date = relative_date.strftime("Week %U, %Y")
-            table_name = relative_date.strftime("weekly_%Y_%U")
+            period = relative_date.strftime("weekly_%Y_%U")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        historical_data = historic.get_historical(table_name=table_name)
+        historical_data = historic.get_historical(identifier=period)
 
         if not historical_data:
             await interaction.followup.send(f'{fname(name)} has no tracked data for {weeks} week(s) ago!')
@@ -159,10 +158,10 @@ class Weekly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "lastweek",
+            "identifier": "lastweek",
             "relative_date": formatted_date,
             "title": f"{weeks} Weeks Ago",
-            "table_name": table_name,
+            "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id

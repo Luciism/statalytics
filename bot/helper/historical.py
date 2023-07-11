@@ -8,7 +8,7 @@ from discord import Client, Interaction
 
 from .errors import NoLinkedAccountError
 from .handlers import log_error_msg
-from .calctools import get_player_dict
+from .calctools import get_player_dict, get_level
 from .linking import get_linked_data, uuid_to_discord_id
 from .functions import (
     REL_PATH,
@@ -20,13 +20,16 @@ from .functions import (
 )
 
 
+TRACKERS = ('daily', 'weekly', 'monthly', 'yearly')
+
+
 # Used to get player bound reset times that are assigned automatically.
 def get_reset_time_default(uuid: str) -> tuple | None:
     """
     Gets the default reset time assigned randomly for a player
     :param uuid: The uuid of the relative player
     """
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
@@ -42,10 +45,10 @@ def get_reset_time_configured(discord_id: int):
     Gets the configured reset time set by the linked discord user
     :param discord_id: The discord id of the respective user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT * FROM configuration WHERE discord_id = {discord_id}")
+        cursor.execute(f"SELECT * FROM configured_reset_times WHERE discord_id = {discord_id}")
         configuration_data = cursor.fetchone()
 
     if configuration_data:
@@ -82,7 +85,7 @@ def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
     :param timezone: The GMT offset to insert
     :param reset_hour: The reset hour to insert
     """
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT * FROM default_reset_times WHERE uuid = '{uuid}'")
@@ -134,21 +137,21 @@ def update_reset_time_configured(discord_id: int, value: int, method: str):
     :param value: the value associated with the method
     :param method: row name (timezone, reset_hour)
     """
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(
-            f'SELECT timezone FROM configuration WHERE discord_id = {discord_id}')
+            f'SELECT timezone FROM configured_reset_times WHERE discord_id = {discord_id}')
 
         if cursor.fetchone():
             cursor.execute(
-                f'UPDATE configuration SET {method} = ? WHERE discord_id = ?', (value, discord_id))
+                f'UPDATE configured_reset_times SET {method} = ? WHERE discord_id = ?', (value, discord_id))
         else:
             values = (discord_id, value, 0) if method == 'timezone' else (discord_id, 0, value)
             cursor.execute(
-                'INSERT INTO configuration (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
+                'INSERT INTO configured_reset_times (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
 
         cursor.execute(
-            f'SELECT timezone, reset_hour FROM configuration WHERE discord_id = {discord_id}')
+            f'SELECT timezone, reset_hour FROM configured_reset_times WHERE discord_id = {discord_id}')
         current_data = cursor.fetchone()
 
     linked_data = get_linked_data(discord_id)
@@ -163,80 +166,90 @@ async def start_historical(uuid: str) -> None:
     :param uuid: The uuid of the player's historical stats being initiated
     """
     update_reset_time_default(uuid)
+
     hypixel_data: dict = await get_hypixel_data(uuid, cache=False)
     hypixel_data = get_player_dict(hypixel_data)
 
     stat_keys: dict = get_config()['tracked_bedwars_stats']
-    stat_values = [uuid, hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
+    stat_values = []
 
     for key in stat_keys:
         stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
 
-    stat_keys.insert(0, 'level')
-    stat_keys.insert(0, 'uuid')
     keys = ', '.join(stat_keys)
+    question_marks = ', '.join('?'*len(stat_keys))
 
-    trackers = ('daily', 'weekly', 'monthly', 'yearly')
-    for tracker in trackers:
-        with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    for tracker in TRACKERS:
+        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT uuid FROM {tracker} WHERE uuid = '{uuid}'")
+            cursor.execute(
+                "SELECT uuid FROM trackers WHERE uuid = ? and tracker = ?", (uuid, tracker))
             if not cursor.fetchone():
-                cursor.execute(f"INSERT INTO {tracker} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", stat_values)
+                cursor.execute(
+                    f"INSERT INTO trackers (uuid, tracker, {keys}) VALUES (?, ?, ?, {question_marks})",
+                    (uuid, tracker, *stat_values)
+                )
 
 
 # Saves historical stats to a new table with a specified name.
 # The local stats are subtracted from the current stats leaving
 # the gained stats during the historical tracking period.
-def save_historical(local_data: tuple, hypixel_data: tuple, table: str) -> None:
+def save_historical(local_data: tuple, hypixel_data: tuple,
+                    uuid: str, level: float, period: str) -> None:
     """
     Saves historical data to a specified table, typically used when historical stats reset.
     Creates new table if specified table doesn't exist
-    :param local_data: The historical starting data
-    :param hypixel_data: The current hypixel data
-    :param table: The name of the table to save the historical data to
+    :param local_data: the player's bedwars stats at the beginning of the period
+    :param hypixel_data: The current bedwars stats of the player
+    :param uuid: the uuid of the respective player
+    :param level: the current level of the player to preserve
+    :param period: the time period to save the stats to
     """
-    historical_values = [hypixel_data[0], hypixel_data[1]]
+    stat_values = []
+    for value1, value2 in zip(hypixel_data, local_data):
+        stat_values.append(value1 - value2)
 
-    for i, value in enumerate(hypixel_data[1:]):
-        historical_values.append(value - local_data[i+1])
+    stat_keys = get_config()['tracked_bedwars_stats']
 
-    stat_keys = ['uuid', 'level', 'stars_gained']
-    stat_keys.extend(get_config()['tracked_bedwars_stats'])
+    keys = ', '.join(stat_keys)
+    question_marks = ', '.join('?'*len(stat_keys))
 
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
-        if not cursor.fetchone():
-            columns = ', '.join([f'{key} INTEGER' for key in stat_keys[1:]])
-            cursor.execute(f"CREATE TABLE {table} (uuid TEXT PRIMARY KEY, {columns})")
-
-        cursor.execute(f"SELECT uuid FROM {table} WHERE uuid = '{hypixel_data[0]}'")
+        cursor.execute(
+            "SELECT uuid FROM historical WHERE uuid = ? and period = ?", (uuid, period))
 
         if not cursor.fetchone():
-            keys = ', '.join(stat_keys)
-            cursor.execute(f"INSERT INTO {table} ({keys}) VALUES ({', '.join('?'*len(stat_keys))})", historical_values)
+            cursor.execute(f"""
+                INSERT INTO historical (uuid, period, level, {keys})
+                VALUES (?, ?, ?, {question_marks})""",
+                (uuid, period, level, *stat_values)
+            )
 
 
 # Pulls a player's historical stats from the database
-def get_historical(uuid: str, table_name: str):
+def get_historical(uuid: str, identifier: str, table: str=None):
     """
     Returns historical data from a specified table to a specified player
     :param uuid: the uuid of the respective user
-    :param table_name: the name of the respective table (daily, weekly, etc)
+    :param identifier: the column name of the tracker (daily, weekly, etc)
+    :param table: the table the data is in (trackers / historical)
     """
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
-        cursor = conn.cursor()
+    if not table:
+        table = 'trackers' if identifier in TRACKERS else 'historical'
+    col = 'tracker' if table == 'trackers' else 'period'
 
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        cursor = conn.cursor()
         try:
-            cursor.execute(f"SELECT * FROM {table_name} WHERE uuid = '{uuid}'")
+            cursor.execute(
+                f"SELECT * FROM {table} WHERE uuid = ? and {col} = ?", (uuid, identifier))
             historical_data = cursor.fetchone()
         except sqlite3.OperationalError:
             historical_data = ()
 
     return historical_data
-
 
 
 # Builds invalid lookback embed
@@ -253,7 +266,8 @@ def build_invalid_lookback_embeds(max_lookback) -> list:
 
 # Returns total amount of days back a player's stats can be
 # checked based on a primary and secondary discord id.
-def get_lookback_eligiblility(discord_id_primary: int, discord_id_secondary: int) -> int:
+def get_lookback_eligiblility(discord_id_primary: int,
+                              discord_id_secondary: int) -> int:
     """
     Returns the amount of days back a user can check a player's historical stats
     :param discord_id_primary: the primary discord id to use (linked discord account of player)
@@ -292,39 +306,47 @@ async def yearly_eligibility_check(interaction: Interaction,
     return True
 
 
-async def reset_historical(method: str, table_format: str,
-                           condition: str, client: Client | None = None):
-    """
-    Loops through historical and resets each row if a condition is met
-    :param method: The historical type (daily, weekly, etc)
-    :param table_format: The datetime strftime format for the table name
-    :param condition: The condition to be evaluated to determine whether or not to reset
-    :param client: discord client object for error logging
-    """
-    # Get all linked accounts
+async def _reset_historical(uuid: str, tracker: str, timezone: int,
+                            historical: list | tuple, period_format: str):
+    hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
+    bedwars_stats = get_player_dict(hypixel_data).get("stats", {}).get("Bedwars", {})
+
+    stat_keys: list = get_config()['tracked_bedwars_stats']
+    stat_values = []
+
+    for key in stat_keys:
+        stat_values.append(bedwars_stats.get(key, 0))
+
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM linked_accounts')
-        row = cursor.fetchone()
 
-        linked_data = {}
-        while row:
-            linked_data[row[1]] = row[0]
-            row = cursor.fetchone()
+        set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
+        cursor.execute(
+            f"UPDATE trackers SET {set_clause} WHERE uuid = ? and tracker = ?", 
+            (*stat_values, uuid, tracker)
+        )
 
-    # Get all configuration and historical
-    with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
+    period = (timezone - timedelta(days=1)).strftime(period_format)
+    level = get_level(bedwars_stats.get('Experience', 0))
+    save_historical(historical[2:], stat_values, uuid, level, period)
+
+
+async def reset_historical(tracker: str, period_format: str,
+                           condition: str, client: Client = None):
+    """
+    Loops through historical and resets each row if a condition is met
+    :param tracker: The historical type (daily, weekly, etc)
+    :param period_format: The datetime strftime format to save the data under
+    :param condition: evaluated to determine if its time to reset (can use `timezone` variable)
+    :param client: discord client object for error logging
+    """
+    # Get all historical data
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM configuration')
-        row = cursor.fetchone()
 
-        config_data = {}
-        while row:
-            config_data[row[0]] = row
-            row = cursor.fetchone()
-
-        cursor.execute(f'SELECT * FROM {method}')
+        cursor.execute(f"SELECT * FROM trackers WHERE tracker = '{tracker}'")
         historical_data = cursor.fetchall()
+
 
     # Reset all historical that is at the correct time
     utc_now = datetime.utcnow()
@@ -337,29 +359,10 @@ async def reset_historical(method: str, table_format: str,
             start_time = time.time()
 
             gmt_offset, hour = get_reset_time(uuid)
-
             timezone = utc_now + timedelta(hours=gmt_offset)
 
             if eval(condition) and timezone.hour == hour:
-                hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
-                hypixel_data = get_player_dict(hypixel_data)
-
-                stat_keys: list = get_config()['tracked_bedwars_stats']
-                stat_values = [hypixel_data.get("achievements", {}).get("bedwars_level", 0)]
-
-                for key in stat_keys:
-                    stat_values.append(hypixel_data.get("stats", {}).get("Bedwars", {}).get(key, 0))
-                stat_keys.insert(0, 'level')
-
-                with sqlite3.connect(f'{REL_PATH}/database/historical.db') as conn:
-                    cursor = conn.cursor()
-
-                    set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
-                    cursor.execute(f"UPDATE {method} SET {set_clause} WHERE uuid = '{uuid}'", stat_values)
-
-                stat_values.insert(0, uuid)
-                table_name = (timezone - timedelta(days=1)).strftime(table_format)
-                save_historical(historical, stat_values, table=table_name)
+                await _reset_historical(uuid, tracker, timezone, historical, period_format)
 
                 time_elapsed = time.time() - start_time
                 sleep_time = 2 - (time_elapsed)
@@ -388,7 +391,7 @@ class HistoricalManager:
             return linked_data[1]
 
         raise NoLinkedAccountError(
-            'Couldn\'t find a linked player associated with the passed discord id!')
+            "Couldn't find a linked player associated with the passed discord id!")
 
 
     def get_reset_time_configured(self):
@@ -443,26 +446,31 @@ class HistoricalManager:
         await start_historical(uuid)
 
 
-    def save_historical(self, local_data: tuple, hypixel_data: tuple, table: str) -> None:
+    def save_historical(self, local_data: tuple, hypixel_data: tuple,
+                        uuid: str, level: int, period: str) -> None:
         """
         Saves historical data to a specified table, typically used when historical stats reset.
         Creates new table if specified table doesn't exist
-        :param local_data: The historical starting data
-        :param hypixel_data: The current hypixel data
-        :param table: The name of the table to save the historical data to
+        :param local_data: the player's bedwars stats at the beginning of the period
+        :param hypixel_data: The current bedwars stats of the player
+        :param uuid: the uuid of the respective player
+        :param level: the current level of the player to preserve
+        :param period: the time period to save the stats to
         """
-        save_historical(local_data, hypixel_data, table)
+        save_historical(local_data, hypixel_data, uuid, level, period)
 
 
-    def get_historical(self, uuid: str=None, table_name: str='daily'):
+    def get_historical(self, uuid: str=None, identifier: str='daily',
+                       table: str=None) -> tuple:
         """
         Returns historical data from a specified table to a specified player
         :param uuid: the uuid of the respective user
-        :param table_name: the name of the respective table (daily, weekly, etc)
+        :param identifier: the column name of the tracker (daily, weekly, etc)
+        :param table: the table the data is in (trackers / historical)
         """
         if not uuid:
             uuid = self._get_uuid()
-        return get_historical(uuid, table_name)
+        return get_historical(uuid, identifier, table)
 
 
     def build_invalid_lookback_embeds(self, max_lookback: int) -> list:
@@ -473,7 +481,8 @@ class HistoricalManager:
         return build_invalid_lookback_embeds(max_lookback)
 
 
-    def get_lookback_eligiblility(self, discord_id_primary: int, discord_id_secondary: int) -> int:
+    def get_lookback_eligiblility(self, discord_id_primary: int,
+                                  discord_id_secondary: int) -> int:
         """
         Returns the amount of days back a user can check a player's historical stats
         :param discord_id_primary: the primary discord id to use (linked discord account of player)

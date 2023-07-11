@@ -293,7 +293,7 @@ def discord_message(discord_id):
     if get_subscription(discord_id):
         return None
 
-    if random.choice(([False]*5) + ([True]*2)):
+    if random.choice(([False]*5) + ([True]*2)): # 2 in 7 chance
         with open(f'{REL_PATH}/database/discord_messages.json', 'r') as datafile:
             data = json.load(datafile)
         return random.choice(data['active_messages'])

@@ -1,17 +1,18 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.historical import HistoricalStats, LookbackStats
+from helper.historical import TRACKERS
 from helper.rendername import render_rank, get_rank_prefix
 from helper.rendertools import get_background, paste_skin, box_center_text
 from helper.renderprogress import render_progress_bar, render_progress_text
 
 
-def render_historical(name, uuid, method, relative_date, title, mode,
-                      hypixel_data, skin_res, save_dir, table_name = None):
-    if not table_name:
-        stats = HistoricalStats(name, uuid, method, mode, hypixel_data)
+def render_historical(name, uuid, identifier, relative_date, title, mode,
+                      hypixel_data, skin_res, save_dir, period=None):
+    if identifier in TRACKERS:
+        stats = HistoricalStats(name, uuid, identifier, mode, hypixel_data)
     else:
-        stats = LookbackStats(name, uuid, table_name, mode, hypixel_data)
+        stats = LookbackStats(name, uuid, period, mode, hypixel_data)
 
     level = stats.level
     player_rank_info = stats.player_rank_info
@@ -28,7 +29,7 @@ def render_historical(name, uuid, method, relative_date, title, mode,
     beds_broken, beds_lost, bblr = stats.get_beds()
     kills, deaths, kdr = stats.get_kills()
 
-    image = get_background(path=f'./assets/bg/historical/{method}', uuid=uuid,
+    image = get_background(path=f'./assets/bg/historical/{identifier}', uuid=uuid,
                            default='base', level=level, rank_info=player_rank_info)
 
     image = image.convert("RGBA")

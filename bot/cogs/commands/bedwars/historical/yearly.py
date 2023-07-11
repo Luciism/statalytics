@@ -1,4 +1,3 @@
-import os
 import asyncio
 
 from datetime import datetime, timedelta, timezone
@@ -39,8 +38,8 @@ class Yearly(commands.Cog):
             return
 
         await reset_historical(
-            method='yearly',
-            table_format='yearly_%Y',
+            tracker='yearly',
+            period_format='yearly_%Y',
             condition='timezone.timetuple().tm_yday == 1',
             client=self.client
         )
@@ -78,7 +77,7 @@ class Yearly(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
-        historical_data = historic.get_historical(table_name='monthly')
+        historical_data = historic.get_historical(identifier='monthly')
 
         if not historical_data:
             await historic.start_historical()
@@ -106,7 +105,7 @@ class Yearly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "yearly",
+            "identifier": "yearly",
             "relative_date": relative_date,
             "title": "Yearly BW Stats",
             "hypixel_data": hypixel_data,
@@ -157,13 +156,13 @@ class Yearly(commands.Cog):
         try:
             relative_date = now - relativedelta(years=years)
             formatted_date = relative_date.strftime("Year %Y")
-            table_name = relative_date.strftime("yearly_%Y")
+            period = relative_date.strftime("yearly_%Y")
         except ValueError:
             await interaction.followup.send('Big, big number... too big number...')
             return
 
         # Check if historical data exists
-        historical_data = historic.get_historical(table_name=table_name)
+        historical_data = historic.get_historical(identifier=period)
 
         if not historical_data:
             await interaction.followup.send(f'{fname(name)} has no tracked data for {years} year(s) ago!')
@@ -177,10 +176,10 @@ class Yearly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "lastyear",
+            "identifier": "lastyear",
             "relative_date": formatted_date,
             "title": f"{years} Years Ago",
-            "table_name": table_name,
+            "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id,

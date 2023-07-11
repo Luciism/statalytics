@@ -1,4 +1,3 @@
-import os
 import asyncio
 from datetime import datetime, timedelta, timezone
 
@@ -33,8 +32,8 @@ class Daily(commands.Cog):
     @tasks.loop(hours=1)
     async def reset_daily(self):
         await reset_historical(
-            method='daily',
-            table_format='daily_%Y_%m_%d',
+            tracker='daily',
+            period_format='daily_%Y_%m_%d',
             condition='True',
             client=self.client
         )
@@ -72,7 +71,7 @@ class Daily(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
-        historical_data = historic.get_historical(table_name='daily')
+        historical_data = historic.get_historical(identifier='daily')
 
         if not historical_data:
             await historic.start_historical()
@@ -95,7 +94,7 @@ class Daily(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "daily",
+            "identifier": "daily",
             "relative_date": formatted_date,
             "title": "Daily BW Stats",
             "hypixel_data": hypixel_data,
@@ -136,12 +135,12 @@ class Daily(commands.Cog):
         try:
             relative_date = now - timedelta(days=days)
             formatted_date = relative_date.strftime(f"%b {relative_date.day}{ordinal(relative_date.day)}, %Y")
-            table_name = relative_date.strftime("daily_%Y_%m_%d")
+            period = relative_date.strftime("daily_%Y_%m_%d")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        historical_data = historic.get_historical(table_name=table_name)
+        historical_data = historic.get_historical(identifier=period)
 
         if not historical_data:
             await interaction.followup.send(f'{fname(name)} has no tracked data for {days} day(s) ago!')
@@ -154,10 +153,10 @@ class Daily(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "method": "lastday",
+            "identifier": "lastday",
             "relative_date": formatted_date,
             "title": f"{days} Days Ago",
-            "table_name": table_name,
+            "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id
