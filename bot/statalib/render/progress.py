@@ -1,14 +1,15 @@
 from PIL import Image, ImageFont, ImageDraw
 
-from .rendername import render_level
+from .usernames import render_level
+from ..functions import REL_PATH
 
 
 class Values:
-    minecraft_13 = ImageFont.truetype('./assets/minecraft.ttf', 13)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
-    arial_24 = ImageFont.truetype("./assets/arial.ttf", 24)
+    minecraft_13 = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', 13)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', 16)
+    minecraft_20 = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', 20)
+    minecraft_22 = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', 22)
+    arial_24 = ImageFont.truetype(f"{REL_PATH}/assets/arial.ttf", 24)
 
     white = (255, 255, 255)
     black = (0, 0, 0)

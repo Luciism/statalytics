@@ -3,11 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.mostplayed import render_mostplayed
-from helper import (
+from statalib import (
     fetch_player_info,
     username_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
     loading_message
 )
@@ -22,15 +22,15 @@ class MostPlayed(commands.Cog):
     @app_commands.command(name="mostplayed", description="Most played mode of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def most_played(self, interaction: discord.Interaction,username: str=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        hypixel_data = await get_hypixel_data(uuid)
-        rendered = render_mostplayed(name, uuid, hypixel_data)
+        hypixel_data = await fetch_hypixel_data(uuid)
+        rendered = await render_mostplayed(name, uuid, hypixel_data)
         await interaction.edit_original_response(
             content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
 

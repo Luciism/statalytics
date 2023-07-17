@@ -2,7 +2,6 @@
 A set of functions used for calculating and fetching an assortment of data.
 """
 
-
 def get_player_dict(hypixel_data: dict) -> dict:
     """
     Checks if player key exits and returns data or empty dict
@@ -33,7 +32,7 @@ def get_most_played(hypixel_data_bedwars: dict) -> str:
     return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
 
 
-def get_player_rank_info(hypixel_data: dict) -> dict:
+def get_rank_info(hypixel_data: dict) -> dict:
     """
     Returns player's rank information including plus color
     :param hypixel_data: Hypixel data stemming from player key

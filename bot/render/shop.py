@@ -3,9 +3,11 @@ from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont
 
-from helper.rendertools import get_background
-from helper.calctools import get_player_rank_info
+from statalib import get_rank_info, to_thread
+from statalib.render import get_background
 
+
+@to_thread
 def render_shop(name, uuid, hypixel_data):
     # Get shop layout and positions
     slots = [(40, 80), (130, 80), (220, 80), (310, 80), (400, 80),
@@ -21,10 +23,10 @@ def render_shop(name, uuid, hypixel_data):
                 'iron_sword', 'iron_boots', 'shears', 'arrow',
                 'jump_v_potion_(45_seconds)', 'water_bucket'] + ['null'] * 7
 
-    player_rank_info = get_player_rank_info(hypixel_data=hypixel_data['player'])
+    rank_info = get_rank_info(hypixel_data=hypixel_data['player'])
 
     base_image = get_background(path='./assets/bg/shop', uuid=uuid,
-                                default='base', level=0, rank_info=player_rank_info)
+                                default='base', level=0, rank_info=rank_info)
 
     base_image = base_image.convert("RGBA")
 

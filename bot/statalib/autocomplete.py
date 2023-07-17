@@ -2,10 +2,10 @@ import sqlite3
 import typing
 
 from discord import app_commands, Interaction
-from mcuuid import MCUUID
 
 from .functions import REL_PATH
 from .linking import get_linked_data
+from .mcfetch import FetchPlayer
 
 
 async def session_autocompletion(interaction: Interaction, current: str
@@ -32,7 +32,7 @@ async def session_autocompletion(interaction: Interaction, current: str
 
     if username:
         try:
-            uuid: str = MCUUID(name=username).uuid
+            uuid: str = FetchPlayer(name=username).uuid
         except KeyError:
             return []
     else:

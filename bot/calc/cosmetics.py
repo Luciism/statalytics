@@ -1,4 +1,4 @@
-from helper.calctools import get_player_rank_info, get_level, get_player_dict
+from statalib.calctools import get_rank_info, get_level, get_player_dict
 
 
 class ActiveCosmetics:
@@ -26,4 +26,4 @@ class ActiveCosmetics:
         self.bed_destroy = _get_cosmetic('activeBedDestroy', 'beddestroy_')
         self.kill_message = _get_cosmetic('activeKillMessages', 'killmessages_')
 
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)

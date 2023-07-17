@@ -1,7 +1,7 @@
 {
     "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.6.1",
+    "version": "1.7.0",
     "developers": [
         "lukism"
     ],
@@ -17,9 +17,13 @@
         }
     },
     "error_logs_channel_id": 1101006847831445585,
+    "suggestions_channel_id": 1065918528236040232,
     "embed_primary_color": "5865F2",
     "embed_danger_color": "FC2B2B",
     "embed_warning_color": "FFE100",
+    "max_free_sessions": 2,
+    "max_premium_sessions": 5,
+    "voter_reward_duration_hours": 24,
     "theme_packs": {
         "voter_themes": {
             "none": "None",

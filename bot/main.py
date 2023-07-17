@@ -1,15 +1,17 @@
-import os
 import time
-
+from os import getenv
 from json import dump as dump_json
 
 import discord
 from discord.ext import commands
 from discord import app_commands
+from dotenv import load_dotenv
 
-from helper import (
+from statalib import (
     PlayerNotFoundError,
+    SessionNotFoundError,
     HypixelInvalidResponseError,
+    add_info_view,
     handle_cooldown_error,
     handle_hypixel_error,
     handle_all_errors,
@@ -17,7 +19,7 @@ from helper import (
 )
 
 
-TOKEN = os.getenv('STATALYTICS_TOKEN')
+load_dotenv()
 
 
 class MyClient(commands.Bot):
@@ -33,6 +35,7 @@ class MyClient(commands.Bot):
             except commands.errors.ExtensionNotFound:
                 print(f"Cog doesn't exist: {ext}")
 
+        add_info_view(self)
         await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
@@ -50,8 +53,12 @@ async def on_ready():
 
 
 @client.tree.error
-async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+async def on_tree_error(interaction: discord.Interaction,
+                        error: app_commands.AppCommandError):
     if isinstance(error, PlayerNotFoundError):
+        return
+
+    if isinstance(error, SessionNotFoundError):
         return
 
     if isinstance(error, app_commands.CommandOnCooldown):
@@ -119,4 +126,4 @@ async def sync(ctx):
 
 
 if __name__ == '__main__':
-    client.run(TOKEN)
+    client.run(getenv('BOT_TOKEN'))

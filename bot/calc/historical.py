@@ -1,9 +1,9 @@
 import sqlite3
 
-from helper.historical import get_reset_time
-from helper.calctools import (
+from statalib.historical import get_reset_time
+from statalib.calctools import (
     get_progress,
-    get_player_rank_info,
+    get_rank_info,
     get_mode,
     rround,
     get_level,
@@ -42,7 +42,7 @@ class HistoricalStats:
         self.games_played = (self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
                              - self.historical_data[f'{self.mode}games_played_bedwars'])
 
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 
 
@@ -135,7 +135,7 @@ class LookbackStats:
 
         self.items_purchased = self.historical_data[f'{self.mode}items_purchased_bedwars']
         self.games_played = self.historical_data[f'{self.mode}games_played_bedwars']
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
 
 

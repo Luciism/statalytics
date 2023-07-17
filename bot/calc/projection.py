@@ -1,8 +1,8 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-from helper.calctools import (
-    get_player_rank_info,
+from statalib.calctools import (
+    get_rank_info,
     add_suffixes,
     get_mode,
     rround,
@@ -39,7 +39,7 @@ class ProjectedStats:
 
         self.level_repetition = self.levels_to_go / self.levels_gained  # how many times they have to gain the session amount of levels to get to the goal
         self.complete_percent = f"{round((self.level_hypixel / self.target) * 100, 2)}%"
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
 
 
     def _get_increase_factor(self, value):

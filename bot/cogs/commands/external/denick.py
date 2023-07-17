@@ -1,16 +1,15 @@
 # api.antisniper.net
 
-import json
-import random
 import typing
 import requests
 import discord
+from os import getenv
 
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import (
-    get_command_cooldown,
+from statalib import (
+    generic_command_cooldown,
     update_command_stats,
     get_embed_color,
     to_thread
@@ -33,12 +32,12 @@ class Denick(commands.Cog):
 
     @to_thread
     def fetch_denick_data(self, mode, count):
-        with open('./database/apikeys.json', 'r') as datafile:
-            all_keys: dict = json.load(datafile)['antisniper']
-            key = all_keys[random.choice(list(all_keys.keys()))]
+        api_key = getenv('API_KEY_ANTISNIPER')
 
+        headers = {'Apikey': api_key}
         res = requests.get(
-            f'https://api.antisniper.net/v2/other/denick/number/{mode}?key={key}&value={count}',
+            f'https://api.antisniper.net/v2/other/denick/number/{mode}?value={count}',
+            headers=headers,
             timeout=10
         )
         return res.json()
@@ -47,7 +46,7 @@ class Denick(commands.Cog):
     @app_commands.command(name="numberdenick", description="Find the ign of a nick based on their kill messages (powered by antisniper)")
     @app_commands.describe(mode='The stat to denick with (finals / beds)', count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction, mode: str, count: int):
         await interaction.response.defer()
         mode = mode.lower()

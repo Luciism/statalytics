@@ -1,0 +1,16 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Settings Info Page",
+      "description": "**Themes**\n- Themes are the background of the rendered image and can be unlocked by voting\n- Voter themes have a temporary access period after voting\n- Exclusive themes are available anytime for those who have unlocked them\n- A premium subscription unlocks all voter themes permanently but not all exclusive themes\n\n**Reset Times**\n- You can set a time for your tracked stats to reset by specifying a GMT offset and the desired reset hour. This allows you to configure reset times based on your local time, regardless of your location.\n- Discord-based reset times take priority over player-based reset times.\n- When a Discord account changes its reset time, any linked player's reset time will update to match.\n- Players are automatically assigned a random reset hour when their historical tracking is initiated.\n- Player-based reset times are used if a Discord-based reset time is not configured",
+      "color": 3092790,
+      "fields": [
+        {
+          "name": "**Commands:**",
+          "value": "`/settings`"
+        }
+      ]
+    }
+  ]
+}

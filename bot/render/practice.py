@@ -3,15 +3,21 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.practice import Practice
-from helper.rendername import render_rank, get_rank_prefix
-from helper.rendertools import get_background, paste_skin
-from helper.renderprogress import render_progress_bar
+from statalib import to_thread
+from statalib.render import (
+    render_rank,
+    get_rank_prefix,
+    get_background,
+    paste_skin,
+    render_progress_bar
+)
 
 
+@to_thread
 def render_practice(name, uuid, hypixel_data, skin_res):
     practice = Practice(name, hypixel_data)
     level = practice.level
-    player_rank_info = practice.player_rank_info
+    rank_info = practice.rank_info
     progress_out_of_10 = practice.progress[2]
 
     bridging_completed, bridging_failed, bridging_ratio = practice.get_bridging_stats()
@@ -26,7 +32,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
         tnt_completed, tnt_failed, mlg_completed, mlg_failed, pearl_completed, pearl_failed)))
     attempts = f'{attempts:,}'
 
-    image = get_background(path='./assets/bg/practice', uuid=uuid, default='base', level=level, rank_info=player_rank_info)
+    image = get_background(path='./assets/bg/practice', uuid=uuid, default='base', level=level, rank_info=rank_info)
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
@@ -77,12 +83,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
     # Render name & progress bar
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-
-    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=30, center_x=(415, 19))
 
     render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

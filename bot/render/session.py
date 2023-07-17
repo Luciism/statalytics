@@ -1,18 +1,24 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.session import SessionStats
-from helper.rendername import render_rank, get_rank_prefix
-from helper.rendertools import get_background, paste_skin
-from helper.renderprogress import render_progress_bar
+from statalib import to_thread
+from statalib.render import (
+    render_rank,
+    get_rank_prefix,
+    get_background,
+    paste_skin,
+    render_progress_bar
+)
 
 
+@to_thread
 def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
     progress_out_of_10 = stats.progress[2]
     total_sessions = stats.total_sessions
 
-    player_rank_info = stats.player_rank_info
+    rank_info = stats.rank_info
     most_played = stats.get_most_played()
     level = stats.level
     date_started = stats.date_started
@@ -24,7 +30,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
     image = get_background(path='./assets/bg/session', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -82,12 +88,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render name & progress bar
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-
-    render_rank(name, position_x=player_x, position_y=30, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=30, center_x=(415, 19))
 
     render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

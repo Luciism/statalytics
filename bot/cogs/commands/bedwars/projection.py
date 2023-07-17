@@ -5,14 +5,14 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.projection import render_projection
-from helper import (
+from statalib import (
     fetch_player_info,
     username_autocompletion,
     session_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
-    get_smart_session,
+    find_dynamic_session,
     fetch_skin_model,
     handle_modes_renders,
     loading_message
@@ -30,31 +30,26 @@ class Projection(commands.Cog):
     @app_commands.describe(username='The player you want to view',
                            prestige='The prestige you want to view',
                            session='The session you want to use as a benchmark (defaults to 1)')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def projected_stats(self, interaction: discord.Interaction,
-                              prestige: int=None, username: str=None, session: int=100):
+                              prestige: int=None, username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
-        refined = name.replace('_', r'\_')
 
-        session_data = await get_smart_session(interaction, session, refined, uuid)
-        if not session_data:
-            return
-        if session == 100:
-            session = session_data[0]
+        session = await find_dynamic_session(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
         skin_res = await fetch_skin_model(uuid, 144)
 
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
         if not prestige:
             if hypixel_data.get('player'):
                 current_star = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)
             else:
                 current_star = 0
             prestige = (current_star // 100 + 1) * 100
-        if prestige <= 0:
-            prestige = 1
+        
+        prestige = max(prestige, 1) # 1 or higher
 
         kwargs = {
             "name": name,

@@ -5,10 +5,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper import (
+from statalib import (
     fetch_player_info,
     username_autocompletion,
-    get_command_cooldown,
+    generic_command_cooldown,
     update_command_stats,
     to_thread,
     load_embeds,
@@ -29,7 +29,7 @@ class Skin(commands.Cog):
     @app_commands.command(name="skin", description="View the skin of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def skin(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)

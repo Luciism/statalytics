@@ -2,9 +2,11 @@ from io import BytesIO
 
 from PIL import Image, ImageFont, ImageDraw
 
-from helper.rendertools import get_background, get_rank_color
-from helper.calctools import get_player_rank_info
+from statalib import get_rank_info, to_thread
+from statalib.render import get_background, get_rank_color
 
+
+@to_thread
 def render_hotbar(name, uuid, hypixel_data):
     slots = [(40, 424), (130, 424), (220, 424), (310, 424),
              (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
@@ -15,11 +17,11 @@ def render_hotbar(name, uuid, hypixel_data):
     except KeyError:
         hotbar = ['null'] * 9
 
-    player_rank_info = get_player_rank_info(hypixel_data)
-    rankcolor = get_rank_color(player_rank_info)
+    rank_info = get_rank_info(hypixel_data)
+    rankcolor = get_rank_color(rank_info)
 
     base_image = get_background(path='./assets/bg/hotbar', uuid=uuid,
-                                default='base', level=0, rank_info=player_rank_info)
+                                default='base', level=0, rank_info=rank_info)
 
     base_image = base_image.convert("RGBA")
 

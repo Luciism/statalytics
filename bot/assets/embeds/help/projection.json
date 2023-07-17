@@ -1,0 +1,16 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Stat Projection Info Page",
+      "description": "- The Bedwars Stat Projection feature predicts your stats at any given bedwrs star.\n- Projected stats uses session stats for accurate forecasting, so a long session is recommended for precise results.\n- You can specify a session for projections otherwise it will be dynamically determined.\n- The `/prestige` command gives a detailed breakdown of expected stats and dates.\n- The `/year 2024` command predicts your stats for the year 2024, giving a quick overview of your future performance in that year.",
+      "color": 3092790,
+      "fields": [
+        {
+          "name": "**Commands:**",
+          "value": "`/prestige [<prestige>] [<username>] [<session>]`\n`/year 2024 [<username>] [<session>]`\n`/year 2025 [<username>] [<session>]`"
+        }
+      ]
+    }
+  ]
+}

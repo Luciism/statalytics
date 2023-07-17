@@ -5,11 +5,11 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.average import render_average
-from helper import (
+from statalib import (
     fetch_player_info,
     username_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
     handle_modes_renders,
@@ -26,14 +26,14 @@ class Average(commands.Cog):
     @app_commands.command(name="average", description="View the average stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def average(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
         skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

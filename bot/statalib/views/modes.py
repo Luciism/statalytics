@@ -1,7 +1,9 @@
 import os
-
 import shutil
+
 import discord
+
+from ..functions import REL_PATH
 
 
 class SelectModes(discord.ui.Select):
@@ -25,12 +27,12 @@ class SelectModes(discord.ui.Select):
 
         if interaction.user.id != self.user:
             await interaction.followup.send(
-                file=discord.File(f'./database/rendered/{self.inter.id}/{mode}.png'), ephemeral=True)
+                file=discord.File(f'{REL_PATH}/database/rendered/{self.inter.id}/{mode}.png'), ephemeral=True)
 
         else:
             view = ModesView(user=self.user, inter=self.inter, mode=mode)
             await self.inter.edit_original_response(
-                attachments=[discord.File(f'./database/rendered/{self.inter.id}/{mode}.png')], view=view)
+                attachments=[discord.File(f'{REL_PATH}/database/rendered/{self.inter.id}/{mode}.png')], view=view)
 
 
 class ModesView(discord.ui.View):
@@ -46,12 +48,5 @@ class ModesView(discord.ui.View):
             await self.inter.edit_original_response(view=self)
         except discord.errors.NotFound:
             pass
-        if os.path.isdir(f'./database/rendered/{self.inter.id}'):
-            shutil.rmtree(f'./database/rendered/{self.inter.id}')
-
-
-class LinkButton:
-    def __init__(self, label, url, emoji=None) -> None:
-        button = discord.ui.Button(label=label, url=url, emoji=emoji)
-        self.view = discord.ui.View()
-        self.view.add_item(button)
+        if os.path.isdir(f'{REL_PATH}/database/rendered/{self.inter.id}'):
+            shutil.rmtree(f'{REL_PATH}/database/rendered/{self.inter.id}')

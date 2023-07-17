@@ -2,14 +2,15 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import (
+from statalib.functions import (
     update_command_stats,
-    load_embeds
+    load_embeds,
+    STATIC_CONFIG
 )
 
 
 class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
-    def __init__(self, channel, **kwargs):
+    def __init__(self, channel: discord.TextChannel, **kwargs):
         self.channel = channel
         super().__init__(**kwargs)
 
@@ -38,7 +39,8 @@ class Suggest(commands.Cog):
 
     @app_commands.command(name='suggest', description='Suggest a feature you would like to see added!')
     async def suggest(self, interaction: discord.Interaction):
-        channel = self.client.get_channel(1065918528236040232)
+        channel_id = STATIC_CONFIG.get('suggestions_channel_id')
+        channel = self.client.get_channel(channel_id)
         await interaction.response.send_modal(SubmitSuggestion(channel))
 
         update_command_stats(interaction.user.id, 'suggest')

@@ -1,15 +1,23 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.average import Ratios
-from helper.rendername import get_rank_prefix, render_rank
-from helper.rendertools import get_background, paste_skin, box_center_text
-from helper.renderprogress import render_progress_bar, render_progress_text
+from statalib import to_thread
+from statalib.render import (
+    get_rank_prefix,
+    render_rank,
+    get_background,
+    paste_skin,
+    box_center_text,
+    render_progress_bar,
+    render_progress_text
+)
 
 
+@to_thread
 def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     ratios = Ratios(name, mode, hypixel_data)
     level = ratios.level
-    player_rank_info = ratios.player_rank_info
+    rank_info = ratios.rank_info
     progress, target, progress_out_of_10 = ratios.progress
 
     (
@@ -45,7 +53,7 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     black = (0, 0, 0)
 
     image = get_background(path='./assets/bg/average', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -91,12 +99,7 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
     # Render name & progress bar
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 18
-
-    render_rank(name, position_x=player_x, position_y=26, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=26, center_x=(415, 18))
 
     render_progress_bar(box_positions=(415, 18), position_y=88, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

@@ -1,0 +1,16 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Linking Info Page",
+      "description": "- Linking your account is a quality-of-life feature that offers several benefits.\n- You can use commands without specifying a player, manage your sessions, and more.\n- To link your account, make sure that your Discord account is connected to Hypixel with your current Discord tag.\n- Upon linking, if the target player does not already have an active session, one will be created automatically",
+      "color": 3092790,
+      "fields": [
+        {
+          "name": "**Commands:**",
+          "value": "`/link <username>`\n`/unlink`"
+        }
+      ]
+    }
+  ]
+}

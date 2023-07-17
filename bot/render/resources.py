@@ -1,14 +1,21 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.resources import Resources
-from helper.rendername import get_rank_prefix, render_rank
-from helper.rendertools import get_background
-from helper.renderprogress import render_progress_text, render_progress_bar
+from statalib import to_thread
+from statalib.render import (
+    get_rank_prefix,
+    render_rank,
+    get_background,
+    render_progress_text,
+    render_progress_bar
+)
 
+
+@to_thread
 def render_resources(name, uuid, mode, hypixel_data, save_dir):
     resources = Resources(name, mode, hypixel_data)
     level = resources.level
-    player_rank_info = resources.player_rank_info
+    rank_info = resources.rank_info
     progress, target, progress_out_of_10 = resources.progress
     total_collected = f'{resources.total_resources:,}'
 
@@ -23,7 +30,7 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
     iron_most_mode, gold_most_mode, diamond_most_mode, emerald_most_mode = resources.get_most_modes()
 
     image = get_background(path='./assets/bg/resources', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -78,15 +85,10 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
         draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
-    # Unloopable stuff
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-    render_rank(name, position_x=player_x, position_y=27, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
 
+    # Render name & progess bar
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=27, center_x=(415, 19))
 
-    # Render the level progress
     render_progress_bar(box_positions=(415, 19), position_y=88, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)
 

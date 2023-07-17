@@ -10,13 +10,12 @@ from .errors import NoLinkedAccountError
 from .handlers import log_error_msg
 from .calctools import get_player_dict, get_level
 from .linking import get_linked_data, uuid_to_discord_id
+from .network import fetch_hypixel_data, historic_cache
+from .subscriptions import get_subscription
 from .functions import (
     REL_PATH,
-    get_subscription,
-    get_hypixel_data,
     get_config,
-    load_embeds,
-    historic_cache
+    load_embeds
 )
 
 
@@ -167,7 +166,7 @@ async def start_historical(uuid: str) -> None:
     """
     update_reset_time_default(uuid)
 
-    hypixel_data: dict = await get_hypixel_data(uuid, cache=False)
+    hypixel_data: dict = await fetch_hypixel_data(uuid, cache=False)
     hypixel_data = get_player_dict(hypixel_data)
 
     stat_keys: dict = get_config()['tracked_bedwars_stats']
@@ -281,9 +280,9 @@ def get_lookback_eligiblility(discord_id_primary: int,
         subscription = get_subscription(discord_id=discord_id_secondary)
 
     if subscription:
-        if 'basic' in subscription[1]:
+        if 'basic' in subscription:
             return 60
-        if 'pro' in subscription[1]:
+        if 'pro' in subscription:
             return -1
     return 30
 
@@ -308,7 +307,7 @@ async def yearly_eligibility_check(interaction: Interaction,
 
 async def _reset_historical(uuid: str, tracker: str, timezone: int,
                             historical: list | tuple, period_format: str):
-    hypixel_data = await get_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
+    hypixel_data = await fetch_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
     bedwars_stats = get_player_dict(hypixel_data).get("stats", {}).get("Bedwars", {})
 
     stat_keys: list = get_config()['tracked_bedwars_stats']

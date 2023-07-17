@@ -2,23 +2,26 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper import (
+
+from statalib import (
     PlayerNotFoundError,
-    get_owned_themes,
     set_active_theme,
-    update_reset_time_configured,
-    linking_interaction,
-    update_command_stats,
+    get_owned_themes,
     get_config,
-    load_embeds
+    linking_interaction,
+    update_reset_time_configured,
+    update_command_stats,
+    load_embeds,
+    
 )
+
 
 
 HOURS = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am',
          '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
 
 
-class Select(discord.ui.Select):
+class SettingsSelect(discord.ui.Select):
     def __init__(self, placeholder, options, min_values, max_values):
         super().__init__(placeholder=placeholder, max_values=max_values,
                          min_values=min_values, options=options)
@@ -49,12 +52,12 @@ class Select(discord.ui.Select):
             return
 
 
-class SelectView(discord.ui.View):
+class SettingsSelectView(discord.ui.View):
     def __init__(self, interaction: discord.Interaction, view_data: list | tuple, *, timeout=300):
         super().__init__(timeout=timeout)
         for view in view_data:
             self.add_item(
-                Select(view['placeholder'], view['options'],
+                SettingsSelect(view['placeholder'], view['options'],
                        view['min_values'], view['max_values']))
 
         self.interaction = interaction
@@ -106,7 +109,7 @@ class SettingsButtons(discord.ui.View):
             'min_values': 1,
             'max_values': 1
         }]
-        view = SelectView(interaction=interaction, view_data=view_data)
+        view = SettingsSelectView(interaction=interaction, view_data=view_data)
         await interaction.response.send_message(embeds=embeds, view=view, ephemeral=True)
 
 
@@ -133,7 +136,7 @@ class SettingsButtons(discord.ui.View):
 
         await interaction.response.send_message(
             embeds=embeds,
-            view=SelectView(interaction=interaction, view_data=view_data),
+            view=SettingsSelectView(interaction=interaction, view_data=view_data),
             ephemeral=True
         )
 
@@ -141,6 +144,7 @@ class SettingsButtons(discord.ui.View):
     @discord.ui.button(label="Linked Account", style=discord.ButtonStyle.gray, custom_id="linked_account", row=1)
     async def linked_account(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(LinkAccountModal())
+
 
 
 class Settings(commands.Cog):

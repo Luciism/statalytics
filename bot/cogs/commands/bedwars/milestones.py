@@ -6,12 +6,12 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.milestones import render_milestones
-from helper import (
+from statalib import (
     fetch_player_info,
     username_autocompletion,
     session_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
     handle_modes_renders,
@@ -28,7 +28,7 @@ class Milestones(commands.Cog):
     @app_commands.command(name="milestones", description="View the milestone stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def milestones(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
@@ -47,7 +47,7 @@ class Milestones(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
         session = 1 if session == 100 else session
 
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
         skin_res = await fetch_skin_model(uuid, 128)
 
         kwargs = {

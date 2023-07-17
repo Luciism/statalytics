@@ -1,9 +1,9 @@
 import sqlite3
 from datetime import datetime
 
-from helper.calctools import (
+from statalib.calctools import (
     get_progress,
-    get_player_rank_info,
+    get_rank_info,
     get_mode,
     rround,
     get_level,
@@ -39,7 +39,7 @@ class SessionStats:
 
         self.games_played = str(self.hypixel_data_bedwars.get(
             f'{self.mode}games_played_bedwars', 0) - self.session_data[f'{self.mode}games_played_bedwars'])
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data_bedwars)
 
 

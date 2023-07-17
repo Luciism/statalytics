@@ -1,5 +1,5 @@
-from helper.calctools import (
-    get_player_rank_info,
+from statalib.calctools import (
+    get_rank_info,
     get_mode,
     rround,
     get_level,
@@ -22,7 +22,8 @@ class Compare:
         self.level_1 = int(get_level(self.hypixel_data_bedwars_1.get('Experience', 0)))
         self.level_2 = int(get_level(self.hypixel_data_bedwars_2.get('Experience', 0)))
 
-        self.player_rank_info = get_player_rank_info(self.hypixel_data_1), get_player_rank_info(self.hypixel_data_2)
+        self.rank_info_1 = get_rank_info(self.hypixel_data_1)
+        self.rank_info_2 = get_rank_info(self.hypixel_data_2)
 
 
     def _calc_general_stats(self, key_1, key_2):

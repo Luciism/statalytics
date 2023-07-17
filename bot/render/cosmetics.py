@@ -3,13 +3,15 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.cosmetics import ActiveCosmetics
-from helper.rendername import render_level_and_name
-from helper.rendertools import get_background
+from statalib import to_thread
+from statalib.render import render_level_and_name, get_background
 
+
+@to_thread
 def render_cosmetics(name, uuid, hypixel_data):
     cosmetics = ActiveCosmetics(name, hypixel_data)
     level = cosmetics.level
-    player_rank_info = cosmetics.player_rank_info
+    rank_info = cosmetics.rank_info
 
     cosmetic_data = {
         'shopkeeper_skin': (299, 100),
@@ -26,7 +28,7 @@ def render_cosmetics(name, uuid, hypixel_data):
     }
 
     image = get_background(path='./assets/bg/cosmetics', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -46,8 +48,8 @@ def render_cosmetics(name, uuid, hypixel_data):
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name
-    render_level_and_name(name, level, player_rank_info, image,
-                          box_positions=(121, 398), position_y=51, fontsize=20)
+    render_level_and_name(name, level, rank_info, image,
+                          center_x=(398, 121), pos_y=51, fontsize=20)
 
     # Return the image
     image_bytes = BytesIO()

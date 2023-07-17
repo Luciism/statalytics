@@ -1,4 +1,3 @@
-import os
 import sqlite3
 
 import discord
@@ -6,20 +5,22 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.session import render_session
-from helper import (
+from statalib import (
+    FetchPlayer,
     fetch_player_info,
     get_linked_data,
     username_autocompletion,
     session_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
     get_subscription,
     start_session,
-    get_smart_session,
+    find_dynamic_session,
     fetch_skin_model,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    STATIC_CONFIG
 )
 
 
@@ -73,20 +74,15 @@ class Sessions(commands.Cog):
     @session_group.command(name="stats", description="View the session stats of a player")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to view')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
-    async def session(self, interaction: discord.Interaction, username: str=None, session: int=100):
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    async def session(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
-        refined = name.replace('_', r'\_')
-        session_data = await get_smart_session(interaction, session, refined, uuid)
-        if not session_data:
-            return
-        if session == 100:
-            session = session_data[0]
+        session = await find_dynamic_session(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
         skin_res = await fetch_skin_model(uuid, 144)
 
         kwargs = {
@@ -112,29 +108,37 @@ class Sessions(commands.Cog):
 
             with sqlite3.connect('./database/core.db') as conn:
                 cursor = conn.cursor()
-                cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
-                sessions = cursor.fetchall()
+                cursor.execute(f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
+                session_data = cursor.fetchall()
 
             subscription = get_subscription(interaction.user.id)
+            sessions = len(session_data)
 
-            if len(sessions) < 2 or subscription and len(sessions) < 5:
-                for i, session in enumerate(sessions):
+            if subscription:
+                max_sessions = STATIC_CONFIG.get('max_premium_sessions', 5)
+            else:
+                max_sessions = STATIC_CONFIG.get('max_free_sessions', 2)
+
+            if sessions < max_sessions:
+                # Find the first gap in the active sessions
+                for i, session in enumerate(session_data):
                     if session[0] != i + 1:
-                        sessionid = i + 1
-                        await start_session(uuid, session=sessionid)
+                        session_id = i + 1
                         break
                 else:
-                    sessionid = len(sessions) + 1
-                    await start_session(uuid, session=sessionid)
+                    session_id = sessions + 1
+
+                await start_session(uuid, session=session_id)
                 await interaction.followup.send(
-                    f'A new session was successfully created! Session ID: `{sessionid}`')
+                    f'A new session was successfully created! Session ID: `{session_id}`')
             else:
                 await interaction.followup.send(
-                    'You already have the maximum sessions active for your plan! To remove a session use `/session end <id>`!')
+                    'You already have the maximum sessions active for your plan! '
+                    'To remove a session use `/session end <id>`!')
         else:
             await interaction.followup.send(
-                """You don't have an account linked! In order to link use `/link`!
-                Otherwise `/session stats <player>` will start a session if one doesn't already exist!""".replace('   ', ''))
+                "You don't have an account linked! In order to link use `/link`!\n"
+                "Use `/session stats <player>` to create a session if none exists!")
 
         update_command_stats(interaction.user.id, 'startsession')
 
@@ -180,24 +184,14 @@ class Sessions(commands.Cog):
 
         if linked_data:
             uuid = linked_data[1]
+            name = FetchPlayer(uuid=uuid).name
+            session = await find_dynamic_session(interaction, name, uuid, session, eph=True)
 
-            if session is None:
-                session = 1
+            view = ManageSession(session, uuid, method="reset")
+            await interaction.response.send_message(
+                f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
+            view.message = await interaction.original_response()
 
-            with sqlite3.connect('./database/core.db') as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-                session_data = cursor.fetchone()
-
-            if session_data:
-                view = ManageSession(session, uuid, method="reset")
-                await interaction.response.send_message(
-                    f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
-                view.message = await interaction.original_response()
-
-            else:
-                await interaction.response.send_message(
-                    f"You don't have an active session with ID: `{session}`!")
         else:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")

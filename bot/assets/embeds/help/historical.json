@@ -1,0 +1,16 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Historical Stat Tracking Info Page",
+      "description": "- The `/daily`, `/weekly`, `/monthly`, and `/yearly` commands show your current stats for the respective time periods. They reflect your performance in the ongoing day, week, month, or year.\n- The `/last` commands show your previous stats for the respective time periods. They summarize your performance in the completed day, week, month, or year.\n- The `/difference` commands group show the difference in your stats for the respective time periods. They compare your performance in the current day, week, month, or year to the previous one.\n- Adding a number after the `/last` commands shows the stats of a specific past period. For example, /lastweek 2 shows the stats of two weeks ago.",
+      "color": 3092790,
+      "fields": [
+        {
+          "name": "**Commands:**",
+          "value": "`/daily [<username>]`\n`/weekly [<username>]`\n`/monthly [<username>]`\n`/yearly [<username>]`\n\n`/lastday [<username>] [<days>]`\n`/lastweek [<username>] [<weeks>]`\n`/lastmonth [<username>] [<months>]`\n`/lastyear [<username>] [<years>]`\n\n`/difference daily [<username>]`\n`/difference weekly [<username>]`\n`/difference monthly [<username>]`\n`/difference yearly [<username>]`"
+        }
+      ]
+    }
+  ]
+}

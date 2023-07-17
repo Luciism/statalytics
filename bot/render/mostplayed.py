@@ -2,10 +2,11 @@ from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont
 
-from helper.rendertools import get_background, get_rank_color
-from helper.calctools import get_player_rank_info
+from statalib import get_rank_info, to_thread
+from statalib.render import get_background, get_rank_color
 
 
+@to_thread
 def render_mostplayed(name, uuid, hypixel_data):
     hypixel_data = hypixel_data.get('player', {})\
                    if hypixel_data.get('player', {}) is not None else {}
@@ -15,8 +16,8 @@ def render_mostplayed(name, uuid, hypixel_data):
     threes = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_three_games_played_bedwars', 1)
     fours = hypixel_data.get('stats', {}).get('Bedwars', {}).get('four_four_games_played_bedwars', 1)
 
-    player_rank_info = get_player_rank_info(hypixel_data=hypixel_data)
-    rankcolor = get_rank_color(player_rank_info)
+    rank_info = get_rank_info(hypixel_data=hypixel_data)
+    rankcolor = get_rank_color(rank_info)
 
     # Get ratio
     numbers = [int(solos), int(doubles), int(threes), int(fours)]
@@ -30,7 +31,7 @@ def render_mostplayed(name, uuid, hypixel_data):
 
     # Open Images
     base_image = get_background(path='./assets/bg/mostplayed', uuid=uuid,
-                                default='base', level=0, rank_info=player_rank_info)
+                                default='base', level=0, rank_info=rank_info)
 
     base_image = base_image.convert("RGBA")
 

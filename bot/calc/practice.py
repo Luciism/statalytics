@@ -1,5 +1,5 @@
-from helper.calctools import (
-    get_player_rank_info,
+from statalib.calctools import (
+    get_rank_info,
     get_progress,
     rround,
     get_level,
@@ -17,7 +17,7 @@ class Practice:
         self.level = int(get_level(
             self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('Experience', 0)))
 
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
         self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
 
 

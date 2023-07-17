@@ -6,14 +6,14 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from render.historical import render_historical
-from helper import (
+from statalib import (
     HistoricalManager,
     reset_historical,
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
     ordinal, loading_message,
@@ -62,7 +62,7 @@ class Daily(commands.Cog):
     @app_commands.command(name="daily", description="View the daily stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def daily(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
 
@@ -80,7 +80,7 @@ class Daily(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
@@ -114,7 +114,7 @@ class Daily(commands.Cog):
     @app_commands.command(name="lastday", description="View yesterdays stats of a player")
     @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.describe(username='The player you want to view', days='The lookback amount in days')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def lastday(self, interaction: discord.Interaction, username: str=None, days: int=1):
         await interaction.response.defer()
 
@@ -148,7 +148,7 @@ class Daily(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
         skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
 
         kwargs = {
             "name": name,

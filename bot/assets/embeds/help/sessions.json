@@ -1,0 +1,16 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Session Info Page",
+      "description": "- Sessions are used to track stats that can be factored into calculations for commands like `/prestige`, `/milestones`, and `/year 2024`.\n- If a session is not specified in a session based command, the default session is the one with the lowest ID.\n- A new session will be automatically created for a player when they link to another player, if they do not have an existing session.\n- For `/milestones`, if a player has no session, no session is used. If a player has a session, the default session is used unless specified otherwise.\n- Specifying a session with the ID of 0 for `/milestones` will run the calculations without using a session.",
+      "color": 3092790,
+      "fields": [
+        {
+          "name": "**Commands:**",
+          "value": "`/session active`\n`/session start`\n`/session end [<session>]`\n`/session reset [<session>]`\n`/session stats [<session>] [<username>]`"
+        }
+      ]
+    }
+  ]
+}

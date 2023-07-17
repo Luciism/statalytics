@@ -173,7 +173,14 @@ class ThemeManager:
     def _check_exclusive_exists(self, theme_name: str):
         exclusive_themes = get_exclusive_themes()
         if not theme_name in exclusive_themes:
-            raise ThemeNotFoundError('The respective theme is not a valid exclusive theme!')
+            raise ThemeNotFoundError(
+                'The respective theme is not a valid exclusive theme!')
+    
+    
+    def _check_theme_availability(self, theme_name: str):
+        available = get_owned_themes(self.discord_id) + get_voter_themes()
+        if not theme_name in available:
+            raise ThemeNotFoundError('The respective theme is not an available theme!')
 
 
     def get_owned_themes(self):
@@ -235,5 +242,5 @@ class ThemeManager:
         Sets the user's active theme to the given theme
         :param theme_name: the name of the theme to set as active
         """
-        self._check_exclusive_exists(theme_name)
+        self._check_theme_availability(theme_name)
         set_active_theme(self.discord_id, theme_name)

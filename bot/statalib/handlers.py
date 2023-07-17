@@ -4,7 +4,7 @@ from traceback import format_exception
 import discord
 
 from .functions import get_config, load_embeds
-from .ui import LinkButton
+from .views.utils import LinkButton
 
 
 async def log_error_msg(client: discord.Client, error: Exception):
@@ -16,7 +16,7 @@ async def log_error_msg(client: discord.Client, error: Exception):
     traceback_str = ''.join(format_exception(type(error), error, error.__traceback__))
     print(traceback_str)
 
-    if getenv('STATALYTICS_ENVIRONMENT') == 'development' or not client:
+    if getenv('ENVIRONMENT') == 'development' or not client:
         return
 
     config = get_config()

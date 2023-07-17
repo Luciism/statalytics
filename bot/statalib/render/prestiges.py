@@ -1,4 +1,4 @@
-class ColorMaps:
+class PrestigeColorMaps:
     """
     Bedwars prestige color maps
     color_map: level 0-900 & 10000+
@@ -88,7 +88,7 @@ def get_prestige_colors(level: int) -> tuple:
     Any level between 1000 and 9900 will have 7 color position values
     :param level: the level of the desired prestige color
     """
-    colors = ColorMaps
+    colors = PrestigeColorMaps
     prestige = (level // 100) * 100
     if 1000 <= level < 10000:
         return colors.color_map_2.get(prestige, colors.color_map_2.get(5000))

@@ -7,6 +7,12 @@ class PlayerNotFoundError(AppCommandError):
     Used for returning out of nested functions"""
 
 
+class SessionNotFoundError(AppCommandError):
+    """
+    Session not found exception class\n
+    Used for returning out of nested functions"""
+
+
 class HypixelInvalidResponseError(AppCommandError):
     """Hypixel request timeout exception class."""
 

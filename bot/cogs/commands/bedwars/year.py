@@ -5,15 +5,15 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.year import render_year
-from helper import (
+from statalib import (
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
     session_autocompletion,
-    get_command_cooldown,
-    get_hypixel_data,
+    generic_command_cooldown,
+    fetch_hypixel_data,
     update_command_stats,
-    get_smart_session,
+    find_dynamic_session,
     get_subscription,
     fetch_skin_model,
     handle_modes_renders,
@@ -28,23 +28,21 @@ class Year(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
+    year_group = app_commands.Group(
+        name='year',
+        description='View the a players projected stats for a future year'
+    )
+
+
     async def year_command(self, interaction: discord.Interaction,
                            name: str, uuid: str, session: int, year: int):
-        refined = name.replace('_', r'\_')
 
-        if session is None:
-            session = 100
-        session_data = await get_smart_session(interaction, session, refined, uuid)
-
-        if not session_data:
-            return
-        if session == 100:
-            session = session_data[0]
+        session = await find_dynamic_session(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
         skin_res = await fetch_skin_model(uuid, 144)
 
-        hypixel_data = await get_hypixel_data(uuid)
+        hypixel_data = await fetch_hypixel_data(uuid)
 
         kwargs = {
             "name": name,
@@ -60,16 +58,10 @@ class Year(commands.Cog):
         update_command_stats(interaction.user.id, f'year_{year}')
 
 
-    year_group = app_commands.Group(
-        name='year',
-        description='View the a players projected stats for a future year'
-    )
-
-
     @year_group.command(name = "2024", description = "View the a players projected stats for 2024")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def year_2024(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
@@ -79,7 +71,7 @@ class Year(commands.Cog):
     @year_group.command(name = "2025", description = "View the a players projected stats for 2025")
     @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
     @app_commands.describe(username='The player you want to view', session='The session you want to use')
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction, username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)

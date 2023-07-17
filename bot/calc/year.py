@@ -1,8 +1,8 @@
 import sqlite3
 from datetime import datetime
 
-from helper.calctools import (
-    get_player_rank_info,
+from statalib.calctools import (
+    get_rank_info,
     add_suffixes,
     get_mode,
     get_level,
@@ -57,7 +57,7 @@ class YearStats:
 
         self.level_repetition = self.levels_to_go / self.levels_gained
 
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
 
 
     def _get_increase_factor(self, value):

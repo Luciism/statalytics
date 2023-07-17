@@ -6,9 +6,10 @@ from datetime import datetime
 import numpy as np
 from PIL import Image, UnidentifiedImageError, ImageDraw
 
-from .prescolor import ColorMaps
-from .linking import uuid_to_discord_id
-from .functions import get_subscription, get_config
+from .prestiges import PrestigeColorMaps
+from ..linking import uuid_to_discord_id
+from ..functions import get_config, REL_PATH
+from ..subscriptions import get_subscription
 
 
 def shadow(rgb: tuple) -> tuple[int, int, int]:
@@ -47,7 +48,7 @@ def paste_skin(skin_res, image: Image, positions: tuple) -> Image.Image:
     try:
         skin = Image.open(BytesIO(skin_res))
     except UnidentifiedImageError:
-        skin = Image.open('./assets/steve.png')
+        skin = Image.open(f'{REL_PATH}/assets/steve.png')
 
     composite_image = Image.new("RGBA", image.size)
     composite_image.paste(skin, positions)
@@ -55,28 +56,36 @@ def paste_skin(skin_res, image: Image, positions: tuple) -> Image.Image:
     return image
 
 
-def get_rank_color(player_rank_info: dict) -> tuple:
+def get_rank_color(rank_info: dict) -> tuple:
     """
     Returns a rank color based off of the rank information given
-    :param player_rank_info: the rank information
+    :param rank_info: the rank information
     """
-    if player_rank_info['rank'] == "TECHNO":
-        rankcolor = (255, 85, 255)
-    elif player_rank_info['rank'] == "NONE":
-        if (player_rank_info['packageRank'], player_rank_info['newPackageRank']) == ("NONE", "NONE"):
-            rankcolor = (170, 170, 170)
 
-        elif player_rank_info['packageRank'] in ("VIP", "VIP_PLUS")\
-            or player_rank_info['newPackageRank'] in ("VIP", "VIP_PLUS"):
-            rankcolor = (85, 255, 85)
+    rank = rank_info['rank']
+    package_rank = rank_info['packageRank']
+    new_package_rank = rank_info['newPackageRank']
+    monthly_package_rank = rank_info['monthlyPackageRank']
 
-        elif player_rank_info['packageRank'] in ("MVP", "MVP_PLUS")\
-            or player_rank_info['newPackageRank'] in ("MVP", "MVP_PLUS"):
-            rankcolor = (85, 255, 255) if player_rank_info['monthlyPackageRank'] == "NONE" else (255, 170, 0)
+    if rank == "TECHNO":
+        return (255, 85, 255)
+    
+    if rank in ("YOUTUBER", "ADMIN"):
+        return (255, 85, 85)
 
-    else:
-        rankcolor = (255, 85, 85) if player_rank_info['rank'] in ("YOUTUBER", "ADMIN") else (0, 170, 0)
-    return rankcolor
+    if rank == "NONE":
+        if (package_rank, new_package_rank) == ("NONE", "NONE"):
+            return (170, 170, 170)
+
+        if {"VIP", "VIP_PLUS"} & {package_rank, new_package_rank}:
+            return (85, 255, 85)
+
+        if {"MVP", "MVP_PLUS"} & {package_rank, new_package_rank}:
+            if monthly_package_rank == "SUPERSTAR":  # MVP++
+                return (255, 170, 0)
+            return (85, 255, 255)
+
+    return (0, 170, 0)
 
 
 def recolor_pixels(image: Image.Image, rgb_from: tuple | list, rgb_to: tuple | list) -> Image.Image:
@@ -106,7 +115,7 @@ def theme_color_sync_fusion(path: str, **kwargs) -> Image.Image:
     rank_info = kwargs.get('rank_info')
     level = (kwargs.get('level') // 100) * 100
 
-    colors = ColorMaps
+    colors = PrestigeColorMaps
     level_color = colors.color_map.get(level) if level < 1000 else colors.color_map_2.get(level)[0]
     rank_color = get_rank_color(rank_info)
 
@@ -141,15 +150,14 @@ def get_background(path, uuid, default, **kwargs):
     if not discord_id:
         return Image.open(f'{path}/{default}.png')
 
-    subscription = get_subscription(discord_id)
-    subscription = '' if not subscription else subscription[1]
+    subscription = get_subscription(discord_id) or ''
 
     # User has a pro subscription and a custom background
     if 'pro' in subscription and os.path.exists(f'{path}/custom/{discord_id}.png'):
         return Image.open(f'{path}/custom/{discord_id}.png')
 
     # Voting and rewards data for active theme pack
-    with sqlite3.connect('./database/core.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
@@ -159,13 +167,17 @@ def get_background(path, uuid, default, **kwargs):
         themes_data = cursor.fetchone()
 
 
-    voter_themes = get_config()['theme_packs']['voter_themes'].keys()
-
     # If the user has configured a theme
     if themes_data and themes_data[2]:
+        config = get_config()
+        voter_themes = config['theme_packs']['voter_themes'].keys()
+        rewards_duration = config['voter_reward_duration_hours']
+
         # If the user has voted in the past 24 hours
         current_time = datetime.utcnow().timestamp()
-        voted_recently = voting_data and ((current_time - voting_data[3]) / 3600 < 24)
+
+        hours_since_voted = (current_time - voting_data[3]) / 3600
+        voted_recently = voting_data and (hours_since_voted < rewards_duration)
 
         theme = themes_data[2]
         if themes_data[1]:

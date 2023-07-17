@@ -1,21 +1,21 @@
-import os
 import asyncio
 from datetime import datetime
+from os import getenv
 
 import requests
 import discord
 from discord.ext import commands, tasks
 
-from helper.functions import get_command_users, to_thread
+from statalib.functions import get_command_users, to_thread
 
 
 class Counts(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.TOPGG_TOKEN = os.getenv('STATALYTICS_TOPGG_TOKEN')
-        self.DBL_TOKEN = os.getenv('STATALYTICS_DBL_TOKEN')
-        self.DISCORDS_TOKEN = os.getenv('STATALYTICS_DISCORDS_TOKEN')
-        self.BOTLIST_TOKEN = os.getenv('STATALYTICS_BOTLIST_TOKEN')
+        self.TOPGG_TOKEN = getenv('TOPGG_TOKEN')
+        self.DBL_TOKEN = getenv('DBL_TOKEN')
+        self.DISCORDS_TOKEN = getenv('DISCORDS_TOKEN')
+        self.BOTLIST_TOKEN = getenv('BOTLIST_TOKEN')
 
 
     @to_thread
@@ -61,7 +61,7 @@ class Counts(commands.Cog):
 
 
     async def cog_load(self):
-        if os.getenv('STATALYTICS_ENVIRONMENT') == 'production':
+        if getenv('ENVIRONMENT') == 'production':
             self.update_counts_loop.start()
 
 

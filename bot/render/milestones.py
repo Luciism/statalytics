@@ -1,15 +1,24 @@
 from PIL import ImageDraw, ImageFont
 
 from calc.milestones import Stats
-from helper.rendername import render_level, get_rank_prefix, render_rank
-from helper.rendertools import get_background, paste_skin, box_center_text
-from helper.renderprogress import render_progress_bar, render_progress_text
+from statalib import to_thread
+from statalib.render import (
+    render_level,
+    get_rank_prefix,
+    render_rank,
+    get_background,
+    paste_skin,
+    box_center_text,
+    render_progress_bar,
+    render_progress_text
+)
 
 
+@to_thread
 def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_dir):
     stats = Stats(name, uuid, mode, session, hypixel_data)
     level = stats.level
-    player_rank_info = stats.player_rank_info
+    rank_info = stats.rank_info
     stars_until_value, stars_until_target = stats.get_stars()
     progress, target, progress_out_of_10 = stats.progress
 
@@ -54,7 +63,7 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     )
 
     image = get_background(path='./assets/bg/milestones', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -107,12 +116,7 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
                  position_y=stars_until_y, fontsize=16, image=image)
 
     # Render the player name
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-
-    render_rank(name, position_x=player_x, position_y=28, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=28, center_x=(415, 19))
 
     # Render the progress
     render_progress_bar(box_positions=(415, 18), position_y=89, level=level,

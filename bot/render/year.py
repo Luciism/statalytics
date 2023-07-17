@@ -3,16 +3,24 @@ from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.year import YearStats
-from helper.rendertools import get_background, paste_skin, box_center_text
-from helper.rendername import render_level, render_rank, get_rank_prefix
+from statalib import to_thread
+from statalib.render import (
+    get_background,
+    paste_skin,
+    box_center_text,
+    render_level,
+    render_rank,
+    get_rank_prefix
+)
 
 
+@to_thread
 def render_year(name, uuid, session, year, mode,
                 hypixel_data, skin_res, save_dir):
     stats = YearStats(name, uuid, session, year, mode, hypixel_data)
     level = int(stats.level_hypixel)
     target = stats.get_target()
-    player_rank_info = stats.player_rank_info
+    rank_info = stats.rank_info
     days_to_go = str(stats.days_to_go)
     stars_per_day = f'{round(stats.stars_per_day, 2):,}'
     items_purchased = stats.get_items_purchased()
@@ -28,7 +36,7 @@ def render_year(name, uuid, session, year, mode,
     year = str(year)
 
     image = get_background(path='./assets/bg/year', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -79,12 +87,7 @@ def render_year(name, uuid, session, year, mode,
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render name
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-
-    render_rank(name, player_x, position_y=28, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=28, center_x=(415, 19))
 
     # Projection Date
     year_txt = "Predictions For Year: "

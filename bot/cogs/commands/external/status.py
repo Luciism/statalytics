@@ -1,15 +1,15 @@
 # api.polsu.xyz
 
-import os
 import time
+from os import getenv
 
 import requests
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helper.functions import (
-    get_command_cooldown,
+from statalib import (
+    generic_command_cooldown,
     update_command_stats,
     load_embeds,
     to_thread
@@ -32,7 +32,7 @@ def _fetch_server_status(key, ip):
 class Status(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
-        self.key = os.getenv('POLSU_KEY')
+        self.key = getenv('API_KEY_POLSU')
         self.ip = 'mc.hypixel.net'
 
 
@@ -40,7 +40,7 @@ class Status(commands.Cog):
 
 
     @status.command(name="hypixel", description="Hypixel's real-time status")
-    @app_commands.checks.dynamic_cooldown(get_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
 

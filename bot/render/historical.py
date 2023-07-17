@@ -1,12 +1,19 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from calc.historical import HistoricalStats, LookbackStats
-from helper.historical import TRACKERS
-from helper.rendername import render_rank, get_rank_prefix
-from helper.rendertools import get_background, paste_skin, box_center_text
-from helper.renderprogress import render_progress_bar, render_progress_text
+from statalib import TRACKERS, to_thread
+from statalib.render import (
+    render_rank,
+    get_rank_prefix,
+    get_background,
+    paste_skin,
+    box_center_text,
+    render_progress_bar,
+    render_progress_text
+)
 
 
+@to_thread
 def render_historical(name, uuid, identifier, relative_date, title, mode,
                       hypixel_data, skin_res, save_dir, period=None):
     if identifier in TRACKERS:
@@ -15,7 +22,7 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
         stats = LookbackStats(name, uuid, period, mode, hypixel_data)
 
     level = stats.level
-    player_rank_info = stats.player_rank_info
+    rank_info = stats.rank_info
 
     progress, target, progress_out_of_10 = stats.progress
     timezone, reset_hour = stats.get_time_info()
@@ -30,7 +37,7 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
     kills, deaths, kdr = stats.get_kills()
 
     image = get_background(path=f'./assets/bg/historical/{identifier}', uuid=uuid,
-                           default='base', level=level, rank_info=player_rank_info)
+                           default='base', level=level, rank_info=rank_info)
 
     image = image.convert("RGBA")
 
@@ -80,12 +87,7 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render the player name
-    rank_prefix = get_rank_prefix(player_rank_info)
-    totallength = draw.textlength(f'{rank_prefix}{name}', font=minecraft_22)
-    player_x = round((415 - totallength) / 2) + 19
-
-    render_rank(name, position_x=player_x, position_y=31, rank_prefix=rank_prefix,
-                player_rank_info=player_rank_info, draw=draw, fontsize=22)
+    render_rank(name, rank_info, draw, fontsize=22, pos_y=31, center_x=(415, 19))
 
     # Render the progress
     render_progress_bar(box_positions=(415, 19), position_y=91, level=level,

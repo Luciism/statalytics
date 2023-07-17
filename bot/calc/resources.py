@@ -1,8 +1,8 @@
-from helper.calctools import (
+from statalib.calctools import (
     get_mode,
     rround,
     get_progress,
-    get_player_rank_info,
+    get_rank_info,
     get_level,
     get_player_dict
 )
@@ -17,7 +17,7 @@ class Resources:
         self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.progress = get_progress(self.hypixel_data_bedwars)
-        self.player_rank_info = get_player_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self.hypixel_data)
 
         self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
         self.games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
