@@ -175,8 +175,13 @@ def update_current_package(discord_id: int):
     package determined from package_data json string
     :param discord_id: the discord id of the respective user
     """
-    package, expiry = get_subscription(
+    
+    subscription = get_subscription(
         discord_id, include_booster=False, get_expiry=True)
+    if subscription:
+        package, expiry = subscription
+    else:
+        package, expiry = None, None
     set_current_package(discord_id, package, expiry)
 
 
@@ -248,6 +253,7 @@ def remove_subscription(discord_id: int, package: str,
             break
 
     set_package_data(discord_id, package_data)
+    set_current_package(discord_id, package='idle', expiry=0)
 
 
 class SubscriptionManager:
