@@ -168,7 +168,7 @@ def get_background(path, uuid, default, **kwargs):
 
 
     # If the user has configured a theme
-    if themes_data and themes_data[2]:
+    if themes_data and themes_data[2] and voting_data:
         config = get_config()
         voter_themes = config['theme_packs']['voter_themes'].keys()
         rewards_duration = config['voter_reward_duration_hours']
@@ -176,7 +176,7 @@ def get_background(path, uuid, default, **kwargs):
         # If the user has voted in the past 24 hours
         current_time = datetime.utcnow().timestamp()
 
-        hours_since_voted = (current_time - voting_data[3]) / 3600
+        hours_since_voted = (current_time - (voting_data[3] or 0)) / 3600
         voted_recently = voting_data and (hours_since_voted < rewards_duration)
 
         theme = themes_data[2]
