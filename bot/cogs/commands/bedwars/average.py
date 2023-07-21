@@ -1,5 +1,3 @@
-import os
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -23,9 +21,11 @@ class Average(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="average", description="View the average stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="average",
+        description="View the average stats of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def average(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()

@@ -214,3 +214,24 @@ async def align_to_hour():
     now = datetime.now()
     sleep_seconds = (60 - now.minute) * 60 - now.second
     await asyncio.sleep(sleep_seconds)
+
+
+def int_prefix(integer: int) -> str:
+    """
+    Returns prefix (+, -) for a provided integer
+    if the provided integer is a negative number
+    an empty string will be returned as a `-` is
+    already present
+    :param integer: the integer to return the prefix of
+    """
+    if int(integer) >= 0:
+        return "+"
+    return ""
+
+
+def prefix_int(integer: int):
+    """
+    Prefixes given number with `+` or `-` and returns it as a string
+    :param integer: the integer to be prefixed
+    """
+    return f'{int_prefix(integer)}{integer}'

@@ -19,20 +19,26 @@ class MostPlayed(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="mostplayed", description="Most played mode of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="mostplayed",
+        description="Most played mode of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def most_played(self, interaction: discord.Interaction,username: str=None):
         await interaction.response.defer()
+
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         hypixel_data = await fetch_hypixel_data(uuid)
+
         rendered = await render_mostplayed(name, uuid, hypixel_data)
         await interaction.edit_original_response(
-            content=None, attachments=[discord.File(rendered, filename='mostplayed.png')])
+            content=None,
+            attachments=[discord.File(rendered, filename='mostplayed.png')]
+        )
 
         update_command_stats(interaction.user.id, 'mostplayed')
 

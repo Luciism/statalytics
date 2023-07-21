@@ -22,14 +22,25 @@ class Compare(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="compare", description="Compare a player's stats to another player's stats")
-    @app_commands.autocomplete(player_1=username_autocompletion, player_2=username_autocompletion)
-    @app_commands.describe(player_1='The primary player in the comparison', player_2='The secondary player in the comparison')
+    @app_commands.command(
+        name="compare",
+        description="Compare a player's stats to another player's stats")
+    @app_commands.describe(
+        player_1='The primary player in the comparison',
+        player_2='The secondary player in the comparison')
+    @app_commands.autocomplete(
+        player_1=username_autocompletion,
+        player_2=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def compare(self, interaction: discord.Interaction, player_1: str, player_2: str=None):
+    async def compare(self, interaction: discord.Interaction,
+                      player_1: str, player_2: str=None):
         await interaction.response.defer()
-        name_1, uuid_1 = await fetch_player_info(player_1 if player_2 else None, interaction)
-        name_2, uuid_2 = await fetch_player_info(player_2 if player_2 else player_1, interaction)
+
+        name_1 = player_1 if player_2 else None
+        name_2 = player_2 if player_2 else player_1
+
+        name_1, uuid_1 = await fetch_player_info(name_1, interaction)
+        name_2, uuid_2 = await fetch_player_info(name_2, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
         hypixel_data_1 = await fetch_hypixel_data(uuid_1)

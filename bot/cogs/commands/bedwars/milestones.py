@@ -1,4 +1,3 @@
-import os
 import sqlite3
 
 import discord
@@ -25,11 +24,18 @@ class Milestones(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="milestones", description="View the milestone stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view', session='The session you want to use (0 for none, defaults to 1 if active)')
+    @app_commands.command(
+        name="milestones",
+        description="View the milestone stats of a player")
+    @app_commands.describe(
+        username='The player you want to view',
+        session='The session you want to use (0 for none, defaults to 1 if active)')
+    @app_commands.autocomplete(
+        username=username_autocompletion,
+        session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def milestones(self, interaction: discord.Interaction, username: str=None, session: int=None):
+    async def milestones(self, interaction: discord.Interaction,
+                         username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
@@ -38,10 +44,15 @@ class Milestones(commands.Cog):
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (int(str(session)[0]), uuid))
+            cursor.execute(
+                "SELECT * FROM sessions WHERE session=? AND uuid=?",
+                (int(str(session)[0]), uuid)
+            )
+
             if not cursor.fetchone() and not session in (0, 100):
                 await interaction.followup.send(
-                    f"`{username}` doesn't have an active session with ID: `{session}`!\nSelect a valid session or specify `0` in order to not use session data!")
+                    f"`{username}` doesn't have an active session with ID: `{session}`!\n"
+                    "Select a valid session or specify `0` in order to not use session data!")
                 return
 
         await interaction.followup.send(self.LOADING_MSG)

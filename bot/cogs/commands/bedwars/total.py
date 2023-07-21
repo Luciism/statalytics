@@ -23,8 +23,10 @@ class Total(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    async def total_command(self, interaction: discord.Interaction, username: str, method: str):
+    async def total_command(self, interaction: discord.Interaction,
+                            username: str, method: str):
         await interaction.response.defer()
+
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -44,19 +46,24 @@ class Total(commands.Cog):
         update_command_stats(interaction.user.id, method)
 
 
-    @app_commands.command(name="bedwars", description="View the general stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="bedwars",
+        description="View the general stats of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def total(self, interaction: discord.Interaction, username: str=None):
         await self.total_command(interaction, username, method='generic')
 
 
-    @app_commands.command(name="pointless", description="View the general pointless stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="pointless",
+        description="View the general pointless stats of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def pointless(self, interaction: discord.Interaction, username: str=None):
+    async def pointless(self, interaction: discord.Interaction,
+                        username: str=None):
         await self.total_command(interaction, username, method='pointless')
 
 

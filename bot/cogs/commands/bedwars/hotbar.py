@@ -19,12 +19,15 @@ class Hotbar(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="hotbar", description="View the hotbar preferences of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="hotbar",
+        description="View the hotbar preferences of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def hotbar(self, interaction: discord.Interaction,username: str=None):
         await interaction.response.defer()
+
         name, uuid = await fetch_player_info(username, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -32,7 +35,9 @@ class Hotbar(commands.Cog):
         hypixel_data = await fetch_hypixel_data(uuid)
         rendered = await render_hotbar(name, uuid, hypixel_data)
         await interaction.edit_original_response(
-            content=None, attachments=[discord.File(rendered, filename="hotbar.png")])
+            content=None,
+            attachments=[discord.File(rendered, filename="hotbar.png")]
+        )
 
         update_command_stats(interaction.user.id, 'hotbar')
 

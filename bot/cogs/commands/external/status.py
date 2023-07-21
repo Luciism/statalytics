@@ -36,10 +36,13 @@ class Status(commands.Cog):
         self.ip = 'mc.hypixel.net'
 
 
-    status = app_commands.Group(name='status', description='Status Group Command')
+    status_group = app_commands.Group(
+        name='status',
+        description='Status Group Command'
+    )
 
 
-    @status.command(name="hypixel", description="Hypixel's real-time status")
+    @status_group.command(name="hypixel", description="Hypixel's real-time status")
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
@@ -48,7 +51,8 @@ class Status(commands.Cog):
 
         if not res["success"]:
             await interaction.followup.send(
-                content="Something went while contacting `api.polsu.xyz`!\nPlease try again layer",
+                content="Something went while contacting"
+                        "`api.polsu.xyz`!\nPlease try again layer",
                 ephemeral=True
             )
             return

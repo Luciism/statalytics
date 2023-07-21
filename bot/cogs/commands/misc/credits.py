@@ -10,7 +10,9 @@ class Credits(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name="credits", description="The people who made Statalytics possible")
+    @app_commands.command(
+        name="credits",
+        description="The slaves that made Statalytics possible")
     async def credits(self, interaction: discord.Interaction):
         embeds = load_embeds('credits', color='primary')
         await interaction.response.send_message(embeds=embeds)

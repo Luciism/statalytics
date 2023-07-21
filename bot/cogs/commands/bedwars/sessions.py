@@ -38,8 +38,12 @@ class ManageSession(discord.ui.View):
         await self.message.edit(view=self)
 
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="confirm")
-    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(
+        label="Confirm",
+        style=discord.ButtonStyle.danger,
+        custom_id="confirm")
+    async def delete(self, interaction: discord.Interaction,
+                     button: discord.ui.Button):
         await interaction.response.defer()
 
         button.disabled = True
@@ -75,11 +79,18 @@ class Sessions(commands.Cog):
     )
 
 
-    @session_group.command(name="stats", description="View the session stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view', session='The session you want to view')
+    @session_group.command(
+        name="stats",
+        description="View the session stats of a player")
+    @app_commands.describe(
+        username='The player you want to view',
+        session='The session you want to view')
+    @app_commands.autocomplete(
+        username=username_autocompletion,
+        session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def session(self, interaction: discord.Interaction, username: str=None, session: int=None):
+    async def session(self, interaction: discord.Interaction,
+                      username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
@@ -115,7 +126,8 @@ class Sessions(commands.Cog):
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
+            cursor.execute(
+                f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             session_data = cursor.fetchall()
 
         subscription = get_subscription(interaction.user.id)
@@ -163,13 +175,15 @@ class Sessions(commands.Cog):
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
+            cursor.execute(
+                "SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
             session_data = cursor.fetchone()
 
         if session_data:
             view = ManageSession(session, uuid, method="delete")
             await interaction.response.send_message(
-                f'Are you sure you want to delete session {session}?', view=view, ephemeral=True)
+                f'Are you sure you want to delete session {session}?',
+                view=view, ephemeral=True)
             view.message = await interaction.original_response()
 
         else:
@@ -180,9 +194,10 @@ class Sessions(commands.Cog):
 
 
     @session_group.command(name="reset", description="Resets an active session")
-    @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to reset')
-    async def reset_session(self, interaction: discord.Interaction, session: int = None):
+    @app_commands.autocomplete(session=session_autocompletion)
+    async def reset_session(self, interaction: discord.Interaction,
+                            session: int = None):
         uuid = get_linked_player(interaction.user.id)
 
         if not uuid:
@@ -191,13 +206,14 @@ class Sessions(commands.Cog):
             return
 
         name = FetchPlayer(uuid=uuid).name
-        session = await find_dynamic_session(interaction, name, uuid, session, eph=True)
+        session = await find_dynamic_session(
+            interaction, name, uuid, session, eph=True)
 
         view = ManageSession(session, uuid, method="reset")
         await interaction.response.send_message(
-            f'Are you sure you want to reset session {session}?', view=view, ephemeral=True)
+            f'Are you sure you want to reset session {session}?',
+            view=view, ephemeral=True)
         view.message = await interaction.original_response()
-
 
         update_command_stats(interaction.user.id, 'resetsession')
 

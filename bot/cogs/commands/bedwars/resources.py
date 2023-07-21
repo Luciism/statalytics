@@ -1,5 +1,3 @@
-import os
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -22,11 +20,14 @@ class Resources(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="resources", description="View the resource stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="resources",
+        description="View the resource stats of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def resources(self, interaction: discord.Interaction, username: str=None):
+    async def resources(self, interaction: discord.Interaction,
+                        username: str=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 

@@ -1,6 +1,5 @@
 from io import BytesIO
 from requests import ConnectTimeout, ReadTimeout
-from json import JSONDecodeError
 
 import discord
 from discord import app_commands
@@ -12,7 +11,6 @@ from statalib import (
     generic_command_cooldown,
     update_command_stats,
     to_thread,
-    load_embeds,
     get_embed_color,
     fname,
     skin_session
@@ -26,7 +24,8 @@ class Skin(commands.Cog):
 
     @to_thread
     def fetch_skin(self, uuid):
-        return skin_session.get(f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
+        return skin_session.get(
+            f'https://visage.surgeplay.com/full/{uuid}', timeout=5).content
 
 
     @app_commands.command(name="skin", description="View the skin of a player")
@@ -39,8 +38,9 @@ class Skin(commands.Cog):
 
         try:
             image_bytes = await self.fetch_skin(uuid)
-        except (ReadTimeout, ConnectTimeout, JSONDecodeError):
-            await interaction.followup.send('Failed to fetch skin, please try again later. (Skin API error)')
+        except (ReadTimeout, ConnectTimeout):
+            await interaction.followup.send(
+                'Failed to fetch skin, please try again later. (Skin API Problem)')
             return
 
         embed = discord.Embed(

@@ -265,8 +265,8 @@ def build_invalid_lookback_embeds(max_lookback) -> list:
 
 # Returns total amount of days back a player's stats can be
 # checked based on a primary and secondary discord id.
-def get_lookback_eligiblility(discord_id_primary: int,
-                              discord_id_secondary: int) -> int:
+def get_max_lookback(discord_id_primary: int,
+                    discord_id_secondary: int) -> int:
     """
     Returns the amount of days back a user can check a player's historical stats
     :param discord_id_primary: the primary discord id to use (linked discord account of player)
@@ -480,11 +480,11 @@ class HistoricalManager:
         return build_invalid_lookback_embeds(max_lookback)
 
 
-    def get_lookback_eligiblility(self, discord_id_primary: int,
+    def get_max_lookback(self, discord_id_primary: int,
                                   discord_id_secondary: int) -> int:
         """
         Returns the amount of days back a user can check a player's historical stats
         :param discord_id_primary: the primary discord id to use (linked discord account of player)
         :param discord_id_secondary: the secondary discord id to use (the interaction user's id) 
         """
-        return get_lookback_eligiblility(discord_id_primary, discord_id_secondary)
+        return get_max_lookback(discord_id_primary, discord_id_secondary)

@@ -23,7 +23,8 @@ class Usage(commands.Cog):
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM command_usage WHERE discord_id = {discord_id}")
+            cursor.execute(
+                f"SELECT * FROM command_usage WHERE discord_id = {discord_id}")
             command_usage = cursor.fetchone()
 
             column_names = [desc[0] for desc in cursor.description]
@@ -34,7 +35,8 @@ class Usage(commands.Cog):
         if not command_usage:
             embed = discord.Embed(
                 title='No Command Usage!',
-                description='You have no command usage stats as you have never run a command.',
+                description='You have no command usage stats'
+                            'as you have never run a command.',
                 color=get_embed_color('primary')
             )
         else:
@@ -45,7 +47,13 @@ class Usage(commands.Cog):
             overall = '**Overall - 0**'
             description = []
 
-            for key, value in sorted(usage_dict.items(), key=lambda x: x[1], reverse=True):
+            sorted_usage = sorted(
+                usage_dict.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
+
+            for key, value in sorted_usage:
                 if key == 'overall':
                     overall = f'**Overall - {value}**'
                     continue

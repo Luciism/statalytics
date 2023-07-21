@@ -65,9 +65,11 @@ class Monthly(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    @app_commands.command(name="monthly", description="View the monthly stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.command(
+        name="monthly",
+        description="View the monthly stats of a player")
     @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(username=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, username: str=None):
         await interaction.response.defer()
@@ -81,7 +83,8 @@ class Monthly(commands.Cog):
 
         if not historical_data:
             await historic.start_historical()
-            await interaction.followup.send(f'Historical stats for {fname(name)} will now be tracked.')
+            await interaction.followup.send(
+                f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -93,7 +96,8 @@ class Monthly(commands.Cog):
 
         next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
         if now >= next_occurrence:
-            next_occurrence = next_occurrence.replace(day=1, month=next_occurrence.month + 1)
+            next_occurrence = next_occurrence.replace(
+                day=1, month=next_occurrence.month + 1)
 
         while next_occurrence.day != 1:
             next_occurrence += timedelta(days=1)
@@ -120,20 +124,27 @@ class Monthly(commands.Cog):
         update_command_stats(interaction.user.id, 'monthly')
 
 
-    @app_commands.command(name="lastmonth", description="View last months stats of a player")
+    @app_commands.command(
+        name="lastmonth",
+        description="View last months stats of a player")
+    @app_commands.describe(
+        username='The player you want to view',
+        months='The lookback amount in months')
     @app_commands.autocomplete(username=username_autocompletion)
-    @app_commands.describe(username='The player you want to view', months='The lookback amount in months')
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def lastmonth(self, interaction: discord.Interaction, username: str=None, months: int=1):
+    async def lastmonth(self, interaction: discord.Interaction,
+                        username: str=None, months: int=1):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
         historic = HistoricalManager(interaction.user.id, uuid)
         discord_id = uuid_to_discord_id(uuid=uuid)
 
-        max_lookback = historic.get_lookback_eligiblility(discord_id, interaction.user.id)
+        max_lookback = historic.get_max_lookback(discord_id, interaction.user.id)
+
         if -1 != max_lookback < (months * 30):
-            await interaction.followup.send(embeds=historic.build_invalid_lookback_embeds(max_lookback))
+            embeds = historic.build_invalid_lookback_embeds(max_lookback)
+            await interaction.followup.send(embeds=embeds)
             return
 
         months = max(months, 1)
@@ -153,7 +164,8 @@ class Monthly(commands.Cog):
         historical_data = historic.get_historical(identifier=period)
 
         if not historical_data:
-            await interaction.followup.send(f'{fname(name)} has no tracked data for {months} month(s) ago!')
+            await interaction.followup.send(
+                f'{fname(name)} has no tracked data for {months} month(s) ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)

@@ -29,7 +29,8 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
         embeds = load_embeds('suggestion', format_values, color='primary')
 
         await self.channel.send(embeds=embeds)
-        await interaction.response.send_message('Successfully submitted suggestion!', ephemeral=True)
+        await interaction.response.send_message(
+            'Successfully submitted suggestion!', ephemeral=True)
 
 
 class Suggest(commands.Cog):
@@ -37,7 +38,9 @@ class Suggest(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name='suggest', description='Suggest a feature you would like to see added!')
+    @app_commands.command(
+        name='suggest',
+        description='Suggest a feature you would like to see added!')
     async def suggest(self, interaction: discord.Interaction):
         channel_id = STATIC_CONFIG.get('suggestions_channel_id')
         channel = self.client.get_channel(channel_id)

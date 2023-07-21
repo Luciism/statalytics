@@ -1,5 +1,3 @@
-import os
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -25,15 +23,21 @@ class Projection(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    @app_commands.command(name="prestige", description="View the projected stats of a player")
-    @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view',
-                           prestige='The prestige you want to view',
-                           session='The session you want to use as a benchmark (defaults to 1)')
+    @app_commands.command(
+        name="prestige",
+        description="View the projected stats of a player")
+    @app_commands.describe(
+        username='The player you want to view',
+        prestige='The prestige you want to view',
+        session='The session you want to use as a benchmark (defaults to 1)')
+    @app_commands.autocomplete(
+        username=username_autocompletion,
+        session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def projected_stats(self, interaction: discord.Interaction,
                               prestige: int=None, username: str=None, session: int=None):
         await interaction.response.defer()
+
         name, uuid = await fetch_player_info(username, interaction)
 
         session = await find_dynamic_session(interaction, name, uuid, session)
@@ -44,7 +48,8 @@ class Projection(commands.Cog):
         hypixel_data = await fetch_hypixel_data(uuid)
         if not prestige:
             if hypixel_data.get('player'):
-                current_star = hypixel_data.get('player', {}).get('achievements', {}).get('bedwars_level', 0)
+                current_star = hypixel_data.get(
+                    'player', {}).get('achievements', {}).get('bedwars_level', 0)
             else:
                 current_star = 0
             prestige = (current_star // 100 + 1) * 100

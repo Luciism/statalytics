@@ -43,11 +43,17 @@ class Denick(commands.Cog):
         return res.json()
 
 
-    @app_commands.command(name="numberdenick", description="Find the ign of a nick based on their kill messages (powered by antisniper)")
-    @app_commands.describe(mode='The stat to denick with (finals / beds)', count='The count of the chosen stat')
+    @app_commands.command(
+        name="numberdenick",
+        description="Find the ign of a nick based on their"
+                    "kill messages (powered by antisniper)")
+    @app_commands.describe(
+        mode='The stat to denick with (finals / beds)',
+        count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def numberdenick(self, interaction: discord.Interaction, mode: str, count: int):
+    async def numberdenick(self, interaction: discord.Interaction,
+                           mode: str, count: int):
         await interaction.response.defer()
         mode = mode.lower()
         if not mode in ('finals', 'beds'):
@@ -59,7 +65,10 @@ class Denick(commands.Cog):
         embed_color = get_embed_color(embed_type='primary')
         embed = discord.Embed(
             title='Number Denicker',
-            description=f'Mode: {mode}\nCount: {count}\nResults: {len(data["data"])}', color=embed_color
+            description=f'Mode: {mode}\n'
+                        f'Count: {count}\n'
+                        f'Results: {len(data["data"])}',
+            color=embed_color
         )
 
         if data['data']:
@@ -80,7 +89,12 @@ class Denick(commands.Cog):
             embed.add_field(name='Beds', value='\n\n'.join(beds_broken))
         else:
             embed.description = "No data."
-        embed.set_footer(text="Powered by antisniper.net", icon_url='https://statalytics.net/image/antisniper.png')
+
+        embed.set_footer(
+            text="Powered by antisniper.net",
+            icon_url='https://statalytics.net/image/antisniper.png'
+        )
+
         await interaction.followup.send(embed=embed)
 
         update_command_stats(interaction.user.id, 'numberdenick')

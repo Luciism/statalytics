@@ -58,21 +58,35 @@ class Year(commands.Cog):
         update_command_stats(interaction.user.id, f'year_{year}')
 
 
-    @year_group.command(name = "2024", description = "View the a players projected stats for 2024")
-    @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view', session='The session you want to use')
+    @year_group.command(
+        name="2024",
+        description="View the a players projected stats for 2024")
+    @app_commands.describe(
+        username='The player you want to view',
+        session='The session you want to use')
+    @app_commands.autocomplete(
+        username=username_autocompletion,
+        session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def year_2024(self, interaction: discord.Interaction, username: str=None, session: int=None):
+    async def year_2024(self, interaction: discord.Interaction,
+                        username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
         await self.year_command(interaction, name, uuid, session, 2024)
 
 
-    @year_group.command(name = "2025", description = "View the a players projected stats for 2025")
-    @app_commands.autocomplete(username=username_autocompletion, session=session_autocompletion)
-    @app_commands.describe(username='The player you want to view', session='The session you want to use')
+    @year_group.command(
+        name="2025",
+        description="View the a players projected stats for 2025")
+    @app_commands.describe(
+        username='The player you want to view',
+        session='The session you want to use')
+    @app_commands.autocomplete(
+        username=username_autocompletion,
+        session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def year_2025(self, interaction: discord.Interaction, username: str=None, session: int=None):
+    async def year_2025(self, interaction: discord.Interaction,
+                        username: str=None, session: int=None):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 

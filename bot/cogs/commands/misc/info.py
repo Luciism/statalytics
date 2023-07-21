@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import datetime
-import sqlite3
 from json import load as load_json
 
 import psutil
@@ -25,7 +24,9 @@ class Info(commands.Cog):
         self.client: discord.Client = client
 
 
-    @app_commands.command(name="info", description="View information and stats for Statalytics")
+    @app_commands.command(
+        name="info",
+        description="View information and stats for Statalytics")
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
 

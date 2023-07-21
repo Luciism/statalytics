@@ -30,10 +30,14 @@ class Linking(commands.Cog):
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {interaction.user.id}")
+            cursor.execute(
+                "SELECT * FROM linked_accounts WHERE discord_id = ?",
+                (interaction.user.id,))
 
             if cursor.fetchone():
-                cursor.execute(f"DELETE FROM linked_accounts WHERE discord_id = {interaction.user.id}")
+                cursor.execute(
+                    "DELETE FROM linked_accounts WHERE discord_id = ?",
+                    (interaction.user.id,))
                 message = 'Successfully unlinked your account!'
             else:
                 message = "You don't have an account linked! In order to link use `/link`!"
