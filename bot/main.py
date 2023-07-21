@@ -5,7 +5,9 @@ from json import dump as dump_json
 import discord
 from discord.ext import commands
 from discord import app_commands
+
 from dotenv import load_dotenv
+load_dotenv()
 
 from statalib import (
     PlayerNotFoundError,
@@ -17,9 +19,6 @@ from statalib import (
     handle_all_errors,
     get_config,
 )
-
-
-load_dotenv()
 
 
 class MyClient(commands.Bot):
@@ -36,7 +35,8 @@ class MyClient(commands.Bot):
                 print(f"Cog doesn't exist: {ext}")
 
         add_info_view(self)
-        await self.tree.sync()
+
+        # await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 

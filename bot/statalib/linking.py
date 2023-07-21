@@ -15,6 +15,18 @@ from .functions import (
 )
 
 
+def get_linked_total() -> int:
+    """Returns total linked accounts"""
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT COUNT(discord_id) FROM linked_accounts")
+        total = cursor.fetchone()
+    if total:
+        return total[0]
+    return 0
+
+
 def uuid_to_discord_id(uuid: str) -> int | None:
     """
     Attempts to fetch discord id from linked database
@@ -29,15 +41,19 @@ def uuid_to_discord_id(uuid: str) -> int | None:
     return None if not discord_id else discord_id[0]
 
 
-def get_linked_data(discord_id: int) -> tuple:
+def get_linked_player(discord_id: int) -> str | None:
     """
-    Returns a users linked data from linked database
+    Returns a users linked player uuid from database
     :param discord_id: The discord id of user's linked data to be retrieved
     """
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
-        return cursor.fetchone()
+        linked_data = cursor.fetchone()
+
+    if linked_data and linked_data[1]:
+        return linked_data[1]
+    return None
 
 
 def set_linked_data(discord_id: int, uuid: str) -> None:
@@ -88,13 +104,14 @@ async def fetch_player_info(username: str, interaction: Interaction,
     :param eph: whether or not to respond with an ephemeral message (default false)
     """
     if username is None:
-        linked_data = get_linked_data(interaction.user.id)
-        if linked_data:
-            uuid = linked_data[1]
+        uuid = get_linked_player(interaction.user.id)
+
+        if uuid:
             name = FetchPlayer(uuid=uuid, requests_obj=mojang_session).name
             update_autofill(interaction.user.id, uuid, name)
         else:
             msg = "You are not linked! Either specify a player or link your account using `/link`!"
+
             if interaction.response.is_done():
                 await interaction.followup.send(msg)
             else:
@@ -198,11 +215,11 @@ class LinkingManager:
         self._discord_id = discord_id
 
 
-    def get_linked_data(self):
+    def get_linked_player(self):
         """
         Returns a users linked data from linked database
         """
-        return get_linked_data(self._discord_id)
+        return get_linked_player(self._discord_id)
 
 
     def set_linked_data(self, uuid: str):

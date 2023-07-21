@@ -1,5 +1,3 @@
-import asyncio
-
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 
@@ -15,6 +13,7 @@ from statalib import (
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
+    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     yearly_eligibility_check,
@@ -55,9 +54,7 @@ class Yearly(commands.Cog):
 
     @reset_yearly.before_loop
     async def before_reset_yearly(self):
-        now = datetime.now()
-        sleep_seconds = (60 - now.minute) * 60 - now.second
-        await asyncio.sleep(sleep_seconds)
+        await align_to_hour()
 
 
     @reset_yearly.error

@@ -23,12 +23,18 @@ def to_thread(func: typing.Callable) -> typing.Coroutine:
     return wrapper
 
 
-def get_config() -> dict:
+def get_config(path: str=None):
     """
-    Returns json data from the `config.json` file
+    Returns contents of the `config.json` file
+    :param path: the json path to the value for example `key_1.key_2`
     """
     with open(f'{REL_PATH}/config.json', 'r') as datafile:
         config_data = json.load(datafile)
+
+    if path:
+        for key in path.split('.'):
+            config_data = config_data[key]
+
     return config_data
 
 
@@ -120,15 +126,32 @@ def ordinal(n: int) -> str:
     return {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
 
 
-def get_command_users():
-    """
-    Returns total amount of users to have run a command
-    """
+def get_user_total() -> int:
+    """Returns total amount of users to have run a command"""
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
+
         cursor.execute('SELECT COUNT(discord_id) FROM command_usage')
-        total_users = cursor.fetchone()[0] - 1
-    return total_users
+        result = cursor.fetchone()
+
+    if result:
+        return result[0] - 1
+    return 0
+
+
+def get_commands_total() -> int:
+    """
+    Returns total amount of commands run by all users
+    """
+    with sqlite3.connect('./database/core.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
+        result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    return 0 
 
 
 def _set_embed_color(embed: discord.Embed, color: str | int):
@@ -184,3 +207,10 @@ def get_timestamp(blacklist: tuple[float]=None) -> int:
             i += extra
 
     return timestamp
+
+
+async def align_to_hour():
+    """Sleeps until the next hour"""
+    now = datetime.now()
+    sleep_seconds = (60 - now.minute) * 60 - now.second
+    await asyncio.sleep(sleep_seconds)

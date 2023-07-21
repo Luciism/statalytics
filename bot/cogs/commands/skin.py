@@ -1,5 +1,6 @@
 from io import BytesIO
 from requests import ConnectTimeout, ReadTimeout
+from json import JSONDecodeError
 
 import discord
 from discord import app_commands
@@ -12,6 +13,8 @@ from statalib import (
     update_command_stats,
     to_thread,
     load_embeds,
+    get_embed_color,
+    fname,
     skin_session
 )
 
@@ -34,21 +37,22 @@ class Skin(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(username, interaction)
 
-        refined = name.replace('_', r'\_')
-
         try:
             image_bytes = await self.fetch_skin(uuid)
-        except (ReadTimeout, ConnectTimeout):
+        except (ReadTimeout, ConnectTimeout, JSONDecodeError):
             await interaction.followup.send('Failed to fetch skin, please try again later. (Skin API error)')
             return
 
-        format_values = {
-            'username': refined,
-            'uuid': uuid
-        }
-        embeds = load_embeds('skin', format_values, color='primary')
+        embed = discord.Embed(
+            title=f"{fname(name)}'s skin",
+            url=f"https://namemc.com/profile/{uuid}",
+            description=f"Click [here](https://crafatar.com/skins/{uuid}) to download",
+            color=get_embed_color('primary')
+        )
+        embed.set_image(url="attachment://skin.png")
+
         file = discord.File(BytesIO(image_bytes), filename='skin.png')
-        await interaction.followup.send(file=file, embeds=embeds)
+        await interaction.followup.send(file=file, embed=embed)
 
         update_command_stats(interaction.user.id, 'skin')
 

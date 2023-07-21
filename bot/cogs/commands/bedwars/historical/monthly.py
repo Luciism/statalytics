@@ -1,5 +1,3 @@
-import asyncio
-
 from calendar import monthrange
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
@@ -16,6 +14,7 @@ from statalib import (
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
+    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     log_error_msg,
@@ -58,9 +57,7 @@ class Monthly(commands.Cog):
 
     @reset_monthly.before_loop
     async def before_reset_monthly(self):
-        now = datetime.now()
-        sleep_seconds = (60 - now.minute) * 60 - now.second
-        await asyncio.sleep(sleep_seconds)
+        await align_to_hour()
 
 
     @reset_monthly.error

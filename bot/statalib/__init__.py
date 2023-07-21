@@ -9,6 +9,7 @@ from .autocomplete import *
 from .handlers import *
 from .subscriptions import *
 from .network import *
+from .permissions import *
 from .render.prestiges import *
 from .render.progress import *
 from .render.tools import *
@@ -35,5 +36,6 @@ __all__ = [
     'sessions',
     'mcfetch',
     'subscriptions'
-    'network'
+    'network',
+    'permissions'
 ]

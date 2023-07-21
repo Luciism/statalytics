@@ -4,7 +4,7 @@ import typing
 from discord import app_commands, Interaction
 
 from .functions import REL_PATH
-from .linking import get_linked_data
+from .linking import get_linked_player
 from .mcfetch import FetchPlayer
 
 
@@ -36,10 +36,9 @@ async def session_autocompletion(interaction: Interaction, current: str
         except KeyError:
             return []
     else:
-        linked_data = get_linked_data(interaction.user.id)
-        if not linked_data:
+        uuid = get_linked_player(interaction.user.id)
+        if not uuid:
             return []
-        uuid: str = linked_data[1]
 
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()

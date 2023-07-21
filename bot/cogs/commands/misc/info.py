@@ -10,9 +10,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib.functions import (
+from statalib import (
     update_command_stats,
-    get_command_users,
+    get_user_total,
+    get_linked_total,
+    get_commands_total,
     get_config,
     load_embeds
 )
@@ -27,34 +29,27 @@ class Info(commands.Cog):
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        # Usage metrics
-        with sqlite3.connect('./database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
-            result = cursor.fetchone()
-            commands_ran = 0 if not result else result[0]
+        commands_ran = get_commands_total()
+        linked_accounts = get_linked_total()
 
-        with sqlite3.connect('./database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(discord_id) FROM linked_accounts')
-            result = cursor.fetchone()
-            linked_accounts = 0 if not result else result[0]
-
-        # Other shit
         total_guilds = len(self.client.guilds)
-        total_users = get_command_users()
+        total_users = get_user_total()
 
         with open('./database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']
 
-        uptime = str(datetime.timedelta(seconds=int(round(time.time()-start_time))))
+        time_since_started = int(round(time.time() - start_time))
+        uptime = str(datetime.timedelta(seconds=time_since_started))
+
         config = get_config()
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
         python_version = '.'.join(str(ver) for ver in sys.version_info[0:3])
-        ram_usage = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, 2)
+
+        process_mem = psutil.Process(os.getpid()).memory_info().rss
+        ram_usage = round(process_mem / 1024 ** 2, 2)
 
         format_values = {
             't': '┌', 'c': '├', 'b': '└', 'br': '\u200B', # Special chars

@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -13,6 +12,7 @@ from statalib import (
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
+    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
@@ -53,9 +53,7 @@ class Weekly(commands.Cog):
 
     @reset_weekly.before_loop
     async def before_reset_weekly(self):
-        now = datetime.now()
-        sleep_seconds = (60 - now.minute) * 60 - now.second
-        await asyncio.sleep(sleep_seconds)
+        await align_to_hour()
 
 
     @reset_weekly.error

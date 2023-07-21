@@ -9,7 +9,7 @@ from discord import Client, Interaction
 from .errors import NoLinkedAccountError
 from .handlers import log_error_msg
 from .calctools import get_player_dict, get_level
-from .linking import get_linked_data, uuid_to_discord_id
+from .linking import get_linked_player, uuid_to_discord_id
 from .network import fetch_hypixel_data, historic_cache
 from .subscriptions import get_subscription
 from .functions import (
@@ -153,9 +153,9 @@ def update_reset_time_configured(discord_id: int, value: int, method: str):
             f'SELECT timezone, reset_hour FROM configured_reset_times WHERE discord_id = {discord_id}')
         current_data = cursor.fetchone()
 
-    linked_data = get_linked_data(discord_id)
-    if linked_data:
-        set_reset_time_default(linked_data[1], *current_data)
+    uuid = get_linked_player(discord_id)
+    if uuid:
+        set_reset_time_default(uuid, *current_data)
 
 
 # Initiates tracking of all historical stats trackers.
@@ -385,9 +385,9 @@ class HistoricalManager:
         if self._uuid:
             return self._uuid
 
-        linked_data = get_linked_data(self._discord_id)
-        if linked_data:
-            return linked_data[1]
+        uuid = get_linked_player(self._discord_id)
+        if uuid:
+            return uuid
 
         raise NoLinkedAccountError(
             "Couldn't find a linked player associated with the passed discord id!")

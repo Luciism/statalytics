@@ -1,23 +1,31 @@
 {
-    "loading_message": "Generating please wait <a:loading1:1062561739989860462>",
+    "loading_message": "Arguing with Hypixel <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
-    "version": "1.7.2",
+    "bot_id": 903765373181112360,
+    "version": "1.8.0",
     "developers": [
         "lukism"
     ],
-    "links": {
-        "website": "https://statalytics.net/",
-        "support_server": "https://discord.gg/rHmHZ9vvwE",
-        "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
-        "github": "https://github.com/oDepleted/statalytics",
-        "voting": {
-            "top.gg": "https://top.gg/bot/903765373181112360/vote",
-            "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
-            "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
-        }
-    },
     "error_logs_channel_id": 1101006847831445585,
     "suggestions_channel_id": 1065918528236040232,
+    "metrics_channels": {
+        "servers": {
+            "id": 1131754129610510356,
+            "name": "\\U0001F4CA {amount} Servers"
+        },
+        "users": {
+            "id": 1131754201442168882,
+            "name": "\\U0001F4CA {amount} Users"
+        },
+        "linked": {
+            "id": 1131754352399351879,
+            "name": "\\U0001F4CA {amount} Linked"
+        },
+        "commands": {
+            "id": 1131754268144181278,
+            "name": "\\U0001F4CA {amount} Commands"
+        }
+    },
     "embed_primary_color": "5865F2",
     "embed_danger_color": "FC2B2B",
     "embed_warning_color": "FFE100",
@@ -39,8 +47,20 @@
             "mono": "Grayscale"
         }
     },
+    "links": {
+        "website": "https://statalytics.net/",
+        "support_server": "https://discord.gg/rHmHZ9vvwE",
+        "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
+        "github": "https://github.com/oDepleted/statalytics",
+        "voting": {
+            "top.gg": "https://top.gg/bot/903765373181112360/vote",
+            "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
+            "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
+        }
+    },
     "enabled_cogs": [
-        "tasks.counts",
+        "tasks.listings",
+        "tasks.metrics",
 
         "commands.linking",
         "commands.skin",

@@ -3,7 +3,7 @@ from traceback import format_exception
 
 import discord
 
-from .functions import get_config, load_embeds
+from .functions import get_config, load_embeds, get_embed_color
 from .views.utils import LinkButton
 
 
@@ -53,13 +53,16 @@ async def handle_cooldown_error(interaction: discord.Interaction, error: Excepti
 async def handle_all_errors(interaction: discord.Interaction,
                             client: discord.Client, error: Exception):
     support_url = get_config()["links"]["support_server"]
+    embed = discord.Embed(
+        title=f'An error occured running /{interaction.data["name"]}',
+        description=f'```{error}```\nIf the problem persists,'
+                    f'please [get in touch]({support_url})',
+        color=get_embed_color(embed_type='danger')
+    )
     try:
-        format_values = {'command': interaction.data["name"],
-                         'error': error, 'support_url': support_url}
-        embeds = load_embeds('errors', format_values, color='danger')
-        await interaction.edit_original_response(embeds=embeds)
+        await interaction.edit_original_response(embed=embed)
     except discord.errors.NotFound:
         pass
 
-    # log traceback to discord channel
+    # print & log traceback to discord channel
     await log_error_msg(client, error)
