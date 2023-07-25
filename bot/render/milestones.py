@@ -4,8 +4,7 @@ from calc.milestones import Stats
 from statalib import to_thread
 from statalib.render import (
     render_level,
-    get_rank_prefix,
-    render_rank,
+    render_display_name,
     get_background,
     paste_skin,
     box_center_text,
@@ -70,7 +69,6 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
     minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     for values in data:
         start_x, start_y = values[0]
@@ -112,11 +110,21 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
 
     stars_until_x += draw.textlength(stars_until_txt, font=minecraft_16)
 
-    render_level(level=int(stars_until_target), position_x=stars_until_x,
-                 position_y=stars_until_y, fontsize=16, image=image)
+    render_level(
+        level=int(stars_until_target),
+        font_size=16,
+        image=image,
+        position=(stars_until_x, stars_until_y)
+    )
 
-    # Render the player name
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=28, center_x=(415, 19))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(225, 28),
+        align='center'
+    )
 
     # Render the progress
     render_progress_bar(box_positions=(415, 18), position_y=89, level=level,

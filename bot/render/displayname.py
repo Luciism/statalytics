@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 
 from statalib import get_rank_info, to_thread
-from statalib.render import get_rank_prefix, render_level_and_name
+from statalib.render import get_rank_prefix, render_display_name
 
 
 @to_thread
@@ -20,8 +20,15 @@ def render_displayname(name, hypixel_data):
     image_width = int(draw.textlength(f'[{level}] {rank_prefix} {name}', font=font)) + 18 + 20
     actual_image = Image.new('RGBA', (image_width, 20), (0, 0, 0, 0))
 
-    render_level_and_name(name, level, rank_info, image=actual_image,
-                          center_x=(image_width-20, 10), pos_y=0, fontsize=20)
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        level=level,
+        image=actual_image,
+        font_size=20,
+        position=(actual_image.width/2, 0),
+        align='center'
+    )
 
     # Return the result
     image_bytes = BytesIO()

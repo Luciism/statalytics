@@ -9,8 +9,7 @@ from statalib.render import (
     paste_skin,
     box_center_text,
     render_level,
-    render_rank,
-    get_rank_prefix
+    render_display_name,
 )
 
 
@@ -44,7 +43,6 @@ def render_year(name, uuid, session, year, mode,
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
     minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
     minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -87,7 +85,14 @@ def render_year(name, uuid, session, year, mode,
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render name
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=28, center_x=(415, 19))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(226, 28),
+        align='center'
+    )
 
     # Projection Date
     year_txt = "Predictions For Year: "
@@ -109,7 +114,12 @@ def render_year(name, uuid, session, year, mode,
     progress_x = ((415 - total_width) / 2) + 19
     progress_y = 84
 
-    render_level(level, progress_x, progress_y, 20, image)
+    render_level(
+        level=level,
+        font_size=20,
+        image=image,
+        position=(progress_x, progress_y)
+    )
 
     progress_x += draw.textlength(f"[{level}]", font=minecraft_20) + 16
 
@@ -118,7 +128,12 @@ def render_year(name, uuid, session, year, mode,
 
     progress_x += draw.textlength("  / ", font=minecraft_20)
 
-    render_level(target, progress_x, progress_y, 20, image)
+    render_level(
+        level=target,
+        font_size=20,
+        image=image,
+        position=(progress_x, progress_y)
+    )
 
     box_center_text(f'Year {year}', draw, box_width=171,
                     box_start=452, text_y=27, font=minecraft_18)

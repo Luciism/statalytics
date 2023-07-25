@@ -3,8 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 from calc.total import Stats
 from statalib import to_thread
 from statalib.render import (
-    render_rank,
-    get_rank_prefix,
+    render_display_name,
     get_background,
     paste_skin,
     render_progress_bar,
@@ -43,7 +42,6 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
 
     draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -86,7 +84,14 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
 
     # Render the player name
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=31, center_x=(415, 19))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(226, 31),
+        align='center'
+    )
 
     # Render the progress
     render_progress_bar(box_positions=(415, 19), position_y=91, level=level,

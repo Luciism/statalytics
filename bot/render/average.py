@@ -3,8 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 from calc.average import Ratios
 from statalib import to_thread
 from statalib.render import (
-    get_rank_prefix,
-    render_rank,
+    render_display_name,
     get_background,
     paste_skin,
     box_center_text,
@@ -99,7 +98,14 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
     # Render name & progress bar
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=26, center_x=(415, 18))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(225, 26),
+        align='center'
+    )
 
     render_progress_bar(box_positions=(415, 18), position_y=88, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

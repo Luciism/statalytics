@@ -3,8 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 from calc.resources import Resources
 from statalib import to_thread
 from statalib.render import (
-    get_rank_prefix,
-    render_rank,
+    render_display_name,
     get_background,
     render_progress_text,
     render_progress_bar
@@ -36,7 +35,6 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
 
     draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     def leng(text, container_width):
         """Returns startpoint for centering text in a box"""
@@ -87,7 +85,14 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
 
 
     # Render name & progess bar
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=27, center_x=(415, 19))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(226, 27),
+        align='center'
+    )
 
     render_progress_bar(box_positions=(415, 19), position_y=88, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

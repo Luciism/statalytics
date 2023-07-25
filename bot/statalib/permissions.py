@@ -89,7 +89,8 @@ def remove_permission(discord_id: int, permission: str):
     permissions = get_permissions(discord_id)
 
     if permission in permissions:
-        permissions.remove(permission)
+        while permission in permissions:
+            permissions.remove(permission)
         set_permissions(discord_id, permissions)
 
 

@@ -1,6 +1,7 @@
 import time
 from os import getenv
 from json import JSONDecodeError
+from http.client import RemoteDisconnected
 
 import requests
 from requests import ReadTimeout, ConnectTimeout
@@ -24,9 +25,13 @@ mojang_session = CachedSession(
 
 
 @to_thread
-def fetch_hypixel_data(uuid: str, cache: bool = True,
-                       cache_obj: CachedSession = stats_session,
-                       retries: int = 3, retry_delay: int = 5) -> dict:
+def fetch_hypixel_data(
+    uuid: str,
+    cache: bool = True,
+    cache_obj: CachedSession = stats_session,
+    retries: int = 3,
+    retry_delay: int = 5
+) -> dict:
     """
     Fetch a user's Hypixel data from Hypixel's API with retries and delay between retries.
     :param uuid: The UUID of the user's data to fetch.
@@ -48,12 +53,14 @@ def fetch_hypixel_data(uuid: str, cache: bool = True,
                 return requests.get(**options).json()
             return cache_obj.get(**options).json()
 
-        except (ReadTimeout, ConnectTimeout, JSONDecodeError) as exc:
+        except (ReadTimeout, ConnectTimeout,
+                JSONDecodeError, RemoteDisconnected) as exc:
             if attempt < retries:
                 print(f"Request failed. Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
             else:
-                raise HypixelInvalidResponseError("Maximum number of retries exceeded.") from exc
+                raise HypixelInvalidResponseError(
+                    "Maximum number of retries exceeded.") from exc
 
 
 
@@ -72,7 +79,9 @@ def fetch_skin_model(uuid: int, size: int) -> bytes:
     :param size: The skin render size in pixels
     """
     try:
-        skin_res = skin_session.get(f'https://visage.surgeplay.com/bust/{size}/{uuid}', timeout=3).content
+        skin_res = skin_session.get(
+            f'https://visage.surgeplay.com/bust/{size}/{uuid}',
+            timeout=3).content
     except (ReadTimeout, ConnectTimeout):
         skin_res = skin_from_file()
     return skin_res

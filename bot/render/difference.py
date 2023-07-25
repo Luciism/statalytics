@@ -3,8 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 from calc.difference import Difference
 from statalib import to_thread
 from statalib.render import (
-    get_rank_prefix,
-    render_rank,
+    render_display_name,
     get_background,
     paste_skin,
     box_center_text,
@@ -42,7 +41,6 @@ def render_difference(name, uuid, relative_date, method,
     draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
     minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -91,7 +89,14 @@ def render_difference(name, uuid, relative_date, method,
             start_x += draw.textlength(text[0], font=minecraft_16)
 
     # Render name & progress bar
-    render_rank(name, rank_info, draw, fontsize=22, pos_y=26, center_x=(415, 18))
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        image=image,
+        font_size=22,
+        position=(225, 26),
+        align='center'
+    )
 
     render_progress_bar(box_positions=(415, 18), position_y=88, level=level,
                         progress_out_of_10=progress_out_of_10, image=image)

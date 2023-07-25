@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from calc.compare import Compare
 from statalib import to_thread
-from statalib.render import render_level_and_name, get_background
+from statalib.render import render_display_name, get_background
 
 
 @to_thread
@@ -87,12 +87,26 @@ def render_compare(name_1, name_2, uuid_1, mode,
         draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
         draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
 
-    # Render Name
-    render_level_and_name(name_1, level_1, rank_info_1, image,
-                          center_x=(401, 17), pos_y=14, fontsize=18)
 
-    render_level_and_name(name_2, level_2, rank_info_2, image,
-                          center_x=(401, 17), pos_y=51, fontsize=18)
+    render_display_name(
+        username=name_1,
+        rank_info=rank_info_1,
+        level=level_1,
+        image=image,
+        font_size=18,
+        position=(225, 14),
+        align='center'
+    )
+
+    render_display_name(
+        username=name_2,
+        rank_info=rank_info_2,
+        level=level_2,
+        image=image,
+        font_size=18,
+        position=(225, 51),
+        align='center'
+    )
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/compare/overlay.png')

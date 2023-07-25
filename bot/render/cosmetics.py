@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from calc.cosmetics import ActiveCosmetics
 from statalib import to_thread
-from statalib.render import render_level_and_name, get_background
+from statalib.render import render_display_name, get_background
 
 
 @to_thread
@@ -48,8 +48,15 @@ def render_cosmetics(name, uuid, hypixel_data):
     image.paste(title_image, (0, 0), title_image)
 
     # Render player name
-    render_level_and_name(name, level, rank_info, image,
-                          center_x=(398, 121), pos_y=51, fontsize=20)
+    render_display_name(
+        username=name,
+        rank_info=rank_info,
+        level=level,
+        image=image,
+        font_size=20,
+        position=(320, 51),
+        align='center'
+    )
 
     # Return the image
     image_bytes = BytesIO()

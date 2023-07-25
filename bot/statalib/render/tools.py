@@ -12,7 +12,7 @@ from ..functions import get_config, REL_PATH
 from ..subscriptions import get_subscription
 
 
-def shadow(rgb: tuple) -> tuple[int, int, int]:
+def mc_text_shadow(rgb: tuple) -> tuple[int, int, int]:
     """
     Returns drop shadow RGB relative to passed RGB value
     :param rgb: The RGB value to get a shadow color for

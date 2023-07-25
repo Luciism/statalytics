@@ -1,3 +1,4 @@
+# FIXME: redo this whole ass file
 from PIL import Image, ImageFont, ImageDraw
 
 from .usernames import render_level
@@ -40,7 +41,12 @@ def render_progress_bar(box_positions: tuple, position_y: int,
     startpoint = int((box_positions[0] - totallength) / 2) + box_positions[1]
 
     # First value (current level)
-    render_level(level, position_x=startpoint, position_y=position_y, fontsize=20, image=image)
+    render_level(
+        level=level,
+        font_size=20,
+        image=image,
+        position=(startpoint, position_y),
+    )
 
     startpoint += draw.textlength(f'[{level}]', font=Values.minecraft_20) + 16
 
@@ -73,7 +79,12 @@ def render_progress_bar(box_positions: tuple, position_y: int,
     startpoint += draw.textlength("] ", font=Values.minecraft_16)
 
     # Second value (next level)
-    render_level(level+1, position_x=startpoint, position_y=position_y, fontsize=20, image=image)
+    render_level(
+        level=level+1,
+        font_size=20, 
+        image=image,
+        position=(startpoint, position_y)
+    )
 
 
 def render_progress_text(box_positions: tuple, position_y: int, progress: int, target: int, draw: ImageDraw):
