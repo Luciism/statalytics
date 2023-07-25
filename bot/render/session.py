@@ -14,7 +14,7 @@ from statalib.render import (
 def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
-    progress_out_of_10 = stats.progress[2]
+    progress_of_10 = stats.progress[2]
     total_sessions = stats.total_sessions
 
     rank_info = stats.rank_info
@@ -34,7 +34,7 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -94,8 +94,13 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
         align='center'
     )
 
-    render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(226, 61),
+        image=image,
+        align='center'
+    )
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

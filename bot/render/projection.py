@@ -33,9 +33,9 @@ def render_projection(name, uuid, session, mode, target,
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_20 = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
+    minecraft_20 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 20)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2

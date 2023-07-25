@@ -55,7 +55,7 @@ def render_mostplayed(name, uuid, hypixel_data):
     black = (0, 0, 0)
     white = (255, 255, 255)
 
-    font = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 20)
     player_y = 33
     player_txt = "'s Most Played Modes"
 

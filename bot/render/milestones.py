@@ -19,7 +19,7 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     level = stats.level
     rank_info = stats.rank_info
     stars_until_value, stars_until_target = stats.get_stars()
-    progress, target, progress_out_of_10 = stats.progress
+    progress, target, progress_of_10 = stats.progress
 
     wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins,\
         target_wins, losses_until_losses, target_losses = stats.get_wins()
@@ -67,8 +67,8 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
 
     for values in data:
         start_x, start_y = values[0]
@@ -126,12 +126,21 @@ def render_milestones(name, uuid, mode, session, hypixel_data, skin_res, save_di
         align='center'
     )
 
-    # Render the progress
-    render_progress_bar(box_positions=(415, 18), position_y=89, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(225, 89),
+        image=image,
+        align='center'
+    )
 
-    render_progress_text(box_positions=(415, 18), position_y=120,
-                         progress=progress, target=target, draw=draw)
+    render_progress_text(
+        progress=progress,
+        target=target,
+        position=(225, 120),
+        image=image,
+        align='center'
+    )
 
     box_center_text('Milestones', draw, box_width=171, box_start=451, text_y=23, font=minecraft_18)
     box_center_text(f'({mode.title()})', draw, box_width=171, box_start=451, text_y=45, font=minecraft_16)

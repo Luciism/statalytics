@@ -23,7 +23,7 @@ def render_compare(name_1, name_2, uuid_1, mode,
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
     def leng(text, container_width):
         """Returns startpoint for centering text in a box"""

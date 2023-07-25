@@ -40,7 +40,7 @@ def render_hotbar(name, uuid, hypixel_data):
     black = (0, 0, 0)
     white = (255, 255, 255)
 
-    font = ImageFont.truetype('./assets/minecraft.ttf', 36)
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 36)
     player_y = 53
     player_txt = "'s Hotbar"
 

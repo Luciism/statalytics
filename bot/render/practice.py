@@ -17,7 +17,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     practice = Practice(name, hypixel_data)
     level = practice.level
     rank_info = practice.rank_info
-    progress_out_of_10 = practice.progress[2]
+    progress_of_10 = practice.progress[2]
 
     bridging_completed, bridging_failed, bridging_ratio = practice.get_bridging_stats()
     pearl_completed, pearl_failed, pearl_ratio = practice.get_pearl_stats()
@@ -35,7 +35,7 @@ def render_practice(name, uuid, hypixel_data, skin_res):
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
 
     def leng(text, width):
@@ -89,8 +89,13 @@ def render_practice(name, uuid, hypixel_data, skin_res):
         align='center'
     )
 
-    render_progress_bar(box_positions=(415, 19), position_y=61, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(226, 61),
+        image=image,
+        align='center'
+    )
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

@@ -15,7 +15,7 @@ def render_displayname(name, hypixel_data):
     # Open the base image
     sample_image = Image.new('RGBA', (0, 0), (0, 0, 0, 0))
     draw = ImageDraw.Draw(sample_image)
-    font = ImageFont.truetype('./assets/minecraft.ttf', 20)
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 20)
 
     image_width = int(draw.textlength(f'[{level}] {rank_prefix} {name}', font=font)) + 18 + 20
     actual_image = Image.new('RGBA', (image_width, 20), (0, 0, 0, 0))

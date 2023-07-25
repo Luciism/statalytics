@@ -41,7 +41,7 @@ def render_shop(name, uuid, hypixel_data):
         composite_image.paste(top_image, slots[i], top_image)
 
     draw = ImageDraw.Draw(base_image)
-    font = ImageFont.truetype('./assets/minecraft.ttf', 32)
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 32)
 
     # If the name box is transparent, color the name, otherwise default gray
     title_txt = f"{name}'s Quick Buy"

@@ -33,7 +33,7 @@ def render_cosmetics(name, uuid, hypixel_data):
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
     white = (255, 255, 255)
     black = (0, 0, 0)

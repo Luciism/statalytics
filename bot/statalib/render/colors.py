@@ -83,7 +83,6 @@ class PrestigeColorMaps:
     """
     c = Colors.str_to_color_code
 
-    # Updated prestige_map
     prestige_map = {
         10000: c['red'],
         900: c['dark_purple'],
@@ -98,7 +97,6 @@ class PrestigeColorMaps:
         0: c['gray'],
     }
 
-    # Updated prestige_map_2
     prestige_map_2 = {
         5000: (c['dark_red'], c['dark_red'], c['dark_purple'], c['blue'], c['blue'], c['dark_blue'], c['black']),
         4900: (c['dark_green'], c['green'], c['white'], c['white'], c['green'], c['green'], c['dark_green']),
@@ -180,10 +178,10 @@ def get_star_symbol(level: int) -> str:
     return bedwars_star_symbol_map.get(0)
 
 
-def get_formatted_level_string(level: int) -> str:
+def get_formatted_level(level: int) -> str:
     """
-    Adds respective color codes to a bedwars level
-    :param level: the level to color for example `[4841✥]`
+    Adds respective color codes and symbols to a bedwars level
+    :param level: the level to format
     """
     prestige_colors = get_prestige_colors(level)
 

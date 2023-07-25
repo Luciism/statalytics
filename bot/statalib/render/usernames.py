@@ -3,7 +3,7 @@ from typing import Literal
 from PIL import Image, ImageFont
 
 from .text import render_mc_text
-from .colors import Colors, get_formatted_level_string
+from .colors import Colors, get_formatted_level
 from ..functions import REL_PATH
 
 
@@ -18,7 +18,12 @@ def get_rank_prefix(rank_info: dict):
     monthly_package_rank = rank_info['monthlyPackageRank']
 
     plus_color: str = rank_info['rankPlusColor']
-    plus_color_code = Colors.str_to_color_code.get(plus_color.lower(), 'red')
+
+    if plus_color is not None:
+        plus_color_code = Colors.str_to_color_code.get(plus_color.lower())
+    else:
+        plus_color_code = Colors.str_to_color_code.get('red')
+
 
     package_ranks = (old_package_rank, new_package_rank)
 
@@ -63,18 +68,22 @@ def render_level(
     :param position: X & Y positions to render the text at
     :param shadow_offset: X & Y positions to offset the drop shadow
     :param align: the alignment of the text relative to the x position
+    :return: the final x position once the level has been rendered
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', font_size)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', font_size)
 
-    formatted_lvl_str = get_formatted_level_string(level)
-    image = render_mc_text(
+    formatted_lvl_str = get_formatted_level(level)
+    image, x_after = render_mc_text(
         text=formatted_lvl_str,
         position=position,
         font=font,
         image=image,
         shadow_offset=shadow_offset,
         align=align,
+        return_x=True
     )
+
+    return x_after
 
 
 def render_display_name(
@@ -98,12 +107,12 @@ def render_display_name(
     :param shadow_offset: X & Y positions to offset the drop shadow
     :param align: the alignment of the text relative to the x position
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/minecraft.ttf', font_size)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', font_size)
 
     rank_prefix = get_rank_prefix(rank_info)
 
     if level is not None:
-        formatted_lvl_str = get_formatted_level_string(level)
+        formatted_lvl_str = get_formatted_level(level)
         full_string = f'{formatted_lvl_str} {rank_prefix} {username}'
     else:
         full_string = f'{rank_prefix}{username}'

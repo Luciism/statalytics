@@ -23,7 +23,7 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
     level = stats.level
     rank_info = stats.rank_info
 
-    progress, target, progress_out_of_10 = stats.progress
+    progress, target, progress_of_10 = stats.progress
     timezone, reset_hour = stats.get_time_info()
     most_played = stats.get_most_played()
     games_played = f'{stats.games_played:,}'
@@ -41,8 +41,8 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_17 = ImageFont.truetype('./assets/minecraft.ttf', 17)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
+    minecraft_17 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 17)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -94,12 +94,21 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
         align='center'
     )
 
-    # Render the progress
-    render_progress_bar(box_positions=(415, 19), position_y=91, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(226, 91),
+        image=image,
+        align='center'
+    )
 
-    render_progress_text(box_positions=(415, 19), position_y=122,
-                         progress=progress, target=target, draw=draw)
+    render_progress_text(
+        progress=progress,
+        target=target,
+        position=(226, 122),
+        image=image,
+        align='center'
+    )
 
     box_center_text(title, draw, box_width=171, box_start=452, text_y=27, font=minecraft_17)
 

@@ -21,7 +21,7 @@ def symbol_width(
     :param font: optionally use custom font object
     """
     if font is None:
-        font = ImageFont.truetype(f'{REL_PATH}/assets/unifont.ttf', font_size)
+        font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/unifont.ttf', font_size)
 
     return dummy_draw.textlength(symbol, font=font)
 
@@ -47,7 +47,7 @@ def render_symbol(
     :param shadow_offset: the text shadow offset
     :param return_x: whether or not to return the new x position
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/unifont.ttf', font_size)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/unifont.ttf', font_size)
     draw = ImageDraw.Draw(image)
 
     x, y = position

@@ -17,7 +17,7 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     level = stats.level
     rank_info = stats.rank_info
 
-    progress, target, progress_out_of_10 = stats.progress
+    progress, target, progress_of_10 = stats.progress
     loot_chests, coins = stats.get_chest_and_coins()
     most_played = stats.most_played
 
@@ -41,7 +41,7 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -93,12 +93,21 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         align='center'
     )
 
-    # Render the progress
-    render_progress_bar(box_positions=(415, 19), position_y=91, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(226, 91),
+        image=image,
+        align='center'
+    )
 
-    render_progress_text(box_positions=(415, 19), position_y=122,
-                         progress=progress, target=target, draw=draw)
+    render_progress_text(
+        progress=progress,
+        target=target,
+        position=(226, 122),
+        image=image,
+        align='center'
+    )
 
     image = paste_skin(skin_res, image, positions=(466, 69))
 

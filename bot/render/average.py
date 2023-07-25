@@ -17,7 +17,7 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     ratios = Ratios(name, mode, hypixel_data)
     level = ratios.level
     rank_info = ratios.rank_info
-    progress, target, progress_out_of_10 = ratios.progress
+    progress, target, progress_of_10 = ratios.progress
 
     (
         wins_per_star,
@@ -57,9 +57,9 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
     image = image.convert("RGBA")
 
     draw = ImageDraw.Draw(image)
-    minecraft_16 = ImageFont.truetype('./assets/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/minecraft.ttf', 18)
-    minecraft_22 = ImageFont.truetype('./assets/minecraft.ttf', 22)
+    minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
+    minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
+    minecraft_22 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 22)
 
     def leng(text, width):
         return (width - draw.textlength(text, font=minecraft_16)) / 2
@@ -107,11 +107,21 @@ def render_average(name, uuid, mode, hypixel_data, skin_res, save_dir):
         align='center'
     )
 
-    render_progress_bar(box_positions=(415, 18), position_y=88, level=level,
-                        progress_out_of_10=progress_out_of_10, image=image)
+    render_progress_bar(
+        level=level,
+        progress_of_10=progress_of_10,
+        position=(225, 88),
+        image=image,
+        align='center'
+    )
 
-    render_progress_text(box_positions=(415, 18), position_y=119,
-                         progress=progress, target=target, draw=draw)
+    render_progress_text(
+        progress=progress,
+        target=target,
+        position=(225, 119),
+        image=image,
+        align='center'
+    )
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/average/overlay.png')
