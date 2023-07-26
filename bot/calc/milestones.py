@@ -91,4 +91,4 @@ class Stats:
     def get_stars(self):
         level_target = (self.level // 100 + 1) * 100
         needed_levels = level_target - self.level
-        return str(needed_levels), str(level_target)
+        return needed_levels, level_target

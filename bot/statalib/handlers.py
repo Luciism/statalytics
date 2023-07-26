@@ -55,7 +55,7 @@ async def handle_all_errors(interaction: discord.Interaction,
     support_url = get_config()["links"]["support_server"]
     embed = discord.Embed(
         title=f'An error occured running /{interaction.data["name"]}',
-        description=f'```{error}```\nIf the problem persists,'
+        description=f'```{error}```\nIf the problem persists, '
                     f'please [get in touch]({support_url})',
         color=get_embed_color(embed_type='danger')
     )

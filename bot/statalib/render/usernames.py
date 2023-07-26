@@ -2,7 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont
 
-from .text import render_mc_text
+from .text import render_mc_text, get_actual_text, get_text_len
 from .colors import Colors, get_formatted_level
 from ..functions import REL_PATH
 
@@ -32,7 +32,7 @@ def get_rank_prefix(rank_info: dict):
 
     if rank in ('YOUTUBER', 'ADMIN'):
         if rank == 'YOUTUBER':
-            return '&c[YOUTUBE] '
+            return '&c[&fYOUTUBE&c] '
         return '&c[ADMIN] '
 
     if 'VIP' in package_ranks:
@@ -95,7 +95,7 @@ def render_display_name(
     level: int=None,
     shadow_offset: tuple[int, int]=(2, 2),
     align: Literal['left', 'center', 'right']='left',
-):
+) -> Image.Image:
     """
     Render prefixed rank for a specified player
     :param username: the username of the respective player
@@ -116,6 +116,15 @@ def render_display_name(
         full_string = f'{formatted_lvl_str} {rank_prefix} {username}'
     else:
         full_string = f'{rank_prefix}{username}'
+    
+    if image is None:
+        text_len = get_text_len(get_actual_text(full_string), font)
+        # additional 20 pixels for padding
+        image = Image.new('RGBA', (int(text_len) + 20, font_size), (0, 0, 0, 0))
+
+        x, y = position
+        x = image.width / 2
+        position = (x, y)
 
     render_mc_text(
         text=full_string,
@@ -125,3 +134,5 @@ def render_display_name(
         shadow_offset=shadow_offset,
         align=align
     )
+
+    return image

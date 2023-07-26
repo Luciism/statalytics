@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.total import Stats
 from statalib import to_thread
@@ -7,12 +7,21 @@ from statalib.render import (
     get_background,
     paste_skin,
     render_progress_bar,
-    render_progress_text
+    render_progress_text,
+    render_mc_text
 )
 
 
 @to_thread
-def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
+def render_total(
+    name: str,
+    uuid: str,
+    mode: str,
+    hypixel_data: dict,
+    skin_res: bytes,
+    save_dir: str,
+    method: str
+):
     stats = Stats(name, mode, hypixel_data)
     level = stats.level
     rank_info = stats.rank_info
@@ -26,64 +35,56 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         final_kills, final_deaths, fkdr = stats.get_finals()
         beds_broken, beds_lost, bblr = stats.get_beds()
         kills, deaths, kdr = stats.get_kills()
-        games_played, times_voided, items_purchased, winstreak = stats.get_misc()
+        games_played, times_voided, items_purchased,\
+            winstreak = stats.get_misc()
     else:
         wins, losses, wlr = stats.get_falling_kills()
         final_kills, final_deaths, fkdr = stats.get_void_kills()
         beds_broken, beds_lost, bblr = stats.get_ranged_kills()
         kills, deaths, kdr = stats.get_fire_kills()
-        games_played, times_voided, items_purchased, winstreak = stats.get_misc_pointless()
+        games_played, times_voided, items_purchased,\
+            winstreak = stats.get_misc_pointless()
 
+    image = get_background(
+        path='./assets/bg/total', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
 
-    image = get_background(path='./assets/bg/total', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
-
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
-    def leng(text, width):
-        return (width - draw.textlength(text, font=minecraft_16)) / 2
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
-    data = (
-        ((leng(wins, 140) + 17, 190), (wins, green)),
-        ((leng(losses, 140) + 171, 190), (losses, red)),
-        ((leng(wlr, 107) + 325, 190), (wlr, gold)),
-        ((leng(final_kills, 140) + 17, 249), (final_kills, green)),
-        ((leng(final_deaths, 140) + 171, 249), (final_deaths, red)),
-        ((leng(fkdr, 107) + 325, 249), (fkdr, gold)),
-        ((leng(beds_broken, 140) + 17, 308), (beds_broken, green)),
-        ((leng(beds_lost, 140) + 171, 308), (beds_lost, red)),
-        ((leng(bblr, 107) + 325, 308), (bblr, gold)),
-        ((leng(kills, 140) + 17, 367), (kills, green)),
-        ((leng(deaths, 140) + 171, 367), (deaths, red)),
-        ((leng(kdr, 107) + 325, 367), (kdr, gold)),
-        ((leng(winstreak, 130) + 17, 427), (winstreak, light_purple)),
-        ((leng(loot_chests, 127) + 163, 427), (loot_chests, light_purple)),
-        ((leng(coins, 128) + 306, 427), (coins, light_purple)),
-        ((leng(games_played, 171) + 452, 249), (games_played, light_purple)),
-        ((leng(most_played, 171) + 452, 308), (most_played, light_purple)),
-        ((leng(times_voided, 171) + 452, 367), (times_voided, light_purple)),
-        ((leng(items_purchased, 171) + 452, 427), (items_purchased, light_purple)),
-        ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
-    )
+    # Render the stat values
+    data = [
+        {'position': (87, 190), 'text': f'&a{wins}'},
+        {'position': (241, 190), 'text': f'&c{losses}'},
+        {'position': (378, 190), 'text': f'&6{wlr}'},
+        {'position': (87, 249), 'text': f'&a{final_kills}'},
+        {'position': (241, 249), 'text': f'&c{final_deaths}'},
+        {'position': (378, 249), 'text': f'&6{fkdr}'},
+        {'position': (87, 308), 'text': f'&a{beds_broken}'},
+        {'position': (241, 308), 'text': f'&c{beds_lost}'},
+        {'position': (378, 308), 'text': f'&6{bblr}'},
+        {'position': (87, 367), 'text': f'&a{kills}'},
+        {'position': (241, 367), 'text': f'&c{deaths}'},
+        {'position': (378, 367), 'text': f'&6{kdr}'},
+        {'position': (82, 427), 'text': f'&d{winstreak}'},
+        {'position': (226, 427), 'text': f'&d{loot_chests}'},
+        {'position': (370, 427), 'text': f'&d{coins}'},
+        {'position': (537, 250), 'text': f'&d{games_played}'},
+        {'position': (537, 309), 'text': f'&d{most_played}'},
+        {'position': (537, 368), 'text': f'&d{times_voided}'},
+        {'position': (537, 427), 'text': f'&d{items_purchased}'},
+        {'position': (537, 46), 'text': f'({mode.title()})'}
+    ]
 
     for values in data:
-        start_x, start_y = values[0]
-        stat = values[1][0]
+        render_mc_text(
+            image=image,
+            shadow_offset=(2, 2),
+            font=minecraft_16,
+            align='center',
+            **values
+        )
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
-
-    # Render the player name
     render_display_name(
         username=name,
         rank_info=rank_info,
@@ -109,9 +110,9 @@ def render_total(name, uuid, mode, hypixel_data, skin_res, save_dir, method):
         align='center'
     )
 
-    image = paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_res, image, positions=(466, 69))
 
-    # Paste overlay
+    # Paste overlay image
     overlay_image = Image.open(f'./assets/bg/total/overlay_{method}.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)

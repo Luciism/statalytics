@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.resources import Resources
 from statalib import to_thread
@@ -6,85 +6,91 @@ from statalib.render import (
     render_display_name,
     get_background,
     render_progress_text,
-    render_progress_bar
+    render_progress_bar,
+    render_mc_text
 )
 
 
 @to_thread
-def render_resources(name, uuid, mode, hypixel_data, save_dir):
+def render_resources(
+    name: str,
+    uuid: str,
+    mode: str,
+    hypixel_data: dict,
+    save_dir: str
+):
     resources = Resources(name, mode, hypixel_data)
-    level = resources.level
-    rank_info = resources.rank_info
-    progress, target, progress_of_10 = resources.progress
-    total_collected = f'{resources.total_resources:,}'
 
+    level = resources.level
+    progress, target, progress_of_10 = resources.progress
+
+    rank_info = resources.rank_info
+
+    total_collected = f'{resources.total_resources:,}'
     iron_collected = f'{resources.iron_collected:,}'
     gold_collected = f'{resources.gold_collected:,}'
-    diamonds_collected = f'{resources.diamonds_collected:,}'
-    emeralds_collected = f'{resources.emeralds_collected:,}'
+    dias_collected = f'{resources.diamonds_collected:,}'
+    ems_collected = f'{resources.emeralds_collected:,}'
 
-    iron_per_game, gold_per_game, diamonds_per_game, emeralds_per_game = resources.get_per_game()
-    iron_per_star, gold_per_star, diamonds_per_star, emeralds_per_star = resources.get_per_star()
-    iron_percentage, gold_percentage, diamond_percentage, emerald_percentage = resources.get_percentages()
-    iron_most_mode, gold_most_mode, diamond_most_mode, emerald_most_mode = resources.get_most_modes()
+    iron_per_game, gold_per_game, dias_per_game,\
+        ems_per_game = resources.get_per_game()
 
-    image = get_background(path='./assets/bg/resources', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
+    iron_per_star, gold_per_star, dias_per_star,\
+        ems_per_star = resources.get_per_star()
 
-    image = image.convert("RGBA")
+    iron_percent, gold_percent, dia_percent,\
+        em_percent = resources.get_percentages()
 
-    draw = ImageDraw.Draw(image)
+    iron_most_mode, gold_most_mode, dia_most_mode,\
+        em_most_mode = resources.get_most_modes()
+
+    image = get_background(
+        path='./assets/bg/resources', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
+
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
-    def leng(text, container_width):
-        """Returns startpoint for centering text in a box"""
-        return (container_width - draw.textlength(text, font=minecraft_16)) / 2
+    # Render the stat values
+    data = [
+        {'position': (89, 189), 'text': f'&f{iron_collected}'},
+        {'position': (244, 189), 'text': f'&6{gold_collected}'},
+        {'position': (399, 189), 'text': f'&b{dias_collected}'},
+        {'position': (553, 189), 'text': f'&a{ems_collected}'},
 
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    aqua = (85, 255, 255)
-    light_purple = (255, 85, 255)
+        {'position': (89, 249), 'text': f'&f{iron_per_game}'},
+        {'position': (244, 249), 'text': f'&6{gold_per_game}'},
+        {'position': (399, 249), 'text': f'&b{dias_per_game}'},
+        {'position': (553, 249), 'text': f'&a{ems_per_game}'},
 
-    data = (
-        ((leng(iron_collected, 141)+19, 189), iron_collected, white),
-        ((leng(gold_collected, 141)+174, 189), gold_collected, gold),
-        ((leng(diamonds_collected, 141)+329, 189), diamonds_collected, aqua),
-        ((leng(emeralds_collected, 141)+483, 189), emeralds_collected, green),
+        {'position': (89, 309), 'text': f'&f{iron_per_star}'},
+        {'position': (244, 309), 'text': f'&6{gold_per_star}'},
+        {'position': (399, 309), 'text': f'&b{dias_per_star}'},
+        {'position': (553, 309), 'text': f'&a{ems_per_star}'},
 
-        ((leng(iron_per_game, 141)+19, 249), iron_per_game, white),
-        ((leng(gold_per_game, 141)+174, 249), gold_per_game, gold),
-        ((leng(diamonds_per_game, 141)+329, 249), diamonds_per_game, aqua),
-        ((leng(emeralds_per_game, 141)+483, 249), emeralds_per_game, green),
+        {'position': (89, 369), 'text': f'&f{iron_percent}'},
+        {'position': (244, 369), 'text': f'&6{gold_percent}'},
+        {'position': (399, 369), 'text': f'&b{dia_percent}'},
+        {'position': (553, 369), 'text': f'&a{em_percent}'},
 
-        ((leng(iron_per_star, 141)+19, 309), iron_per_star, white),
-        ((leng(gold_per_star, 141)+174, 309), gold_per_star, gold),
-        ((leng(diamonds_per_star, 141)+329, 309), diamonds_per_star, aqua),
-        ((leng(emeralds_per_star, 141)+483, 309), emeralds_per_star, green),
+        {'position': (89, 429), 'text': f'&f{iron_most_mode}'},
+        {'position': (244, 429), 'text': f'&6{gold_most_mode}'},
+        {'position': (399, 429), 'text': f'&b{dia_most_mode}'},
+        {'position': (553, 429), 'text': f'&a{em_most_mode}'},
 
-        ((leng(iron_percentage, 141)+19, 369), iron_percentage, white),
-        ((leng(gold_percentage, 141)+174, 369), gold_percentage, gold),
-        ((leng(diamond_percentage, 141)+329, 369), diamond_percentage, aqua),
-        ((leng(emerald_percentage, 141)+483, 369), emerald_percentage, green),
-
-        ((leng(iron_most_mode, 141)+19, 429), iron_most_mode, white),
-        ((leng(gold_most_mode, 141)+174, 429), gold_most_mode, gold),
-        ((leng(diamond_most_mode, 141)+329, 429), diamond_most_mode, aqua),
-        ((leng(emerald_most_mode, 141)+483, 429), emerald_most_mode, green),
-
-        ((leng(total_collected, 174)+450, 129), total_collected, light_purple),
-    )
+        {'position': (537, 129), 'text': f'&d{total_collected}'},
+        {'position': (537, 65), 'text': f'({mode})'}
+    ]
 
     for values in data:
-        start_x, start_y = values[0]
-        stat = values[1]
+        render_mc_text(
+            image=image,
+            shadow_offset=(2, 2),
+            font=minecraft_16,
+            align='center',
+            **values
+        )
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
-        draw.text((start_x, start_y), stat, fill=values[2], font=minecraft_16)
-
-
-    # Render name & progess bar
     render_display_name(
         username=name,
         rank_info=rank_info,
@@ -110,11 +116,7 @@ def render_resources(name, uuid, mode, hypixel_data, save_dir):
         align='center'
     )
 
-    # Render Mode
-    draw.text((leng(f'({mode})', 174)+451, 66), f'({mode})', fill=black, font=minecraft_16)
-    draw.text((leng(f'({mode})', 174)+450, 65), f'({mode})', fill=white, font=minecraft_16)
-
-    # Paste overlay
+    # Paste overlay image
     overlay_image = Image.open('./assets/bg/resources/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)

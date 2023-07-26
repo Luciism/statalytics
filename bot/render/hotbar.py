@@ -1,13 +1,20 @@
-from io import BytesIO
-
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont
 
 from statalib import get_rank_info, to_thread
-from statalib.render import get_background, get_rank_color
+from statalib.render import (
+    get_background,
+    get_rank_color,
+    render_mc_text,
+    image_to_bytes
+)
 
 
 @to_thread
-def render_hotbar(name, uuid, hypixel_data):
+def render_hotbar(
+    name: str,
+    uuid: str,
+    hypixel_data: dict
+) -> bytes:
     slots = [(40, 424), (130, 424), (220, 424), (310, 424),
              (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
 
@@ -18,50 +25,40 @@ def render_hotbar(name, uuid, hypixel_data):
         hotbar = ['null'] * 9
 
     rank_info = get_rank_info(hypixel_data)
-    rankcolor = get_rank_color(rank_info)
+    rank_color_code = get_rank_color(rank_info)
 
-    base_image = get_background(path='./assets/bg/hotbar', uuid=uuid,
-                                default='base', level=0, rank_info=rank_info)
-
-    base_image = base_image.convert("RGBA")
+    base_image = get_background(
+        path='./assets/bg/hotbar', uuid=uuid,
+        default='base', level=0, rank_info=rank_info
+    ).convert("RGBA")
 
     composite_image = Image.new("RGBA", base_image.size)
 
     for i, item in enumerate(hotbar):
         top_image = Image.open(f"./assets/bg/hotbar/{item.lower()}.png")
         top_image = top_image.convert("RGBA")
+
         composite_image.paste(top_image, slots[i], top_image)
 
+    # Paste overlay image
     overlay_image = Image.open('./assets/bg/hotbar/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     composite_image.paste(overlay_image, (0, 0), overlay_image)
 
-    # Render name
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-
-    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 36)
-    player_y = 53
-    player_txt = "'s Hotbar"
-
-    draw = ImageDraw.Draw(base_image)
-
-    totallength = draw.textlength(name, font=font) + draw.textlength(player_txt, font=font)
-    startpoint = (base_image.width - totallength) / 2
-
-    draw.text((startpoint + 4, player_y + 4), name, fill=black, font=font)
-    draw.text((startpoint, player_y), name, fill=rankcolor, font=font)
-
-    startpoint += draw.textlength(name, font=font)
-
-    draw.text((startpoint + 4, player_y + 4), player_txt, fill=black, font=font)
-    draw.text((startpoint, player_y), player_txt, fill=white, font=font)
-
+    # Merge images
     base_image = Image.alpha_composite(base_image, composite_image)
 
-    # Return the result
-    image_bytes = BytesIO()
-    base_image.save(image_bytes, format='PNG')
-    image_bytes.seek(0)
+    # Render name
+    font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 36)
+    text = f"{rank_color_code}{name}&f's Hotbar"
 
-    return image_bytes
+    render_mc_text(
+        text=text,
+        position=(440, 53),
+        font=font,
+        image=base_image,
+        shadow_offset=(4, 4),
+        align='center'
+    )
+
+    return image_to_bytes(base_image)

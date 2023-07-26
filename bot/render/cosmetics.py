@@ -1,14 +1,21 @@
-from io import BytesIO
-
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.cosmetics import ActiveCosmetics
 from statalib import to_thread
-from statalib.render import render_display_name, get_background
+from statalib.render import (
+    render_display_name,
+    get_background,
+    render_mc_text,
+    image_to_bytes
+)
 
 
 @to_thread
-def render_cosmetics(name, uuid, hypixel_data):
+def render_cosmetics(
+    name: str,
+    uuid: str,
+    hypixel_data: dict
+):
     cosmetics = ActiveCosmetics(name, hypixel_data)
     level = cosmetics.level
     rank_info = cosmetics.rank_info
@@ -27,27 +34,24 @@ def render_cosmetics(name, uuid, hypixel_data):
         'kill_message': (299, 430)
     }
 
-    image = get_background(path='./assets/bg/cosmetics', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
+    image = get_background(
+        path='./assets/bg/cosmetics', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
 
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-
     for cosmetic, (x, y) in cosmetic_data.items():
-        cosmetic_text = getattr(cosmetics, cosmetic)
-        draw.text((x + 2, y + 2), cosmetic_text, fill=black, font=font)
-        draw.text((x, y), cosmetic_text, fill=white, font=font)
+        text = getattr(cosmetics, cosmetic)
 
-    # Render the titles
-    title_image = Image.open('./assets/bg/cosmetics/overlay.png')
-    image.paste(title_image, (0, 0), title_image)
+        render_mc_text(
+            text=text,
+            position=(x, y),
+            font=font,
+            image=image,
+            shadow_offset=(2, 2)
+        )
 
-    # Render player name
     render_display_name(
         username=name,
         rank_info=rank_info,
@@ -58,9 +62,8 @@ def render_cosmetics(name, uuid, hypixel_data):
         align='center'
     )
 
-    # Return the image
-    image_bytes = BytesIO()
-    image.save(image_bytes, format='PNG')
-    image_bytes.seek(0)
+    # Render the overlay image
+    overlay_image = Image.open('./assets/bg/cosmetics/overlay.png')
+    image.paste(overlay_image, (0, 0), overlay_image)
 
-    return image_bytes
+    return image_to_bytes(image)

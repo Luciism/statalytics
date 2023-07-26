@@ -10,16 +10,23 @@ from .handlers import *
 from .subscriptions import *
 from .network import *
 from .permissions import *
-from .render.prestiges import *
+
 from .render.progress import *
 from .render.tools import *
 from .render.usernames import *
+from .render.colors import *
+from .render.splitting import *
+from .render.symbols import *
+from .render.text import *
+
 from .views.modes import *
 from .views.info import *
 from .views.utils import *
+
 from .discord_utils.send_renders import *
 from .discord_utils.responses import *
 from .discord_utils.cooldowns import *
+
 from .mcfetch.mcfetch import *
 from .mcfetch.mctools import *
 

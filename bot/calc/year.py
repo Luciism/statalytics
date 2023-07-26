@@ -59,6 +59,13 @@ class YearStats:
 
         self.rank_info = get_rank_info(self.hypixel_data)
 
+        years_to_go = year - datetime.now().year
+        
+        complete_percentage = round(
+            ((365 * years_to_go) - int(self.days_to_go)) / (365 * years_to_go) * 100, 2)
+
+        self.complete_percentage = f'{complete_percentage}%'
+
 
     def _get_increase_factor(self, value):
         increase_factor = 0

@@ -158,6 +158,21 @@ def get_prestige_colors(level: int) -> tuple:
     return c.prestige_map.get(prestige, c.prestige_map.get(10000))
 
 
+def get_prestige_primary_color(level: int) -> tuple[int, int, int]:
+    """
+    Returns primary rgb that represents a prestige
+    this is usually the first color in a prestige
+    :param level: the level to get the primary color for
+    """
+    pres_color_code = get_prestige_colors(level)
+
+    if 1000 <= level < 10000:
+        pres_color_code = pres_color_code[0]
+
+    pres_color_rgb = Colors.color_codes.get(pres_color_code)
+    return pres_color_rgb
+
+
 bedwars_star_symbol_map = {
     3100: '✥',
     2100: '⚝',
@@ -196,3 +211,34 @@ def get_formatted_level(level: int) -> str:
         return new_level_string
     
     return f'{prestige_colors}{level_string}'
+
+
+def get_rank_color(rank_info: dict) -> tuple:
+    """
+    Returns a rank color based off of the rank information given
+    :param rank_info: the rank information
+    """
+    rank = rank_info['rank']
+    package_rank = rank_info['packageRank']
+    new_package_rank = rank_info['newPackageRank']
+    monthly_package_rank = rank_info['monthlyPackageRank']
+
+    if rank == "TECHNO":
+        return '&d'
+    
+    if rank in ("YOUTUBER", "ADMIN"):
+        return '&c'
+
+    if rank == "NONE":
+        if (package_rank, new_package_rank) == ("NONE", "NONE"):
+            return '&7'
+
+        if {"VIP", "VIP_PLUS"} & {package_rank, new_package_rank}:
+            return '&a'
+
+        if {"MVP", "MVP_PLUS"} & {package_rank, new_package_rank}:
+            if monthly_package_rank == "SUPERSTAR":  # MVP++
+                return '&6'
+            return '&b'
+
+    return '&2'

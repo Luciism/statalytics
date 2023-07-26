@@ -49,18 +49,11 @@ def split_at_symbols(text: str) -> list[dict]:
     ```
     """
     result = []
-    pattern = r'(?<=[^\x00-\x7F])|(?=[^\x00-\x7F])'
-    segments = re.split(pattern, text)
-    buffer = ''
+    pattern = r'[^\x00-\x7F]+|[\x00-\x7F]+'
+    segments = re.findall(pattern, text)
     for segment in segments:
-        if segment:
-            if re.match(r'[^\x00-\x7F]', segment):
-                if buffer:
-                    result.append({'value': buffer, 'type': 'text'})
-                    buffer = ''
-                result.append({'value': segment, 'type': 'symbol'})
-            else:
-                buffer += segment
-    if buffer:
-        result.append({'value': buffer, 'type': 'text'})
+        if re.match(r'[^\x00-\x7F]', segment):
+            result.append({'value': segment, 'type': 'symbol'})
+        else:
+            result.append({'value': segment, 'type': 'text'})
     return result

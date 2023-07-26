@@ -4,12 +4,12 @@ from io import BytesIO
 from datetime import datetime
 
 import numpy as np
-from PIL import Image, UnidentifiedImageError, ImageDraw
+from PIL import Image, UnidentifiedImageError
 
-from .prestiges import PrestigeColorMaps
 from ..linking import uuid_to_discord_id
 from ..functions import get_config, REL_PATH
 from ..subscriptions import get_subscription
+from .colors import Colors, get_prestige_primary_color, get_rank_color
 
 
 def mc_text_shadow(rgb: tuple) -> tuple[int, int, int]:
@@ -20,30 +20,28 @@ def mc_text_shadow(rgb: tuple) -> tuple[int, int, int]:
     return tuple([int(c * 0.25) for c in rgb])
 
 
-def box_center_text(text: str, draw: ImageDraw, box_width: int, box_start: int,
-                         text_y: int, font: int, color: tuple=(255, 255, 255)) -> None:
+def image_to_bytes(image: Image.Image) -> bytes:
     """
-    Renders given text centered inside of a box
-    :param text: The text to render
-    :param draw: The ImageDraw object to draw with
-    :param box_width: The width of the box to paste in
-    :param box_start: The X position of the box's start
-    :param text_y: The Y position to render the text at
-    :param font: The ImageFont object to render the text in
-    :param color: The color to render the text in (defaults to white)
+    Converts a PIL Image object to bytes
+    :param image: the image object to convert to bytes
     """
-    totallength = draw.textlength(text, font=font)
-    text_x = round((box_width - totallength) / 2) + box_start
-    draw.text((text_x + 2, text_y + 2), text, fill=(0, 0, 0), font=font)
-    draw.text((text_x, text_y), text, fill=color, font=font)
+    image_bytes = BytesIO()
+    image.save(image_bytes, format='PNG')
+    image_bytes.seek(0)
+
+    return image_bytes
 
 
-def paste_skin(skin_res, image: Image, positions: tuple) -> Image.Image:
+def paste_skin(
+    skin_res: bytes,
+    image: Image.Image,
+    positions: tuple[int, int]
+) -> Image.Image:
     """
     Pastes a skin onto image
     :param skin_res: the image bytes object for the skin
     :param image: the image object to paste onto
-    :param positions: the x & y coordinates to paste at
+    :param positions: the X & Y coordinates to paste at
     """
     try:
         skin = Image.open(BytesIO(skin_res))
@@ -52,43 +50,16 @@ def paste_skin(skin_res, image: Image, positions: tuple) -> Image.Image:
 
     composite_image = Image.new("RGBA", image.size)
     composite_image.paste(skin, positions)
-    image = Image.alpha_composite(image, composite_image)
+    image.alpha_composite(composite_image)
+
     return image
 
 
-def get_rank_color(rank_info: dict) -> tuple:
-    """
-    Returns a rank color based off of the rank information given
-    :param rank_info: the rank information
-    """
-
-    rank = rank_info['rank']
-    package_rank = rank_info['packageRank']
-    new_package_rank = rank_info['newPackageRank']
-    monthly_package_rank = rank_info['monthlyPackageRank']
-
-    if rank == "TECHNO":
-        return (255, 85, 255)
-    
-    if rank in ("YOUTUBER", "ADMIN"):
-        return (255, 85, 85)
-
-    if rank == "NONE":
-        if (package_rank, new_package_rank) == ("NONE", "NONE"):
-            return (170, 170, 170)
-
-        if {"VIP", "VIP_PLUS"} & {package_rank, new_package_rank}:
-            return (85, 255, 85)
-
-        if {"MVP", "MVP_PLUS"} & {package_rank, new_package_rank}:
-            if monthly_package_rank == "SUPERSTAR":  # MVP++
-                return (255, 170, 0)
-            return (85, 255, 255)
-
-    return (0, 170, 0)
-
-
-def recolor_pixels(image: Image.Image, rgb_from: tuple | list, rgb_to: tuple | list) -> Image.Image:
+def recolor_pixels(
+    image: Image.Image,
+    rgb_from: tuple | list,
+    rgb_to: tuple | list
+) -> Image.Image:
     """
     Recolors all pixels of a certain RGB value to another in an image
     :param image: The image object to recolor
@@ -115,15 +86,14 @@ def theme_color_sync_fusion(path: str, **kwargs) -> Image.Image:
     rank_info = kwargs.get('rank_info')
     level = (kwargs.get('level') // 100) * 100
 
-    colors = PrestigeColorMaps
-    level_color = colors.color_map.get(level) if level < 1000 else colors.color_map_2.get(level)[0]
-    rank_color = get_rank_color(rank_info)
+    rank_color = Colors.color_codes.get(get_rank_color(rank_info))
+    star_color = get_prestige_primary_color(level)
 
     image = Image.open(f'{path}/themes/color_sync_fusion.png')
     image = image.convert('RGBA')
 
     rgb_from = ((213, 213, 213), (214, 214, 214))
-    rgb_to = (rank_color, level_color)
+    rgb_to = (rank_color, star_color)
     return recolor_pixels(image, rgb_from=rgb_from, rgb_to=rgb_to)
 
 
@@ -168,7 +138,7 @@ def get_background(path, uuid, default, **kwargs):
 
 
     # If the user has configured a theme
-    if themes_data and themes_data[2] and voting_data:
+    if themes_data and themes_data[2]:
         config = get_config()
         voter_themes = config['theme_packs']['voter_themes'].keys()
         rewards_duration = config['voter_reward_duration_hours']
@@ -176,8 +146,11 @@ def get_background(path, uuid, default, **kwargs):
         # If the user has voted in the past 24 hours
         current_time = datetime.utcnow().timestamp()
 
-        hours_since_voted = (current_time - (voting_data[3] or 0)) / 3600
-        voted_recently = voting_data and (hours_since_voted < rewards_duration)
+        if voting_data:
+            hours_since_voted = (current_time - (voting_data[3] or 0)) / 3600
+            voted_recently = voting_data and (hours_since_voted < rewards_duration)
+        else:
+            voted_recently = False
 
         theme = themes_data[2]
         if themes_data[1]:
@@ -188,6 +161,9 @@ def get_background(path, uuid, default, **kwargs):
         if voted_recently or subscription or is_exclusive:
             # Check if the user is using a selected unowned exclusive theme
             if not is_exclusive or theme in owned_themes:
-                return get_theme_img(theme=theme, path=path, **kwargs)
+                try:
+                    return get_theme_img(theme=theme, path=path, **kwargs)
+                except FileNotFoundError:
+                    pass
 
     return Image.open(f'{path}/{default}.png')

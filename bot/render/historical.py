@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.historical import HistoricalStats, LookbackStats
 from statalib import TRACKERS, to_thread
@@ -6,15 +6,25 @@ from statalib.render import (
     render_display_name,
     get_background,
     paste_skin,
-    box_center_text,
     render_progress_bar,
-    render_progress_text
+    render_progress_text,
+    render_mc_text
 )
 
 
 @to_thread
-def render_historical(name, uuid, identifier, relative_date, title, mode,
-                      hypixel_data, skin_res, save_dir, period=None):
+def render_historical(
+    name: str,
+    uuid: str,
+    identifier: str,
+    relative_date: str,
+    title: str,
+    mode: str,
+    hypixel_data: dict,
+    skin_res: bytes,
+    save_dir: str,
+    period: str=None
+):
     if identifier in TRACKERS:
         stats = HistoricalStats(name, uuid, identifier, mode, hypixel_data)
     else:
@@ -35,56 +45,47 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
     beds_broken, beds_lost, bblr = stats.get_beds()
     kills, deaths, kdr = stats.get_kills()
 
-    image = get_background(path=f'./assets/bg/historical/{identifier}', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
+    image = get_background(
+        path=f'./assets/bg/historical/{identifier}', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
 
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
     minecraft_17 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 17)
 
-    def leng(text, width):
-        return (width - draw.textlength(text, font=minecraft_16)) / 2
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
-    data = (
-        ((leng(wins, 140) + 17, 190), (wins, green)),
-        ((leng(losses, 140) + 171, 190), (losses, red)),
-        ((leng(wlr, 107) + 325, 190), (wlr, gold)),
-        ((leng(final_kills, 140) + 17, 249), (final_kills, green)),
-        ((leng(final_deaths, 140) + 171, 249), (final_deaths, red)),
-        ((leng(fkdr, 107) + 325, 249), (fkdr, gold)),
-        ((leng(beds_broken, 140) + 17, 308), (beds_broken, green)),
-        ((leng(beds_lost, 140) + 171, 308), (beds_lost, red)),
-        ((leng(bblr, 107) + 325, 308), (bblr, gold)),
-        ((leng(kills, 140) + 17, 367), (kills, green)),
-        ((leng(deaths, 140) + 171, 367), (deaths, red)),
-        ((leng(kdr, 107) + 325, 367), (kdr, gold)),
-        ((leng(stars_gained, 130) + 17, 427), (stars_gained, light_purple)),
-        ((leng(timezone, 127) + 163, 427), (timezone, light_purple)),
-        ((leng(reset_hour, 128) + 306, 427), (reset_hour, light_purple)),
-        ((leng(games_played, 171) + 452, 249), (games_played, light_purple)),
-        ((leng(most_played, 171) + 452, 308), (most_played, light_purple)),
-        ((leng(relative_date, 171) + 452, 367), (relative_date, light_purple)),
-        ((leng(items_purchased, 171) + 452, 427), (items_purchased, light_purple)),
-        ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
-    )
+    # Render the stat values
+    data = [
+        {'position': (87, 190), 'text': f'&a{wins}'},
+        {'position': (241, 190), 'text': f'&c{losses}'},
+        {'position': (378, 190), 'text': f'&6{wlr}'},
+        {'position': (87, 249), 'text': f'&a{final_kills}'},
+        {'position': (241, 249), 'text': f'&c{final_deaths}'},
+        {'position': (378, 249), 'text': f'&6{fkdr}'},
+        {'position': (87, 308), 'text': f'&a{beds_broken}'},
+        {'position': (241, 308), 'text': f'&c{beds_lost}'},
+        {'position': (378, 308), 'text': f'&6{bblr}'},
+        {'position': (87, 367), 'text': f'&a{kills}'},
+        {'position': (241, 367), 'text': f'&c{deaths}'},
+        {'position': (378, 367), 'text': f'&6{kdr}'},
+        {'position': (82, 427), 'text': f'&d{stars_gained}'},
+        {'position': (226, 427), 'text': f'&d{timezone}'},
+        {'position': (370, 427), 'text': f'&d{reset_hour}'},
+        {'position': (537, 249), 'text': f'&d{games_played}'},
+        {'position': (537, 308), 'text': f'&d{most_played}'},
+        {'position': (537, 367), 'text': f'&d{relative_date}'},
+        {'position': (537, 427), 'text': f'&d{items_purchased}'},
+        {'position': (537, 46), 'text': f'({mode.title()})'}
+    ]
 
     for values in data:
-        start_x, start_y = values[0]
-        stat = values[1][0]
+        render_mc_text(
+            image=image,
+            shadow_offset=(2, 2),
+            align='center',
+            font=minecraft_16,
+            **values
+        )
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
-
-    # Render the player name
     render_display_name(
         username=name,
         rank_info=rank_info,
@@ -110,10 +111,17 @@ def render_historical(name, uuid, identifier, relative_date, title, mode,
         align='center'
     )
 
-    box_center_text(title, draw, box_width=171, box_start=452, text_y=27, font=minecraft_17)
+    render_mc_text(
+        text=title,
+        position=(537, 27),
+        font=minecraft_17,
+        image=image,
+        shadow_offset=(2, 2),
+        align='center'
+    )
 
     # Paste skin
-    image = paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/historical/overlay.png')

@@ -21,10 +21,17 @@ class Practice:
         self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
 
 
-    def _calc_general_stats(self, mode):
+    def _get_attempts(self, mode):
         completed = self.practice_stats.get(mode, {}).get('successful_attempts', 0)
         failed = self.practice_stats.get(mode, {}).get('failed_attempts', 0)
+
+        return completed, failed
+
+
+    def _calc_general_stats(self, mode):
+        completed, failed = self._get_attempts(mode)
         ratio = rround(completed / (failed or 1), 2)
+
         return f'{completed:,}', f'{failed:,}', f'{ratio:,}'
 
 
@@ -50,6 +57,16 @@ class Practice:
         mlg_blocks = self.practice_stats.get('mlg', {}).get('blocks_placed', 0)
         blocks_placed = bridging_blocks + tnt_blocks + mlg_blocks
         return f'{blocks_placed:,}'
+
+
+    def get_attempts(self):
+        bridging_attempts = sum(self._get_attempts('bridging'))
+        tnt_attempts = sum(self._get_attempts('fireball_jumping'))
+        mlg_attempts = sum(self._get_attempts('mlg'))
+        pearl_attempts = sum(self._get_attempts('pearl'))
+
+        attempts = bridging_attempts + tnt_attempts + mlg_attempts + pearl_attempts
+        return f'{attempts:,}'
 
 
     def _calc_times(self, short_key, medium_key, long_key):

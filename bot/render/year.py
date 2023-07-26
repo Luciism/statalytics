@@ -1,31 +1,39 @@
-from datetime import datetime
-
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.year import YearStats
 from statalib import to_thread
 from statalib.render import (
     get_background,
     paste_skin,
-    box_center_text,
-    render_level,
     render_display_name,
+    render_mc_text,
+    get_formatted_level
 )
 
 
 @to_thread
-def render_year(name, uuid, session, year, mode,
-                hypixel_data, skin_res, save_dir):
+def render_year(
+    name: str,
+    uuid: str,
+    session: int,
+    year: int,
+    mode: str,
+    hypixel_data: dict,
+    skin_res: bytes,
+    save_dir: str
+):
     stats = YearStats(name, uuid, session, year, mode, hypixel_data)
+
     level = int(stats.level_hypixel)
     target = stats.get_target()
+
     rank_info = stats.rank_info
+    
     days_to_go = str(stats.days_to_go)
     stars_per_day = f'{round(stats.stars_per_day, 2):,}'
-    items_purchased = stats.get_items_purchased()
+    complete_percent = stats.complete_percentage
 
-    years_to_go = year - datetime.now().year
-    complete_percent = f'{round(((365 * years_to_go) - int(days_to_go)) / (365 * years_to_go) * 100, 2)}%'
+    items_purchased = stats.get_items_purchased()
 
     kills, deaths, kdr = stats.get_kills()
     final_kills, final_deaths, fkdr = stats.get_finals()
@@ -34,57 +42,48 @@ def render_year(name, uuid, session, year, mode,
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
     year = str(year)
 
-    image = get_background(path='./assets/bg/year', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
+    image = get_background(
+        path='./assets/bg/year', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
 
-    image = image.convert("RGBA")
-
-    draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
     minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
     minecraft_20 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 20)
 
-    def leng(text, width):
-        return (width - draw.textlength(text, font=minecraft_16)) / 2
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
-    data = (
-        ((leng(wins, 140) + 21, 148), (wins, green)),
-        ((leng(losses, 140) + 175, 148), (losses, red)),
-        ((leng(wlr, 107) + 329, 148), (wlr, gold)),
-        ((leng(final_kills, 140) + 21, 207), (final_kills, green)),
-        ((leng(final_deaths, 140) + 175, 207), (final_deaths, red)),
-        ((leng(fkdr, 107) + 329, 207), (fkdr, gold)),
-        ((leng(beds_broken, 140) + 21, 266), (beds_broken, green)),
-        ((leng(beds_lost, 140) + 175, 266), (beds_lost, red)),
-        ((leng(bblr, 107) + 329, 266), (bblr, gold)),
-        ((leng(kills, 140) + 21, 325), (kills, green)),
-        ((leng(deaths, 140) + 175, 325), (deaths, red)),
-        ((leng(kdr, 107) + 329, 325), (kdr, gold)),
-        ((leng(wins_per_star, 128) + 23, 385), (wins_per_star, light_purple)),
-        ((leng(finals_per_star, 127) + 167, 385), (finals_per_star, light_purple)),
-        ((leng(beds_per_star, 128) + 310, 385), (beds_per_star, light_purple)),
-        ((leng(complete_percent, 171) + 452, 250), (complete_percent, light_purple)),
-        ((leng(days_to_go, 171) + 452, 309), (days_to_go, light_purple)),
-        ((leng(stars_per_day, 171) + 452, 368), (stars_per_day, light_purple)),
-        ((leng(items_purchased, 171) + 452, 427), (items_purchased, light_purple)),
-        ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
-    )
+    # Render the stat values
+    data = [
+        {'position': (91, 148), 'text': f'&a{wins}'},
+        {'position': (245, 148), 'text': f'&c{losses}'},
+        {'position': (382, 148), 'text': f'&6{wlr}'},
+        {'position': (91, 207), 'text': f'&a{final_kills}'},
+        {'position': (245, 207), 'text': f'&c{final_deaths}'},
+        {'position': (382, 207), 'text': f'&6{fkdr}'},
+        {'position': (91, 266), 'text': f'&a{beds_broken}'},
+        {'position': (245, 266), 'text': f'&c{beds_lost}'},
+        {'position': (382, 266), 'text': f'&6{bblr}'},
+        {'position': (91, 325), 'text': f'&a{kills}'},
+        {'position': (245, 325), 'text': f'&c{deaths}'},
+        {'position': (382, 325), 'text': f'&6{kdr}'},
+        {'position': (87, 385), 'text': f'&d{wins_per_star}'},
+        {'position': (231, 385), 'text': f'&d{finals_per_star}'},
+        {'position': (374, 385), 'text': f'&d{beds_per_star}'},
+        {'position': (537, 250), 'text': f'&d{complete_percent}'},
+        {'position': (537, 309), 'text': f'&d{days_to_go}'},
+        {'position': (537, 368), 'text': f'&d{stars_per_day}'},
+        {'position': (537, 427), 'text': f'&d{items_purchased}'},
+        {'position': (537, 46), 'text': f'({mode.title()})'}
+    ]
 
     for values in data:
-        start_x, start_y = values[0]
-        stat = values[1][0]
+        render_mc_text(
+            image=image,
+            shadow_offset=(2, 2),
+            font=minecraft_16,
+            align='center',
+            **values
+        )
 
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
-
-    # Render name
     render_display_name(
         username=name,
         rank_info=rank_info,
@@ -94,52 +93,38 @@ def render_year(name, uuid, session, year, mode,
         align='center'
     )
 
-    # Projection Date
-    year_txt = "Predictions For Year: "
-
-    total_width = draw.textlength(f"{year_txt}{year}", font=minecraft_18)
-    year_x = ((417 - total_width) / 2) + 21
-    year_y = 425
-
-    draw.text((year_x + 2, year_y + 2), year_txt, fill=black, font=minecraft_18)
-    draw.text((year_x, year_y), year_txt, fill=white, font=minecraft_18)
-
-    year_x += draw.textlength(year_txt, font=minecraft_18)
-
-    draw.text((year_x + 2, year_y + 2), year, fill=black, font=minecraft_18)
-    draw.text((year_x, year_y), year, fill=light_purple, font=minecraft_18)
-
-    # Render Progress
-    total_width = draw.textlength(f"[{level}]  / [{target}]", font=minecraft_20) + 32 # 32 for pasted star width
-    progress_x = ((415 - total_width) / 2) + 19
-    progress_y = 84
-
-    render_level(
-        level=level,
-        font_size=20,
+    render_mc_text(
+        text=f'&fPredictions For Year: &d{year}',
+        position=(229, 425),
+        font=minecraft_18,
         image=image,
-        position=(progress_x, progress_y)
+        shadow_offset=(2, 2),
+        align='center'
     )
 
-    progress_x += draw.textlength(f"[{level}]", font=minecraft_20) + 16
+    # Render progress to target
+    formatted_lvl = get_formatted_level(level)
+    formatted_target = get_formatted_level(target)
 
-    draw.text((progress_x + 2, progress_y + 2), "  / ", fill=black, font=minecraft_18)
-    draw.text((progress_x, progress_y), "  / ", fill=white, font=minecraft_18)
-
-    progress_x += draw.textlength("  / ", font=minecraft_20)
-
-    render_level(
-        level=target,
-        font_size=20,
+    render_mc_text(
+        text=f'{formatted_lvl} &f/ {formatted_target}',
+        position=(226, 84),
+        font=minecraft_20,
         image=image,
-        position=(progress_x, progress_y)
+        shadow_offset=(2, 2),
+        align='center'
     )
 
-    box_center_text(f'Year {year}', draw, box_width=171,
-                    box_start=452, text_y=27, font=minecraft_18)
+    render_mc_text(
+        text=f'Year {year}',
+        position=(537, 27),
+        font=minecraft_18,
+        image=image,
+        shadow_offset=(2, 2),
+        align='center'
+    )
 
-    # Paste Skin
-    image = paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/year/overlay.png')

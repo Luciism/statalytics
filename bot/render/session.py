@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageFont
 
 from calc.session import SessionStats
 from statalib import to_thread
@@ -6,12 +6,21 @@ from statalib.render import (
     render_display_name,
     get_background,
     paste_skin,
-    render_progress_bar
+    render_progress_bar,
+    render_mc_text
 )
 
 
 @to_thread
-def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
+def render_session(
+    name: str,
+    uuid: str,
+    session: int,
+    mode: str,
+    hypixel_data: dict,
+    skin_res: bytes,
+    save_dir: str
+):
     stats = SessionStats(name, uuid, session, mode, hypixel_data)
 
     progress_of_10 = stats.progress[2]
@@ -26,64 +35,52 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
     final_kills, final_deaths, fkdr = stats.get_finals()
     beds_broken, beds_lost, bblr = stats.get_beds()
     kills, deaths, kdr = stats.get_kills()
-    wins_per_day, finals_per_day, beds_per_day, stars_per_day = stats.get_per_day()
 
-    image = get_background(path='./assets/bg/session', uuid=uuid,
-                           default='base', level=level, rank_info=rank_info)
+    wins_per_day, finals_per_day, beds_per_day,\
+        stars_per_day = stats.get_per_day()
 
-    image = image.convert("RGBA")
+    image = get_background(
+        path='./assets/bg/session', uuid=uuid,
+        default='base', level=level, rank_info=rank_info
+    ).convert("RGBA")
 
-    draw = ImageDraw.Draw(image)
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
-    def leng(text, width):
-        return (width - draw.textlength(text, font=minecraft_16)) / 2
-
-    green = (85, 255, 85)
-    white = (255, 255, 255)
-    red = (255, 76, 76)
-    black = (0, 0, 0)
-    gold = (255, 170, 0)
-    light_purple = (255, 85, 255)
-
-    data = (
-        ((leng(wins, 140) + 17, 131), (wins, green)),
-        ((leng(losses, 140) + 171, 131), (losses, red)),
-        ((leng(wlr, 107) + 325, 131), (wlr, gold)),
-
-        ((leng(final_kills, 140) + 17, 190), (final_kills, green)),
-        ((leng(final_deaths, 140) + 171, 190), (final_deaths, red)),
-        ((leng(fkdr, 107) + 325, 190), (fkdr, gold)),
-
-        ((leng(beds_broken, 140) + 17, 249), (beds_broken, green)),
-        ((leng(beds_lost, 140) + 171, 249), (beds_lost, red)),
-        ((leng(bblr, 107) + 325, 249), (bblr, gold)),
-
-        ((leng(kills, 140) + 17, 308), (kills, green)),
-        ((leng(deaths, 140) + 171, 308), (deaths, red)),
-        ((leng(kdr, 107) + 325, 308), (kdr, gold)),
-
-        ((leng(stars_per_day, 130) + 17, 368), (stars_per_day, light_purple)),
-        ((leng(stats.stars_gained, 127) + 163, 368), (stats.stars_gained, light_purple)),
-        ((leng(stats.games_played, 128) + 306, 368), (stats.games_played, light_purple)),
-
-        ((leng(wins_per_day, 130) + 17, 427), (wins_per_day, light_purple)),
-        ((leng(finals_per_day, 127) + 163, 427), (finals_per_day, light_purple)),
-        ((leng(beds_per_day, 128) + 306, 427), (beds_per_day, light_purple)),
-
-        ((leng(f"# {session}", 171) + 452, 249), (f"# {session}", light_purple)),
-        ((leng(total_sessions, 171) + 452, 308), (total_sessions, light_purple)),
-        ((leng(date_started, 171) + 452, 367), (date_started, light_purple)),
-        ((leng(most_played, 171) + 452, 427), (most_played, light_purple)),
-        ((leng(f'({mode.title()})', 171) + 452, 46), (f'({mode.title()})', white)),
-    )
+    # Render the stat values
+    data = [
+        {'position': (87, 131), 'text': f'&a{wins}'},
+        {'position': (241, 131), 'text': f'&c{losses}'},
+        {'position': (378, 131), 'text': f'&6{wlr}'},
+        {'position': (87, 190), 'text': f'&a{final_kills}'},
+        {'position': (241, 190), 'text': f'&c{final_deaths}'},
+        {'position': (378, 190), 'text': f'&6{fkdr}'},
+        {'position': (87, 249), 'text': f'&a{beds_broken}'},
+        {'position': (241, 249), 'text': f'&c{beds_lost}'},
+        {'position': (378, 249), 'text': f'&6{bblr}'},
+        {'position': (87, 308), 'text': f'&a{kills}'},
+        {'position': (241, 308), 'text': f'&c{deaths}'},
+        {'position': (378, 308), 'text': f'&6{kdr}'},
+        {'position': (82, 368), 'text': f'&d{stars_per_day}'},
+        {'position': (226, 368), 'text': f'&d{stats.stars_gained}'},
+        {'position': (370, 368), 'text': f'&d{stats.games_played}'},
+        {'position': (82, 427), 'text': f'&d{wins_per_day}'},
+        {'position': (226, 427), 'text': f'&d{finals_per_day}'},
+        {'position': (370, 427), 'text': f'&d{beds_per_day}'},
+        {'position': (537, 250), 'text': f'&d# {session}'},
+        {'position': (537, 309), 'text': f'&d{total_sessions}'},
+        {'position': (537, 368), 'text': f'&d{date_started}'},
+        {'position': (537, 427), 'text': f'&d{most_played}'},
+        {'position': (537, 46), 'text': f'({mode.title()})'}
+    ]
 
     for values in data:
-        start_x, start_y = values[0]
-        stat = values[1][0]
-
-        draw.text((start_x + 2, start_y + 2), stat, fill=black, font=minecraft_16)
-        draw.text((start_x, start_y), stat, fill=values[1][1], font=minecraft_16)
+        render_mc_text(
+            image=image,
+            shadow_offset=(2, 2),
+            font=minecraft_16,
+            align='center',
+            **values
+        )
 
     render_display_name(
         username=name,
@@ -102,9 +99,9 @@ def render_session(name, uuid, session, mode, hypixel_data, skin_res, save_dir):
         align='center'
     )
 
-    image = paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_res, image, positions=(466, 69))
 
-    # Paste overlay
+    # Paste overlay image
     overlay_image = Image.open('./assets/bg/session/overlay.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
