@@ -37,7 +37,7 @@ def get_rank_prefix(rank_info: dict):
 
     if 'VIP' in package_ranks:
         return '&a[VIP] '
-    
+
     if 'VIP_PLUS' in package_ranks:
         return '&a[VIP&6+&a] '
 
@@ -110,13 +110,12 @@ def render_display_name(
     font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', font_size)
 
     rank_prefix = get_rank_prefix(rank_info)
+    full_string = f'{rank_prefix}{username}'
 
     if level is not None:
-        formatted_lvl_str = get_formatted_level(level)
-        full_string = f'{formatted_lvl_str} {rank_prefix} {username}'
-    else:
-        full_string = f'{rank_prefix}{username}'
-    
+        formatted_lvl = get_formatted_level(level)
+        full_string = f'{formatted_lvl} {full_string}'
+
     if image is None:
         text_len = get_text_len(get_actual_text(full_string), font)
         # additional 20 pixels for padding

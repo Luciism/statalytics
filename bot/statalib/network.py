@@ -63,7 +63,6 @@ def fetch_hypixel_data(
                     "Maximum number of retries exceeded.") from exc
 
 
-
 def skin_from_file(skin_type: str='bust') -> bytes:
     """Loads a steve skin from file"""
     with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
