@@ -1,4 +1,5 @@
 **/custom/
+**/logs/
 **/__pycache__/
 **/.env
 bot/database/
