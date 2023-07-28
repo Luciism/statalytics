@@ -62,6 +62,8 @@
         "tasks.listings",
         "tasks.metrics",
 
+        "events.growth",
+
         "commands.linking",
         "commands.skin",
         "commands.who",
