@@ -10,6 +10,7 @@ from .handlers import *
 from .subscriptions import *
 from .network import *
 from .permissions import *
+from .loggings_handlers import *
 
 from .render.progress import *
 from .render.tools import *
@@ -44,5 +45,6 @@ __all__ = [
     'mcfetch',
     'subscriptions'
     'network',
-    'permissions'
+    'permissions',
+    'logging_handlers'
 ]
