@@ -153,7 +153,7 @@ def set_active_theme(discord_id: int, theme_name: str):
             f'SELECT * FROM themes_data WHERE discord_id = {discord_id}')
         themes_data = cursor.fetchone()
 
-        if themes_data and themes_data[2]:
+        if themes_data:
             cursor.execute(
                 "UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
                 (theme_name, discord_id)
