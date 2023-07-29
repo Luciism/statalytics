@@ -1,3 +1,4 @@
+import json
 from os import getenv
 
 import discord
@@ -59,6 +60,9 @@ class Metrics(commands.Cog):
             channel_id = channels_config[key]['id']
 
             await self.update_channel_name(channel_name, channel_id)
+
+        with open('./database/server_count.json', 'w') as datafile:
+            json.dump({'server_count': metrics['servers']}, datafile, indent=4)
 
 
     @update_metrics_loop.error

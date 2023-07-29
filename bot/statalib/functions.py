@@ -143,7 +143,7 @@ def get_commands_total() -> int:
     """
     Returns total amount of commands run by all users
     """
-    with sqlite3.connect('./database/core.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
