@@ -61,9 +61,6 @@ class Metrics(commands.Cog):
 
             await self.update_channel_name(channel_name, channel_id)
 
-        with open('./database/server_count.json', 'w') as datafile:
-            json.dump({'server_count': metrics['servers']}, datafile, indent=4)
-
 
     @update_metrics_loop.error
     async def on_update_metrics_error(self, error):
