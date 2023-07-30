@@ -41,8 +41,8 @@ def render_average(
         final_kills_per_game,
         beds_broken_per_game,
         kills_per_game,
-        final_deaths_per_game,
-        beds_lost_per_game,
+        games_per_final_death,
+        games_per_bed_lost,
         deaths_per_game,
     ) = ratios.get_per_game()
 
@@ -80,8 +80,8 @@ def render_average(
         {'position': (396, 429), 'text': f'&a{kills_per_game}'},
 
         {'position': (551, 249), 'text': f'&c{loss_rate}'},
-        {'position': (551, 309), 'text': f'&c{final_deaths_per_game}'},
-        {'position': (551, 369), 'text': f'&c{beds_lost_per_game}'},
+        {'position': (551, 309), 'text': f'&c{games_per_final_death}'},
+        {'position': (551, 369), 'text': f'&c{games_per_bed_lost}'},
         {'position': (551, 429), 'text': f'&c{deaths_per_game}'},
 
         {'position': (118, 189), 'text': f'&a{most_wins}'},
