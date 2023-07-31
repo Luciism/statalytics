@@ -48,6 +48,7 @@ def render_average(
 
 
     clutch_rate = ratios.get_clutch_rate()
+    win_rate = ratios.get_win_rate()
     loss_rate = ratios.get_loss_rate()
 
     most_wins = ratios.get_most_wins()
@@ -74,18 +75,20 @@ def render_average(
         {'position': (242, 369), 'text': f'&c{beds_lost_per_star}'},
         {'position': (242, 429), 'text': f'&c{deaths_per_star}'},
 
-        {'position': (396, 249), 'text': f'&a{clutch_rate}'},
+        {'position': (396, 249), 'text': f'&a{most_wins}'},
         {'position': (396, 309), 'text': f'&a{final_kills_per_game}'},
         {'position': (396, 369), 'text': f'&a{beds_broken_per_game}'},
         {'position': (396, 429), 'text': f'&a{kills_per_game}'},
 
-        {'position': (551, 249), 'text': f'&c{loss_rate}'},
+        {'position': (551, 249), 'text': f'&c{most_losses}'},
         {'position': (551, 309), 'text': f'&c{games_per_final_death}'},
         {'position': (551, 369), 'text': f'&c{games_per_bed_lost}'},
         {'position': (551, 429), 'text': f'&c{deaths_per_game}'},
 
-        {'position': (118, 189), 'text': f'&a{most_wins}'},
-        {'position': (332, 189), 'text': f'&c{most_losses}'},
+        {'position': (83, 189), 'text': f'&a{clutch_rate}'},
+        {'position': (225, 189), 'text': f'&a{win_rate}'},
+        {'position': (368, 189), 'text': f'&c{loss_rate}'},
+
         {'position': (536, 46), 'text': f'&f({mode.title()})'}
     ]
 

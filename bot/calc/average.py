@@ -85,13 +85,23 @@ class Ratios:
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
         beds_lost = self.hypixel_data_bedwars.get(f'{self.mode}beds_lost_bedwars', 0)
         clutches = beds_lost - losses
-        return '0%' if clutches <= 0 or beds_lost <= 0 else f"{round((clutches / beds_lost) * 100, 2)}%"
+
+        clutch_rate = round((clutches / (beds_lost or -1)) * 100, 2)
+        return f"{max(clutch_rate, 0)}%"
+
+
+    def get_win_rate(self):
+        wins = self.hypixel_data_bedwars.get(f'{self.mode}wins_bedwars', 0)
+
+        win_rate = round((wins / (self.games_played or -1)) * 100, 2)
+        return f'{max(win_rate, 0)}%'
 
 
     def get_loss_rate(self):
         losses = self.hypixel_data_bedwars.get(f'{self.mode}losses_bedwars', 0)
-        return "0%" if self.games_played == 0 else "100%"\
-                    if losses == 0 else f'{round((losses / self.games_played) * 100, 2)}%'
+
+        loss_rate = round((losses / (self.games_played or -1)) * 100, 2)
+        return f'{max(loss_rate, 0)}%'
 
 
     def get_most_wins(self):
