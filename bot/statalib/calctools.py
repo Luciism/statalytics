@@ -2,6 +2,16 @@
 A set of functions used for calculating and fetching an assortment of data.
 """
 
+def real_title_case(text: str) -> str:
+    """
+    Like calling .title() except it wont capitalize words like `4v4`
+    :param text: the text to turn title case
+    """
+    words = text.split()
+    title_words = [word.title() if word[0].isalpha() else word for word in words]
+    return ' '.join(title_words)
+
+
 def get_player_dict(hypixel_data: dict) -> dict:
     """
     Checks if player key exits and returns data or empty dict
@@ -15,21 +25,18 @@ def get_player_dict(hypixel_data: dict) -> dict:
 def get_most_played(hypixel_data_bedwars: dict) -> str:
     """
     Gets most played bedwars modes (solos, doubles, etc)
-    :param hypixel_data_bedwars: Bedwars data stemming from player > stats > Bedwars
+    :param hypixel_data_bedwars: Hypixel bedwars data from player > stats > Bedwars
     """
-    solos: int = hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0)
-    doubles: int = hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0)
-    threes: int = hypixel_data_bedwars.get('four_three_games_played_bedwars', 0)
-    fours: int = hypixel_data_bedwars.get('four_four_games_played_bedwars', 0)
-    four_vs_four: int = hypixel_data_bedwars.get('two_four_games_played_bedwars', 0)
     modes_dict: dict = {
-        'Solos': solos,
-        'Doubles': doubles,
-        'Threes':  threes,
-        'Fours': fours,
-        '4v4': four_vs_four
+        'Solos': hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0),
+        'Doubles': hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0),
+        'Threes':  hypixel_data_bedwars.get('four_three_games_played_bedwars', 0),
+        'Fours': hypixel_data_bedwars.get('four_four_games_played_bedwars', 0),
+        '4v4': hypixel_data_bedwars.get('two_four_games_played_bedwars', 0)
     }
-    return "N/A" if max(modes_dict.values()) == 0 else str(max(modes_dict, key=modes_dict.get))
+    if max(modes_dict.values()) == 0:
+        return "N/A"
+    return str(max(modes_dict, key=modes_dict.get))
 
 
 def get_rank_info(hypixel_data: dict) -> dict:
@@ -107,7 +114,7 @@ suffixes = {
 }
 
 
-def add_suffixes(*args) -> list:
+def add_suffixes(*args) -> list[str]:
     """
     Add suffixes to the end of large numbers to approximate them
     :param *args: A list of numbers to approximate
@@ -124,6 +131,16 @@ def add_suffixes(*args) -> list:
     return formatted_values
 
 
+bedwars_modes_map: dict = {
+    "overall": "",
+    "solos": "eight_one_",
+    "doubles": "eight_two_",
+    "threes": "four_three_",
+    "fours": "four_four_",
+    "4v4": "two_four_"
+}
+
+
 def get_mode(mode: str) -> str:
     """
     Convert a mode (Solos, Doubles, etc) into hypixel format (eight_one_, eight_two_)
@@ -131,14 +148,7 @@ def get_mode(mode: str) -> str:
     eg: f'{mode}final_kills_bedwars'
     :param mode: The mode to convert
     """
-    modes: dict = {
-        "Solos": "eight_one_",
-        "Doubles": "eight_two_",
-        "Threes": "four_three_",
-        "Fours": "four_four_",
-        "4v4": "two_four_"
-    }
-    return modes.get(mode, "")
+    return bedwars_modes_map.get(mode.lower(), "")
 
 
 def rround(number: float | int, ndigits: int=0) -> float | int:
@@ -151,3 +161,60 @@ def rround(number: float | int, ndigits: int=0) -> float | int:
     if rounded.is_integer():
         rounded = int(rounded)
     return rounded
+
+
+class BedwarsStats:
+    """Wrapper for generic hypixel bedwars stats"""
+    def __init__(self, hypixel_data: dict, strict_mode: str=None):
+        """
+        :param hypixel_data: the raw hypixel response json
+        :param strict_mode: the mode to fetch stats for (solos, doubles, etc)
+        if left as `None`, a dictionary of stats for every mode will be returned,
+        otherwise just the stats for the specified mode will be returned
+        """
+        self._strict_mode = strict_mode
+        self._hypixel_data = get_player_dict(hypixel_data)
+
+        self._bedwars_data = self._hypixel_data.get('stats', {}).get('Bedwars', {})
+        
+        self.wins = self._get_mode_stats('wins_bedwars')
+        self.losses = self._get_mode_stats('losses_bedwars')
+        self.final_kills = self._get_mode_stats('final_kills_bedwars')
+        self.final_deaths = self._get_mode_stats('final_deaths_bedwars')
+        self.beds_broken = self._get_mode_stats('beds_broken_bedwars')
+        self.beds_lost = self._get_mode_stats('beds_lost_bedwars')
+        self.kills = self._get_mode_stats('kills_bedwars')
+        self.deaths = self._get_mode_stats('deaths_bedwars')
+
+        self.games_played = self._get_mode_stats('games_played_bedwars')
+        self.most_played = get_most_played(self._bedwars_data)
+
+        self.experience = self._bedwars_data.get('Experience', 0)
+        self.progress = get_progress(self._bedwars_data)
+        self.level = get_level(self.experience)
+
+        self.items_purchased = self._get_mode_stats('items_purchased_bedwars')
+        self.tools_purchased = self._get_mode_stats('permanent_items_purchased_bedwars')
+
+        self.resources_collected = self._get_mode_stats('resources_collected_bedwars')
+        self.iron_collected = self._get_mode_stats('iron_resources_collected_bedwars')
+        self.gold_collected = self._get_mode_stats('gold_resources_collected_bedwars')
+        self.diamonds_collected = self._get_mode_stats('diamond_resources_collected_bedwars')
+        self.emeralds_collected = self._get_mode_stats('emerald_resources_collected_bedwars')
+
+        self.winstreak = self._get_mode_stats('winstreak')
+        if self.winstreak is not None:
+            self.winstreak_str = f'{self.winstreak:,}'
+        else:
+            self.winstreak_str = 'API Off'
+
+
+    def _get_mode_stats(self, key: str, default=0) -> dict | int:
+        if self._strict_mode is None:
+            mode_stats = {}
+            for mode, prefix in bedwars_modes_map.items():
+                mode_stats[mode] = self._bedwars_data.get(f'{prefix}{key}', default)
+            return mode_stats
+
+        prefix = bedwars_modes_map.get(self._strict_mode.lower())
+        return self._bedwars_data.get(f'{prefix}{key}', default)

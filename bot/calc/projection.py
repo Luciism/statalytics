@@ -2,24 +2,28 @@ import sqlite3
 from datetime import datetime, timedelta
 
 from statalib.calctools import (
+    BedwarsStats,
     get_rank_info,
     add_suffixes,
     get_mode,
     rround,
     get_level,
-    get_player_dict
 )
 
 
-class ProjectedStats:
-    def __init__(self, name: str, uuid: str, session: int,
-                 mode: str, target: int, hypixel_data: dict) -> None:
-        self.name = name
+class ProjectedStats(BedwarsStats):
+    def __init__(
+        self,
+        uuid: str,
+        session: int,
+        target: int,
+        hypixel_data: dict,
+        mode: str='overall'
+    ) -> None:
+        super().__init__(hypixel_data, strict_mode=mode)
+
         self.target = target
         self.mode = get_mode(mode)
-
-        self.hypixel_data = get_player_dict(hypixel_data)
-        self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
@@ -28,25 +32,29 @@ class ProjectedStats:
             column_names = [desc[0] for desc in cursor.description]
             self.session_data = dict(zip(column_names, session_data))
 
-        self.level_local =  get_level(self.session_data['Experience'])  # how many levels player had when they started session
-        self.level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0))  # current hypixel level
-        self.levels_to_go = self.target - self.level_hypixel  # levels to target
+        # how many levels player had when they started session
+        self.level_local = get_level(self.session_data['Experience'])
+
+        self.level_hypixel = self.level
+        self.levels_to_go = self.target - self.level_hypixel
+
+        # formatted
         self.stars_to_go = add_suffixes(int(self.target - int(self.level_hypixel)))[0]
 
-        self.levels_gained = self.level_hypixel - self.level_local  # how many levels gained during session
-        if self.levels_gained == 0:
-            self.levels_gained = 0.0001
+        self.levels_gained = max(self.level_hypixel - self.level_local, 0.0001)
 
-        self.level_repetition = self.levels_to_go / self.levels_gained  # how many times they have to gain the session amount of levels to get to the goal
+        # how many times they have to gain the session amount of levels to get to the goal
+        self.level_repetition = self.levels_to_go / self.levels_gained
         self.complete_percent = f"{round((self.level_hypixel / self.target) * 100, 2)}%"
-        self.rank_info = get_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_data)
 
 
     def _get_increase_factor(self, value):
         increase_factor = 0
         if self.level_repetition > 0:
             try:
-                increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
+                # add some extra for skill progression
+                increase_factor = 1 / (self.level_repetition ** self.level_repetition)
             except OverflowError:
                 pass
 
@@ -55,8 +63,8 @@ class ProjectedStats:
 
 
     def _get_trajectory(self, value_1, value_2):
-        value_1_hypixel = self.hypixel_data_bedwars.get(value_1, 0)
-        value_2_hypixel = self.hypixel_data_bedwars.get(value_2, 0)
+        value_1_hypixel = self._bedwars_data.get(value_1, 0)
+        value_2_hypixel = self._bedwars_data.get(value_2, 0)
 
         value_1_local = value_1_hypixel - self.session_data[value_1]
         value_2_local = value_2_hypixel - self.session_data[value_2]
@@ -72,46 +80,43 @@ class ProjectedStats:
 
 
     def get_kills(self):
-        self.kills = self._get_trajectory(
+        self.kills_data = self._get_trajectory(
             value_1=f'{self.mode}kills_bedwars', value_2=f'{self.mode}deaths_bedwars')
 
-        formatted_values = add_suffixes(*self.kills)
+        formatted_values = add_suffixes(*self.kills_data)
         return formatted_values
 
 
     def get_finals(self):
-        self.finals = self._get_trajectory(
+        self.finals_data = self._get_trajectory(
             value_1=f'{self.mode}final_kills_bedwars', value_2=f'{self.mode}final_deaths_bedwars')
 
-        formatted_values = add_suffixes(*self.finals)
+        formatted_values = add_suffixes(*self.finals_data)
         return formatted_values
 
 
     def get_beds(self):
-        self.beds = self._get_trajectory(
+        self.beds_data = self._get_trajectory(
             value_1=f'{self.mode}beds_broken_bedwars', value_2=f'{self.mode}beds_lost_bedwars')
 
-        formatted_values = add_suffixes(*self.beds)
+        formatted_values = add_suffixes(*self.beds_data)
         return formatted_values
 
 
     def get_wins(self):
-        self.wins = self._get_trajectory(
+        self.wins_data = self._get_trajectory(
             value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
 
-        formatted_values = add_suffixes(*self.wins)
+        formatted_values = add_suffixes(*self.wins_data)
         return formatted_values
 
 
     def get_per_star(self):
-        avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
+        avg_wins = (self.wins_data[0] - self.wins) / self.levels_to_go
 
-        avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
+        avg_finals = (self.finals_data[0] - self.final_kills) / self.levels_to_go
 
-        avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
+        avg_beds = (self.beds_data[0] - self.beds_broken) / self.levels_to_go
 
         return str(rround(avg_wins, 2)), str(rround(avg_finals, 2)), str(rround(avg_beds, 2))
 
@@ -133,19 +138,23 @@ class ProjectedStats:
             if days == 0:
                 days = 1
 
-            daystogo = int((0 if self.levels_gained == 0 else days / self.levels_gained) * self.levels_to_go)
-            future_date = current_time + timedelta(days=daystogo)
+            if self.levels_gained == 0:
+                days_to_go = 0
+            else:
+                days_to_go = int((days / self.levels_gained) * self.levels_to_go)
+    
+            future_date = current_time + timedelta(days=days_to_go)
             return str(future_date.strftime("%b %d, %Y"))
         except OverflowError:
             return "Deceased"
 
 
     def get_items_purchased(self):
-        items_hypixel = self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)
-        items_local = items_hypixel - self.session_data[f'{self.mode}items_purchased_bedwars']
+        items_local = (self.items_purchased -
+            self.session_data[f'{self.mode}items_purchased_bedwars'])
 
         items_repetition = items_local * self.level_repetition
-        projected_items = items_repetition + items_hypixel
+        projected_items = items_repetition + self.items_purchased
 
         items_purchased = add_suffixes(round(projected_items))
         return items_purchased[0]

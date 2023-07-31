@@ -19,7 +19,7 @@ def render_practice(
     hypixel_data: dict,
     skin_res: bytes
 ) -> bytes:
-    practice = Practice(name, hypixel_data)
+    practice = Practice(hypixel_data)
 
     level = practice.level
     rank_info = practice.rank_info

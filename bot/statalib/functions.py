@@ -224,7 +224,7 @@ def int_prefix(integer: int) -> str:
     already present
     :param integer: the integer to return the prefix of
     """
-    if int(integer) >= 0:
+    if integer >= 0:
         return "+"
     return ""
 

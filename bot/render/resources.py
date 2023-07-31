@@ -19,14 +19,14 @@ def render_resources(
     hypixel_data: dict,
     save_dir: str
 ):
-    resources = Resources(name, mode, hypixel_data)
+    resources = Resources(hypixel_data, mode)
 
     level = resources.level
     progress, target, progress_of_10 = resources.progress
 
     rank_info = resources.rank_info
 
-    total_collected = f'{resources.total_resources:,}'
+    total_collected = f'{resources.resources_collected:,}'
     iron_collected = f'{resources.iron_collected:,}'
     gold_collected = f'{resources.gold_collected:,}'
     dias_collected = f'{resources.diamonds_collected:,}'

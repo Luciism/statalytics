@@ -22,7 +22,7 @@ def render_total(
     save_dir: str,
     method: str
 ):
-    stats = Stats(name, mode, hypixel_data)
+    stats = Stats(hypixel_data, mode)
     level = stats.level
     rank_info = stats.rank_info
 

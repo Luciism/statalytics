@@ -23,7 +23,7 @@ def render_milestones(
     skin_res: bytes,
     save_dir: str
 ):
-    stats = Stats(name, uuid, mode, session, hypixel_data)
+    stats = Stats(uuid, session, hypixel_data, mode)
 
     level = stats.level
     rank_info = stats.rank_info

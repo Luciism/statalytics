@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime
 
 from statalib.calctools import (
+    BedwarsStats,
     get_rank_info,
     add_suffixes,
     get_mode,
@@ -11,14 +12,18 @@ from statalib.calctools import (
 )
 
 
-class YearStats:
-    def __init__(self, name: str, uuid: str, session: int,
-                 year: int, mode: str, hypixel_data: dict) -> None:
-        self.name = name
-        self.mode = get_mode(mode)
+class YearStats(BedwarsStats):
+    def __init__(
+        self,
+        uuid: str,
+        session: int,
+        year: int,
+        hypixel_data: dict,
+        mode: str='overall'
+    ) -> None:
+        super().__init__(hypixel_data, strict_mode=mode)
 
-        self.hypixel_data = get_player_dict(hypixel_data)
-        self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
+        self.mode = get_mode(mode)
 
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
@@ -41,12 +46,9 @@ class YearStats:
         if self.days_to_go == 0:
             self.days_to_go = 1
 
-        self.level_local = get_level(self.session_data['Experience'])  # how many levels player had when they started session
-        self.level_hypixel = get_level(self.hypixel_data_bedwars.get('Experience', 0))  # current hypixel level
-        self.levels_gained = self.level_hypixel - self.level_local  # how many levels gained during session
-
-        if self.levels_gained == 0:
-            self.levels_gained = 0.0001
+        self.level_local = get_level(self.session_data['Experience'])
+        self.level_hypixel = self.level
+        self.levels_gained = max(self.level_hypixel - self.level_local, 0.0001)
 
         self.stars_per_day = self.levels_gained / self.days
         self.projected_star = int(self.stars_per_day * self.days_to_go + self.level_hypixel)
@@ -57,7 +59,7 @@ class YearStats:
 
         self.level_repetition = self.levels_to_go / self.levels_gained
 
-        self.rank_info = get_rank_info(self.hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_data)
 
         years_to_go = year - datetime.now().year
         
@@ -71,7 +73,8 @@ class YearStats:
         increase_factor = 0
         if self.level_repetition > 0:
             try:
-                increase_factor = 1 / (self.level_repetition ** self.level_repetition)  # add some extra for skill progression
+                # add some extra for skill progression
+                increase_factor = 1 / (self.level_repetition ** self.level_repetition)
             except OverflowError:
                 pass
 
@@ -80,7 +83,7 @@ class YearStats:
 
 
     def _get_average(self, value: str):
-        value_hypixel = self.hypixel_data_bedwars.get(value, 0)  # current value on hypixel
+        value_hypixel = self._bedwars_data.get(value, 0)  # current value on hypixel
         value_session = value_hypixel - self.session_data[value]  # total value player gained during session
         return value_session / self.levels_gained, value_hypixel
 
@@ -99,45 +102,48 @@ class YearStats:
 
 
     def get_wins(self):
-        self.wins = self._get_trajectory(
-            value_1=f'{self.mode}wins_bedwars', value_2=f'{self.mode}losses_bedwars')
-        return add_suffixes(*self.wins)
+        self.wins_data = self._get_trajectory(
+            value_1=f'{self.mode}wins_bedwars',
+            value_2=f'{self.mode}losses_bedwars')
+        return add_suffixes(*self.wins_data)
 
 
     def get_finals(self):
-        self.finals = self._get_trajectory(
-            value_1=f'{self.mode}final_kills_bedwars', value_2=f'{self.mode}final_deaths_bedwars')
-        return add_suffixes(*self.finals)
+        self.finals_data = self._get_trajectory(
+            value_1=f'{self.mode}final_kills_bedwars',
+            value_2=f'{self.mode}final_deaths_bedwars')
+        return add_suffixes(*self.finals_data)
 
 
     def get_beds(self):
-        self.beds = self._get_trajectory(
-            value_1=f'{self.mode}beds_broken_bedwars', value_2=f'{self.mode}beds_lost_bedwars')
-        return add_suffixes(*self.beds)
+        self.beds_data = self._get_trajectory(
+            value_1=f'{self.mode}beds_broken_bedwars',
+            value_2=f'{self.mode}beds_lost_bedwars')
+        return add_suffixes(*self.beds_data)
 
 
     def get_kills(self):
-        self.kills = self._get_trajectory(
-            value_1=f'{self.mode}kills_bedwars', value_2=f'{self.mode}deaths_bedwars')
-        return add_suffixes(*self.kills)
+        self.kills_data = self._get_trajectory(
+            value_1=f'{self.mode}kills_bedwars',
+            value_2=f'{self.mode}deaths_bedwars')
+        return add_suffixes(*self.kills_data)
 
 
     def get_per_star(self):
-        avg_wins = (self.wins[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}wins_bedwars', 0)) / self.levels_to_go
+        avg_wins = (self.wins_data[0] - self.wins) / self.levels_to_go
 
-        avg_finals = (self.finals[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}final_kills_bedwars', 0)) / self.levels_to_go
+        avg_finals = (self.finals_data[0] - self.final_kills) / self.levels_to_go
 
-        avg_beds = (self.beds[0] - self.hypixel_data_bedwars.get(
-            f'{self.mode}beds_broken_bedwars', 0)) / self.levels_to_go
+        avg_beds = (self.beds_data[0] - self.beds_broken) / self.levels_to_go
 
         return str(rround(avg_wins, 2)).replace('-', ''),\
-            str(rround(avg_finals, 2)).replace('-', ''), str(rround(avg_beds, 2)).replace('-', '')
+               str(rround(avg_finals, 2)).replace('-', ''),\
+               str(rround(avg_beds, 2)).replace('-', '')
 
 
     def get_items_purchased(self):
-        items_avg, items_hypixel = self._get_average(value=f'{self.mode}items_purchased_bedwars')
+        items_avg, items_hypixel = self._get_average(
+            value=f'{self.mode}items_purchased_bedwars')
         projected_items = self.days_to_go * items_avg + items_hypixel
 
         items_purchased = add_suffixes(round(projected_items))

@@ -1,24 +1,20 @@
 from statalib.calctools import (
+    BedwarsStats,
     get_rank_info,
-    get_progress,
-    rround,
-    get_level,
-    get_player_dict
+    rround
 )
 
 
-class Practice:
-    def __init__(self, name: str, hypixel_data: dict) -> None:
-        self.name = name
+class Practice(BedwarsStats):
+    def __init__(
+        self,
+        hypixel_data: dict
+    ) -> None:
+        super().__init__(hypixel_data)
+        self.practice_stats = self._bedwars_data.get('practice', {})
 
-        self.hypixel_data = get_player_dict(hypixel_data)
-        self.practice_stats = self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('practice', {})
-
-        self.level = int(get_level(
-            self.hypixel_data.get('stats', {}).get('Bedwars', {}).get('Experience', 0)))
-
-        self.rank_info = get_rank_info(self.hypixel_data)
-        self.progress = get_progress(self.hypixel_data.get('stats', {}).get('Bedwars', {}))
+        self.level = int(self.level)
+        self.rank_info = get_rank_info(self._hypixel_data)
 
 
     def _get_attempts(self, mode):

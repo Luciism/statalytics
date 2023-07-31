@@ -19,7 +19,7 @@ def render_compare(
     hypixel_data_2: dict,
     save_dir: str
 ):
-    compare = Compare(name_1, name_2, mode, hypixel_data_1, hypixel_data_2)
+    compare = Compare(hypixel_data_1, hypixel_data_2, mode)
 
     level_1, level_2 = compare.level_1, compare.level_2
     rank_info_1, rank_info_2 = compare.rank_info_1, compare.rank_info_2

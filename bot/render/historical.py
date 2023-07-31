@@ -26,9 +26,9 @@ def render_historical(
     period: str=None
 ):
     if identifier in TRACKERS:
-        stats = HistoricalStats(name, uuid, identifier, mode, hypixel_data)
+        stats = HistoricalStats(uuid, identifier, hypixel_data, mode)
     else:
-        stats = LookbackStats(name, uuid, period, mode, hypixel_data)
+        stats = LookbackStats(uuid, period, hypixel_data, mode)
 
     level = stats.level
     rank_info = stats.rank_info

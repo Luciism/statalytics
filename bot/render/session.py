@@ -21,7 +21,7 @@ def render_session(
     skin_res: bytes,
     save_dir: str
 ):
-    stats = SessionStats(name, uuid, session, mode, hypixel_data)
+    stats = SessionStats(uuid, session, hypixel_data, mode)
 
     progress_of_10 = stats.progress[2]
     total_sessions = stats.total_sessions

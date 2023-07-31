@@ -23,7 +23,7 @@ def render_difference(
     skin_res: bytes,
     save_dir: str
 ):
-    diffs = Difference(name, uuid, method, mode, hypixel_data)
+    diffs = Difference(uuid, method, hypixel_data, mode)
 
     level = diffs.level
     rank_info = diffs.rank_info

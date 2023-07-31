@@ -21,7 +21,7 @@ def render_average(
     skin_res: bytes,
     save_dir: str
 ):
-    ratios = Ratios(name, mode, hypixel_data)
+    ratios = Ratios(hypixel_data, mode)
     level = ratios.level
     rank_info = ratios.rank_info
     progress, target, progress_of_10 = ratios.progress

@@ -22,7 +22,7 @@ def render_projection(
     skin_res: bytes,
     save_dir: str
 ):
-    stats = ProjectedStats(name, uuid, session, mode, target, hypixel_data)
+    stats = ProjectedStats(uuid, session, target, hypixel_data, mode)
 
     level = int(stats.level_hypixel)
     stars_to_go = stats.stars_to_go

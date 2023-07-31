@@ -22,7 +22,7 @@ def render_year(
     skin_res: bytes,
     save_dir: str
 ):
-    stats = YearStats(name, uuid, session, year, mode, hypixel_data)
+    stats = YearStats(uuid, session, year, hypixel_data, mode)
 
     level = int(stats.level_hypixel)
     target = stats.get_target()

@@ -1,31 +1,27 @@
 from statalib.calctools import (
-    get_progress,
+    BedwarsStats,
     get_rank_info,
     get_mode,
     rround,
-    get_level,
-    get_player_dict,
-    get_most_played
 )
 
 
-class Stats:
-    def __init__(self, name: str, mode: str, hypixel_data: dict) -> None:
-        self.name = name
+class Stats(BedwarsStats):
+    def __init__(
+        self,
+        hypixel_data: dict,
+        mode: str='overall'
+    ) -> None:
+        super().__init__(hypixel_data, strict_mode=mode)
+
         self.mode = get_mode(mode)
-
-        self.hypixel_data = get_player_dict(hypixel_data)
-        self.hypixel_data_bedwars = self.hypixel_data.get('stats', {}).get('Bedwars', {})
-
-        self.level = int(get_level(self.hypixel_data_bedwars.get('Experience', 0)))
-        self.rank_info = get_rank_info(self.hypixel_data)
-        self.progress = get_progress(self.hypixel_data_bedwars)
-        self.most_played = get_most_played(self.hypixel_data_bedwars)
+        self.level = int(self.level)
+        self.rank_info = get_rank_info(self._hypixel_data)
 
 
     def _calc_general_stats(self, key_1, key_2):
-        val_1 = self.hypixel_data_bedwars.get(key_1, 0)
-        val_2 = self.hypixel_data_bedwars.get(key_2, 0)
+        val_1 = self._bedwars_data.get(key_1, 0)
+        val_2 = self._bedwars_data.get(key_2, 0)
         ratio = rround(val_1 / (val_2 or 1), 2)
         return f'{val_1:,}', f'{val_2:,}', f'{ratio:,}'
 
@@ -71,29 +67,23 @@ class Stats:
 
 
     def get_misc(self):
-        games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
-        times_voided = self.hypixel_data_bedwars.get(f'{self.mode}void_deaths_bedwars', 0)
-        items_purchased = self.hypixel_data_bedwars.get(f'{self.mode}items_purchased_bedwars', 0)
-        winstreak = self.hypixel_data_bedwars.get(f'{self.mode}winstreak')
-        winstreak = f'{winstreak:,}' if winstreak is not None else 'API Off'
-        return f'{games_played:,}', f'{times_voided:,}', f'{items_purchased:,}', winstreak
+        times_voided = self._bedwars_data.get(f'{self.mode}void_deaths_bedwars', 0)
+        return f'{self.games_played:,}', f'{times_voided:,}',\
+               f'{self.items_purchased:,}', self.winstreak
 
 
     def get_misc_pointless(self):
-        games_played = self.hypixel_data_bedwars.get(f'{self.mode}games_played_bedwars', 0)
-        tools_purchased = self.hypixel_data_bedwars.get(f'{self.mode}permanent_items_purchased_bedwars', 0)
-        melee_kills = self.hypixel_data_bedwars.get(f'{self.mode}entity_attack_kills_bedwars', 0)
-        winstreak = self.hypixel_data_bedwars.get(f'{self.mode}winstreak')
-        winstreak = f'{winstreak:,}' if winstreak is not None else 'API Off'
-        return f'{games_played:,}', f'{tools_purchased:,}', f'{melee_kills:,}', winstreak
+        melee_kills = self._bedwars_data.get(f'{self.mode}entity_attack_kills_bedwars', 0)
+        return f'{self.games_played:,}', f'{self.tools_purchased:,}',\
+               f'{melee_kills:,}', self.winstreak
 
 
     def get_chest_and_coins(self):
-        normal = self.hypixel_data_bedwars.get('bedwars_boxes', 0)
-        christmas = self.hypixel_data_bedwars.get('bedwars_christmas_boxes', 0)
-        easter = self.hypixel_data_bedwars.get('bedwars_easter_boxes', 0)
-        halloween = self.hypixel_data_bedwars.get('bedwars_halloween_boxes', 0)
+        normal = self._bedwars_data.get('bedwars_boxes', 0)
+        christmas = self._bedwars_data.get('bedwars_christmas_boxes', 0)
+        easter = self._bedwars_data.get('bedwars_easter_boxes', 0)
+        halloween = self._bedwars_data.get('bedwars_halloween_boxes', 0)
 
         total = int(normal + christmas + easter + halloween)
-        coins = self.hypixel_data_bedwars.get('coins', 0)
+        coins = self._bedwars_data.get('coins', 0)
         return f'{total:,}', f'{coins:,}'

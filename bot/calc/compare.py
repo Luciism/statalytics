@@ -1,48 +1,48 @@
+from statalib.functions import int_prefix
 from statalib.calctools import (
+    BedwarsStats,
     get_rank_info,
     get_mode,
     rround,
-    get_level,
-    get_player_dict
 )
 
 
 class Compare:
-    def __init__(self, name_1: str, name_2: str, mode: str,
-                 hypixel_data_1: dict, hypixel_data_2) -> None:
-        self.name_1, self.name_2 = name_1, name_2
+    def __init__(
+        self,
+        hypixel_data_1: dict,
+        hypixel_data_2: dict,
+        mode: str='overall'
+    ) -> None:
+        self._bw_1 = BedwarsStats(hypixel_data_1, strict_mode=mode)
+        self._bw_2 = BedwarsStats(hypixel_data_2, strict_mode=mode)
+
         self.mode = get_mode(mode)
 
-        self.hypixel_data_1 = get_player_dict(hypixel_data_1)
-        self.hypixel_data_2 = get_player_dict(hypixel_data_2)
+        self.level_1 = int(self._bw_1.level)
+        self.level_2 = int(self._bw_2.level)
 
-        self.bedwars_data_1 = self.hypixel_data_1.get('stats', {}).get('Bedwars', {})
-        self.bedwars_data_2 = self.hypixel_data_2.get('stats', {}).get('Bedwars', {})
-
-        self.level_1 = int(get_level(self.bedwars_data_1.get('Experience', 0)))
-        self.level_2 = int(get_level(self.bedwars_data_2.get('Experience', 0)))
-
-        self.rank_info_1 = get_rank_info(self.hypixel_data_1)
-        self.rank_info_2 = get_rank_info(self.hypixel_data_2)
+        self.rank_info_1 = get_rank_info(self._bw_1._hypixel_data)
+        self.rank_info_2 = get_rank_info(self._bw_2._hypixel_data)
 
 
     def _calc_general_stats(self, key_1, key_2):
-        val_1_1 = self.bedwars_data_1.get(key_1, 0)
-        val_2_1 = self.bedwars_data_1.get(key_2, 0)
+        val_1_1 = self._bw_1._bedwars_data.get(key_1, 0)
+        val_2_1 = self._bw_1._bedwars_data.get(key_2, 0)
         ratio_1 = rround(val_1_1 / (val_2_1 or 1), 2)
 
-        val_1_2 = self.bedwars_data_2.get(key_1, 0)
-        val_2_2 = self.bedwars_data_2.get(key_2, 0)
+        val_1_2 = self._bw_2._bedwars_data.get(key_1, 0)
+        val_2_2 = self._bw_2._bedwars_data.get(key_2, 0)
         ratio_2 = rround(val_1_2 / (val_2_2 or 1), 2)
 
         val_1_diff = val_1_1 - val_1_2
-        val_1_diff = f'{val_1_diff:,}' if val_1_diff < 0 else f'+{val_1_diff:,}'
+        val_1_diff = f'{int_prefix(val_1_diff)}{val_1_diff:,}'
 
         val_2_diff = val_2_1 - val_2_2
-        val_2_diff = f'{val_2_diff:,}' if val_2_diff < 0 else f'+{val_2_diff:,}'
+        val_2_diff = f'{int_prefix(val_2_diff)}{val_2_diff:,}'
 
         ratio_diff = round(ratio_1 - ratio_2, 2)
-        ratio_diff = f'{ratio_diff:,}' if ratio_diff < 0 else f'+{ratio_diff:,}'
+        ratio_diff = f'{int_prefix(ratio_diff)}{ratio_diff:,}'
 
         return f'{val_1_1:,} / {val_1_2:,}', f'{val_2_1:,} / {val_2_2:,}',\
                f'{ratio_1:,} / {ratio_2:,}', val_1_diff, val_2_diff, ratio_diff
