@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.resources import Resources
+from calc.resources import ResourcesStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -19,30 +19,30 @@ def render_resources(
     hypixel_data: dict,
     save_dir: str
 ):
-    resources = Resources(hypixel_data, mode)
+    stats = ResourcesStats(hypixel_data, mode)
 
-    level = resources.level
-    progress, target, progress_of_10 = resources.progress
+    level = stats.level
+    progress, target, progress_of_10 = stats.progress
 
-    rank_info = resources.rank_info
+    rank_info = stats.rank_info
 
-    total_collected = f'{resources.resources_collected:,}'
-    iron_collected = f'{resources.iron_collected:,}'
-    gold_collected = f'{resources.gold_collected:,}'
-    dias_collected = f'{resources.diamonds_collected:,}'
-    ems_collected = f'{resources.emeralds_collected:,}'
+    total_collected = f'{stats.stats_collected:,}'
+    iron_collected = f'{stats.iron_collected:,}'
+    gold_collected = f'{stats.gold_collected:,}'
+    dias_collected = f'{stats.diamonds_collected:,}'
+    ems_collected = f'{stats.emeralds_collected:,}'
 
     iron_per_game, gold_per_game, dias_per_game,\
-        ems_per_game = resources.get_per_game()
+        ems_per_game = stats.get_per_game()
 
     iron_per_star, gold_per_star, dias_per_star,\
-        ems_per_star = resources.get_per_star()
+        ems_per_star = stats.get_per_star()
 
     iron_percent, gold_percent, dia_percent,\
-        em_percent = resources.get_percentages()
+        em_percent = stats.get_percentages()
 
     iron_most_mode, gold_most_mode, dia_most_mode,\
-        em_most_mode = resources.get_most_modes()
+        em_most_mode = stats.get_most_modes()
 
     image = get_background(
         path='./assets/bg/resources', uuid=uuid,

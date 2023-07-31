@@ -7,8 +7,7 @@ from statalib.calctools import (
     add_suffixes,
     get_mode,
     get_level,
-    rround,
-    get_player_dict
+    rround
 )
 
 

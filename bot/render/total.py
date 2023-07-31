@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.total import Stats
+from calc.total import TotalStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -22,7 +22,7 @@ def render_total(
     save_dir: str,
     method: str
 ):
-    stats = Stats(hypixel_data, mode)
+    stats = TotalStats(hypixel_data, mode)
     level = stats.level
     rank_info = stats.rank_info
 

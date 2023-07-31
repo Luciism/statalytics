@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.difference import Difference
+from calc.difference import DifferenceStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -23,17 +23,17 @@ def render_difference(
     skin_res: bytes,
     save_dir: str
 ):
-    diffs = Difference(uuid, method, hypixel_data, mode)
+    stats = DifferenceStats(uuid, method, hypixel_data, mode)
 
-    level = diffs.level
-    rank_info = diffs.rank_info
-    progress, target, progress_of_10 = diffs.progress
-    stars_gained = diffs.get_stars_gained()
+    level = stats.level
+    rank_info = stats.rank_info
+    progress, target, progress_of_10 = stats.progress
+    stars_gained = stats.get_stars_gained()
 
-    wins, losses, wlr_1, wlr_2, wlr_diff = diffs.get_wins()
-    final_kills, final_deaths, fkdr_1, fkdr_2, fkdr_diff = diffs.get_finals()
-    beds_broken, beds_lost, bblr_1, bblr_2, bblr_diff = diffs.get_beds()
-    kills, deaths, kdr_1, kdr_2, kdr_diff = diffs.get_kills()
+    wins, losses, wlr_1, wlr_2, wlr_diff = stats.get_wins()
+    final_kills, final_deaths, fkdr_1, fkdr_2, fkdr_diff = stats.get_finals()
+    beds_broken, beds_lost, bblr_1, bblr_2, bblr_diff = stats.get_beds()
+    kills, deaths, kdr_1, kdr_2, kdr_diff = stats.get_kills()
 
     image = get_background(
         path='./assets/bg/difference', uuid=uuid,

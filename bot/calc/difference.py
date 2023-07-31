@@ -9,7 +9,7 @@ from statalib.calctools import (
 )
 
 
-class Difference(BedwarsStats):
+class DifferenceStats(BedwarsStats):
     def __init__(
         self,
         uuid: str,

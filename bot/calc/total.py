@@ -6,7 +6,7 @@ from statalib.calctools import (
 )
 
 
-class Stats(BedwarsStats):
+class TotalStats(BedwarsStats):
     def __init__(
         self,
         hypixel_data: dict,

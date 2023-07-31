@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.practice import Practice
+from calc.practice import PracticeStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -19,22 +19,22 @@ def render_practice(
     hypixel_data: dict,
     skin_res: bytes
 ) -> bytes:
-    practice = Practice(hypixel_data)
+    stats = PracticeStats(hypixel_data)
 
-    level = practice.level
-    rank_info = practice.rank_info
-    progress_of_10 = practice.progress[2]
+    level = stats.level
+    rank_info = stats.rank_info
+    progress_of_10 = stats.progress[2]
 
-    bridge_completed, bridge_failed, bridge_ratio = practice.get_bridging_stats()
-    pearl_completed, pearl_failed, pearl_ratio = practice.get_pearl_stats()
-    tnt_completed, tnt_failed, tnt_ratio = practice.get_tnt_stats()
-    mlg_completed, mlg_failed, mlg_ratio = practice.get_mlg_stats()
+    bridge_completed, bridge_failed, bridge_ratio = stats.get_bridging_stats()
+    pearl_completed, pearl_failed, pearl_ratio = stats.get_pearl_stats()
+    tnt_completed, tnt_failed, tnt_ratio = stats.get_tnt_stats()
+    mlg_completed, mlg_failed, mlg_ratio = stats.get_mlg_stats()
 
-    strt_short, strt_medium, strt_long, strt_avg = practice.get_straight_times()
-    diag_short, diag_medium, diag_long, diag_avg = practice.get_diagonal_times()
-    blocks_placed = practice.get_blocks_placed()
+    strt_short, strt_medium, strt_long, strt_avg = stats.get_straight_times()
+    diag_short, diag_medium, diag_long, diag_avg = stats.get_diagonal_times()
+    blocks_placed = stats.get_blocks_placed()
 
-    attempts = practice.get_attempts()
+    attempts = stats.get_attempts()
 
     image = get_background(
         path='./assets/bg/practice', uuid=uuid,

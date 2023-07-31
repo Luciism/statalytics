@@ -7,7 +7,7 @@ from statalib.calctools import (
 )
 
 
-class Compare:
+class CompareStats:
     def __init__(
         self,
         hypixel_data_1: dict,

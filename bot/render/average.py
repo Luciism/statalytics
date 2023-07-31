@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.average import Ratios
+from calc.average import AverageStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -21,10 +21,10 @@ def render_average(
     skin_res: bytes,
     save_dir: str
 ):
-    ratios = Ratios(hypixel_data, mode)
-    level = ratios.level
-    rank_info = ratios.rank_info
-    progress, target, progress_of_10 = ratios.progress
+    stats = AverageStats(hypixel_data, mode)
+    level = stats.level
+    rank_info = stats.rank_info
+    progress, target, progress_of_10 = stats.progress
 
     (
         wins_per_star,
@@ -35,7 +35,7 @@ def render_average(
         final_deaths_per_star,
         beds_lost_per_star,
         deaths_per_star
-    ) = ratios.get_per_star()
+    ) = stats.get_per_star()
 
     (
         final_kills_per_game,
@@ -44,15 +44,15 @@ def render_average(
         games_per_final_death,
         games_per_bed_lost,
         deaths_per_game,
-    ) = ratios.get_per_game()
+    ) = stats.get_per_game()
 
 
-    clutch_rate = ratios.get_clutch_rate()
-    win_rate = ratios.get_win_rate()
-    loss_rate = ratios.get_loss_rate()
+    clutch_rate = stats.get_clutch_rate()
+    win_rate = stats.get_win_rate()
+    loss_rate = stats.get_loss_rate()
 
-    most_wins = ratios.get_most_wins()
-    most_losses = ratios.get_most_losses()
+    most_wins = stats.get_most_wins()
+    most_losses = stats.get_most_losses()
 
 
     image = get_background(

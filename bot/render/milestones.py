@@ -1,6 +1,6 @@
 from PIL import ImageFont
 
-from calc.milestones import Stats
+from calc.milestones import MilestonesStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -23,7 +23,7 @@ def render_milestones(
     skin_res: bytes,
     save_dir: str
 ):
-    stats = Stats(uuid, session, hypixel_data, mode)
+    stats = MilestonesStats(uuid, session, hypixel_data, mode)
 
     level = stats.level
     rank_info = stats.rank_info

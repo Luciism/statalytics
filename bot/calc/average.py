@@ -5,7 +5,7 @@ from statalib.calctools import (
 )
 
 
-class Ratios(BedwarsStats):
+class AverageStats(BedwarsStats):
     def __init__(
         self,
         hypixel_data: dict,

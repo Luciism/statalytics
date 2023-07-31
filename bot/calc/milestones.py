@@ -8,7 +8,7 @@ from statalib.calctools import (
 )
 
 
-class Stats(BedwarsStats):
+class MilestonesStats(BedwarsStats):
     def __init__(
         self,
         uuid: str,

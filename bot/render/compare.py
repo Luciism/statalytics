@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont
 
-from calc.compare import Compare
+from calc.compare import CompareStats
 from statalib import to_thread
 from statalib.render import (
     render_display_name,
@@ -19,15 +19,15 @@ def render_compare(
     hypixel_data_2: dict,
     save_dir: str
 ):
-    compare = Compare(hypixel_data_1, hypixel_data_2, mode)
+    stats = CompareStats(hypixel_data_1, hypixel_data_2, mode)
 
-    level_1, level_2 = compare.level_1, compare.level_2
-    rank_info_1, rank_info_2 = compare.rank_info_1, compare.rank_info_2
+    level_1, level_2 = stats.level_1, stats.level_2
+    rank_info_1, rank_info_2 = stats.rank_info_1, stats.rank_info_2
 
-    wins, losses, wlr, wins_diff, losses_diff, wlr_diff = compare.get_wins()
-    fks, fds, fkdr, fks_diff, fds_diff, fkdr_diff = compare.get_finals()
-    bsb, bsl, bblr, bsb_diff, bsl_diff, bblr_diff = compare.get_beds()
-    kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = compare.get_kills()
+    wins, losses, wlr, wins_diff, losses_diff, wlr_diff = stats.get_wins()
+    fks, fds, fkdr, fks_diff, fds_diff, fkdr_diff = stats.get_finals()
+    bsb, bsl, bblr, bsb_diff, bsl_diff, bblr_diff = stats.get_beds()
+    kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = stats.get_kills()
 
     image = get_background(
         path='./assets/bg/compare', uuid=uuid_1,
