@@ -26,7 +26,7 @@ def render_resources(
 
     rank_info = stats.rank_info
 
-    total_collected = f'{stats.stats_collected:,}'
+    total_collected = f'{stats.resources_collected:,}'
     iron_collected = f'{stats.iron_collected:,}'
     gold_collected = f'{stats.gold_collected:,}'
     dias_collected = f'{stats.diamonds_collected:,}'

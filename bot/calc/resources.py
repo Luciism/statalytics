@@ -16,8 +16,6 @@ class ResourcesStats(BedwarsStats):
         self.rank_info = get_rank_info(self._hypixel_data)
         self.level = int(self.level)
 
-        print(self.iron_collected)
-
 
     def get_per_game(self):
         iron_per_game = rround(self.iron_collected / (self.games_played or 1), 2)

@@ -228,19 +228,19 @@ class BedwarsStats:
 
         self.wins = self._get_mode_stats('wins_bedwars')
         self.losses = self._get_mode_stats('losses_bedwars')
-        self.wlr = rround(self.wins / (self.losses or 1), 2)
+        self.wlr = self._get_ratio(self.wins, self.losses)
 
         self.final_kills = self._get_mode_stats('final_kills_bedwars')
         self.final_deaths = self._get_mode_stats('final_deaths_bedwars')
-        self.fkdr = rround(self.final_kills / (self.final_deaths or 1), 2)
+        self.fkdr = self._get_ratio(self.final_kills, self.final_deaths)
 
         self.beds_broken = self._get_mode_stats('beds_broken_bedwars')
         self.beds_lost = self._get_mode_stats('beds_lost_bedwars')
-        self.bblr = rround(self.beds_broken / (self.beds_lost or 1), 2)
+        self.bblr = self._get_ratio(self.beds_broken, self.beds_lost)
 
         self.kills = self._get_mode_stats('kills_bedwars')
         self.deaths = self._get_mode_stats('deaths_bedwars')
-        self.kdr = rround(self.kills / (self.deaths or 1), 2)
+        self.kdr = self._get_ratio(self.kills, self.deaths)
 
         self.games_played = self._get_mode_stats('games_played_bedwars')
         self.most_played = get_most_played(self._bedwars_data)
@@ -268,7 +268,7 @@ class BedwarsStats:
         
         self.coins = self._bedwars_data.get('coins', 0)
 
-        self.winstreak = self._get_mode_stats('winstreak', default=None)
+        self.winstreak = self._bedwars_data.get('winstreak')
         if self.winstreak is not None:
             self.winstreak_str = f'{self.winstreak:,}'
         else:
@@ -283,6 +283,17 @@ class BedwarsStats:
         if self._playtime_xp is None:
             self._playtime_xp = get_playtime_xp(self._hypixel_data)
         return self._playtime_xp
+    
+
+    def _get_ratio(self, val_1: int, val_2: int):
+        if isinstance(val_1, dict):
+            ratios = {}
+
+            for key, value in val_1.items():
+                ratios[key] = rround(value / (val_2[key] or 1), 2)
+            return ratios
+                
+        return rround(val_1 / (val_2 or 1), 2)
 
 
     def _get_mode_stats(self, key: str, default=0) -> dict | int:
