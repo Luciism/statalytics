@@ -2,6 +2,43 @@
 A set of functions used for calculating and fetching an assortment of data.
 """
 
+bedwars_modes_map = {
+    "overall": "",
+    "solos": "eight_one_",
+    "doubles": "eight_two_",
+    "threes": "four_three_",
+    "fours": "four_four_",
+    "4v4": "two_four_"
+}
+
+
+quest_xp_map = {
+    "bedwars_daily_win": 250,
+    "bedwars_daily_one_more": {
+        1683085688000: 250,
+        0: 0
+    },
+    "bedwars_daily_gifts": 700,
+    "bedwars_daily_nightmares": 1000,
+    "bedwars_daily_final_killer": 250,
+    "bedwars_daily_bed_breaker": 250,
+    "bedwars_weekly_bed_elims": 5000,
+    "bedwars_weekly_dream_win": 5000,
+    "bedwars_weekly_challenges": 2500,
+    "bedwars_weekly_pumpkinator": 6666,
+    "bedwars_weekly_challenges_win": 5000,
+    "bedwars_weekly_final_killer": 5000
+}
+
+# Suffixes used to approximate large numbers
+suffixes = {
+    10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc',
+    10**48: 'QiDc', 10**45: 'QaDc', 10**42: 'TDc', 10**39: 'DDc',
+    10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
+    10**21: 'Sx', 10**18: 'Qi', 10**15: 'Qa', 10**12: 'T', 10**9: 'B', 10**6: 'M'
+}
+
+
 def real_title_case(text: str) -> str:
     """
     Like calling .title() except it wont capitalize words like `4v4`
@@ -106,15 +143,6 @@ def get_progress(hypixel_data_bedwars: dict) -> tuple[str, str, int]:
     return f'{int(progress):,}', f'{int(target):,}', progress_out_of_ten
 
 
-# Suffixes used to approximate large numbers
-suffixes = {
-    10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc',
-    10**48: 'QiDc', 10**45: 'QaDc', 10**42: 'TDc', 10**39: 'DDc',
-    10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
-    10**21: 'Sx', 10**18: 'Qi', 10**15: 'Qa', 10**12: 'T', 10**9: 'B', 10**6: 'M'
-}
-
-
 def add_suffixes(*args) -> list[str]:
     """
     Add suffixes to the end of large numbers to approximate them
@@ -130,16 +158,6 @@ def add_suffixes(*args) -> list[str]:
             value: str = f"{value:,}"
         formatted_values.append(value)
     return formatted_values
-
-
-bedwars_modes_map: dict = {
-    "overall": "",
-    "solos": "eight_one_",
-    "doubles": "eight_two_",
-    "threes": "four_three_",
-    "fours": "four_four_",
-    "4v4": "two_four_"
-}
 
 
 def get_mode(mode: str) -> str:
@@ -162,6 +180,36 @@ def rround(number: float | int, ndigits: int=0) -> float | int:
     if rounded.is_integer():
         rounded = int(rounded)
     return rounded
+
+
+def get_playtime_xp(hypixel_data: dict):
+    """
+    Returns a player's bedwars experience gained without the use of quests
+    :param hypixel_data: the hypixel data for the player
+    """
+    total_experience = hypixel_data.get(
+        'stats', {}).get('Bedwars', {}).get('Experience', 0)
+
+    xp_by_quests = 0
+
+    for quest, exp in quest_xp_map.items():
+        if isinstance(exp, dict):
+            quest_completions: list[dict] = hypixel_data.get(
+                'quests', {}).get(quest, {}).get('completions', {})
+
+            for completion in quest_completions:
+                completed_timestamp = completion.get('time', 0)
+
+                for timestamp, timestamp_exp in exp.items():
+                    if completed_timestamp >= timestamp:
+                        xp_by_quests += timestamp_exp
+        
+        else:
+            completions = len(hypixel_data.get(
+                'quests', {}).get(quest, {}).get('completions', {}))
+            xp_by_quests += completions * exp
+
+    return total_experience - xp_by_quests
 
 
 class BedwarsStats:
@@ -226,6 +274,15 @@ class BedwarsStats:
         else:
             self.winstreak_str = 'API Off'
             self.winstreak = 0
+
+        self._playtime_xp = None
+
+
+    @property
+    def playtime_xp(self):
+        if self._playtime_xp is None:
+            self._playtime_xp = get_playtime_xp(self._hypixel_data)
+        return self._playtime_xp
 
 
     def _get_mode_stats(self, key: str, default=0) -> dict | int:
