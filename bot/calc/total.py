@@ -36,4 +36,3 @@ class TotalStats(BedwarsStats):
             self.projectile_kills / (self.projectile_deaths or 1), 2)
 
         self.melee_kills = self._get_mode_stats('entity_attack_kills_bedwars')
-
