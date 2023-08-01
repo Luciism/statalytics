@@ -13,13 +13,13 @@ from statalib.render import (
 
 
 @to_thread
-def render_total(
+def render_pointless(
     name: str,
     uuid: str,
     mode: str,
     hypixel_data: dict,
     skin_res: bytes,
-    save_dir: str
+    save_dir: str,
 ):
     stats = TotalStats(hypixel_data, mode)
     progress, target, progress_of_10 = stats.progress
@@ -33,25 +33,25 @@ def render_total(
 
     # Render the stat values
     data = [
-        {'position': (87, 190), 'text': f'&a{stats.wins:,}'},
-        {'position': (241, 190), 'text': f'&c{stats.losses:,}'},
-        {'position': (378, 190), 'text': f'&6{stats.wlr:,}'},
-        {'position': (87, 249), 'text': f'&a{stats.final_kills:,}'},
-        {'position': (241, 249), 'text': f'&c{stats.final_deaths:,}'},
-        {'position': (378, 249), 'text': f'&6{stats.fkdr:,}'},
-        {'position': (87, 308), 'text': f'&a{stats.beds_broken:,}'},
-        {'position': (241, 308), 'text': f'&c{stats.beds_lost:,}'},
-        {'position': (378, 308), 'text': f'&6{stats.bblr:,}'},
-        {'position': (87, 367), 'text': f'&a{stats.kills:,}'},
-        {'position': (241, 367), 'text': f'&c{stats.deaths:,}'},
-        {'position': (378, 367), 'text': f'&6{stats.kdr:,}'},
+        {'position': (87, 190), 'text': f'&a{stats.falling_kills:,}'},
+        {'position': (241, 190), 'text': f'&c{stats.falling_deaths:,}'},
+        {'position': (378, 190), 'text': f'&6{stats.falling_kdr:,}'},
+        {'position': (87, 249), 'text': f'&a{stats.void_kills:,}'},
+        {'position': (241, 249), 'text': f'&c{stats.void_deaths:,}'},
+        {'position': (378, 249), 'text': f'&6{stats.void_kdr:,}'},
+        {'position': (87, 308), 'text': f'&a{stats.projectile_kills:,}'},
+        {'position': (241, 308), 'text': f'&c{stats.projectile_deaths:,}'},
+        {'position': (378, 308), 'text': f'&6{stats.projectile_kdr:,}'},
+        {'position': (87, 367), 'text': f'&a{stats.fire_kills:,}'},
+        {'position': (241, 367), 'text': f'&c{stats.fire_deaths:,}'},
+        {'position': (378, 367), 'text': f'&6{stats.fire_kdr:,}'},
         {'position': (82, 427), 'text': f'&d{stats.winstreak_str}'},
         {'position': (226, 427), 'text': f'&d{stats.loot_chests:,}'},
         {'position': (370, 427), 'text': f'&d{stats.coins:,}'},
         {'position': (537, 250), 'text': f'&d{stats.games_played:,}'},
         {'position': (537, 309), 'text': f'&d{stats.most_played}'},
-        {'position': (537, 368), 'text': f'&d{stats.void_deaths:,}'},
-        {'position': (537, 427), 'text': f'&d{stats.items_purchased:,}'},
+        {'position': (537, 368), 'text': f'&d{stats.tools_purchased:,}'},
+        {'position': (537, 427), 'text': f'&d{stats.melee_kills:,}'},
         {'position': (537, 46), 'text': f'({mode.title()})'}
     ]
 
@@ -92,7 +92,7 @@ def render_total(
     paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay image
-    overlay_image = Image.open(f'./assets/bg/total/overlay_generic.png')
+    overlay_image = Image.open(f'./assets/bg/total/overlay_pointless.png')
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

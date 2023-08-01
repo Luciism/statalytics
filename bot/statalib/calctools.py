@@ -180,12 +180,19 @@ class BedwarsStats:
 
         self.wins = self._get_mode_stats('wins_bedwars')
         self.losses = self._get_mode_stats('losses_bedwars')
+        self.wlr = rround(self.wins / (self.losses or 1), 2)
+
         self.final_kills = self._get_mode_stats('final_kills_bedwars')
         self.final_deaths = self._get_mode_stats('final_deaths_bedwars')
+        self.fkdr = rround(self.final_kills / (self.final_deaths or 1), 2)
+
         self.beds_broken = self._get_mode_stats('beds_broken_bedwars')
         self.beds_lost = self._get_mode_stats('beds_lost_bedwars')
+        self.bblr = rround(self.beds_broken / (self.beds_lost or 1), 2)
+
         self.kills = self._get_mode_stats('kills_bedwars')
         self.deaths = self._get_mode_stats('deaths_bedwars')
+        self.kdr = rround(self.kills / (self.deaths or 1), 2)
 
         self.games_played = self._get_mode_stats('games_played_bedwars')
         self.most_played = get_most_played(self._bedwars_data)
@@ -203,11 +210,22 @@ class BedwarsStats:
         self.diamonds_collected = self._get_mode_stats('diamond_resources_collected_bedwars')
         self.emeralds_collected = self._get_mode_stats('emerald_resources_collected_bedwars')
 
-        self.winstreak = self._get_mode_stats('winstreak')
+        self.loot_chests_regular = self._bedwars_data.get('bedwars_boxes', 0)
+        self.loot_chests_christmas = self._bedwars_data.get('bedwars_christmas_boxes', 0)
+        self.loot_chests_easter = self._bedwars_data.get('bedwars_easter_boxes', 0)
+        self.loot_chests_halloween = self._bedwars_data.get('bedwars_halloween_boxes', 0)
+
+        self.loot_chests = int(self.loot_chests_regular + self.loot_chests_christmas
+            + self.loot_chests_easter + self.loot_chests_halloween)
+        
+        self.coins = self._bedwars_data.get('coins', 0)
+
+        self.winstreak = self._get_mode_stats('winstreak', default=None)
         if self.winstreak is not None:
             self.winstreak_str = f'{self.winstreak:,}'
         else:
             self.winstreak_str = 'API Off'
+            self.winstreak = 0
 
 
     def _get_mode_stats(self, key: str, default=0) -> dict | int:

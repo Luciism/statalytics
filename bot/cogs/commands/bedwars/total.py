@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from render.total import render_total
+from render.pointless import render_pointless
 from statalib import (
     fetch_player_info,
     username_autocompletion,
@@ -38,11 +39,13 @@ class Total(commands.Cog):
             "uuid": uuid,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
-            "save_dir": interaction.id,
-            "method": method
+            "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_total, kwargs)
+        if method == 'generic':
+            await handle_modes_renders(interaction, render_total, kwargs)
+        else:
+            await handle_modes_renders(interaction, render_pointless, kwargs)
         update_command_stats(interaction.user.id, method)
 
 
