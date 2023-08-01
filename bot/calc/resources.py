@@ -2,6 +2,8 @@ from statalib.calctools import (
     BedwarsStats,
     rround,
     get_rank_info,
+    real_title_case,
+    bedwars_modes_map
 )
 
 
@@ -53,31 +55,18 @@ class ResourcesStats(BedwarsStats):
 
 
     def get_most_modes(self):
-        iron = {
-            "Solos": self._bedwars_data.get('eight_one_iron_resources_collected_bedwars', 0),
-            "Doubles": self._bedwars_data.get('eight_two_iron_resources_collected_bedwars', 0),
-            "Threes": self._bedwars_data.get('four_three_iron_resources_collected_bedwars', 0),
-            "Fours": self._bedwars_data.get('four_four_iron_resources_collected_bedwars', 0)
-        }
-        gold = {
-            "Solos": self._bedwars_data.get('eight_one_gold_resources_collected_bedwars', 0),
-            "Doubles": self._bedwars_data.get('eight_two_gold_resources_collected_bedwars', 0),
-            "Threes": self._bedwars_data.get('four_three_gold_resources_collected_bedwars', 0),
-            "Fours": self._bedwars_data.get('four_four_gold_resources_collected_bedwars', 0)
-        }
-        diamonds = {
-            "Solos": self._bedwars_data.get('eight_one_diamond_resources_collected_bedwars', 0),
-            "Doubles": self._bedwars_data.get('eight_two_diamond_resources_collected_bedwars', 0),
-            "Threes": self._bedwars_data.get('four_three_diamond_resources_collected_bedwars', 0),
-            "Fours": self._bedwars_data.get('four_four_diamond_resources_collected_bedwars', 0)
-        }
-        emeralds = {
-            "Solos": self._bedwars_data.get('eight_one_emerald_resources_collected_bedwars', 0),
-            "Doubles": self._bedwars_data.get('eight_two_emerald_resources_collected_bedwars', 0),
-            "Threes": self._bedwars_data.get('four_three_emerald_resources_collected_bedwars', 0),
-            "Fours": self._bedwars_data.get('four_four_emerald_resources_collected_bedwars', 0)
-        }
+        resources = {'iron': {}, 'gold': {}, 'diamond': {}, 'emerald': {}}
+        for resource in resources:
+            for mode, prefix in bedwars_modes_map.items():
+                if prefix:
+                    resources[resource][real_title_case(mode)] = self._bedwars_data.get(
+                        f'{prefix}{resource}_resources_collected_bedwars', 0)
 
-        values = (iron, gold, diamonds, emeralds)
-        return ("N/A" if max(value.values()) == 0 else\
-                str(max(value, key=value.get)) for value in values)
+        return_values = []
+        for resource, values in resources.items():
+            if max(values.values()) == 0:
+                return_values.append('N/A')
+            else:
+                return_values.append(str(max(values, key=values.get, default='N/A')))
+
+        return return_values
