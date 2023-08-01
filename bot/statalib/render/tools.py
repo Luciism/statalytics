@@ -46,7 +46,7 @@ def paste_skin(
     try:
         skin = Image.open(BytesIO(skin_res))
     except UnidentifiedImageError:
-        skin = Image.open(f'{REL_PATH}/assets/steve.png')
+        skin = Image.open(f'{REL_PATH}/assets/steve_bust.png')
 
     composite_image = Image.new("RGBA", image.size)
     composite_image.paste(skin, positions)
