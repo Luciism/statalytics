@@ -109,7 +109,7 @@ class Monthly(commands.Cog):
             "uuid": uuid,
             "identifier": "monthly",
             "relative_date": formatted_date,
-            "title": "Monthly BW Stats",
+            "title": "Monthly Stats",
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id

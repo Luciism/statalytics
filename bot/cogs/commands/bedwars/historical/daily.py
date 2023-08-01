@@ -97,7 +97,7 @@ class Daily(commands.Cog):
             "uuid": uuid,
             "identifier": "daily",
             "relative_date": formatted_date,
-            "title": "Daily BW Stats",
+            "title": "Daily Stats",
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id

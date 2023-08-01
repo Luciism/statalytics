@@ -117,7 +117,7 @@ class Yearly(commands.Cog):
             "uuid": uuid,
             "identifier": "yearly",
             "relative_date": relative_date,
-            "title": "Yearly BW Stats",
+            "title": "Yearly Stats",
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id

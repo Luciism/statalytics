@@ -34,16 +34,6 @@ def render_historical(
     rank_info = stats.rank_info
 
     progress, target, progress_of_10 = stats.progress
-    timezone, reset_hour = stats.get_time_info()
-    most_played = stats.get_most_played()
-    games_played = f'{stats.games_played:,}'
-    items_purchased = f'{stats.items_purchased:,}'
-    stars_gained = stats.stars_gained
-
-    wins, losses, wlr = stats.get_wins()
-    final_kills, final_deaths, fkdr = stats.get_finals()
-    beds_broken, beds_lost, bblr = stats.get_beds()
-    kills, deaths, kdr = stats.get_kills()
 
     image = get_background(
         path=f'./assets/bg/historical/{identifier}', uuid=uuid,
@@ -55,25 +45,25 @@ def render_historical(
 
     # Render the stat values
     data = [
-        {'position': (87, 190), 'text': f'&a{wins}'},
-        {'position': (241, 190), 'text': f'&c{losses}'},
-        {'position': (378, 190), 'text': f'&6{wlr}'},
-        {'position': (87, 249), 'text': f'&a{final_kills}'},
-        {'position': (241, 249), 'text': f'&c{final_deaths}'},
-        {'position': (378, 249), 'text': f'&6{fkdr}'},
-        {'position': (87, 308), 'text': f'&a{beds_broken}'},
-        {'position': (241, 308), 'text': f'&c{beds_lost}'},
-        {'position': (378, 308), 'text': f'&6{bblr}'},
-        {'position': (87, 367), 'text': f'&a{kills}'},
-        {'position': (241, 367), 'text': f'&c{deaths}'},
-        {'position': (378, 367), 'text': f'&6{kdr}'},
-        {'position': (82, 427), 'text': f'&d{stars_gained}'},
-        {'position': (226, 427), 'text': f'&d{timezone}'},
-        {'position': (370, 427), 'text': f'&d{reset_hour}'},
-        {'position': (537, 249), 'text': f'&d{games_played}'},
-        {'position': (537, 308), 'text': f'&d{most_played}'},
+        {'position': (87, 190), 'text': f'&a{stats.wins_cum:,}'},
+        {'position': (241, 190), 'text': f'&c{stats.losses_cum:,}'},
+        {'position': (378, 190), 'text': f'&6{stats.wlr_cum:,}'},
+        {'position': (87, 249), 'text': f'&a{stats.final_kills_cum:,}'},
+        {'position': (241, 249), 'text': f'&c{stats.final_deaths_cum:,}'},
+        {'position': (378, 249), 'text': f'&6{stats.fkdr_cum:,}'},
+        {'position': (87, 308), 'text': f'&a{stats.beds_broken_cum:,}'},
+        {'position': (241, 308), 'text': f'&c{stats.beds_lost_cum:,}'},
+        {'position': (378, 308), 'text': f'&6{stats.bblr_cum:,}'},
+        {'position': (87, 367), 'text': f'&a{stats.kills_cum:,}'},
+        {'position': (241, 367), 'text': f'&c{stats.deaths_cum:,}'},
+        {'position': (378, 367), 'text': f'&6{stats.kdr_cum:,}'},
+        {'position': (82, 427), 'text': f'&d{stats.stars_gained}'},
+        {'position': (226, 427), 'text': f'&d{stats.timezone}'},
+        {'position': (370, 427), 'text': f'&d{stats.reset_hour}'},
+        {'position': (537, 249), 'text': f'&d{stats.games_played_cum:,}'},
+        {'position': (537, 308), 'text': f'&d{stats.most_played_cum}'},
         {'position': (537, 367), 'text': f'&d{relative_date}'},
-        {'position': (537, 427), 'text': f'&d{items_purchased}'},
+        {'position': (537, 427), 'text': f'&d{stats.items_purchased_cum:,}'},
         {'position': (537, 46), 'text': f'({mode.title()})'}
     ]
 

@@ -108,8 +108,9 @@ def get_progress(hypixel_data_bedwars: dict) -> tuple[str, str, int]:
 
 # Suffixes used to approximate large numbers
 suffixes = {
-    10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc', 10**48: 'QiDc', 10**45: 'QaDc',
-    10**42: 'TDc', 10**39: 'DDc', 10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
+    10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc',
+    10**48: 'QiDc', 10**45: 'QaDc', 10**42: 'TDc', 10**39: 'DDc',
+    10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
     10**21: 'Sx', 10**18: 'Qi', 10**15: 'Qa', 10**12: 'T', 10**9: 'B', 10**6: 'M'
 }
 
@@ -176,7 +177,7 @@ class BedwarsStats:
         self._hypixel_data = get_player_dict(hypixel_data)
 
         self._bedwars_data = self._hypixel_data.get('stats', {}).get('Bedwars', {})
-        
+
         self.wins = self._get_mode_stats('wins_bedwars')
         self.losses = self._get_mode_stats('losses_bedwars')
         self.final_kills = self._get_mode_stats('final_kills_bedwars')
@@ -218,3 +219,72 @@ class BedwarsStats:
 
         prefix = bedwars_modes_map.get(self._strict_mode.lower())
         return self._bedwars_data.get(f'{prefix}{key}', default)
+
+
+class CumulativeStats(BedwarsStats):
+    def __init__(
+        self,
+        hypixel_data: dict,
+        local_bedwars_data: dict,
+        strict_mode: str=None
+    ) -> None:
+        super().__init__(hypixel_data, strict_mode)
+
+        self._local_bedwars_data = local_bedwars_data
+
+        self.wins_cum: int = self._calc_cum('wins_bedwars')
+        self.losses_cum: int = self._calc_cum('losses_bedwars')
+        self.wlr_cum = rround(self.wins_cum / (self.losses_cum or 1), 2)
+    
+        self.final_kills_cum: int = self._calc_cum('final_kills_bedwars')
+        self.final_deaths_cum: int = self._calc_cum('final_deaths_bedwars')
+        self.fkdr_cum = rround(self.final_kills_cum / (self.final_deaths_cum or 1), 2)
+
+        self.beds_broken_cum: int = self._calc_cum('beds_broken_bedwars')
+        self.beds_lost_cum: int = self._calc_cum('beds_lost_bedwars')
+        self.bblr_cum = rround(self.beds_broken_cum / (self.beds_lost_cum or 1), 2)
+
+        self.kills_cum: int = self._calc_cum('kills_bedwars')
+        self.deaths_cum: int = self._calc_cum('deaths_bedwars')
+        self.kdr_cum = rround(self.kills_cum / (self.deaths_cum or 1), 2)
+
+        self.most_played_cum = self._get_most_played()
+        self.games_played_cum: int = self._calc_cum('games_played_bedwars')
+
+        local_experience = self._local_bedwars_data.get(f'Experience', 0)
+        self.experience_cum = self.experience - local_experience
+        self.levels_cum = self.level - get_level(local_experience)
+
+        self.items_purchased_cum: int = self._calc_cum('items_purchased_bedwars')
+
+
+    def _get_mode_stats_local(self, key: str, default=0) -> dict | int:
+        if self._strict_mode is None:
+            mode_stats = {}
+            for mode, prefix in bedwars_modes_map.items():
+                mode_stats[mode] = self._local_bedwars_data.get(
+                    f'{prefix}{key}', default)
+            return mode_stats
+
+        prefix = bedwars_modes_map.get(self._strict_mode.lower())
+        return self._local_bedwars_data.get(f'{prefix}{key}', default)
+
+
+    def _calc_cum(self, key: str):
+        hypixel_value = self._get_mode_stats(key)
+        local_value = self._get_mode_stats_local(key)
+
+        return hypixel_value - local_value
+
+
+    def _get_most_played(self):
+        modes_dict = {
+            'Solos': self._calc_cum('eight_one_games_played_bedwars'),
+            'Doubles': self._calc_cum('eight_two_games_played_bedwars'),
+            'Threes': self._calc_cum('four_three_games_played_bedwars'),
+            'Fours': self._calc_cum('four_four_games_played_bedwars'),
+            '4v4': self._calc_cum('two_four_games_played_bedwars')
+        }
+        if max(modes_dict.values()) == 0:
+            return "N/A"
+        return str(max(modes_dict, key=modes_dict.get))

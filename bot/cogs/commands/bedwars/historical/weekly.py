@@ -101,7 +101,7 @@ class Weekly(commands.Cog):
             "uuid": uuid,
             "identifier": "weekly",
             "relative_date": formatted_date,
-            "title": "Weekly BW Stats",
+            "title": "Weekly Stats",
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
             "save_dir": interaction.id
