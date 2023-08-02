@@ -320,19 +320,19 @@ class CumulativeStats(BedwarsStats):
 
         self.wins_cum: int = self._calc_cum('wins_bedwars')
         self.losses_cum: int = self._calc_cum('losses_bedwars')
-        self.wlr_cum = rround(self.wins_cum / (self.losses_cum or 1), 2)
+        self.wlr_cum = self._get_ratio(self.wins_cum, self.losses_cum)
     
         self.final_kills_cum: int = self._calc_cum('final_kills_bedwars')
         self.final_deaths_cum: int = self._calc_cum('final_deaths_bedwars')
-        self.fkdr_cum = rround(self.final_kills_cum / (self.final_deaths_cum or 1), 2)
+        self.fkdr_cum = self._get_ratio(self.final_kills_cum, self.final_deaths_cum)
 
         self.beds_broken_cum: int = self._calc_cum('beds_broken_bedwars')
         self.beds_lost_cum: int = self._calc_cum('beds_lost_bedwars')
-        self.bblr_cum = rround(self.beds_broken_cum / (self.beds_lost_cum or 1), 2)
+        self.bblr_cum = self._get_ratio(self.beds_broken_cum, self.beds_lost_cum)
 
         self.kills_cum: int = self._calc_cum('kills_bedwars')
         self.deaths_cum: int = self._calc_cum('deaths_bedwars')
-        self.kdr_cum = rround(self.kills_cum / (self.deaths_cum or 1), 2)
+        self.kdr_cum = self._get_ratio(self.kills_cum, self.deaths_cum)
 
         self.most_played_cum = self._get_most_played()
         self.games_played_cum: int = self._calc_cum('games_played_bedwars')

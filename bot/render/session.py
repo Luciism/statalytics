@@ -84,6 +84,16 @@ def render_session(
         align='center'
     )
 
+    render_mc_text(
+        text=f"Session Stats",
+        position=(537, 27),
+        font_size=17,
+        image=image,
+        shadow_offset=(2, 2),
+        align='center'
+    )
+
+
     paste_skin(skin_res, image, positions=(466, 69))
 
     # Paste overlay image

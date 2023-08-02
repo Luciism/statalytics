@@ -2,6 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
 
+from ..functions import REL_PATH
 from .splitting import split_string, split_at_symbols
 from .colors import Colors
 from .tools import mc_text_shadow
@@ -84,8 +85,9 @@ def get_start_point(
 def render_mc_text(
     text: str,
     position: tuple[int, int],
-    font: ImageFont.ImageFont,
     image: Image.Image,
+    font: ImageFont.ImageFont=None,
+    font_size: int=None,
     shadow_offset: tuple[int, int]=None,
     align: Literal['left', 'center', 'right']='left',
     return_x: bool=False
@@ -93,12 +95,19 @@ def render_mc_text(
     """
     :param text: Text to render on the image
     :param position: X & Y positions to render the text at
-    :param font: Font used to render text
     :param image: PIL image object to render text on
+    :param font: Font used to render text
+    :param font_size: The fontsize to use if no font object is passed
     :param shadow_offset: X & Y positions to offset the drop shadow
     :param align: the alignment of the text relative to the x position
     :param return_x: whether or not to return the new x position
     """
+    assert (font, font_size).count(None) > 0
+
+    if font is None:
+        font = ImageFont.truetype(
+            f'{REL_PATH}/assets/fonts/minecraft.ttf', size=font_size)
+
     split_chars = tuple(Colors.color_codes)
     bits = tuple(split_string(text, split_chars))
 
