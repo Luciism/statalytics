@@ -1,14 +1,13 @@
 """A set of useful functions used throughout the bot"""
 
+import os
 import json
 import random
 import typing
 import sqlite3
 import asyncio
 import functools
-import os
-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 
@@ -235,3 +234,23 @@ def prefix_int(integer: int):
     :param integer: the integer to be prefixed
     """
     return f'{int_prefix(integer)}{integer}'
+
+
+def format_seconds(seconds):
+    """
+    Formats an amount of seconds into a string for example
+    `36 Mins`, `48 Hours`, or `12 Days`
+    :param seconds: the amount of seconds to format
+    """
+    delta = timedelta(seconds=round(seconds))
+    days = delta.days
+
+    if days > 0:
+        return f"{days} Day{'s' if days > 1 else ''}"
+    
+    hours = delta.seconds // 3600
+    if hours > 0:
+        return f"{hours} Hour{'s' if hours > 1 else ''}"
+    
+    minutes = (delta.seconds // 60) % 60
+    return f"{minutes} Min{'s' if minutes > 1 else ''}"

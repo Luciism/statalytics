@@ -85,7 +85,7 @@ def render_session(
     )
 
     render_mc_text(
-        text=f"Session Stats",
+        text="Session Stats",
         position=(537, 27),
         font_size=17,
         image=image,

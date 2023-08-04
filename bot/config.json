@@ -2,7 +2,7 @@
     "loading_message": "Arguing with Hypixel <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
     "bot_id": 903765373181112360,
-    "version": "1.10.1",
+    "version": "1.11.0",
     "developers": [
         "lukism"
     ],
@@ -74,7 +74,6 @@
         "commands.misc.info",
         "commands.misc.invite",
         "commands.misc.suggest",
-        "commands.misc.usage",
         "commands.misc.vote",
 
         "commands.bedwars.year",
@@ -92,6 +91,7 @@
         "commands.bedwars.compare",
         "commands.bedwars.displayname",
         "commands.bedwars.difference",
+        "commands.bedwars.quests",
         "commands.bedwars.historical.daily",
         "commands.bedwars.historical.weekly",
         "commands.bedwars.historical.monthly",

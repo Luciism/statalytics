@@ -13,7 +13,7 @@ class AverageStats(BedwarsStats):
     ) -> None:
         super().__init__(hypixel_data, strict_mode=mode.lower())
 
-        self._level_real = self.playtime_xp / 5000
+        self._level_real = self.questless_exp / 5000
         self.level = int(self.level)
 
         self.rank_info = get_rank_info(self._hypixel_data)

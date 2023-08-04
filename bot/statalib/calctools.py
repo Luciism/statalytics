@@ -30,6 +30,31 @@ quest_xp_map = {
     "bedwars_weekly_final_killer": 5000
 }
 
+
+wins_xp_map = {
+    "eight_one_wins_bedwars": 100,
+    "eight_two_wins_bedwars": 100,
+    "four_three_wins_bedwars": 50,
+    "four_four_wins_bedwars": 50,
+    "two_four_wins_bedwars": 25,
+    "eight_two_voidless_wins_bedwars": 50,
+    "four_four_voidless_wins_bedwars": 25,
+    "eight_two_rush_wins_bedwars": 50,
+    "four_four_rush_wins_bedwars": 25,
+    "eight_two_ultimate_wins_bedwars": 50,
+    "four_four_ultimate_wins_bedwars": 25,
+    "eight_two_armed_wins_bedwars": 50,
+    "four_four_armed_wins_bedwars": 25,
+    "eight_two_lucky_wins_bedwars": 50,
+    "four_four_lucky_wins_bedwars": 25,
+    "eight_two_swap_wins_bedwars": 50,
+    "four_four_swap_wins_bedwars": 25,
+    "eight_two_underworld_wins_bedwars": 50,
+    "four_four_underworld_wins_bedwars": 25,
+    "castle_wins_bedwars": 50,
+}
+
+
 # Suffixes used to approximate large numbers
 suffixes = {
     10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc',
@@ -182,14 +207,34 @@ def rround(number: float | int, ndigits: int=0) -> float | int:
     return rounded
 
 
-def get_playtime_xp(hypixel_data: dict):
+def get_wins_xp(bedwars_data: dict):
     """
-    Returns a player's bedwars experience gained without the use of quests
+    Finds the total amount of xp a player has been awarded
+    by winning bedwars games accounting for different modes
+    :param bedwars_data: the bedwars data json of the player
+    """
+    exp_data = {'experience': 0}
+
+    for mode, exp_amount in wins_xp_map.items():
+        total_wins = bedwars_data.get(mode, 0)
+
+        mode_exp = total_wins * exp_amount
+
+        exp_data[mode] = mode_exp
+        exp_data['experience'] += mode_exp
+    
+    return exp_data
+
+
+def get_quests_data(hypixel_data: dict):
+    """
+    Returns the completions and xp gained for each quest
     :param hypixel_data: the hypixel data for the player
     """
     total_experience = hypixel_data.get(
         'stats', {}).get('Bedwars', {}).get('Experience', 0)
 
+    quest_data = {'quests_exp': {}, 'completions': 0}
     xp_by_quests = 0
 
     for quest, exp in quest_xp_map.items():
@@ -197,19 +242,36 @@ def get_playtime_xp(hypixel_data: dict):
             quest_completions: list[dict] = hypixel_data.get(
                 'quests', {}).get(quest, {}).get('completions', {})
 
+            quest_data['completions'] += len(quest_completions)
+
+            quest_exp = 0
             for completion in quest_completions:
                 completed_timestamp = completion.get('time', 0)
 
                 for timestamp, timestamp_exp in exp.items():
                     if completed_timestamp >= timestamp:
-                        xp_by_quests += timestamp_exp
-        
+                        quest_exp += timestamp_exp
+    
+            xp_by_quests += quest_exp
+            quest_data['quests_exp'].setdefault(
+                quest, {})['completions'] = len(quest_completions)
+            quest_data['quests_exp'][quest]['experience'] = quest_exp
+
         else:
             completions = len(hypixel_data.get(
                 'quests', {}).get(quest, {}).get('completions', {}))
-            xp_by_quests += completions * exp
 
-    return total_experience - xp_by_quests
+            quest_exp = completions * exp
+            xp_by_quests += quest_exp
+
+            quest_data['quests_exp'].setdefault(quest, {})['completions'] = completions
+            quest_data['quests_exp'][quest]['experience'] = quest_exp
+            quest_data['completions'] += completions
+
+    quest_data['real_exp'] = total_experience - xp_by_quests
+    quest_data['total_quests_exp'] = xp_by_quests
+
+    return quest_data
 
 
 class BedwarsStats:
@@ -275,15 +337,32 @@ class BedwarsStats:
             self.winstreak_str = 'API Off'
             self.winstreak = 0
 
-        self._playtime_xp = None
+        self._quests_data = None
+
+        self._wins_xp_data = None
+        self._wins_xp = None
 
 
     @property
-    def playtime_xp(self):
-        if self._playtime_xp is None:
-            self._playtime_xp = get_playtime_xp(self._hypixel_data)
-        return self._playtime_xp
-    
+    def quests_data(self):
+        if self._quests_data is None:
+            self._quests_data = get_quests_data(self._hypixel_data)
+        return self._quests_data
+
+    @property
+    def questless_exp(self):
+        return self.quests_data.get('real_exp', 0)
+
+    @property
+    def wins_xp_data(self):
+        if self._wins_xp_data is None:
+            self._wins_xp_data = get_wins_xp(self._bedwars_data)
+        return self._wins_xp_data
+
+    @property
+    def wins_xp(self):
+        return self.wins_xp_data.get('experience', 0)
+
 
     def _get_ratio(self, val_1: int, val_2: int):
         if isinstance(val_1, dict):

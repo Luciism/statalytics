@@ -47,6 +47,7 @@
     "difference_monthly": "/difference monthly",
     "difference_yearly": "/difference yearly",
     "status_hypixel": "/status hypixel",
-    "overall": "Overall"
+    "overall": "Overall",
+    "quests": "/quests"
   }
 }
