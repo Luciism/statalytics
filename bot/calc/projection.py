@@ -142,7 +142,7 @@ class ProjectedStats(BedwarsStats):
                 days_to_go = 0
             else:
                 days_to_go = int((days / self.levels_gained) * self.levels_to_go)
-    
+
             future_date = current_time + timedelta(days=days_to_go)
             return str(future_date.strftime("%b %d, %Y"))
         except OverflowError:

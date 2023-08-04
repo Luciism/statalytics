@@ -61,7 +61,7 @@ class Weekly(commands.Cog):
         await log_error_msg(self.client, error)
 
 
-    @app_commands.command(    
+    @app_commands.command(
         name="weekly",
         description="View the weekly stats of a player")
     @app_commands.describe(username='The player you want to view')

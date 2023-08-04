@@ -209,7 +209,7 @@ def get_formatted_level(level: int) -> str:
         for i, char in enumerate(level_string):
             new_level_string += f'{prestige_colors[i]}{char}'
         return new_level_string
-    
+
     return f'{prestige_colors}{level_string}'
 
 
@@ -225,7 +225,7 @@ def get_rank_color(rank_info: dict) -> tuple:
 
     if rank == "TECHNO":
         return '&d'
-    
+
     if rank in ("YOUTUBER", "ADMIN"):
         return '&c'
 

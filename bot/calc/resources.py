@@ -42,7 +42,7 @@ class ResourcesStats(BedwarsStats):
     def get_percentages(self):
         values = (self.iron_collected, self.gold_collected,
                   self.diamonds_collected, self.emeralds_collected)
-        
+
         return_values = []
         for value in values:
             if 0 in (value, self.resources_collected):

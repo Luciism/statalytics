@@ -222,7 +222,7 @@ def get_wins_xp(bedwars_data: dict):
 
         exp_data[mode] = mode_exp
         exp_data['experience'] += mode_exp
-    
+
     return exp_data
 
 
@@ -251,7 +251,7 @@ def get_quests_data(hypixel_data: dict):
                 for timestamp, timestamp_exp in exp.items():
                     if completed_timestamp >= timestamp:
                         quest_exp += timestamp_exp
-    
+
             xp_by_quests += quest_exp
             quest_data['quests_exp'].setdefault(
                 quest, {})['completions'] = len(quest_completions)
@@ -287,6 +287,8 @@ class BedwarsStats:
         self._hypixel_data = get_player_dict(hypixel_data)
 
         self._bedwars_data = self._hypixel_data.get('stats', {}).get('Bedwars', {})
+
+        self.title_mode = real_title_case(strict_mode or 'overall')
 
         self.wins = self._get_mode_stats('wins_bedwars')
         self.losses = self._get_mode_stats('losses_bedwars')
@@ -327,7 +329,7 @@ class BedwarsStats:
 
         self.loot_chests = int(self.loot_chests_regular + self.loot_chests_christmas
             + self.loot_chests_easter + self.loot_chests_halloween)
-        
+
         self.coins = self._bedwars_data.get('coins', 0)
 
         self.winstreak = self._bedwars_data.get('winstreak')
@@ -371,7 +373,7 @@ class BedwarsStats:
             for key, value in val_1.items():
                 ratios[key] = rround(value / (val_2[key] or 1), 2)
             return ratios
-                
+
         return rround(val_1 / (val_2 or 1), 2)
 
 
@@ -400,7 +402,7 @@ class CumulativeStats(BedwarsStats):
         self.wins_cum: int = self._calc_cum('wins_bedwars')
         self.losses_cum: int = self._calc_cum('losses_bedwars')
         self.wlr_cum = self._get_ratio(self.wins_cum, self.losses_cum)
-    
+
         self.final_kills_cum: int = self._calc_cum('final_kills_bedwars')
         self.final_deaths_cum: int = self._calc_cum('final_deaths_bedwars')
         self.fkdr_cum = self._get_ratio(self.final_kills_cum, self.final_deaths_cum)

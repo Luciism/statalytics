@@ -47,7 +47,8 @@ def get_reset_time_configured(discord_id: int):
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT * FROM configured_reset_times WHERE discord_id = {discord_id}")
+        cursor.execute(
+            f"SELECT * FROM configured_reset_times WHERE discord_id = {discord_id}")
         configuration_data = cursor.fetchone()
 
     if configuration_data:
@@ -61,7 +62,8 @@ def get_reset_time_configured(discord_id: int):
 def get_reset_time(uuid: str) -> tuple | None:
     """
     Attempts to get the configured reset time of the discord user\n
-    If the discord user has not configured a reset time, the player's default reset time will be used
+    If the discord user has not configured a reset time, the player's
+    default reset time will be used
     :param uuid: The backup uuid if the discord user has no configured reset time
     """
     reset_time = False
@@ -143,14 +145,23 @@ def update_reset_time_configured(discord_id: int, value: int, method: str):
 
         if cursor.fetchone():
             cursor.execute(
-                f'UPDATE configured_reset_times SET {method} = ? WHERE discord_id = ?', (value, discord_id))
+                'UPDATE configured_reset_times '
+                f'SET {method} = ? '
+                'WHERE discord_id = ?',
+                (value, discord_id)
+            )
         else:
             values = (discord_id, value, 0) if method == 'timezone' else (discord_id, 0, value)
             cursor.execute(
-                'INSERT INTO configured_reset_times (discord_id, timezone, reset_hour) VALUES (?, ?, ?)', values)
+                'INSERT INTO configured_reset_times '
+                '(discord_id, timezone, reset_hour) '
+                'VALUES (?, ?, ?)', values)
 
         cursor.execute(
-            f'SELECT timezone, reset_hour FROM configured_reset_times WHERE discord_id = {discord_id}')
+            'SELECT timezone, reset_hour '
+            'FROM configured_reset_times '
+            'WHERE discord_id = ?',
+            (discord_id,))
         current_data = cursor.fetchone()
 
     uuid = get_linked_player(discord_id)
@@ -321,7 +332,7 @@ async def _reset_historical(uuid: str, tracker: str, timezone: int,
 
         set_clause = ', '.join([f"{column} = ?" for column in stat_keys])
         cursor.execute(
-            f"UPDATE trackers SET {set_clause} WHERE uuid = ? and tracker = ?", 
+            f"UPDATE trackers SET {set_clause} WHERE uuid = ? and tracker = ?",
             (*stat_values, uuid, tracker)
         )
 
@@ -408,7 +419,8 @@ class HistoricalManager:
     def get_reset_time(self, uuid: str=None):
         """
         Attempts to get the configured reset time of the discord user\n
-        If the discord user has not configured a reset time, the player's default reset time will be used
+        If the discord user has not configured a reset time,
+        the player's default reset time will be used
         :param uuid: The backup uuid if the discord user has no configured reset time
         """
         if not uuid:
@@ -485,6 +497,6 @@ class HistoricalManager:
         """
         Returns the amount of days back a user can check a player's historical stats
         :param discord_id_primary: the primary discord id to use (linked discord account of player)
-        :param discord_id_secondary: the secondary discord id to use (the interaction user's id) 
+        :param discord_id_secondary: the secondary discord id to use (the interaction user's id)
         """
         return get_max_lookback(discord_id_primary, discord_id_secondary)

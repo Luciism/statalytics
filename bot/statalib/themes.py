@@ -175,8 +175,8 @@ class ThemeManager:
         if not theme_name in exclusive_themes:
             raise ThemeNotFoundError(
                 'The respective theme is not a valid exclusive theme!')
-    
-    
+
+
     def _check_theme_availability(self, theme_name: str):
         available = get_owned_themes(self.discord_id) + get_voter_themes()
         if not theme_name in available:

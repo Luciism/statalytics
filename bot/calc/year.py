@@ -61,7 +61,7 @@ class YearStats(BedwarsStats):
         self.rank_info = get_rank_info(self._hypixel_data)
 
         years_to_go = year - datetime.now().year
-        
+
         complete_percentage = round(
             ((365 * years_to_go) - int(self.days_to_go)) / (365 * years_to_go) * 100, 2)
 

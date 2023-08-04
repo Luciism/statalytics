@@ -57,7 +57,7 @@ def render_symbol(
         shadow_color = mc_text_shadow(color)
 
         draw.text((x+off_x, y+off_y), symbol, fill=shadow_color, font=font)
-    
+
     draw.text((x, y), symbol, fill=color, font=font)
 
     if return_x:

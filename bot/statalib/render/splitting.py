@@ -42,7 +42,7 @@ def split_at_symbols(text: str) -> list[dict]:
     Example usage:
     ```python
     >>> split_at_symbols('Hello! 👋 Good Day! ⚝')
-    [{'value': 'Hello! ', 'type': 'text'}, 
+    [{'value': 'Hello! ', 'type': 'text'},
     {'value': '👋', 'type': 'symbol'},
     {'value': ' Good Day! ', 'type': 'text'},
     {'value': '⚝', 'type': 'symbol'}]

@@ -150,7 +150,7 @@ def get_commands_total() -> int:
 
     if result:
         return result[0]
-    return 0 
+    return 0
 
 
 def _set_embed_color(embed: discord.Embed, color: str | int):
@@ -247,10 +247,10 @@ def format_seconds(seconds):
 
     if days > 0:
         return f"{days} Day{'s' if days > 1 else ''}"
-    
+
     hours = delta.seconds // 3600
     if hours > 0:
         return f"{hours} Hour{'s' if hours > 1 else ''}"
-    
+
     minutes = (delta.seconds // 60) % 60
     return f"{minutes} Min{'s' if minutes > 1 else ''}"

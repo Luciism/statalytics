@@ -35,7 +35,8 @@ def uuid_to_discord_id(uuid: str) -> int | None:
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute(f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
+        cursor.execute(
+            f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
         discord_id = cursor.fetchone()
 
     return None if not discord_id else discord_id[0]
@@ -48,7 +49,8 @@ def get_linked_player(discord_id: int) -> str | None:
     """
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
+        cursor.execute(
+            f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
         linked_data = cursor.fetchone()
 
     if linked_data and linked_data[1]:
@@ -68,9 +70,13 @@ def set_linked_data(discord_id: int, uuid: str) -> None:
         linked_data = cursor.fetchone()
 
         if not linked_data:
-            cursor.execute("INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)", (discord_id, uuid))
+            cursor.execute(
+                "INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)",
+                (discord_id, uuid))
         else:
-            cursor.execute("UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?", (uuid, discord_id))
+            cursor.execute(
+                "UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?",
+                (uuid, discord_id))
 
 
 def update_autofill(discord_id: int, uuid: str, username: str) -> None:
@@ -110,7 +116,8 @@ async def fetch_player_info(username: str, interaction: Interaction,
             name = FetchPlayer(uuid=uuid, requests_obj=mojang_session).name
             update_autofill(interaction.user.id, uuid, name)
         else:
-            msg = "You are not linked! Either specify a player or link your account using `/link`!"
+            msg = ("You are not linked! Either specify "
+                   "a player or link your account using `/link`!")
 
             if interaction.response.is_done():
                 await interaction.followup.send(msg)
@@ -146,7 +153,7 @@ async def link_account(discord_tag: str, discord_id: int,
     :param name: The username of the hypixel account being linked
 
     Either uuid, name, or both must be passed
-    
+
     #### Returns:
         2 - linking was a success and session was created\n
         1 - linking was a success\n

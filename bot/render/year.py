@@ -28,7 +28,7 @@ def render_year(
     target = stats.get_target()
 
     rank_info = stats.rank_info
-    
+
     days_to_go = str(stats.days_to_go)
     stars_per_day = f'{round(stats.stars_per_day, 2):,}'
     complete_percent = stats.complete_percentage

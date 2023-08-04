@@ -150,7 +150,7 @@ def render_mc_text(
                 draw.text((x, y), value, fill=color, font=font)
 
                 x += int(draw.textlength(value, font=font))
-    
+
     if return_x:
         return image, x
 

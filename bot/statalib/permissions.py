@@ -128,7 +128,7 @@ class PermissionManager:
     def get_permissions(self):
         """Returns list of permissions for a discord user"""
         return get_permissions(self.discord_id)
-    
+
 
     def has_permission(self, permission: str, allow_star: bool=True):
         """

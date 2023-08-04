@@ -34,7 +34,7 @@ class AverageStats(BedwarsStats):
         per_game_vals = (
             self.final_kills, self.beds_broken, self.kills, self.deaths
         )
-        
+
         results = []
         for val in per_game_vals:
             results.append(rround(val / (self.games_played or 1), 2))

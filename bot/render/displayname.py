@@ -4,7 +4,7 @@ from statalib.render import render_display_name, image_to_bytes
 
 @to_thread
 def render_displayname(
-    name: str, 
+    name: str,
     hypixel_data: dict
 ) -> bytes:
     hypixel_data = get_player_dict(hypixel_data)

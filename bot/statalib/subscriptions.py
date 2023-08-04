@@ -45,10 +45,10 @@ def is_booster(discord_id: int) -> bool:
     """
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-        
+
         cursor.execute(f"SELECT booster FROM subscriptions WHERE discord_id = {discord_id}")
         booster = cursor.fetchone()
-    
+
     if booster:
         if booster[0] == 1:
             return True
@@ -101,7 +101,7 @@ def set_package_data(discord_id: int, package_data: dict):
     """
     subscription_data = get_subscription(
         package_data=package_data, get_expiry=True, include_booster=False)
-    
+
     if subscription_data:
         package, expires = subscription_data
         current_package = f'{package}:{expires}'
@@ -175,7 +175,7 @@ def update_current_package(discord_id: int):
     package determined from package_data json string
     :param discord_id: the discord id of the respective user
     """
-    
+
     subscription = get_subscription(
         discord_id, include_booster=False, get_expiry=True)
     if subscription:
@@ -227,7 +227,7 @@ def add_subscription(discord_id: int, package: str, expires: int) -> None:
 
         datafile.seek(0)  # Move the file pointer to the beginning
         json.dump(new_subscriptions, datafile, indent=4)
-        datafile.truncate() 
+        datafile.truncate()
 
 
 def remove_subscription(discord_id: int, package: str,
@@ -283,7 +283,7 @@ class SubscriptionManager:
         """
         add_subscription(self.discord_id, package, expires)
 
-    
+
     def remove_subscription(self, package: str, max_removals: int=-1):
         """
         Removes certain amount occurences of a subscription from a user

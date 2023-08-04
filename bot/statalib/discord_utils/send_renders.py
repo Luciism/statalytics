@@ -24,8 +24,12 @@ def discord_message(discord_id):
     return None
 
 
-async def handle_modes_renders(interaction: discord.Interaction,
-                               func: object, kwargs: dict, message=None):
+async def handle_modes_renders(
+    interaction: discord.Interaction,
+    func: object,
+    kwargs: dict,
+    message=None
+):
     """
     Renders and sends all modes to discord for the selected render
     :param interaction: the relative discord interaction object
@@ -38,13 +42,16 @@ async def handle_modes_renders(interaction: discord.Interaction,
 
     os.makedirs(f'{REL_PATH}/database/rendered/{interaction.id}')
     await func(mode="Overall", **kwargs)
-    view = ModesView(user=interaction.user.id, inter=interaction, mode='Select a mode')
+    view = ModesView(
+        inter=interaction,
+        mode='Select a mode'
+    )
+
+    image = discord.File(
+        f"{REL_PATH}/database/rendered/{interaction.id}/overall.png")
     try:
         await interaction.edit_original_response(
-            content=message,
-            attachments=[
-                discord.File(f"{REL_PATH}/database/rendered/{interaction.id}/overall.png")],
-            view=view
+            content=message, attachments=[image], view=view
         )
     except discord.errors.NotFound:
         return

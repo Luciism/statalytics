@@ -91,7 +91,7 @@ async def find_dynamic_session(interaction: discord.Interaction, username: str,
     returned_session = _find_dynamic_session(uuid, session)
     respond = interaction_send_object(interaction)
 
-    # no sessions exist because 
+    # no sessions exist because... i forgot to finish this comment now idk
     if not returned_session and not session:
         await start_session(uuid, session=1)
         await respond(
