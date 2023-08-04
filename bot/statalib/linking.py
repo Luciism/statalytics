@@ -127,12 +127,10 @@ async def fetch_player_info(username: str, interaction: Interaction,
     else:
         if len(username) <= 16:
             player_data = FetchPlayer(name=username, requests_obj=mojang_session)
-            name = player_data.name
-            uuid = player_data.uuid
         else:
             player_data = FetchPlayer(uuid=username, requests_obj=mojang_session)
-            name = player_data.name
-            uuid = player_data.uuid
+        name = player_data.name
+        uuid = player_data.uuid
 
         if name is None:
             if interaction.response.is_done():
