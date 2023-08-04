@@ -19,7 +19,7 @@ class Who(commands.Cog):
                   username_or_uuid: str=None):
         name, uuid = await fetch_player_info(username_or_uuid, interaction, eph=True)
 
-        if username_or_uuid is None or len(username_or_uuid) < 16:
+        if username_or_uuid is None or len(username_or_uuid) <= 16:
             await interaction.response.send_message(
                 f'UUID for **{name}** -> `{uuid}`', ephemeral=True)
         else:
