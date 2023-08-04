@@ -67,7 +67,7 @@ def render_compare(
         {'position': (320, 438), 'text': f'{color(deaths_diff, "b")}{deaths_diff}'},
         {'position': (526, 404), 'text': f'&6{kdr}'},
         {'position': (526, 438), 'text': f'{color(kdr_diff, "g")}{kdr_diff}'},
-        {'position': (526, 47), 'text': f'({mode})'}
+        {'position': (526, 47), 'text': f'({stats._bw_1.title_mode})'}
     ]
 
     for values in data:

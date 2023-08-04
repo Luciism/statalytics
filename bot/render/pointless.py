@@ -52,7 +52,7 @@ def render_pointless(
         {'position': (537, 309), 'text': f'&d{stats.most_played}'},
         {'position': (537, 368), 'text': f'&d{stats.tools_purchased:,}'},
         {'position': (537, 427), 'text': f'&d{stats.melee_kills:,}'},
-        {'position': (537, 46), 'text': f'({mode.title()})'}
+        {'position': (537, 46), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

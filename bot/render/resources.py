@@ -79,7 +79,7 @@ def render_resources(
         {'position': (553, 429), 'text': f'&a{em_most_mode}'},
 
         {'position': (537, 129), 'text': f'&d{total_collected}'},
-        {'position': (537, 65), 'text': f'({mode})'}
+        {'position': (537, 65), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

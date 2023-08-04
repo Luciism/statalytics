@@ -148,7 +148,7 @@ def render_milestones(
     )
 
     render_mc_text(
-        text=f'({mode.title()})',
+        text=f'({stats.title_mode})',
         position=(536, 45),
         font=minecraft_16,
         image=image,

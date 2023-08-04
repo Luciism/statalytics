@@ -73,7 +73,7 @@ def render_difference(
 
         {'position': (118, 189), 'text': f'&d{stars_gained}'},
         {'position': (332, 189), 'text': f'&d{relative_date}'},
-        {'position': (536, 46), 'text': f'({mode.title()})'}
+        {'position': (536, 46), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

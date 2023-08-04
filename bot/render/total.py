@@ -52,7 +52,7 @@ def render_total(
         {'position': (537, 309), 'text': f'&d{stats.most_played}'},
         {'position': (537, 368), 'text': f'&d{stats.void_deaths:,}'},
         {'position': (537, 427), 'text': f'&d{stats.items_purchased:,}'},
-        {'position': (537, 46), 'text': f'({mode.title()})'}
+        {'position': (537, 46), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

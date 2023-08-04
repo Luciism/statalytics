@@ -64,7 +64,7 @@ def render_historical(
         {'position': (537, 308), 'text': f'&d{stats.most_played_cum}'},
         {'position': (537, 367), 'text': f'&d{relative_date}'},
         {'position': (537, 427), 'text': f'&d{stats.items_purchased_cum:,}'},
-        {'position': (537, 46), 'text': f'({mode.title()})'}
+        {'position': (537, 46), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

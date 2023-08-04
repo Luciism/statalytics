@@ -55,7 +55,7 @@ def render_session(
         {'position': (537, 309), 'text': f'&d{stats.total_sessions}'},
         {'position': (537, 368), 'text': f'&d{stats.date_started}'},
         {'position': (537, 427), 'text': f'&d{stats.most_played_cum}'},
-        {'position': (537, 46), 'text': f'({mode.title()})'}
+        {'position': (537, 46), 'text': f'({stats.title_mode})'}
     ]
 
     for values in data:

@@ -89,7 +89,7 @@ def render_average(
         {'position': (225, 189), 'text': f'&a{win_rate}'},
         {'position': (368, 189), 'text': f'&c{loss_rate}'},
 
-        {'position': (536, 46), 'text': f'&f({mode.title()})'}
+        {'position': (536, 46), 'text': f'&f({stats.title_mode})'}
     ]
 
     for values in data:
