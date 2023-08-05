@@ -12,16 +12,16 @@ from .errors import HypixelInvalidResponseError
 
 
 historic_cache = CachedSession(
-    cache_name=f'{REL_PATH}/cache/historic_cache', expire_after=300)
+    cache_name=f'{REL_PATH}/.cache/historic_cache', expire_after=300)
 
 stats_session = CachedSession(
-    cache_name=f'{REL_PATH}/cache/stats_cache', expire_after=300)
+    cache_name=f'{REL_PATH}/.cache/stats_cache', expire_after=300)
 
 skin_session = CachedSession(
-    cache_name=f'{REL_PATH}/cache/skin_cache', expire_after=900)
+    cache_name=f'{REL_PATH}/.cache/skin_cache', expire_after=900)
 
 mojang_session = CachedSession(
-    cache_name=f'{REL_PATH}/cache/mojang_cache', expire_after=60)
+    cache_name=f'{REL_PATH}/.cache/mojang_cache', expire_after=60)
 
 
 @to_thread
