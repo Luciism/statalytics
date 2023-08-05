@@ -3,7 +3,6 @@
 **/__pycache__/
 **/.env
 bot/database/
-bot/misc/
 bot/cache/
 website/
 utils/
