@@ -43,8 +43,7 @@ def render_year(
     year = str(year)
 
     image = get_background(
-        path='./assets/bg/year', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='year', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

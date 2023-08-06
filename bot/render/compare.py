@@ -30,8 +30,7 @@ def render_compare(
     kills, deaths, kdr, kills_diff, deaths_diff, kdr_diff = stats.get_kills()
 
     image = get_background(
-        path='./assets/bg/compare', uuid=uuid_1,
-        default='base', level=level_1, rank_info=rank_info_1
+        bg_dir='compare', uuid=uuid_1, level=level_1, rank_info=rank_info_1
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

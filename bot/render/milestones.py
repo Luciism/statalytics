@@ -46,8 +46,7 @@ def render_milestones(
         target_kills, deaths_until_deaths, target_deaths = stats.get_kills()
 
     image = get_background(
-        path='./assets/bg/milestones', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='milestones', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

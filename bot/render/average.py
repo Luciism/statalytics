@@ -56,8 +56,7 @@ def render_average(
 
 
     image = get_background(
-        path='./assets/bg/average', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='average', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

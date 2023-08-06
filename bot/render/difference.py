@@ -36,8 +36,7 @@ def render_difference(
     kills, deaths, kdr_1, kdr_2, kdr_diff = stats.get_kills()
 
     image = get_background(
-        path='./assets/bg/difference', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='difference', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

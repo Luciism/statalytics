@@ -25,8 +25,7 @@ def render_quests(
     progress, target, progress_of_10 = stats.progress
 
     image = get_background(
-        path='./assets/bg/quests', uuid=uuid,
-        default='base', level=stats.stars, rank_info=stats.rank_info
+        bg_dir='quests', uuid=uuid, level=stats.stars, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

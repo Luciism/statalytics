@@ -36,8 +36,7 @@ def render_historical(
     progress, target, progress_of_10 = stats.progress
 
     image = get_background(
-        path=f'./assets/bg/historical/{identifier}', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir=f'historical/{identifier}', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

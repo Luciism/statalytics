@@ -28,8 +28,7 @@ def render_hotbar(
     rank_color_code = get_rank_color(rank_info)
 
     base_image = get_background(
-        path='./assets/bg/hotbar', uuid=uuid,
-        default='base', level=0, rank_info=rank_info
+        bg_dir='hotbar', uuid=uuid, level=0, rank_info=rank_info
     ).convert("RGBA")
 
     composite_image = Image.new("RGBA", base_image.size)

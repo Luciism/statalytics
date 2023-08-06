@@ -77,10 +77,10 @@ def recolor_pixels(
     return Image.fromarray(data)
 
 
-def theme_color_sync_fusion(path: str, **kwargs) -> Image.Image:
+def theme_color_sync_fusion(bg_dir: str, **kwargs) -> Image.Image:
     """
     Returns image for color sync fusion theme
-    :param path: The base path of the feature location
+    :param bg_dir: The directory that the background is located in
     :param **kwargs: keyword arguments should include a level and rank information
     """
     rank_info = kwargs.get('rank_info')
@@ -89,42 +89,46 @@ def theme_color_sync_fusion(path: str, **kwargs) -> Image.Image:
     rank_color = Colors.color_codes.get(get_rank_color(rank_info))
     star_color = get_prestige_primary_color(level)
 
-    image = Image.open(f'{path}/themes/color_sync_fusion.png')
-    image = image.convert('RGBA')
+    image = Image.open(
+        f'{REL_PATH}/assets/bg/{bg_dir}/themes/color_sync_fusion.png'
+    ).convert('RGBA')
 
     rgb_from = ((213, 213, 213), (214, 214, 214))
     rgb_to = (rank_color, star_color)
     return recolor_pixels(image, rgb_from=rgb_from, rgb_to=rgb_to)
 
 
-def get_theme_img(theme: str, path: str, **kwargs) -> Image:
+def get_theme_img(theme: str, bg_dir: str, **kwargs) -> Image:
     """
     Returns an image based on a passed theme
     :param theme: The theme you are attempting to get
+    :param bg_dir: The directory that the background is located in
     :param **kwargs: any keyword arguments that may be needed for the theme
     """
     if theme == 'color_sync_fusion':
-        return theme_color_sync_fusion(path=path, **kwargs)
-    return Image.open(f'{path}/themes/{theme}.png')
+        return theme_color_sync_fusion(bg_dir=bg_dir, **kwargs)
+    return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/themes/{theme}.png')
 
 
-def get_background(path, uuid, default, **kwargs):
+def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
     """
     Returns an background information based on the users setup
-    :param path: The base path of the feature location
+    :param bg_dir: The directory that the background is located in
     :param uuid: The uuid of the player who's background you are getting
     :param default: The default file name of the background (excluding .png extension)
     :param **kwargs: Any additional keyword arguments that may be used to get a background
     """
     discord_id = uuid_to_discord_id(uuid)
     if not discord_id:
-        return Image.open(f'{path}/{default}.png')
+        return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png')
 
     subscription = get_subscription(discord_id) or ''
 
     # User has a pro subscription and a custom background
-    if 'pro' in subscription and os.path.exists(f'{path}/custom/{discord_id}.png'):
-        return Image.open(f'{path}/custom/{discord_id}.png')
+    path_to_custom = f'{REL_PATH}/database/custom_bg/{bg_dir}/{discord_id}.png'
+    if 'pro' in subscription and os.path.exists(path_to_custom):
+        return Image.open(path_to_custom)
+
 
     # Voting and rewards data for active theme pack
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
@@ -162,8 +166,8 @@ def get_background(path, uuid, default, **kwargs):
             # Check if the user is using a selected unowned exclusive theme
             if not is_exclusive or theme in owned_themes:
                 try:
-                    return get_theme_img(theme=theme, path=path, **kwargs)
+                    return get_theme_img(theme=theme, bg_dir=bg_dir, **kwargs)
                 except FileNotFoundError:
                     pass
 
-    return Image.open(f'{path}/{default}.png')
+    return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png')

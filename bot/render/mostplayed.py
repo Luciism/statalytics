@@ -38,8 +38,7 @@ def render_mostplayed(
 
     # Open Images
     base_image = get_background(
-        path='./assets/bg/mostplayed', uuid=uuid,
-        default='base', level=0, rank_info=rank_info
+        bg_dir='mostplayed', uuid=uuid, level=0, rank_info=rank_info
     ).convert("RGBA")
 
     bar_plot_img = Image.new('RGBA', (640, 420), (0, 0, 0, 0))

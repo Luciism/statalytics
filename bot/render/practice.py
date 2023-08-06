@@ -37,8 +37,7 @@ def render_practice(
     attempts = stats.get_attempts()
 
     image = get_background(
-        path='./assets/bg/practice', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='practice', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

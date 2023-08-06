@@ -36,8 +36,7 @@ def render_shop(
     rank_info = get_rank_info(hypixel_data=hypixel_data['player'])
 
     base_image = get_background(
-        path='./assets/bg/shop', uuid=uuid,
-        default='base', level=0, rank_info=rank_info
+        bg_dir='shop', uuid=uuid, level=0, rank_info=rank_info
     ).convert("RGBA")
 
     composite_image = Image.new("RGBA", base_image.size)

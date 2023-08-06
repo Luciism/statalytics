@@ -25,8 +25,7 @@ def render_session(
     progress_of_10 = stats.progress[2]
 
     image = get_background(
-        path='./assets/bg/session', uuid=uuid,
-        default='base', level=stats.level, rank_info=stats.rank_info
+        bg_dir='session', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

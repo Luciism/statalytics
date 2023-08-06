@@ -45,8 +45,7 @@ def render_resources(
         em_most_mode = stats.get_most_modes()
 
     image = get_background(
-        path='./assets/bg/resources', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='resources', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

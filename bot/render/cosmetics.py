@@ -35,8 +35,7 @@ def render_cosmetics(
     }
 
     image = get_background(
-        path='./assets/bg/cosmetics', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='cosmetics', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     font = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

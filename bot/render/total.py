@@ -25,8 +25,7 @@ def render_total(
     progress, target, progress_of_10 = stats.progress
 
     image = get_background(
-        path='./assets/bg/total', uuid=uuid, default='base',
-        level=stats.level, rank_info=stats.rank_info
+        bg_dir='total', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)

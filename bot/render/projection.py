@@ -41,8 +41,7 @@ def render_projection(
     wins_per_star, finals_per_star, beds_per_star = stats.get_per_star()
 
     image = get_background(
-        path='./assets/bg/projection', uuid=uuid,
-        default='base', level=level, rank_info=rank_info
+        bg_dir='projection', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
