@@ -48,6 +48,7 @@ class SettingsSelect(discord.ui.Select):
             return
 
         if self.placeholder in ('Select your GMT offset', 'Select your reset hour'):
+            value = int(value)
             if self.placeholder == 'Select your GMT offset':
                 update_reset_time_configured(interaction.user.id, value, 'timezone')
 
@@ -55,7 +56,7 @@ class SettingsSelect(discord.ui.Select):
             else:
                 update_reset_time_configured(interaction.user.id, value, 'reset_hour')
 
-                message = f'Successfully updated reset hour to `{HOURS[int(value)]}`'
+                message = f'Successfully updated reset hour to `{HOURS[value]}`'
 
             await interaction.followup.send(message, ephemeral=True)
             return
