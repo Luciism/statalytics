@@ -79,6 +79,27 @@ def set_linked_data(discord_id: int, uuid: str) -> None:
                 (uuid, discord_id))
 
 
+def delete_linked_data(discord_id: int) -> bool:
+    """
+    Unlinks a discord user from a player
+    :param discord_id: the discord id of the respective user
+    :returns: former linked uuid of the discord user if the user
+    was already linked and able to be unlinked otherwise `None`
+    """
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT uuid FROM linked_accounts WHERE discord_id = ?", (discord_id,))
+        current_data = cursor.fetchone()
+
+        if current_data:
+            cursor.execute(
+                "DELETE FROM linked_accounts WHERE discord_id = ?", (discord_id,))
+            return current_data[0]
+        return None
+
+
 def update_autofill(discord_id: int, uuid: str, username: str) -> None:
     """
     Updates autofill for a user, this will be helpful if a user has changed their ign
@@ -233,6 +254,15 @@ class LinkingManager:
         :param uuid: the minecraft uuid of the relvative user
         """
         set_linked_data(self._discord_id, uuid)
+
+
+    def delete_linked_data(self) -> bool:
+        """
+        Unlinks the discord user from a player
+        :returns: former linked uuid of the discord user if the user
+        was already linked and able to be unlinked otherwise `None`
+        """
+        delete_linked_data(self._discord_id)
 
 
     def uuid_to_discord_id(self, uuid: str):

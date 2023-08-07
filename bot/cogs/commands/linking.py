@@ -1,11 +1,10 @@
-import sqlite3
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from statalib import (
     linking_interaction,
+    delete_linked_data,
     update_command_stats,
     generic_command_cooldown
 )
@@ -28,19 +27,12 @@ class Linking(commands.Cog):
     async def unlink(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        with sqlite3.connect('./database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM linked_accounts WHERE discord_id = ?",
-                (interaction.user.id,))
+        previous_uuid = delete_linked_data(interaction.user.id)
 
-            if cursor.fetchone():
-                cursor.execute(
-                    "DELETE FROM linked_accounts WHERE discord_id = ?",
-                    (interaction.user.id,))
-                message = 'Successfully unlinked your account!'
-            else:
-                message = "You don't have an account linked! In order to link use `/link`!"
+        if previous_uuid is None:
+            message = "You don't have an account linked! In order to link use `/link`!"
+        else:
+            message = 'Successfully unlinked your account!'
 
         await interaction.followup.send(message)
         update_command_stats(interaction.user.id, 'unlink')
