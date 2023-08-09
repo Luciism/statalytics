@@ -17,7 +17,7 @@ from statalib import (
 
 class Client(commands.Bot):
     def __init__(self):
-        super().__init__(intents=None, command_prefix=None)
+        super().__init__(intents=None, command_prefix='$')
 
     async def on_ready(self):
         print(f'Logged in as {client.user} (ID: {client.user.id})\n------')
