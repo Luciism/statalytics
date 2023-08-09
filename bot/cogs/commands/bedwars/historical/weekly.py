@@ -1,3 +1,4 @@
+from typing import Callable
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -35,10 +36,13 @@ class Weekly(commands.Cog):
         if not utc_now.weekday() in (5, 6, 0):
             return
 
+        condition: Callable[[datetime], bool] = \
+            lambda timezone: timezone.weekday() == 6
+
         await reset_historical(
             tracker='weekly',
             period_format='weekly_%Y_%U',
-            condition='timezone.weekday() == 6',
+            condition=condition,
             client=self.client
         )
 

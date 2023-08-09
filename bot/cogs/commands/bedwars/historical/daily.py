@@ -1,3 +1,4 @@
+from typing import Callable
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -31,10 +32,13 @@ class Daily(commands.Cog):
 
     @tasks.loop(hours=1)
     async def reset_daily(self):
+        condition: Callable[[datetime], bool] = \
+            lambda _: True
+
         await reset_historical(
             tracker='daily',
             period_format='daily_%Y_%m_%d',
-            condition='True',
+            condition=condition,
             client=self.client
         )
 
@@ -58,7 +62,7 @@ class Daily(commands.Cog):
 
 
     @app_commands.command(
-        name="daily", 
+        name="daily",
         description="View the daily stats of a player")
     @app_commands.describe(username='The player you want to view')
     @app_commands.autocomplete(username=username_autocompletion)

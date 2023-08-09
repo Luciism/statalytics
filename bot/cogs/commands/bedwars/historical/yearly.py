@@ -1,3 +1,4 @@
+from typing import Callable
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 
@@ -36,10 +37,13 @@ class Yearly(commands.Cog):
         if not utc_now.timetuple().tm_yday in (1, 2, 365, 366):
             return
 
+        condition: Callable[[datetime], bool] = \
+            lambda timezone: timezone.timetuple().tm_yday == 1
+
         await reset_historical(
             tracker='yearly',
             period_format='yearly_%Y',
-            condition='timezone.timetuple().tm_yday == 1',
+            condition=condition,
             client=self.client
         )
 

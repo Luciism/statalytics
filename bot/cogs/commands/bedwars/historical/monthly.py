@@ -1,3 +1,4 @@
+from typing import Callable
 from calendar import monthrange
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
@@ -39,10 +40,13 @@ class Monthly(commands.Cog):
         if not utc_now.day in (1, 2) and not utc_now.day == month_len:
             return
 
+        condition: Callable[[datetime], bool] = \
+            lambda timezone: timezone.day == 1
+
         await reset_historical(
             tracker='monthly',
             period_format='monthly_%Y_%m',
-            condition='timezone.day == 1',
+            condition=condition,
             client=self.client
         )
 

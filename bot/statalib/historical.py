@@ -1,6 +1,7 @@
 import time
 import sqlite3
 import random
+from typing import Callable
 from datetime import datetime, timedelta
 
 import asyncio
@@ -341,13 +342,17 @@ async def _reset_historical(uuid: str, tracker: str, timezone: int,
     save_historical(historical[2:], stat_values, uuid, level, period)
 
 
-async def reset_historical(tracker: str, period_format: str,
-                           condition: str, client: Client = None):
+async def reset_historical(
+    tracker: str,
+    period_format: str,
+    condition: Callable[[datetime], bool],
+    client: Client = None
+):
     """
     Loops through historical and resets each row if a condition is met
     :param tracker: The historical type (daily, weekly, etc)
     :param period_format: The datetime strftime format to save the data under
-    :param condition: evaluated to determine if its time to reset (can use `timezone` variable)
+    :param condition: callable function that takes a datetime object
     :param client: discord client object for error logging
     """
     # Get all historical data
@@ -371,7 +376,7 @@ async def reset_historical(tracker: str, period_format: str,
             gmt_offset, hour = get_reset_time(uuid)
             timezone = utc_now + timedelta(hours=gmt_offset)
 
-            if eval(condition) and timezone.hour == hour:
+            if condition(timezone) and timezone.hour == hour:
                 await _reset_historical(uuid, tracker, timezone, historical, period_format)
 
                 time_elapsed = time.time() - start_time
