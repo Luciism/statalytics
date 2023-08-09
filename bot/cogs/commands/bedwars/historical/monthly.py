@@ -1,24 +1,19 @@
-from typing import Callable
-from calendar import monthrange
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from render.historical import render_historical
 from statalib import (
     HistoricalManager,
-    reset_historical,
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
-    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
-    log_error_msg,
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
@@ -30,43 +25,6 @@ class Monthly(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.LOADING_MSG = loading_message()
-
-
-    @tasks.loop(hours=1)
-    async def reset_monthly(self):
-        utc_now = datetime.utcnow()
-        month_len = monthrange(utc_now.year, utc_now.month)[1]
-        # allows for a 3 day reset period (last, first, second)
-        if not utc_now.day in (1, 2) and not utc_now.day == month_len:
-            return
-
-        condition: Callable[[datetime], bool] = \
-            lambda timezone: timezone.day == 1
-
-        await reset_historical(
-            tracker='monthly',
-            period_format='monthly_%Y_%m',
-            condition=condition,
-            client=self.client
-        )
-
-
-    async def cog_load(self):
-        self.reset_monthly.start()
-
-
-    async def cog_unload(self):
-        self.reset_monthly.cancel()
-
-
-    @reset_monthly.before_loop
-    async def before_reset_monthly(self):
-        await align_to_hour()
-
-
-    @reset_monthly.error
-    async def on_reset_monthly_error(self, error):
-        await log_error_msg(self.client, error)
 
 
     @app_commands.command(

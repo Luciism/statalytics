@@ -1,27 +1,23 @@
-from typing import Callable
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from render.historical import render_historical
 from statalib import (
     HistoricalManager,
-    reset_historical,
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
-    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     yearly_eligibility_check,
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    log_error_msg,
     fname
 )
 
@@ -30,40 +26,6 @@ class Yearly(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.LOADING_MSG = loading_message()
-
-    @tasks.loop(hours=1)
-    async def reset_yearly(self):
-        utc_now = datetime.utcnow()
-        if not utc_now.timetuple().tm_yday in (1, 2, 365, 366):
-            return
-
-        condition: Callable[[datetime], bool] = \
-            lambda timezone: timezone.timetuple().tm_yday == 1
-
-        await reset_historical(
-            tracker='yearly',
-            period_format='yearly_%Y',
-            condition=condition,
-            client=self.client
-        )
-
-
-    async def cog_load(self):
-        self.reset_yearly.start()
-
-
-    async def cog_unload(self):
-        self.reset_yearly.cancel()
-
-
-    @reset_yearly.before_loop
-    async def before_reset_yearly(self):
-        await align_to_hour()
-
-
-    @reset_yearly.error
-    async def on_reset_yearly_error(self, error):
-        await log_error_msg(self.client, error)
 
 
     @app_commands.command(

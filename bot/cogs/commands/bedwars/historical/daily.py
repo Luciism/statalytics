@@ -1,25 +1,21 @@
-from typing import Callable
 from datetime import datetime, timedelta, timezone
 
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from render.historical import render_historical
 from statalib import (
     HistoricalManager,
-    reset_historical,
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
-    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    log_error_msg,
     fname
 )
 
@@ -28,37 +24,6 @@ class Daily(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.LOADING_MSG = loading_message()
-
-
-    @tasks.loop(hours=1)
-    async def reset_daily(self):
-        condition: Callable[[datetime], bool] = \
-            lambda _: True
-
-        await reset_historical(
-            tracker='daily',
-            period_format='daily_%Y_%m_%d',
-            condition=condition,
-            client=self.client
-        )
-
-
-    async def cog_load(self):
-        self.reset_daily.start()
-
-
-    async def cog_unload(self):
-        self.reset_daily.cancel()
-
-
-    @reset_daily.error
-    async def on_reset_daily_error(self, error):
-        await log_error_msg(self.client, error)
-
-
-    @reset_daily.before_loop
-    async def before_reset_daily(self):
-        await align_to_hour()
 
 
     @app_commands.command(

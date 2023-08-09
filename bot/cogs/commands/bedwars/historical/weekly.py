@@ -1,25 +1,21 @@
-from typing import Callable
 from datetime import datetime, timedelta, timezone
 
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from render.historical import render_historical
 from statalib import (
     HistoricalManager,
-    reset_historical,
     fetch_player_info,
     uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
-    align_to_hour,
     fetch_hypixel_data,
     update_command_stats,
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    log_error_msg,
     fname
 )
 
@@ -28,41 +24,6 @@ class Weekly(commands.Cog):
     def __init__(self, client):
         self.client: discord.Client = client
         self.LOADING_MSG = loading_message()
-
-
-    @tasks.loop(hours=1)
-    async def reset_weekly(self):
-        utc_now = datetime.utcnow()
-        if not utc_now.weekday() in (5, 6, 0):
-            return
-
-        condition: Callable[[datetime], bool] = \
-            lambda timezone: timezone.weekday() == 6
-
-        await reset_historical(
-            tracker='weekly',
-            period_format='weekly_%Y_%U',
-            condition=condition,
-            client=self.client
-        )
-
-
-    async def cog_load(self):
-        self.reset_weekly.start()
-
-
-    async def cog_unload(self):
-        self.reset_weekly.cancel()
-
-
-    @reset_weekly.before_loop
-    async def before_reset_weekly(self):
-        await align_to_hour()
-
-
-    @reset_weekly.error
-    async def on_reset_weekly_error(self, error):
-        await log_error_msg(self.client, error)
 
 
     @app_commands.command(
