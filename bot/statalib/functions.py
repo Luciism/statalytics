@@ -215,7 +215,7 @@ async def align_to_hour():
     await asyncio.sleep(sleep_seconds)
 
 
-def int_prefix(integer: int) -> str:
+def int_prefix(integer: int | float) -> str:
     """
     Returns prefix (+, -) for a provided integer
     if the provided integer is a negative number
@@ -228,12 +228,12 @@ def int_prefix(integer: int) -> str:
     return ""
 
 
-def prefix_int(integer: int):
+def prefix_int(integer: int | float):
     """
     Prefixes given number with `+` or `-` and returns it as a string
     :param integer: the integer to be prefixed
     """
-    return f'{int_prefix(integer)}{integer}'
+    return f'{int_prefix(integer)}{integer:,}'
 
 
 def format_seconds(seconds):

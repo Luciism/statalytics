@@ -22,71 +22,39 @@ def render_average(
     save_dir: str
 ):
     stats = AverageStats(hypixel_data, mode)
-    level = stats.level
-    rank_info = stats.rank_info
     progress, target, progress_of_10 = stats.progress
 
-    (
-        wins_per_star,
-        final_kills_per_star,
-        beds_broken_per_star,
-        kills_per_star,
-        losses_per_star,
-        final_deaths_per_star,
-        beds_lost_per_star,
-        deaths_per_star
-    ) = stats.get_per_star()
-
-    (
-        final_kills_per_game,
-        beds_broken_per_game,
-        kills_per_game,
-        games_per_final_death,
-        games_per_bed_lost,
-        deaths_per_game,
-    ) = stats.get_per_game()
-
-
-    clutch_rate = stats.get_clutch_rate()
-    win_rate = stats.get_win_rate()
-    loss_rate = stats.get_loss_rate()
-
-    most_wins = stats.get_most_wins()
-    most_losses = stats.get_most_losses()
-
-
     image = get_background(
-        bg_dir='average', uuid=uuid, level=level, rank_info=rank_info
+        bg_dir='average', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
 
     # Render the stat values
     data = [
-        {'position': (88, 249), 'text': f'&a{wins_per_star}'},
-        {'position': (88, 309), 'text': f'&a{final_kills_per_star}'},
-        {'position': (88, 369), 'text': f'&a{beds_broken_per_star}'},
-        {'position': (88, 429), 'text': f'&a{kills_per_star}'},
+        {'position': (88, 249), 'text': f'&a{stats.wins_per_star}'},
+        {'position': (88, 309), 'text': f'&a{stats.final_kills_per_star}'},
+        {'position': (88, 369), 'text': f'&a{stats.beds_broken_per_star}'},
+        {'position': (88, 429), 'text': f'&a{stats.kills_per_star}'},
 
-        {'position': (242, 249), 'text': f'&c{losses_per_star}'},
-        {'position': (242, 309), 'text': f'&c{final_deaths_per_star}'},
-        {'position': (242, 369), 'text': f'&c{beds_lost_per_star}'},
-        {'position': (242, 429), 'text': f'&c{deaths_per_star}'},
+        {'position': (242, 249), 'text': f'&c{stats.losses_per_star}'},
+        {'position': (242, 309), 'text': f'&c{stats.final_deaths_per_star}'},
+        {'position': (242, 369), 'text': f'&c{stats.beds_lost_per_star}'},
+        {'position': (242, 429), 'text': f'&c{stats.deaths_per_star}'},
 
-        {'position': (396, 249), 'text': f'&a{most_wins}'},
-        {'position': (396, 309), 'text': f'&a{final_kills_per_game}'},
-        {'position': (396, 369), 'text': f'&a{beds_broken_per_game}'},
-        {'position': (396, 429), 'text': f'&a{kills_per_game}'},
+        {'position': (396, 249), 'text': f'&a{stats.most_wins_mode}'},
+        {'position': (396, 309), 'text': f'&a{stats.final_kills_per_game}'},
+        {'position': (396, 369), 'text': f'&a{stats.beds_broken_per_game}'},
+        {'position': (396, 429), 'text': f'&a{stats.kills_per_game}'},
 
-        {'position': (551, 249), 'text': f'&c{most_losses}'},
-        {'position': (551, 309), 'text': f'&c{games_per_final_death}'},
-        {'position': (551, 369), 'text': f'&c{games_per_bed_lost}'},
-        {'position': (551, 429), 'text': f'&c{deaths_per_game}'},
+        {'position': (551, 249), 'text': f'&c{stats.most_losses_mode}'},
+        {'position': (551, 309), 'text': f'&c{stats.games_per_final_death}'},
+        {'position': (551, 369), 'text': f'&c{stats.games_per_bed_lost}'},
+        {'position': (551, 429), 'text': f'&c{stats.deaths_per_game}'},
 
-        {'position': (83, 189), 'text': f'&a{clutch_rate}'},
-        {'position': (225, 189), 'text': f'&a{win_rate}'},
-        {'position': (368, 189), 'text': f'&c{loss_rate}'},
+        {'position': (83, 189), 'text': f'&a{stats.clutch_rate}'},
+        {'position': (225, 189), 'text': f'&a{stats.win_rate}'},
+        {'position': (368, 189), 'text': f'&c{stats.loss_rate}'},
 
         {'position': (536, 46), 'text': f'&f({stats.title_mode})'}
     ]
@@ -102,7 +70,7 @@ def render_average(
 
     render_display_name(
         username=name,
-        rank_info=rank_info,
+        rank_info=stats.rank_info,
         image=image,
         font_size=22,
         position=(225, 26),
@@ -110,7 +78,7 @@ def render_average(
     )
 
     render_progress_bar(
-        level=level,
+        level=stats.level,
         progress_of_10=progress_of_10,
         position=(225, 88),
         image=image,
@@ -126,9 +94,9 @@ def render_average(
     )
 
     render_mc_text(
-        text='Average Stats',
+        text='Avg Stats',
         position=(536, 25),
-        font=minecraft_18,
+        font_size=18,
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -137,7 +105,6 @@ def render_average(
     # Paste overlay image
     overlay_image = Image.open(
         './assets/bg/average/overlay.png').convert("RGBA")
-
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Render skin

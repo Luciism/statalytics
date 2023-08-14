@@ -84,21 +84,32 @@ def get_player_dict(hypixel_data: dict) -> dict:
     return {}
 
 
-def get_most_played(hypixel_data_bedwars: dict) -> str:
+def get_most_mode(bedwars_data: dict, key_ending: str):
     """
-    Gets most played bedwars modes (solos, doubles, etc)
-    :param hypixel_data_bedwars: Hypixel bedwars data from player > stats > Bedwars
+    Get the top mode for a certain bedwars stat
+    :param bedwars_data: Hypixel bedwars data from player > stats > Bedwars
+    :param key_ending: the ending of the key for the stat for example
+    `games_played_bedwars`, the mode will be automatically be used for
+    example `eight_one_{key_ending}`
     """
     modes_dict: dict = {
-        'Solos': hypixel_data_bedwars.get('eight_one_games_played_bedwars', 0),
-        'Doubles': hypixel_data_bedwars.get('eight_two_games_played_bedwars', 0),
-        'Threes':  hypixel_data_bedwars.get('four_three_games_played_bedwars', 0),
-        'Fours': hypixel_data_bedwars.get('four_four_games_played_bedwars', 0),
-        '4v4': hypixel_data_bedwars.get('two_four_games_played_bedwars', 0)
+        'Solos': bedwars_data.get(f'eight_one_{key_ending}', 0),
+        'Doubles': bedwars_data.get(f'eight_two_{key_ending}', 0),
+        'Threes':  bedwars_data.get(f'four_three_{key_ending}', 0),
+        'Fours': bedwars_data.get(f'four_four_{key_ending}', 0),
+        '4v4': bedwars_data.get(f'two_four_{key_ending}', 0)
     }
     if max(modes_dict.values()) == 0:
         return "N/A"
     return str(max(modes_dict, key=modes_dict.get))
+
+
+def get_most_played(bedwars_data: dict) -> str:
+    """
+    Gets most played bedwars modes (solos, doubles, etc)
+    :param bedwars_data: Hypixel bedwars data from `player > stats > Bedwars`
+    """
+    return get_most_mode(bedwars_data, 'games_played_bedwars')
 
 
 def get_rank_info(hypixel_data: dict) -> dict:
@@ -150,12 +161,12 @@ def get_level(xp: int) -> float | int:
     return level + (xp - 7000) / 5000 + 4
 
 
-def get_progress(hypixel_data_bedwars: dict) -> tuple[str, str, int]:
+def get_progress(bedwars_data: dict) -> tuple[str, str, int]:
     """
     Get xp progress information: progress, target, and progress out of 10
-    :param hypixel_data_bedwars: Bedwars data stemming from player > stats > Bedwars
+    :param bedwars_data: Bedwars data stemming from player > stats > Bedwars
     """
-    bedwars_level: float | int = get_level(hypixel_data_bedwars.get('Experience', 0))
+    bedwars_level: float | int = get_level(bedwars_data.get('Experience', 0))
 
     remainder: int = int(str(int(bedwars_level) / 100).split(".")[-1])
     remainder_map: dict = {0: 500, 1: 1000, 2: 2000, 3: 3500}
@@ -272,6 +283,16 @@ def get_quests_data(hypixel_data: dict):
     quest_data['total_quests_exp'] = xp_by_quests
 
     return quest_data
+
+
+def ratio(dividend: int, divisor: int) -> int | float:
+    """
+    Safely gets the ratio of 2 numbers nicely rounded to
+    2 decimal places.
+    :param dividend: the dividend in the division
+    :param divisor: the divisor in the division
+    """
+    return rround(dividend / (divisor or 1), 2)
 
 
 class BedwarsStats:
@@ -399,30 +420,42 @@ class CumulativeStats(BedwarsStats):
 
         self._local_bedwars_data = local_bedwars_data
 
-        self.wins_cum: int = self._calc_cum('wins_bedwars')
-        self.losses_cum: int = self._calc_cum('losses_bedwars')
+        self.wins_local = self._get_mode_stats_local('wins_bedwars')
+        self.losses_local = self._get_mode_stats_local('losses_bedwars')
+
+        self.wins_cum = self._calc_cum('wins_bedwars')
+        self.losses_cum = self._calc_cum('losses_bedwars')
         self.wlr_cum = self._get_ratio(self.wins_cum, self.losses_cum)
 
-        self.final_kills_cum: int = self._calc_cum('final_kills_bedwars')
-        self.final_deaths_cum: int = self._calc_cum('final_deaths_bedwars')
+        self.final_kills_local = self._get_mode_stats_local('final_kills_bedwars')
+        self.final_deaths_local = self._get_mode_stats_local('final_deaths_bedwars')
+
+        self.final_kills_cum = self._calc_cum('final_kills_bedwars')
+        self.final_deaths_cum = self._calc_cum('final_deaths_bedwars')
         self.fkdr_cum = self._get_ratio(self.final_kills_cum, self.final_deaths_cum)
 
-        self.beds_broken_cum: int = self._calc_cum('beds_broken_bedwars')
-        self.beds_lost_cum: int = self._calc_cum('beds_lost_bedwars')
+        self.beds_broken_local = self._get_mode_stats_local('beds_broken_bedwars')
+        self.beds_lost_local = self._get_mode_stats_local('beds_lost_bedwars')
+
+        self.beds_broken_cum = self._calc_cum('beds_broken_bedwars')
+        self.beds_lost_cum = self._calc_cum('beds_lost_bedwars')
         self.bblr_cum = self._get_ratio(self.beds_broken_cum, self.beds_lost_cum)
 
-        self.kills_cum: int = self._calc_cum('kills_bedwars')
-        self.deaths_cum: int = self._calc_cum('deaths_bedwars')
+        self.kills_local = self._get_mode_stats_local('kills_bedwars')
+        self.deaths_local = self._get_mode_stats_local('deaths_bedwars')
+
+        self.kills_cum = self._calc_cum('kills_bedwars')
+        self.deaths_cum = self._calc_cum('deaths_bedwars')
         self.kdr_cum = self._get_ratio(self.kills_cum, self.deaths_cum)
 
         self.most_played_cum = self._get_most_played()
-        self.games_played_cum: int = self._calc_cum('games_played_bedwars')
+        self.games_played_cum = self._calc_cum('games_played_bedwars')
 
         local_experience = self._local_bedwars_data.get(f'Experience', 0)
         self.experience_cum = self.experience - local_experience
         self.levels_cum = self.level - get_level(local_experience)
 
-        self.items_purchased_cum: int = self._calc_cum('items_purchased_bedwars')
+        self.items_purchased_cum = self._calc_cum('items_purchased_bedwars')
 
 
     def _get_mode_stats_local(self, key: str, default=0) -> dict | int:
@@ -437,7 +470,7 @@ class CumulativeStats(BedwarsStats):
         return self._local_bedwars_data.get(f'{prefix}{key}', default)
 
 
-    def _calc_cum(self, key: str):
+    def _calc_cum(self, key: str) -> int:
         hypixel_value = self._get_mode_stats(key)
         local_value = self._get_mode_stats_local(key)
 

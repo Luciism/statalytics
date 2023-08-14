@@ -21,7 +21,7 @@ from statalib import (
 )
 
 
-class MyClient(commands.Bot):
+class Client(commands.Bot):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents, command_prefix=commands.when_mentioned_or('$'))
 
@@ -43,7 +43,7 @@ class MyClient(commands.Bot):
 
 intents = discord.Intents(messages=True)
 intents.guilds = True
-client = MyClient(intents=intents)
+client = Client(intents=intents)
 
 
 @client.event

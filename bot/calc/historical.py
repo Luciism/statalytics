@@ -9,14 +9,17 @@ from statalib.calctools import (
     get_mode,
     rround,
     get_level,
-    xp_from_level
+    xp_from_level,
+    ratio,
+    get_most_mode
 )
 
 
 hour_list = [
-    '12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am', '7:00am',
-    '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm', '2:00pm', '3:00pm',
-    '4:00pm', '5:00pm', '6:00pm', '7:00pm', '8:00pm', '9:00pm', '10:00pm', '11:00pm'
+    '12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
+    '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
+    '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm',
+    '8:00pm', '9:00pm', '10:00pm', '11:00pm'
 ]
 
 
@@ -102,19 +105,19 @@ class LookbackStats(BedwarsStats):
 
         self.wins_cum = self._get_stat('wins_bedwars')
         self.losses_cum = self._get_stat('losses_bedwars')
-        self.wlr_cum = rround(self.wins_cum / (self.losses_cum or 1), 2)
+        self.wlr_cum = ratio(self.wins_cum, self.losses_cum)
 
         self.final_kills_cum = self._get_stat('final_kills_bedwars')
         self.final_deaths_cum = self._get_stat('final_deaths_bedwars')
-        self.fkdr_cum = rround(self.final_kills_cum / (self.final_deaths_cum or 1), 2)
+        self.fkdr_cum = ratio(self.final_kills_cum, self.final_deaths_cum)
 
         self.beds_broken_cum = self._get_stat('beds_broken_bedwars')
         self.beds_lost_cum = self._get_stat('beds_lost_bedwars')
-        self.bblr_cum = rround(self.beds_broken_cum / (self.beds_lost_cum or 1), 2)
+        self.bblr_cum = ratio(self.beds_broken_cum, self.beds_lost_cum)
 
         self.kills_cum = self._get_stat('kills_bedwars')
         self.deaths_cum = self._get_stat('deaths_bedwars')
-        self.kdr_cum = rround(self.kills_cum / (self.deaths_cum or 1), 2)
+        self.kdr_cum = ratio(self.kills_cum, self.deaths_cum)
 
 
     def _get_stat(self, key: str, default=0):
@@ -122,21 +125,7 @@ class LookbackStats(BedwarsStats):
 
 
     def _get_most_played(self):
-        solos = self.historic_data['eight_one_games_played_bedwars']
-        doubles = self.historic_data['eight_two_games_played_bedwars']
-        threes = self.historic_data['four_three_games_played_bedwars']
-        fours = self.historic_data['four_four_games_played_bedwars']
-        four_vs_vour = self.historic_data['two_four_games_played_bedwars']
-        modes_dict = {
-            'Solos': solos,
-            'Doubles': doubles,
-            'Threes':  threes,
-            'Fours': fours,
-            '4v4': four_vs_vour
-        }
-        if max(modes_dict.values()) == 0:
-            return "N/A"
-        return str(max(modes_dict, key=modes_dict.get))
+        return get_most_mode(self.historic_data, 'games_played_bedwars')
 
 
     def _get_time_info(self):

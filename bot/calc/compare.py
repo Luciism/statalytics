@@ -1,9 +1,10 @@
-from statalib.functions import int_prefix
+from statalib.functions import prefix_int
 from statalib.calctools import (
     BedwarsStats,
     get_rank_info,
     get_mode,
     rround,
+    ratio
 )
 
 
@@ -25,44 +26,59 @@ class CompareStats:
         self.rank_info_1 = get_rank_info(self._bw_1._hypixel_data)
         self.rank_info_2 = get_rank_info(self._bw_2._hypixel_data)
 
+        self.wins_comp = f'{self._bw_1.wins:,} / {self._bw_2.wins:,}'
+        self.wins_diff = prefix_int(self._bw_1.wins - self._bw_2.wins)
 
-    def _calc_general_stats(self, key_1, key_2):
-        val_1_1 = self._bw_1._bedwars_data.get(key_1, 0)
-        val_2_1 = self._bw_1._bedwars_data.get(key_2, 0)
-        ratio_1 = rround(val_1_1 / (val_2_1 or 1), 2)
+        self.losses_comp = f'{self._bw_1.losses:,} / {self._bw_2.losses:,}'
+        self.losses_diff = prefix_int(self._bw_1.losses - self._bw_2.losses)
 
-        val_1_2 = self._bw_2._bedwars_data.get(key_1, 0)
-        val_2_2 = self._bw_2._bedwars_data.get(key_2, 0)
-        ratio_2 = rround(val_1_2 / (val_2_2 or 1), 2)
+        wlr_1 = ratio(self._bw_1.wins, self._bw_1.losses)
+        wlr_2 = ratio(self._bw_2.wins, self._bw_2.losses)
 
-        val_1_diff = val_1_1 - val_1_2
-        val_1_diff = f'{int_prefix(val_1_diff)}{val_1_diff:,}'
-
-        val_2_diff = val_2_1 - val_2_2
-        val_2_diff = f'{int_prefix(val_2_diff)}{val_2_diff:,}'
-
-        ratio_diff = round(ratio_1 - ratio_2, 2)
-        ratio_diff = f'{int_prefix(ratio_diff)}{ratio_diff:,}'
-
-        return f'{val_1_1:,} / {val_1_2:,}', f'{val_2_1:,} / {val_2_2:,}',\
-               f'{ratio_1:,} / {ratio_2:,}', val_1_diff, val_2_diff, ratio_diff
+        self.wlr_comp = f'{wlr_1:,} / {wlr_2:,}'
+        self.wlr_diff = prefix_int(rround(wlr_1 - wlr_2, 2))
 
 
-    def get_wins(self):
-        return self._calc_general_stats(
-            f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        self.final_kills_comp = \
+            f'{self._bw_1.final_kills:,} / {self._bw_2.final_kills:,}'
+        self.final_kills_diff = prefix_int(
+            self._bw_1.final_kills - self._bw_2.final_kills)
+
+        self.final_deaths_comp = \
+            f'{self._bw_1.final_deaths:,} / {self._bw_2.final_deaths:,}'
+        self.final_deaths_diff = prefix_int(
+            self._bw_1.final_deaths - self._bw_2.final_deaths)
+
+        fkdr_1 = ratio(self._bw_1.final_kills, self._bw_1.final_deaths)
+        fkdr_2 = ratio(self._bw_2.final_kills, self._bw_2.final_deaths)
+
+        self.fkdr_comp = f'{fkdr_1:,} / {fkdr_2:,}'
+        self.fkdr_diff = prefix_int(rround(fkdr_1 - fkdr_2, 2))
 
 
-    def get_finals(self):
-        return self._calc_general_stats(
-            f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
+        self.beds_broken_comp = \
+            f'{self._bw_1.beds_broken:,} / {self._bw_2.beds_broken:,}'
+        self.beds_broken_diff = prefix_int(
+            self._bw_1.beds_broken - self._bw_2.beds_broken)
+
+        self.beds_lost_comp = f'{self._bw_1.beds_lost:,} / {self._bw_2.beds_lost:,}'
+        self.beds_lost_diff = prefix_int(self._bw_1.beds_lost - self._bw_2.beds_lost)
+
+        bblr_1 = ratio(self._bw_1.beds_broken, self._bw_1.beds_lost)
+        bblr_2 = ratio(self._bw_2.beds_broken, self._bw_2.beds_lost)
+
+        self.bblr_comp = f'{bblr_1:,} / {bblr_2:,}'
+        self.bblr_diff = prefix_int(rround(bblr_1 - bblr_2, 2))
 
 
-    def get_beds(self):
-        return self._calc_general_stats(
-            f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
+        self.kills_comp = f'{self._bw_1.kills:,} / {self._bw_2.kills:,}'
+        self.kills_diff = prefix_int(self._bw_1.kills - self._bw_2.kills)
 
+        self.deaths_comp = f'{self._bw_1.deaths:,} / {self._bw_2.deaths:,}'
+        self.deaths_diff = prefix_int(self._bw_1.deaths - self._bw_2.deaths)
 
-    def get_kills(self):
-        return self._calc_general_stats(
-            f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
+        kdr_1 = ratio(self._bw_1.kills, self._bw_1.deaths)
+        kdr_2 = ratio(self._bw_2.kills, self._bw_2.deaths)
+
+        self.kdr_comp = f'{kdr_1:,} / {kdr_2:,}'
+        self.kdr_diff = prefix_int(rround(kdr_1 - kdr_2, 2))

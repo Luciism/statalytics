@@ -2,14 +2,14 @@ import sqlite3
 
 from statalib.functions import prefix_int
 from statalib.calctools import (
-    BedwarsStats,
+    CumulativeStats,
     get_rank_info,
     get_mode,
-    get_level
+    ratio
 )
 
 
-class DifferenceStats(BedwarsStats):
+class DifferenceStats(CumulativeStats):
     def __init__(
         self,
         uuid: str,
@@ -17,13 +17,6 @@ class DifferenceStats(BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode)
-
-        self.mode = get_mode(mode)
-
-        self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
-
         with sqlite3.connect('./database/core.db') as conn:
             cursor = conn.cursor()
 
@@ -34,49 +27,30 @@ class DifferenceStats(BedwarsStats):
             column_names = [desc[0] for desc in cursor.description]
             self.historic_data = dict(zip(column_names, historic_data))
 
+        super().__init__(hypixel_data, self.historic_data, strict_mode=mode)
 
-    def _calc_general_stats(self, key_1, key_2):
-        val_1_hypixel = self._bedwars_data.get(key_1, 0)
-        val_2_hypixel = self._bedwars_data.get(key_2, 0)
+        self.level = int(self.level)
+        self.rank_info = get_rank_info(self._hypixel_data)
 
-        val_1_historic = self.historic_data[key_1]
-        val_2_historic = self.historic_data[key_2]
+        self.wlr_old = ratio(self.wins_local, self.losses_local)
+        self.wlr_new = ratio(self.wins, self.losses)
+        self.wlr_diff = self._ratio_diff(self.wlr_old, self.wlr_new)
 
-        val_1_gained = val_1_hypixel - val_1_historic
-        val_2_gained = val_2_hypixel - val_2_historic
+        self.fkdr_old = ratio(self.final_kills_local, self.final_deaths_local)
+        self.fkdr_new = ratio(self.final_kills, self.final_deaths)
+        self.fkdr_diff = self._ratio_diff(self.fkdr_old, self.fkdr_new)
 
-        current_ratio = round(val_1_hypixel / (val_2_hypixel or 1), 2)
-        old_ratio = round(val_1_historic / (val_2_historic or 1), 2)
+        self.bblr_old = ratio(self.beds_broken_local, self.beds_lost_local)
+        self.bblr_new = ratio(self.beds_broken, self.beds_lost)
+        self.bblr_diff = self._ratio_diff(self.bblr_old, self.bblr_new)
 
-        ratio_diff = round(current_ratio - old_ratio, 2)
-        ratio_diff = f'({prefix_int(ratio_diff)})'
+        self.kdr_old = ratio(self.kills_local, self.deaths_local)
+        self.kdr_new = ratio(self.kills, self.deaths)
+        self.kdr_diff = self._ratio_diff(self.kdr_old, self.kdr_new)
 
-        return (f'{val_1_gained:,}', f'{val_2_gained:,}',
-                f'{old_ratio:,}', f'{current_ratio:,}', ratio_diff)
-
-
-    def get_wins(self):
-        return self._calc_general_stats(
-            f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars')
+        self.stars_gained = str(round(self.levels_cum, 2))
 
 
-    def get_finals(self):
-        return self._calc_general_stats(
-            f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars')
-
-
-    def get_beds(self):
-        return self._calc_general_stats(
-            f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars')
-
-
-    def get_kills(self):
-        return self._calc_general_stats(
-            f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars')
-
-
-    def get_stars_gained(self):
-        exp_hypixel = self.experience
-        exp_historical = self.historic_data['Experience']
-        stars_gained = get_level(exp_hypixel) - get_level(exp_historical)
-        return str(round(stars_gained, 2))
+    def _ratio_diff(self, old_ratio: float, new_ratio: float):
+        ratio_diff = round(new_ratio - old_ratio, 2)
+        return f'({prefix_int(ratio_diff)})'

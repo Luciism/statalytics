@@ -12,10 +12,16 @@ from statalib.render import (
 )
 
 
+def color(diff: str) -> tuple:
+    if diff[1] == '+':
+        return f'&a{diff}'
+    return f'&c{diff}'
+
+
 @to_thread
 def render_difference(
     name: str,
-    uuid: str, 
+    uuid: str,
     relative_date: str,
     method: str,
     mode: str,
@@ -24,53 +30,38 @@ def render_difference(
     save_dir: str
 ):
     stats = DifferenceStats(uuid, method, hypixel_data, mode)
-
-    level = stats.level
-    rank_info = stats.rank_info
     progress, target, progress_of_10 = stats.progress
-    stars_gained = stats.get_stars_gained()
-
-    wins, losses, wlr_1, wlr_2, wlr_diff = stats.get_wins()
-    final_kills, final_deaths, fkdr_1, fkdr_2, fkdr_diff = stats.get_finals()
-    beds_broken, beds_lost, bblr_1, bblr_2, bblr_diff = stats.get_beds()
-    kills, deaths, kdr_1, kdr_2, kdr_diff = stats.get_kills()
 
     image = get_background(
-        bg_dir='difference', uuid=uuid, level=level, rank_info=rank_info
+        bg_dir='difference', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 18)
-
-    def diff_color(diff: str) -> tuple:
-        if diff[1] == '+':
-            return '&a'
-        return '&c'
 
     # Render the stat values
     data = [
-        {'position': (88, 249), 'text': f'&a{wins}'},
-        {'position': (88, 309), 'text': f'&a{final_kills}'},
-        {'position': (88, 369), 'text': f'&a{beds_broken}'},
-        {'position': (88, 429), 'text': f'&a{kills}'},
-        {'position': (242, 249), 'text': f'&c{losses}'},
-        {'position': (242, 309), 'text': f'&c{final_deaths}'},
-        {'position': (242, 369), 'text': f'&c{beds_lost}'},
-        {'position': (242, 429), 'text': f'&c{deaths}'},
+        {'position': (88, 249), 'text': f'&a{stats.wins_cum}'},
+        {'position': (88, 309), 'text': f'&a{stats.final_kills_cum}'},
+        {'position': (88, 369), 'text': f'&a{stats.beds_broken_cum}'},
+        {'position': (88, 429), 'text': f'&a{stats.kills_cum}'},
+        {'position': (242, 249), 'text': f'&c{stats.losses_cum}'},
+        {'position': (242, 309), 'text': f'&c{stats.final_deaths_cum}'},
+        {'position': (242, 369), 'text': f'&c{stats.beds_lost_cum}'},
+        {'position': (242, 429), 'text': f'&c{stats.deaths_cum}'},
 
-        {'position': (474, 249),
-         'text': f'&6{wlr_1} &f-> &6{wlr_2} {diff_color(wlr_diff)}{wlr_diff}'},
+        {'position': (474, 249), 'text':
+         f'&6{stats.wlr_old} &f-> &6{stats.wlr_new} {color(stats.wlr_diff)}'},
 
-        {'position': (474, 309),
-         'text': f'&6{fkdr_1} &f-> &6{fkdr_2} {diff_color(fkdr_diff)}{fkdr_diff}'},
+        {'position': (474, 309), 'text':
+         f'&6{stats.fkdr_old} &f-> &6{stats.fkdr_new} {color(stats.fkdr_diff)}'},
 
-        {'position': (474, 369),
-         'text': f'&6{bblr_1} &f-> &6{bblr_2} {diff_color(bblr_diff)}{bblr_diff}'},
+        {'position': (474, 369), 'text':
+         f'&6{stats.bblr_old} &f-> &6{stats.bblr_new} {color(stats.bblr_diff)}'},
 
-        {'position': (474, 429),
-         'text': f'&6{kdr_1} &f-> &6{kdr_2} {diff_color(kdr_diff)}{kdr_diff}'},
+        {'position': (474, 429), 'text':
+         f'&6{stats.kdr_old} &f-> &6{stats.kdr_new} {color(stats.kdr_diff)}'},
 
-        {'position': (118, 189), 'text': f'&d{stars_gained}'},
+        {'position': (118, 189), 'text': f'&d{stats.stars_gained}'},
         {'position': (332, 189), 'text': f'&d{relative_date}'},
         {'position': (536, 46), 'text': f'({stats.title_mode})'}
     ]
@@ -86,7 +77,7 @@ def render_difference(
 
     render_display_name(
         username=name,
-        rank_info=rank_info,
+        rank_info=stats.rank_info,
         image=image,
         font_size=22,
         position=(225, 26),
@@ -94,7 +85,7 @@ def render_difference(
     )
 
     render_progress_bar(
-        level=level,
+        level=stats.level,
         progress_of_10=progress_of_10,
         position=(225, 88),
         image=image,
@@ -112,7 +103,7 @@ def render_difference(
     render_mc_text(
         text=f'{method.title()} Diffs',
         position=(536, 25),
-        font=minecraft_18,
+        font_size=18,
         image=image,
         shadow_offset=(2, 2),
         align='center'
