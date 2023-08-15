@@ -8,6 +8,7 @@ from .sessions import start_session, _find_dynamic_session
 from .views.info import SessionInfoButton
 from .network import fetch_hypixel_data, mojang_session
 from .subscriptions import get_subscription
+from .aliases import PlayerDynamic, PlayerName, PlayerUUID
 from .functions import (
     load_embeds,
     fname,
@@ -27,7 +28,7 @@ def get_linked_total() -> int:
     return 0
 
 
-def uuid_to_discord_id(uuid: str) -> int | None:
+def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
     """
     Attempts to fetch discord id from linked database
     :param uuid: The uuid of the player to find linked data for
@@ -58,7 +59,7 @@ def get_linked_player(discord_id: int) -> str | None:
     return None
 
 
-def set_linked_data(discord_id: int, uuid: str) -> None:
+def set_linked_data(discord_id: int, uuid: PlayerUUID) -> None:
     """
     Inserts linked account data into database
     :param discord_id: the discord id of the respective user
@@ -100,7 +101,11 @@ def delete_linked_data(discord_id: int) -> bool:
         return None
 
 
-def update_autofill(discord_id: int, uuid: str, username: str) -> None:
+def update_autofill(
+    discord_id: int,
+    uuid: PlayerUUID,
+    username: PlayerName
+) -> None:
     """
     Updates autofill for a user, this will be helpful if a user has changed their ign
     :param discord_id: The discord id of the target linked user
@@ -123,7 +128,7 @@ def update_autofill(discord_id: int, uuid: str, username: str) -> None:
 
 
 async def fetch_player_info(
-    player: str,
+    player: PlayerDynamic,
     interaction: Interaction,
     eph=False
 ) -> tuple[str, str]:
@@ -169,8 +174,12 @@ async def fetch_player_info(
     return name, uuid
 
 
-async def link_account(discord_tag: str, discord_id: int,
-                       uuid: str=None, name: str=None) -> bool | None:
+async def link_account(
+    discord_tag: str,
+    discord_id: int,
+    uuid: PlayerUUID=None,
+    name: PlayerName=None
+) -> bool | None:
     """
     Attempt to link an discord account to a hypixel account
     :param discord_tag: The discord user's full tag eg: Example#1234
@@ -214,7 +223,10 @@ async def link_account(discord_tag: str, discord_id: int,
     return -1
 
 
-async def linking_interaction(interaction: Interaction, username: str):
+async def linking_interaction(
+    interaction: Interaction,
+    username: PlayerName
+):
     """
     discord.py interaction for account linking
     :param interaction: the discord interaction to be used
@@ -255,7 +267,7 @@ class LinkingManager:
         return get_linked_player(self._discord_id)
 
 
-    def set_linked_data(self, uuid: str):
+    def set_linked_data(self, uuid: PlayerUUID):
         """
         Inserts linked account data into database
         :param uuid: the minecraft uuid of the relvative user
@@ -272,7 +284,7 @@ class LinkingManager:
         delete_linked_data(self._discord_id)
 
 
-    def uuid_to_discord_id(self, uuid: str):
+    def uuid_to_discord_id(self, uuid: PlayerUUID):
         """
         Attempts to fetch discord id from linked database
         :param uuid: The uuid of the player to find linked data for
@@ -280,7 +292,7 @@ class LinkingManager:
         return uuid_to_discord_id(uuid)
 
 
-    def update_autofill(self, uuid: str, username: str):
+    def update_autofill(self, uuid: PlayerUUID, username: PlayerName):
         """
         Updates autofill for a user, this will be helpful if a user has changed their ign
         :param uuid: The uuid of the target linked user
@@ -289,7 +301,8 @@ class LinkingManager:
         update_autofill(self._discord_id, uuid, username)
 
 
-    async def link_account(self, discord_tag: str, name: str, uuid: str):
+    async def link_account(
+            self, discord_tag: str, name: PlayerName, uuid: PlayerUUID):
         """
         Attempt to link an discord account to a hypixel account
         :param discord_tag: The discord user's full tag eg: Example#1234
@@ -305,7 +318,8 @@ class LinkingManager:
         return response
 
 
-    async def fetch_player_info(self, username, interaction: Interaction, eph=False):
+    async def fetch_player_info(
+            self, username: PlayerName, interaction: Interaction, eph=False):
         """
         Get formatted username & uuid of a user from their minecraft ign / uuid
         :param username: The minecraft ign of the player to return (can also take a uuid)

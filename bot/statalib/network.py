@@ -9,6 +9,7 @@ from requests_cache import CachedSession
 
 from .functions import to_thread, REL_PATH
 from .errors import HypixelInvalidResponseError
+from .aliases import PlayerUUID
 
 
 historic_cache = CachedSession(
@@ -26,7 +27,7 @@ mojang_session = CachedSession(
 
 @to_thread
 def fetch_hypixel_data(
-    uuid: str,
+    uuid: PlayerUUID,
     cache: bool = True,
     cache_obj: CachedSession = stats_session,
     retries: int = 3,
@@ -70,7 +71,7 @@ def skin_from_file(skin_type: str='bust') -> bytes:
 
 
 @to_thread
-def fetch_skin_model(uuid: int, size: int) -> bytes:
+def fetch_skin_model(uuid: PlayerUUID, size: int) -> bytes:
     """
     Fetches a 3d skin model visage.surgeplay.com
     If something goes wrong, a steve skin will returned

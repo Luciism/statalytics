@@ -13,6 +13,7 @@ from .calctools import get_player_dict, get_level
 from .linking import get_linked_player, uuid_to_discord_id
 from .network import fetch_hypixel_data, historic_cache
 from .subscriptions import get_subscription
+from .aliases import PlayerUUID
 from .functions import (
     REL_PATH,
     get_config,
@@ -24,7 +25,7 @@ TRACKERS = ('daily', 'weekly', 'monthly', 'yearly')
 
 
 # Used to get player bound reset times that are assigned automatically.
-def get_reset_time_default(uuid: str) -> tuple | None:
+def get_reset_time_default(uuid: PlayerUUID) -> tuple | None:
     """
     Gets the default reset time assigned randomly for a player
     :param uuid: The uuid of the relative player
@@ -60,7 +61,7 @@ def get_reset_time_configured(discord_id: int):
 # Configured reset time takes priority and if it doesn't exist
 # default reset times will be used. If neither are present
 # a reset time of midnight at GMT+0 will be used (0, 0).
-def get_reset_time(uuid: str) -> tuple | None:
+def get_reset_time(uuid: PlayerUUID) -> tuple | None:
     """
     Attempts to get the configured reset time of the discord user\n
     If the discord user has not configured a reset time, the player's
@@ -78,9 +79,8 @@ def get_reset_time(uuid: str) -> tuple | None:
     return reset_time or (0, 0)
 
 
-
 # Directly inserts or updates the default reset time of a player.
-def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
+def set_reset_time_default(uuid: PlayerUUID, timezone: int, reset_hour: int):
     """
     Sets default reset time in historical database (player bound)
     :param uuid: The uuid of the relative player
@@ -107,7 +107,7 @@ def set_reset_time_default(uuid: str, timezone: int, reset_hour: int):
 # If a player is linked to discord and has configured reset time
 # the default reset time will be set to the configured reset time
 # otherwise a random hour will be chosen with a gmt offset of 0
-def update_reset_time_default(uuid: str):
+def update_reset_time_default(uuid: PlayerUUID):
     """
     Updates a player's default reset time
     :param uuid: The uuid of the relative player
@@ -171,7 +171,7 @@ def update_reset_time_configured(discord_id: int, value: int, method: str):
 
 
 # Initiates tracking of all historical stats trackers.
-async def start_historical(uuid: str) -> None:
+async def start_historical(uuid: PlayerUUID) -> None:
     """
     Initiates historical stat tracking (daily, weekly, etc)
     :param uuid: The uuid of the player's historical stats being initiated
@@ -205,8 +205,13 @@ async def start_historical(uuid: str) -> None:
 # Saves historical stats to a new table with a specified name.
 # The local stats are subtracted from the current stats leaving
 # the gained stats during the historical tracking period.
-def save_historical(local_data: tuple, hypixel_data: tuple,
-                    uuid: str, level: float, period: str) -> None:
+def save_historical(
+    local_data: tuple,
+    hypixel_data: tuple,
+    uuid: PlayerUUID,
+    level: float,
+    period: str
+) -> None:
     """
     Saves historical data to a specified table, typically used when historical stats reset.
     Creates new table if specified table doesn't exist
@@ -240,7 +245,7 @@ def save_historical(local_data: tuple, hypixel_data: tuple,
 
 
 # Pulls a player's historical stats from the database
-def get_historical(uuid: str, identifier: str, table: str=None):
+def get_historical(uuid: PlayerUUID, identifier: str, table: str=None):
     """
     Returns historical data from a specified table to a specified player
     :param uuid: the uuid of the respective user
@@ -277,8 +282,10 @@ def build_invalid_lookback_embeds(max_lookback) -> list:
 
 # Returns total amount of days back a player's stats can be
 # checked based on a primary and secondary discord id.
-def get_max_lookback(discord_id_primary: int,
-                    discord_id_secondary: int) -> int:
+def get_max_lookback(
+    discord_id_primary: int,
+    discord_id_secondary: int
+) -> int:
     """
     Returns the amount of days back a user can check a player's historical stats
     :param discord_id_primary: the primary discord id to use (linked discord account of player)
@@ -299,8 +306,10 @@ def get_max_lookback(discord_id_primary: int,
     return 30
 
 
-async def yearly_eligibility_check(interaction: Interaction,
-                             discord_id: int | None) -> bool:
+async def yearly_eligibility_check(
+    interaction: Interaction,
+    discord_id: int | None
+) -> bool:
     """
     Checks if a user is able to use yearly stats commands and responds accordingly
     :param interaction: the discord interaction object
@@ -317,8 +326,13 @@ async def yearly_eligibility_check(interaction: Interaction,
     return True
 
 
-async def _reset_historical(uuid: str, tracker: str, timezone: int,
-                            historical: list | tuple, period_format: str):
+async def _reset_historical(
+    uuid: PlayerUUID,
+    tracker: str,
+    timezone: int,
+    historical: list | tuple,
+    period_format: str
+):
     hypixel_data = await fetch_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
     bedwars_stats = get_player_dict(hypixel_data).get("stats", {}).get("Bedwars", {})
 
@@ -389,7 +403,7 @@ async def reset_historical(
 
 
 class HistoricalManager:
-    def __init__(self, discord_id: int, uuid: str=None):
+    def __init__(self, discord_id: int, uuid: PlayerUUID=None):
         self._discord_id = discord_id
         self._uuid = uuid
 
@@ -414,14 +428,14 @@ class HistoricalManager:
         return get_reset_time_configured(self._discord_id)
 
 
-    def get_reset_time_default(self, uuid: str=None):
+    def get_reset_time_default(self, uuid: PlayerUUID=None):
         """Gets the default reset time assigned randomly for a player"""
         if not uuid:
             uuid = self._get_uuid()
         return get_reset_time_default(uuid)
 
 
-    def get_reset_time(self, uuid: str=None):
+    def get_reset_time(self, uuid: PlayerUUID=None):
         """
         Attempts to get the configured reset time of the discord user\n
         If the discord user has not configured a reset time,
@@ -433,7 +447,7 @@ class HistoricalManager:
         return get_reset_time(uuid)
 
 
-    def update_reset_time_default(self, uuid: str=None):
+    def update_reset_time_default(self, uuid: PlayerUUID=None):
         """
         Updates a player's default reset time
         :param uuid: The uuid of the relative player
@@ -452,7 +466,7 @@ class HistoricalManager:
         update_reset_time_configured(self._discord_id, value, method)
 
 
-    async def start_historical(self, uuid: str=None) -> None:
+    async def start_historical(self, uuid: PlayerUUID=None) -> None:
         """
         Initiates historical stat tracking (daily, weekly, etc)
         :param uuid: The uuid of the player's historical stats being initiated
@@ -463,7 +477,7 @@ class HistoricalManager:
 
 
     def save_historical(self, local_data: tuple, hypixel_data: tuple,
-                        uuid: str, level: int, period: str) -> None:
+                        uuid: PlayerUUID, level: int, period: str) -> None:
         """
         Saves historical data to a specified table, typically used when historical stats reset.
         Creates new table if specified table doesn't exist
@@ -476,7 +490,7 @@ class HistoricalManager:
         save_historical(local_data, hypixel_data, uuid, level, period)
 
 
-    def get_historical(self, uuid: str=None, identifier: str='daily',
+    def get_historical(self, uuid: PlayerUUID=None, identifier: str='daily',
                        table: str=None) -> tuple:
         """
         Returns historical data from a specified table to a specified player
@@ -498,7 +512,7 @@ class HistoricalManager:
 
 
     def get_max_lookback(self, discord_id_primary: int,
-                                  discord_id_secondary: int) -> int:
+                         discord_id_secondary: int) -> int:
         """
         Returns the amount of days back a user can check a player's historical stats
         :param discord_id_primary: the primary discord id to use (linked discord account of player)

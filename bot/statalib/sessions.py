@@ -7,6 +7,7 @@ from .errors import SessionNotFoundError
 from .calctools import get_player_dict
 from .discord_utils.responses import interaction_send_object
 from .network import fetch_hypixel_data
+from .aliases import PlayerName, PlayerUUID
 from .functions import (
     get_config,
     fname,
@@ -14,8 +15,11 @@ from .functions import (
 )
 
 
-async def start_session(uuid: str, session: int,
-                        hypixel_data: dict | None = None) -> None:
+async def start_session(
+    uuid: PlayerUUID,
+    session: int,
+    hypixel_data: dict | None = None
+) -> None:
     """
     Initiate a bedwars stats session
     :param uuid: The uuid of the player to initiate a session for
@@ -56,7 +60,10 @@ async def start_session(uuid: str, session: int,
             cursor.execute(query, tuple(values))
 
 
-def _find_dynamic_session(uuid: str, session: int | None=None) -> tuple | None:
+def _find_dynamic_session(
+    uuid: PlayerUUID,
+    session: int | None=None
+) -> tuple | None:
     """
     Returns a session based on the provided session\n
     if a session is not provided, a session with the lowest id will be used
@@ -77,8 +84,13 @@ def _find_dynamic_session(uuid: str, session: int | None=None) -> tuple | None:
     return session_data[0] if session_data else None
 
 
-async def find_dynamic_session(interaction: discord.Interaction, username: str,
-                            uuid: str, session: int | None=None, eph=True) -> tuple | bool:
+async def find_dynamic_session(
+    interaction: discord.Interaction,
+    username: PlayerName,
+    uuid: PlayerUUID,
+    session: int | None=None,
+    eph=True
+) -> tuple | bool:
     """
     Dynamically gets a session of a user\n
     If session is 100, the first session to exist will be returned

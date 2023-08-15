@@ -8,8 +8,10 @@ from .linking import get_linked_player
 from .mcfetch import FetchPlayer
 
 
-async def session_autocompletion(interaction: Interaction, current: str
-                                 ) -> typing.List[app_commands.Choice[str]]:
+async def session_autocompletion(
+    interaction: Interaction,
+    current: str
+) -> typing.List[app_commands.Choice[str]]:
     """
     Interaction session autocomplete\n
     Dynamic to username field
@@ -49,8 +51,10 @@ async def session_autocompletion(interaction: Interaction, current: str
     return data
 
 
-async def username_autocompletion(interaction: Interaction, current: str
-                                  ) -> typing.List[app_commands.Choice[str]]:
+async def username_autocompletion(
+    interaction: Interaction,
+    current: str
+) -> typing.List[app_commands.Choice[str]]:
     """
     Interaction username autocomplete
     """

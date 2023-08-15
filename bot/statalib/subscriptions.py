@@ -279,7 +279,7 @@ class SubscriptionManager:
         """
         Adds a subscription to a user
         :param package: package the same of the package to give the user
-        :param expires: the epoch timestamp that the package will expire 
+        :param expires: the epoch timestamp that the package will expire
         """
         add_subscription(self.discord_id, package, expires)
 
