@@ -93,7 +93,7 @@ def render_year(
     )
 
     render_mc_text(
-        text=f'&fPredictions For Year: &d{year}',
+        text=f'&fPredictions For Year:  &d{year}',  # intentional double space
         position=(229, 425),
         font=minecraft_18,
         image=image,
