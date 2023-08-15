@@ -14,12 +14,12 @@ class Who(commands.Cog):
         name="who",
         description="Convert the name of uuid of a player")
     @app_commands.describe(
-        username_or_uuid='The player whos username / uuid you want to view')
+        player='The player whos username / uuid you want to view')
     async def who(self, interaction: discord.Interaction,
-                  username_or_uuid: str=None):
-        name, uuid = await fetch_player_info(username_or_uuid, interaction, eph=True)
+                  player: str=None):
+        name, uuid = await fetch_player_info(player, interaction, eph=True)
 
-        if username_or_uuid is None or len(username_or_uuid) <= 16:
+        if player is None or len(player) <= 16:
             await interaction.response.send_message(
                 f'UUID for **{name}** -> `{uuid}`', ephemeral=True)
         else:

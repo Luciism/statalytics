@@ -122,15 +122,18 @@ def update_autofill(discord_id: int, uuid: str, username: str) -> None:
                 cursor.execute(query, (uuid, username, discord_id))
 
 
-async def fetch_player_info(username: str, interaction: Interaction,
-                            eph=False) -> tuple[str, str]:
+async def fetch_player_info(
+    player: str,
+    interaction: Interaction,
+    eph=False
+) -> tuple[str, str]:
     """
     Get formatted username & uuid of a user from their minecraft ign / uuid
-    :param username: The minecraft ign of the player to return (can also take a uuid)
+    :param player: Username, uuid, or linked discord id of the player
     :param interaction: The discord interaction object used
     :param eph: whether or not to respond with an ephemeral message (default false)
     """
-    if username is None:
+    if player is None:
         uuid = get_linked_player(interaction.user.id)
 
         if uuid:
@@ -146,10 +149,14 @@ async def fetch_player_info(username: str, interaction: Interaction,
                 await interaction.response.send_message(msg, ephemeral=eph)
             raise PlayerNotFoundError
     else:
-        if len(username) <= 16:
-            player_data = FetchPlayer(name=username, requests_obj=mojang_session)
+        if len(player) <= 16:
+            player_data = FetchPlayer(name=player, requests_obj=mojang_session)
         else:
-            player_data = FetchPlayer(uuid=username, requests_obj=mojang_session)
+            # allow for linked discord ids
+            if player.isnumeric():
+                player = get_linked_player(int(player)) or ''
+
+            player_data = FetchPlayer(uuid=player, requests_obj=mojang_session)
         name = player_data.name
         uuid = player_data.uuid
 

@@ -60,16 +60,16 @@ class Year(commands.Cog):
         name="2024",
         description="View the a players projected stats for 2024")
     @app_commands.describe(
-        username='The player you want to view',
+        player='The player you want to view',
         session='The session you want to use')
     @app_commands.autocomplete(
-        username=username_autocompletion,
+        player=username_autocompletion,
         session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def year_2024(self, interaction: discord.Interaction,
-                        username: str=None, session: int=None):
+                        player: str=None, session: int=None):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
         await self.year_command(interaction, name, uuid, session, 2024)
 
 
@@ -77,16 +77,16 @@ class Year(commands.Cog):
         name="2025",
         description="View the a players projected stats for 2025")
     @app_commands.describe(
-        username='The player you want to view',
+        player='The player you want to view',
         session='The session you want to use')
     @app_commands.autocomplete(
-        username=username_autocompletion,
+        player=username_autocompletion,
         session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction,
-                        username: str=None, session: int=None):
+                        player: str=None, session: int=None):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         discord_id = uuid_to_discord_id(uuid)
         subscription = None

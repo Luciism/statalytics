@@ -8,7 +8,7 @@
       "fields": [
         {
           "name": "**Commands:**",
-          "value": "`/link <username>`\n`/unlink`"
+          "value": "`/link <player>`\n`/unlink`"
         }
       ]
     }

@@ -28,16 +28,16 @@ class Milestones(commands.Cog):
         name="milestones",
         description="View the milestone stats of a player")
     @app_commands.describe(
-        username='The player you want to view',
+        player='The player you want to view',
         session='The session you want to use (0 for none, defaults to 1 if active)')
     @app_commands.autocomplete(
-        username=username_autocompletion,
+        player=username_autocompletion,
         session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def milestones(self, interaction: discord.Interaction,
-                         username: str=None, session: int=None):
+                         player: str=None, session: int=None):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         if session is None:
             session = 100
@@ -51,7 +51,7 @@ class Milestones(commands.Cog):
 
             if not cursor.fetchone() and not session in (0, 100):
                 await interaction.followup.send(
-                    f"`{username}` doesn't have an active session with ID: `{session}`!\n"
+                    f"`{name}` doesn't have an active session with ID: `{session}`!\n"
                     "Select a valid session or specify `0` in order to not use session data!")
                 return
 

@@ -8,7 +8,7 @@
       "fields": [
         {
           "name": "**Commands:**",
-          "value": "`/session active`\n`/session start`\n`/session end [<session>]`\n`/session reset [<session>]`\n`/session stats [<session>] [<username>]`"
+          "value": "`/session active`\n`/session start`\n`/session end [<session>]`\n`/session reset [<session>]`\n`/session stats [<session>] [<player>]`"
         }
       ]
     }

@@ -17,9 +17,9 @@ class Linking(commands.Cog):
 
     @app_commands.command(name="link", description="Link your account")
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    @app_commands.describe(username='The player you want to link to')
-    async def link(self, interaction: discord.Interaction, username: str):
-        await linking_interaction(interaction, username)
+    @app_commands.describe(player='The player you want to link to')
+    async def link(self, interaction: discord.Interaction, player: str):
+        await linking_interaction(interaction, player)
         update_command_stats(interaction.user.id, 'link')
 
 

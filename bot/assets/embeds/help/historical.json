@@ -8,7 +8,7 @@
       "fields": [
         {
           "name": "**Commands:**",
-          "value": "`/daily [<username>]`\n`/weekly [<username>]`\n`/monthly [<username>]`\n`/yearly [<username>]`\n\n`/lastday [<username>] [<days>]`\n`/lastweek [<username>] [<weeks>]`\n`/lastmonth [<username>] [<months>]`\n`/lastyear [<username>] [<years>]`\n\n`/difference daily [<username>]`\n`/difference weekly [<username>]`\n`/difference monthly [<username>]`\n`/difference yearly [<username>]`"
+          "value": "`/daily [<player>]`\n`/weekly [<player>]`\n`/monthly [<player>]`\n`/yearly [<player>]`\n\n`/lastday [<player>] [<days>]`\n`/lastweek [<player>] [<weeks>]`\n`/lastmonth [<player>] [<months>]`\n`/lastyear [<player>] [<years>]`\n\n`/difference daily [<player>]`\n`/difference weekly [<player>]`\n`/difference monthly [<player>]`\n`/difference yearly [<player>]`"
         }
       ]
     }

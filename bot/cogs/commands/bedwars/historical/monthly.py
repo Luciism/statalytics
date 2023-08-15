@@ -30,13 +30,13 @@ class Monthly(commands.Cog):
     @app_commands.command(
         name="monthly",
         description="View the monthly stats of a player")
-    @app_commands.describe(username='The player you want to view')
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.describe(player='The player you want to view')
+    @app_commands.autocomplete(player=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def monthly(self, interaction: discord.Interaction, username: str=None):
+    async def monthly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
 
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
@@ -90,14 +90,14 @@ class Monthly(commands.Cog):
         name="lastmonth",
         description="View last months stats of a player")
     @app_commands.describe(
-        username='The player you want to view',
+        player='The player you want to view',
         months='The lookback amount in months')
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.autocomplete(player=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def lastmonth(self, interaction: discord.Interaction,
-                        username: str=None, months: int=1):
+                        player: str=None, months: int=1):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         historic = HistoricalManager(interaction.user.id, uuid)
         discord_id = uuid_to_discord_id(uuid=uuid)

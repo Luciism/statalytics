@@ -29,12 +29,12 @@ class Skin(commands.Cog):
 
 
     @app_commands.command(name="skin", description="View the skin of a player")
-    @app_commands.autocomplete(username=username_autocompletion)
-    @app_commands.describe(username='The player you want to view')
+    @app_commands.autocomplete(player=username_autocompletion)
+    @app_commands.describe(player='The player you want to view')
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def skin(self, interaction: discord.Interaction, username: str=None):
+    async def skin(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         try:
             image_bytes = await self.fetch_skin(uuid)

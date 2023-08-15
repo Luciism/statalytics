@@ -27,18 +27,18 @@ class Projection(commands.Cog):
         name="prestige",
         description="View the projected stats of a player")
     @app_commands.describe(
-        username='The player you want to view',
+        player='The player you want to view',
         prestige='The prestige you want to view',
         session='The session you want to use as a benchmark (defaults to 1)')
     @app_commands.autocomplete(
-        username=username_autocompletion,
+        player=username_autocompletion,
         session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def projected_stats(self, interaction: discord.Interaction,
-                              prestige: int=None, username: str=None, session: int=None):
+                              prestige: int=None, player: str=None, session: int=None):
         await interaction.response.defer()
 
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         session = await find_dynamic_session(interaction, name, uuid, session)
 

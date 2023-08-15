@@ -82,15 +82,15 @@ class SettingsSelectView(discord.ui.View):
 
 
 class LinkAccountModal(discord.ui.Modal, title='Link Account'):
-    username = discord.ui.TextInput(
-        label='Username',
+    player = discord.ui.TextInput(
+        label='Player',
         placeholder='Statalytics',
         style=discord.TextStyle.short
     )
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            await linking_interaction(interaction, str(self.username))
+            await linking_interaction(interaction, str(self.player))
         except PlayerNotFoundError:
             return
 

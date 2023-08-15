@@ -2,7 +2,7 @@
   "type": "dict",
   "embeds": [
     {
-      "title": "Statalytics Help Page",
+      "title": "Statalytics Help Menu",
       "description": "To get more information on the different features of statalytics, please use the navigate using the buttons below. Each button will elaborate on different features and how they work.",
       "color": 3092790
     }

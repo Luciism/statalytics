@@ -22,12 +22,12 @@ class Shop(commands.Cog):
     @app_commands.command(
         name="shop",
         description="View the shopkeeper of a player")
-    @app_commands.describe(username='The player you want to view')
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.describe(player='The player you want to view')
+    @app_commands.autocomplete(player=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def shop(self, interaction: discord.Interaction, username: str=None):
+    async def shop(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 

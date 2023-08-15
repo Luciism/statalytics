@@ -20,14 +20,14 @@ class DisplayName(commands.Cog):
     @app_commands.command(
         name="displayname",
         description="Render the bedwars display name of any player")
-    @app_commands.describe(username='The player whos display name to generate')
+    @app_commands.describe(player='The player whos display name to generate')
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    @app_commands.autocomplete(username=username_autocompletion)
+    @app_commands.autocomplete(player=username_autocompletion)
     async def displayname(self, interaction: discord.Interaction,
-                          username: str=None):
+                          player: str=None):
         await interaction.response.defer()
 
-        name, uuid = await fetch_player_info(username, interaction)
+        name, uuid = await fetch_player_info(player, interaction)
 
         hypixel_data = await fetch_hypixel_data(uuid)
 
