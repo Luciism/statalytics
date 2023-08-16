@@ -1,3 +1,4 @@
+import logging
 from os import getenv
 from traceback import format_exception
 
@@ -7,6 +8,8 @@ from .functions import get_config, load_embeds, get_embed_color
 from .views.utils import LinkButton
 
 
+logger = logging.getLogger('statalytics')
+
 async def log_error_msg(client: discord.Client, error: Exception):
     """
     Prints and sends an error message to discord error logs channel
@@ -14,7 +17,7 @@ async def log_error_msg(client: discord.Client, error: Exception):
     :param error: The exception object for the error
     """
     traceback_str = ''.join(format_exception(type(error), error, error.__traceback__))
-    print(traceback_str)
+    logger.error(traceback_str)
 
     if getenv('ENVIRONMENT') == 'development' or not client:
         return

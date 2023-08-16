@@ -43,7 +43,7 @@ def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
     return None if not discord_id else discord_id[0]
 
 
-def get_linked_player(discord_id: int) -> str | None:
+def get_linked_player(discord_id: int) -> PlayerUUID | None:
     """
     Returns a users linked player uuid from database
     :param discord_id: The discord id of user's linked data to be retrieved
@@ -131,7 +131,7 @@ async def fetch_player_info(
     player: PlayerDynamic,
     interaction: Interaction,
     eph=False
-) -> tuple[str, str]:
+) -> tuple[PlayerName, PlayerUUID]:
     """
     Get formatted username & uuid of a user from their minecraft ign / uuid
     :param player: Username, uuid, or linked discord id of the player

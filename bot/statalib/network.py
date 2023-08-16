@@ -1,4 +1,5 @@
 import time
+import logging
 from os import getenv
 from json import JSONDecodeError
 from http.client import RemoteDisconnected
@@ -57,7 +58,8 @@ def fetch_hypixel_data(
         except (ReadTimeout, ConnectTimeout,
                 JSONDecodeError, RemoteDisconnected) as exc:
             if attempt < retries:
-                print(f"Request failed. Retrying in {retry_delay} seconds...")
+                logging.warning(
+                    f"Hypixel request failed. Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
             else:
                 raise HypixelInvalidResponseError(

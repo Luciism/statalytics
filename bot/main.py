@@ -1,4 +1,5 @@
 import time
+import logging
 from os import getenv
 from json import dump as dump_json
 
@@ -13,6 +14,7 @@ from statalib import (
     PlayerNotFoundError,
     SessionNotFoundError,
     HypixelInvalidResponseError,
+    CustomTimedRotatingFileHandler,
     add_info_view,
     handle_cooldown_error,
     handle_hypixel_error,
@@ -21,18 +23,26 @@ from statalib import (
 )
 
 
+logger = logging.getLogger('statalytics')
+logger.setLevel(logging.INFO)
+logger.addHandler(CustomTimedRotatingFileHandler())
+
+
 class Client(commands.Bot):
     def __init__(self, *, intents: discord.Intents):
-        super().__init__(intents=intents, command_prefix=commands.when_mentioned_or('$'))
+        super().__init__(
+            intents=intents,
+            command_prefix=commands.when_mentioned_or('$')
+        )
 
     async def setup_hook(self):
         cogs = get_config()['enabled_cogs']
         for ext in cogs:
             try:
                 await client.load_extension(f'cogs.{ext}')
-                print(f"Loaded cog: {ext}")
+                logger.info(f"Loaded cog: {ext}")
             except commands.errors.ExtensionNotFound:
-                print(f"Cog doesn't exist: {ext}")
+                logger.info(f"Cog doesn't exist: {ext}")
 
         add_info_view(self)
 
@@ -48,13 +58,15 @@ client = Client(intents=intents)
 
 @client.event
 async def on_ready():
-    print(f'Logged in as {client.user} (ID: {client.user.id})\n------')
+    logger.info(f'Logged in as {client.user} (ID: {client.user.id})\n------')
     await client.change_presence(activity=discord.Game(name="/help"))
 
 
 @client.tree.error
-async def on_tree_error(interaction: discord.Interaction,
-                        error: app_commands.AppCommandError):
+async def on_tree_error(
+    interaction: discord.Interaction,
+    error: app_commands.AppCommandError
+):
     if isinstance(error, PlayerNotFoundError):
         return
 
@@ -126,4 +138,4 @@ async def sync(ctx):
 
 
 if __name__ == '__main__':
-    client.run(getenv('BOT_TOKEN'))
+    client.run(getenv('BOT_TOKEN'), root_logger=True)

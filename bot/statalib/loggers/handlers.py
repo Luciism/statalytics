@@ -22,6 +22,9 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         self.backup_format = backup_format
         self.logs_dir = logs_dir
 
+        if not os.path.exists(logs_dir):
+            os.makedirs(logs_dir)
+
         filename = f'{logs_dir}/{filename}'
 
         super().__init__(
