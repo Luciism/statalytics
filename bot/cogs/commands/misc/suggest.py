@@ -35,7 +35,7 @@ class SubmitSuggestion(discord.ui.Modal, title='Submit Suggestion'):
 
 class Suggest(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @app_commands.command(

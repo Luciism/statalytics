@@ -23,7 +23,7 @@ from statalib import (
 
 class Difference(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
         self.LOADING_MSG = loading_message()
 
 

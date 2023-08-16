@@ -31,7 +31,7 @@ def _fetch_server_status(key, ip):
 
 class Status(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
         self.key = getenv('API_KEY_POLSU')
         self.ip = 'mc.hypixel.net'
 

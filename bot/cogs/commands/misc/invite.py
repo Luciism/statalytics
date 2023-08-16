@@ -7,7 +7,7 @@ from statalib.functions import update_command_stats, get_config
 
 class Invite(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @app_commands.command(

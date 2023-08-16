@@ -19,7 +19,7 @@ from statalib import (
 
 class Skin(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @to_thread

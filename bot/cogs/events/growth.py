@@ -36,7 +36,7 @@ def insert_growth_data(
 
 class Growth(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     def update_server_count_file(self):

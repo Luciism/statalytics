@@ -7,7 +7,7 @@ from statalib import update_command_stats, fetch_player_info
 
 class Who(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @app_commands.command(

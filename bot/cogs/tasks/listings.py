@@ -14,7 +14,7 @@ from statalib import (
 
 class Listings(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
         self.TOPGG_TOKEN = getenv('TOPGG_TOKEN')
         self.DBL_TOKEN = getenv('DBL_TOKEN')

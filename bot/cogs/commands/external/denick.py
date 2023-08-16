@@ -18,7 +18,7 @@ from statalib import (
 
 class Denick(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     async def number_autocomplete(self, interaction: discord.Interaction,

@@ -46,7 +46,7 @@ class Client(commands.Bot):
 
         add_info_view(self)
 
-        await self.tree.sync()
+        # await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 
@@ -132,7 +132,7 @@ async def reload(ctx, cog: str):
 
 @client.command()
 @commands.is_owner()
-async def sync(ctx):
+async def sync(ctx: commands.Context):
     await client.tree.sync()
     await ctx.send('Successfully synced client tree!')
 

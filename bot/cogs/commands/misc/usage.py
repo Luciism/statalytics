@@ -10,7 +10,7 @@ from statalib.functions import update_command_stats, get_embed_color
 
 class Usage(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @app_commands.command(name="usage", description="View Command Usage")

@@ -14,7 +14,7 @@ from statalib import (
 
 class Metrics(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
         self.channels = {}
 

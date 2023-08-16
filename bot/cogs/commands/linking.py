@@ -12,7 +12,7 @@ from statalib import (
 
 class Linking(commands.Cog):
     def __init__(self, client):
-        self.client: discord.Client = client
+        self.client: commands.Bot = client
 
 
     @app_commands.command(name="link", description="Link your account")
