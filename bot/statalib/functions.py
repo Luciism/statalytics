@@ -2,11 +2,13 @@
 
 import os
 import json
+import time
 import random
 import typing
 import sqlite3
 import asyncio
 import functools
+from typing import Literal
 from datetime import datetime, timedelta
 
 import discord
@@ -68,6 +70,33 @@ def get_voting_data(discord_id: int) -> tuple:
         return cursor.fetchone()
 
 
+def insert_growth_data(
+    discord_id: int,
+    action: Literal['add', 'remove'],
+    growth: Literal['guild', 'user', 'linked'],
+    timestamp: float=None
+):
+    """
+    Inserts a row of growth data into database
+    :param discord_id: the respective discord id of the event (guild, user, etc)
+    :param action: the action that caused growth (add, remove, etc)
+    :param growth: what impacted the growth (guild, user, etc)
+    :param timestamp: the timestamp of the action (defaults to now)
+    """
+    if timestamp is None:
+        timestamp = time.time()
+
+    with sqlite3.connect('./database/core.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            'INSERT INTO growth_data '
+            '(timestamp, discord_id, action, growth) '
+            'VALUES (?, ?, ?, ?)',
+            (timestamp, discord_id, action, growth)
+        )
+
+
 def _update_usage(command, discord_id):
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
@@ -94,8 +123,10 @@ def _update_usage(command, discord_id):
         else:
             cursor.execute(
                 f"INSERT INTO command_usage (discord_id, overall, {command}) VALUES (?, ?, ?)",
-                (discord_id, 1, 1)
-            )
+                (discord_id, 1, 1))
+
+    if not result:
+        insert_growth_data(discord_id, action='add', growth='user')
 
 
 def update_command_stats(discord_id: int, command: str) -> None:

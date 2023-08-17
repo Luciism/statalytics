@@ -12,6 +12,7 @@ from .aliases import PlayerDynamic, PlayerName, PlayerUUID
 from .functions import (
     load_embeds,
     fname,
+    insert_growth_data,
     REL_PATH
 )
 
@@ -79,6 +80,9 @@ def set_linked_data(discord_id: int, uuid: PlayerUUID) -> None:
                 "UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?",
                 (uuid, discord_id))
 
+    if not linked_data:
+        insert_growth_data(discord_id, 'add', 'linked')
+
 
 def delete_linked_data(discord_id: int) -> bool:
     """
@@ -97,8 +101,11 @@ def delete_linked_data(discord_id: int) -> bool:
         if current_data:
             cursor.execute(
                 "DELETE FROM linked_accounts WHERE discord_id = ?", (discord_id,))
-            return current_data[0]
-        return None
+
+    if current_data:
+        insert_growth_data(discord_id, 'remove', 'linked')
+        return current_data[0]
+    return None
 
 
 def update_autofill(
