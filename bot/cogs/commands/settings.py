@@ -78,7 +78,10 @@ class SettingsSelectView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-        await self.interaction.edit_original_response(view=self)
+        try:
+            await self.interaction.edit_original_response(view=self)
+        except discord.errors.NotFound:
+            pass
 
 
 class LinkAccountModal(discord.ui.Modal, title='Link Account'):
@@ -103,7 +106,11 @@ class SettingsButtons(discord.ui.View):
     async def on_timeout(self) -> None:
         for child in self.children:
             child.disabled = True
-        await self.interaction.edit_original_response(view=self)
+
+        try:
+            await self.interaction.edit_original_response(view=self)
+        except discord.errors.NotFound:
+            pass
 
 
     @discord.ui.button(

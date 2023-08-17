@@ -35,7 +35,11 @@ class ManageSession(discord.ui.View):
     async def on_timeout(self) -> None:
         for item in self.children:
             item.disabled = True
-        await self.message.edit(view=self)
+
+        try:
+            await self.message.edit(view=self)
+        except discord.errors.NotFound:
+            pass
 
 
     @discord.ui.button(

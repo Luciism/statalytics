@@ -40,7 +40,7 @@ class Weekly(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
-        historical_data = historic.get_historical(identifier='monthly')
+        historical_data = historic.get_historical(identifier='weekly')
 
         if not historical_data:
             await historic.start_historical()

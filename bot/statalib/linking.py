@@ -198,7 +198,7 @@ async def link_account(
     if discord_tag.endswith('#0'):
         discord_tag = discord_tag[:-2]
 
-    hypixel_data = await fetch_hypixel_data(uuid=uuid, cache=False)
+    hypixel_data: dict = await fetch_hypixel_data(uuid=uuid, cache=False)
     if not hypixel_data['player']:
         return -1
 
@@ -240,12 +240,12 @@ async def linking_interaction(
     response = await link_account(discord_tag, interaction.user.id, uuid, name)
 
     if response == 1:
-        await interaction.followup.send(f"Successfully linked to **{fname(username)}**")
+        await interaction.followup.send(f"Successfully linked to **{fname(name)}**")
         return
 
     if response == 2:
         await interaction.followup.send(
-            f"Successfully linked to **{fname(username)}**\n"
+            f"Successfully linked to **{fname(name)}**\n"
             "No sessions where found for this player so one was created.",
             view=SessionInfoButton())
         return
