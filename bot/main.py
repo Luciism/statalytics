@@ -46,7 +46,7 @@ class Client(commands.Bot):
 
         add_info_view(self)
 
-        # await self.tree.sync()
+        await self.tree.sync()
         with open('./database/uptime.json', 'w') as datafile:
             dump_json({"start_time": time.time()}, datafile, indent=4)
 
