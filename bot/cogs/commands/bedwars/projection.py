@@ -54,7 +54,7 @@ class Projection(commands.Cog):
                 current_star = 0
             prestige = (current_star // 100 + 1) * 100
 
-        prestige = max(prestige, 1) # 1 or higher
+        prestige = max(prestige, 1)  # 1 or higher
 
         kwargs = {
             "name": name,

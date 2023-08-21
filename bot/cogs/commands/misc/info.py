@@ -53,7 +53,7 @@ class Info(commands.Cog):
         ram_usage = round(process_mem / 1024 ** 2, 2)
 
         format_values = {
-            't': '┌', 'c': '├', 'b': '└', 'br': '\u200B', # Special chars
+            't': '┌', 'c': '├', 'b': '└', 'br': '\u200B',  # Special chars
             'uptime': uptime,
             'ping': f'{ping:,}',
             'commands': f'{total_commands:,}',

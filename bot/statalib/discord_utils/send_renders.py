@@ -17,10 +17,14 @@ def discord_message(discord_id):
     if get_subscription(discord_id):
         return None
 
-    if random.choice(([False]*5) + ([True]*2)): # 2 in 7 chance
-        with open(f'{REL_PATH}/database/discord_messages.json', 'r') as datafile:
-            data = json.load(datafile)
-        return random.choice(data['active_messages'])
+    if random.choice(([False]*5) + ([True]*2)):  # 2 in 7 chance
+        try:
+            with open(f'{REL_PATH}/database/discord_messages.json', 'r') as datafile:
+                messages = json.load(datafile).get('active_messages')
+            if messages:
+                return random.choice(messages)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
     return None
 
 

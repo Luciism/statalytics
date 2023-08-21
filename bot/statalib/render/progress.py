@@ -71,7 +71,7 @@ def render_progress_bar(
 
     x = render_mc_text(
         text=f'&b{colored_squares}',
-        position=(x, y-7), # -7 to center squares vertically
+        position=(x, y-7),  # -7 to center squares vertically
         font=Fonts.unifont_24,
         image=image,
         shadow_offset=(2, 2),
@@ -84,12 +84,12 @@ def render_progress_bar(
 
     x = render_mc_text(
         text=f'&7{gray_squares}',
-        position=(x, y-7), # -7 to center squares vertically
+        position=(x, y-7),  # -7 to center squares vertically
         font=Fonts.unifont_24,
         image=image,
         shadow_offset=(2, 2),
         return_x=True
-    )[1] + 3 # 3 pixels padding between squares and bracket
+    )[1] + 3  # 3 pixels padding between squares and bracket
 
 
     # Right bracket for progress bar

@@ -23,7 +23,7 @@ def _fetch_server_status(key, ip):
             f"https://api.polsu.xyz/polsu/minecraft/server?key={key}&ip={ip}",
             timeout=10
         ).json()
-    except Exception: # polsulpicien wrote this code dont look at me
+    except Exception:  # polsulpicien wrote this code dont look at me
         # In case the API doesn't respond or reponds with HTML instead of JSON.
         res = {"success": False}
     return res

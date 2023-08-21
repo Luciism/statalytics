@@ -119,7 +119,7 @@ def _update_usage(command, discord_id):
                 SET overall = overall + 1,
                 {command} = {f'{command} + 1' if result[1] else 1}
                 WHERE discord_id = {discord_id}
-            """) # if command current is null, it will be set to 1
+            """)  # if command current is null, it will be set to 1
         else:
             cursor.execute(
                 f"INSERT INTO command_usage (discord_id, overall, {command}) VALUES (?, ?, ?)",
@@ -136,7 +136,7 @@ def update_command_stats(discord_id: int, command: str) -> None:
     :param command: the command run by the user to increment
     """
     _update_usage(command, discord_id)
-    _update_usage(command, 0) # Global commands
+    _update_usage(command, 0)  # Global commands
 
 
 def fname(username: str):

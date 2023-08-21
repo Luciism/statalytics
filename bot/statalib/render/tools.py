@@ -66,7 +66,7 @@ def recolor_pixels(
     :param rgb_from: a list of RGB sets to recolor from
     :param rgb_to: a list of RGB sets to recolor to
     """
-    data = np.array(image) # "data" is a height x width x 4 numpy array
+    data = np.array(image)  # "data" is a height x width x 4 numpy array
     red, green, blue, _ = data.T
 
     # Replace placeholder with other color... (leaves alpha values alone...)
