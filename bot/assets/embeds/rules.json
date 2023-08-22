@@ -1,0 +1,10 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": ":books: Server Rules",
+      "description": "`\u2022` No advertising other Discord servers or external websites.\n`\u2022` No spamming messages, emojis, or images in the chat.\n`\u2022` No discrimination of any kind is tolerated.\n`\u2022` Do not share personal information about other users.\n`\u2022` No NSFW or pornographic content is allowed on the server.\n`\u2022` Do not engage in toxic or disrespectful behavior towards others.\n`\u2022` You must follow Discord's Terms of Service and Community Guidelines.\n`\u2022` Use appropriate language in all channels, including voice channels.\n`\u2022` Do not impersonate other users, staff, or clients.\n`\u2022` Follow any additional rules specific to certain channels.",
+      "color": 3092790
+    }
+  ]
+}
