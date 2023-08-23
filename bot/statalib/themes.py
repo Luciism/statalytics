@@ -41,6 +41,23 @@ def get_exclusive_themes() -> list:
     return list(themes.keys())
 
 
+def get_theme_properties(theme_name: str) -> dict:
+    """
+    Returns properties for specified theme.
+    Works for both voter and exclusive themes.
+    :param theme_name: the name of the theme to get the properties of
+    """
+    theme_packs: dict = get_config('theme_packs')
+
+    theme_properties = theme_packs.get('voter_themes', {}).get(theme_name)
+
+    if theme_properties is None:
+        theme_properties = theme_packs.get(
+            'exclusive_themes', {}).get(theme_name, {})
+
+    return theme_properties
+
+
 def add_owned_theme(discord_id: int, theme_name: str):
     """
     Gives the user a theme by the given name

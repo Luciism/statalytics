@@ -123,14 +123,17 @@ class SettingsButtons(discord.ui.View):
         embeds = load_embeds('active_theme', color='primary')
 
         owned_themes = get_owned_themes(interaction.user.id)
-        theme_packs: dict = get_config()['theme_packs']
+        theme_packs: dict = get_config('theme_packs')
 
+        # themes available to anyone through voting
         available_themes: dict = theme_packs['voter_themes']
+
+        # owned exclusive themes
         for owned_theme in owned_themes:
             available_themes[owned_theme] = theme_packs['exclusive_themes'][owned_theme]
 
-        options = [discord.SelectOption(label=value, value=key)
-                   for key, value in available_themes.items()]
+        options = [discord.SelectOption(label=properties.get('display_name'), value=name)
+                   for name, properties in available_themes.items()]
 
         view_data = [{
             'placeholder': 'Select Theme',

@@ -9,6 +9,7 @@ from PIL import Image, UnidentifiedImageError
 from ..linking import uuid_to_discord_id
 from ..functions import get_config, REL_PATH
 from ..subscriptions import get_subscription
+from ..themes import get_theme_properties
 from .colors import Colors, get_prestige_primary_color, get_rank_color
 
 
@@ -77,10 +78,11 @@ def recolor_pixels(
     return Image.fromarray(data)
 
 
-def theme_color_sync_fusion(bg_dir: str, **kwargs) -> Image.Image:
+def dynamic_colored_theme(theme: str, bg_dir: str, **kwargs) -> Image.Image:
     """
-    Returns image for color sync fusion theme
-    :param bg_dir: The directory that the background is located in
+    Returns image for a dynamically colored theme (mapped rank and level colors)
+    :param theme: The theme you are attempting to get
+    :param bg_dir: The directory that the background asset is located in
     :param **kwargs: keyword arguments should include a level and rank information
     """
     rank_info = kwargs.get('rank_info')
@@ -90,7 +92,7 @@ def theme_color_sync_fusion(bg_dir: str, **kwargs) -> Image.Image:
     star_color = get_prestige_primary_color(level)
 
     image = Image.open(
-        f'{REL_PATH}/assets/bg/{bg_dir}/themes/color_sync_fusion.png'
+        f'{REL_PATH}/assets/bg/{bg_dir}/themes/{theme}.png'
     ).convert('RGBA')
 
     rgb_from = ((213, 213, 213), (214, 214, 214))
@@ -105,8 +107,11 @@ def get_theme_img(theme: str, bg_dir: str, **kwargs) -> Image:
     :param bg_dir: The directory that the background is located in
     :param **kwargs: any keyword arguments that may be needed for the theme
     """
-    if theme == 'color_sync_fusion':
-        return theme_color_sync_fusion(bg_dir=bg_dir, **kwargs)
+    theme_properties = get_theme_properties(theme)
+
+    if theme_properties.get('dynamic_color') is True:
+        return dynamic_colored_theme(theme, bg_dir, **kwargs)
+
     return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/themes/{theme}.png')
 
 

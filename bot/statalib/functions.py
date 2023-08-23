@@ -86,7 +86,7 @@ def insert_growth_data(
     if timestamp is None:
         timestamp = time.time()
 
-    with sqlite3.connect('./database/core.db') as conn:
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
         cursor.execute(

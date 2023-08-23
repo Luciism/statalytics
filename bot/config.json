@@ -34,17 +34,48 @@
     "voter_reward_duration_hours": 24,
     "theme_packs": {
         "voter_themes": {
-            "none": "None",
-            "color_sync_fusion": "High Contrast",
-            "cold_feet": "Cold Feet",
-            "crystal_dawn": "Crystal Dawn",
-            "mooner_eclipse": "Mooner Eclipse",
-            "blue_retreat": "Blue Retreat",
-            "technoblade": "The Blood God"
+            "none": {
+                "display_name": "None",
+                "dynamic_color": false
+            },
+            "color_sync_fusion": {
+                "display_name": "High Contrast",
+                "dynamic_color": true
+            },
+            "cold_feet": {
+                "display_name": "Cold Feet",
+                "dynamic_color": false
+            },
+            "crystal_dawn": {
+                "display_name": "Crystal Dawn",
+                "dynamic_color": false
+            },
+            "mooner_eclipse": {
+                "display_name": "Mooner Eclipse",
+                "dynamic_color": false
+            },
+            "blue_retreat": {
+                "display_name": "Blue Retreat",
+                "dynamic_color": false
+            },
+            "technoblade": {
+                "display_name": "The Blood God",
+                "dynamic_color": false
+            }
         },
         "exclusive_themes": {
-            "summer_2023": "Summer Exclusive 2023",
-            "mono": "Grayscale"
+            "summer_2023": {
+                "display_name": "Summer Exclusive 2023",
+                "dynamic_color": false
+            },
+            "mono": {
+                "display_name": "Grayscale",
+                "dynamic_color": false
+            },
+            "mosaic": {
+                "display_name": "Mosiac",
+                "dynamic_color": true
+            }
         }
     },
     "links": {
