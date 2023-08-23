@@ -17,7 +17,8 @@ from statalib import (
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    fname
+    fname,
+    pluralize
 )
 
 
@@ -139,7 +140,7 @@ class Monthly(commands.Cog):
             "uuid": uuid,
             "identifier": "lastmonth",
             "relative_date": formatted_date,
-            "title": f"{months} Months Ago",
+            "title": f"{months} {pluralize(months, 'Month')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,

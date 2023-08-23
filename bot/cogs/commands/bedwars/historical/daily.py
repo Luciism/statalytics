@@ -16,7 +16,8 @@ from statalib import (
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    fname
+    fname,
+    pluralize
 )
 
 
@@ -136,7 +137,7 @@ class Daily(commands.Cog):
             "uuid": uuid,
             "identifier": "lastday",
             "relative_date": formatted_date,
-            "title": f"{days} Days Ago",
+            "title": f"{days} {pluralize(days, 'Day')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,

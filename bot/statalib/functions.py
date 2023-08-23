@@ -285,3 +285,15 @@ def format_seconds(seconds):
 
     minutes = (delta.seconds // 60) % 60
     return f"{minutes} Min{'s' if minutes > 1 else ''}"
+
+
+def pluralize(number: int, word: str) -> str:
+    """
+    If the provided number is not `1`, an `s` will be
+    appended to the provided word
+    :param number: the number to run pluralisation against
+    :param word: the word to pluralize
+    """
+    if number != 1:
+        return f'{word}s'
+    return word

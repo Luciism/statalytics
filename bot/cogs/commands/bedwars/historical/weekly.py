@@ -16,7 +16,8 @@ from statalib import (
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    fname
+    fname,
+    pluralize
 )
 
 
@@ -133,7 +134,7 @@ class Weekly(commands.Cog):
             "uuid": uuid,
             "identifier": "lastweek",
             "relative_date": formatted_date,
-            "title": f"{weeks} Weeks Ago",
+            "title": f"{weeks} {pluralize(weeks, 'Week')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
             "skin_res": skin_res,
