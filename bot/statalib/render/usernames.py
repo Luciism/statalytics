@@ -88,7 +88,7 @@ def render_level(
 
 def render_display_name(
     username: str,
-    rank_info: dict, 
+    rank_info: dict,
     image: Image.Image,
     font_size: int,
     position: tuple[int, int],

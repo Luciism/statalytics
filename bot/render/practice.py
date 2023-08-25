@@ -20,52 +20,37 @@ def render_practice(
     skin_res: bytes
 ) -> bytes:
     stats = PracticeStats(hypixel_data)
-
-    level = stats.level
-    rank_info = stats.rank_info
     progress_of_10 = stats.progress[2]
 
-    bridge_completed, bridge_failed, bridge_ratio = stats.get_bridging_stats()
-    pearl_completed, pearl_failed, pearl_ratio = stats.get_pearl_stats()
-    tnt_completed, tnt_failed, tnt_ratio = stats.get_tnt_stats()
-    mlg_completed, mlg_failed, mlg_ratio = stats.get_mlg_stats()
-
-    strt_short, strt_medium, strt_long, strt_avg = stats.get_straight_times()
-    diag_short, diag_medium, diag_long, diag_avg = stats.get_diagonal_times()
-    blocks_placed = stats.get_blocks_placed()
-
-    attempts = stats.get_attempts()
-
     image = get_background(
-        bg_dir='practice', uuid=uuid, level=level, rank_info=rank_info
+        bg_dir='practice', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
     minecraft_16 = ImageFont.truetype('./assets/fonts/minecraft.ttf', 16)
 
-    # Render the stat values
     data = [
-        {'position': (87, 131), 'text': f'&a{bridge_completed}'},
-        {'position': (241, 131), 'text': f'&c{bridge_failed}'},
-        {'position': (378, 131), 'text': f'&6{bridge_ratio}'},
-        {'position': (87, 190), 'text': f'&a{tnt_completed}'},
-        {'position': (241, 190), 'text': f'&c{tnt_failed}'},
-        {'position': (378, 190), 'text': f'&6{tnt_ratio}'},
-        {'position': (87, 249), 'text': f'&a{mlg_completed}'},
-        {'position': (241, 249), 'text': f'&c{mlg_failed}'},
-        {'position': (378, 249), 'text': f'&6{mlg_ratio}'},
-        {'position': (87, 308), 'text': f'&a{pearl_completed}'},
-        {'position': (241, 308), 'text': f'&c{pearl_failed}'},
-        {'position': (378, 308), 'text': f'&6{pearl_ratio}'},
-        {'position': (88, 368), 'text': f'&d{strt_short}'},
-        {'position': (242, 368), 'text': f'&d{strt_medium}'},
-        {'position': (397, 368), 'text': f'&d{strt_long}'},
-        {'position': (553, 368), 'text': f'&d{strt_avg}'},
-        {'position': (88, 426), 'text': f'&d{diag_short}'},
-        {'position': (242, 426), 'text': f'&d{diag_medium}'},
-        {'position': (397, 426), 'text': f'&d{diag_long}'},
-        {'position': (553, 426), 'text': f'&d{diag_avg}'},
-        {'position': (537, 249), 'text': f'&d{attempts}'},
-        {'position': (537, 308), 'text': f'&d{blocks_placed}'},
+        {'position': (87, 131), 'text': f'&a{stats.bridging_completed:,}'},
+        {'position': (241, 131), 'text': f'&c{stats.bridging_failed:,}'},
+        {'position': (378, 131), 'text': f'&6{stats.bridging_ratio:,}'},
+        {'position': (87, 190), 'text': f'&a{stats.tnt_completed:,}'},
+        {'position': (241, 190), 'text': f'&c{stats.tnt_failed:,}'},
+        {'position': (378, 190), 'text': f'&6{stats.tnt_ratio:,}'},
+        {'position': (87, 249), 'text': f'&a{stats.mlg_completed:,}'},
+        {'position': (241, 249), 'text': f'&c{stats.mlg_failed:,}'},
+        {'position': (378, 249), 'text': f'&6{stats.mlg_ratio:,}'},
+        {'position': (87, 308), 'text': f'&a{stats.pearl_completed:,}'},
+        {'position': (241, 308), 'text': f'&c{stats.pearl_failed:,}'},
+        {'position': (378, 308), 'text': f'&6{stats.pearl_ratio:,}'},
+        {'position': (88, 368), 'text': f'&d{stats.straight_short_record}'},
+        {'position': (242, 368), 'text': f'&d{stats.straight_medium_record}'},
+        {'position': (397, 368), 'text': f'&d{stats.straight_long_record}'},
+        {'position': (553, 368), 'text': f'&d{stats.straight_average_time}'},
+        {'position': (88, 426), 'text': f'&d{stats.diagonal_short_record}'},
+        {'position': (242, 426), 'text': f'&d{stats.diagonal_medium_record}'},
+        {'position': (397, 426), 'text': f'&d{stats.diagonal_long_record}'},
+        {'position': (553, 426), 'text': f'&d{stats.diagonal_average_time}'},
+        {'position': (537, 249), 'text': f'&d{stats.total_attempts:,}'},
+        {'position': (537, 308), 'text': f'&d{stats.blocks_placed:,}'},
         {'position': (537, 46), 'text':'(Overall)'}
     ]
 
@@ -80,7 +65,7 @@ def render_practice(
 
     render_display_name(
         username=name,
-        rank_info=rank_info,
+        rank_info=stats.rank_info,
         image=image,
         font_size=22,
         position=(226, 30),
@@ -88,7 +73,7 @@ def render_practice(
     )
 
     render_progress_bar(
-        level=level,
+        level=stats.level,
         progress_of_10=progress_of_10,
         position=(226, 61),
         image=image,

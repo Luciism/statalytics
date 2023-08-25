@@ -1,7 +1,7 @@
 from statalib.calctools import (
     BedwarsStats,
     get_rank_info,
-    rround
+    ratio
 )
 
 
@@ -11,95 +11,96 @@ class PracticeStats(BedwarsStats):
         hypixel_data: dict
     ) -> None:
         super().__init__(hypixel_data)
-        self.practice_stats = self._bedwars_data.get('practice', {})
+        self.practice_stats: dict = self._bedwars_data.get('practice', {})
 
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_data)
 
+        self.bridging_completed = self._get_successes('bridging')
+        self.bridging_failed = self._get_fails('bridging')
+        self.bridging_ratio = ratio(self.bridging_completed, self.bridging_failed)
 
-    def _get_attempts(self, mode):
-        completed = self.practice_stats.get(mode, {}).get('successful_attempts', 0)
-        failed = self.practice_stats.get(mode, {}).get('failed_attempts', 0)
+        self.tnt_completed = self._get_successes('fireball_jumping')
+        self.tnt_failed = self._get_fails('fireball_jumping')
+        self.tnt_ratio = ratio(self.tnt_completed, self.tnt_failed)
 
-        return completed, failed
+        self.mlg_completed = self._get_successes('mlg')
+        self.mlg_failed = self._get_fails('mlg')
+        self.mlg_ratio = ratio(self.mlg_completed, self.mlg_failed)
 
+        self.pearl_completed = self._get_successes('pearl_clutching')
+        self.pearl_failed = self._get_fails('pearl_clutching')
+        self.pearl_ratio = ratio(self.pearl_completed, self.pearl_failed)
 
-    def _calc_general_stats(self, mode):
-        completed, failed = self._get_attempts(mode)
-        ratio = rround(completed / (failed or 1), 2)
+        self.straight_short_record = self._pretty_record('30', 'NONE', 'STRAIGHT')
+        self.straight_medium_record = self._pretty_record('50', 'NONE', 'STRAIGHT')
+        self.straight_long_record = self._pretty_record('100', 'NONE', 'STRAIGHT')
+        self.straight_average_time = self._average_time('STRAIGHT')
 
-        return f'{completed:,}', f'{failed:,}', f'{ratio:,}'
+        self.diagonal_short_record = self._pretty_record('30', 'NONE', 'DIAGONAL')
+        self.diagonal_medium_record = self._pretty_record('50', 'NONE', 'DIAGONAL')
+        self.diagonal_long_record = self._pretty_record('100', 'NONE', 'DIAGONAL')
+        self.diagonal_average_time = self._average_time('DIAGONAL')
 
-
-    def get_bridging_stats(self):
-        return self._calc_general_stats(mode='bridging')
-
-
-    def get_tnt_stats(self):
-        return self._calc_general_stats(mode='fireball_jumping')
-
-
-    def get_mlg_stats(self):
-        return self._calc_general_stats(mode='mlg')
-
-
-    def get_pearl_stats(self):
-        return self._calc_general_stats(mode='pearl_clutching')
-
-
-    def get_blocks_placed(self):
-        bridging_blocks = self.practice_stats.get('bridging', {}).get('blocks_placed', 0)
-        tnt_blocks = self.practice_stats.get('fireball_jumping', {}).get('blocks_placed', 0)
-        mlg_blocks = self.practice_stats.get('mlg', {}).get('blocks_placed', 0)
-        blocks_placed = bridging_blocks + tnt_blocks + mlg_blocks
-        return f'{blocks_placed:,}'
+        self._blocks_placed = None
+        self._total_attempts = None
 
 
-    def get_attempts(self):
-        bridging_attempts = sum(self._get_attempts('bridging'))
-        tnt_attempts = sum(self._get_attempts('fireball_jumping'))
-        mlg_attempts = sum(self._get_attempts('mlg'))
-        pearl_attempts = sum(self._get_attempts('pearl'))
-
-        attempts = bridging_attempts + tnt_attempts + mlg_attempts + pearl_attempts
-        return f'{attempts:,}'
-
-
-    def _calc_times(self, short_key, medium_key, long_key):
-        short = self.practice_stats.get('records', {}).get(short_key, 0) / 1000
-        medium = self.practice_stats.get('records', {}).get(medium_key, 0) / 1000
-        long = self.practice_stats.get('records', {}).get(long_key, 0) / 1000
-
-        total_distance, output = 0, []
-        value_map = {0: 30, 1: 50, 2: 100}
-        values = (short, medium, long)
-
-        for i, value in enumerate(values):
-            if value == 0:
-                output.append('N/A')
-            else:
-                total_distance += value_map.get(i)
-                output.append(f'{round(value, 2):,}s')
-
-        try:
-            average = f'{round(total_distance / (short + medium + long), 2):,}m/s'
-        except ZeroDivisionError:
-            average = 'N/A'
-
-        return output[0], output[1], output[2], average
+    @property
+    def blocks_placed(self):
+        if self._blocks_placed is None:
+            bridging_blocks = self.practice_stats.get('bridging', {}).get('blocks_placed', 0)
+            tnt_blocks = self.practice_stats.get('fireball_jumping', {}).get('blocks_placed', 0)
+            mlg_blocks = self.practice_stats.get('mlg', {}).get('blocks_placed', 0)
+            self._blocks_placed = bridging_blocks + tnt_blocks + mlg_blocks
+        return self._blocks_placed
 
 
-    def get_straight_times(self):
-        return self._calc_times(
-            short_key='bridging_distance_30:elevation_NONE:angle_STRAIGHT:',
-            medium_key='bridging_distance_50:elevation_NONE:angle_STRAIGHT:',
-            long_key='bridging_distance_100:elevation_NONE:angle_STRAIGHT:'
-        )
+    @property
+    def total_attempts(self):
+        if self._total_attempts is None:
+            self._total_attempts = sum((
+                self.bridging_completed, self.bridging_failed,
+                self.tnt_completed, self.tnt_failed, self.mlg_completed,
+                self.mlg_failed, self.pearl_completed, self.pearl_failed
+            ))
+        return self._total_attempts
 
 
-    def get_diagonal_times(self):
-        return self._calc_times(
-            short_key='bridging_distance_30:elevation_NONE:angle_DIAGONAL:',
-            medium_key='bridging_distance_50:elevation_NONE:angle_DIAGONAL:',
-            long_key='bridging_distance_100:elevation_NONE:angle_DIAGONAL:'
-        )
+    def _get_successes(self, mode: str):
+        return self.practice_stats.get(mode, {}).get('successful_attempts', 0)
+
+
+    def _get_fails(self, mode: str):
+        return self.practice_stats.get(mode, {}).get('failed_attempts', 0)
+
+
+    def _record(self, distance: str, elevation: str, angle: str):
+        key = f"bridging_distance_{distance}:elevation_{elevation}:angle_{angle}:"
+        return self.practice_stats.get('records', {}).get(key, 0) / 1000
+
+
+    def _pretty_record(self, distance: str, elevation: str, angle: str):
+        record = self._record(distance, elevation, angle)
+
+        if record == 0:
+            return 'N/A'
+        return f'{round(record, 2):,}s'
+
+
+    def _average_time(self, angle: str):
+        short = self._record('30', 'NONE', angle)
+        medium = self._record('50', 'NONE', angle)
+        long = self._record('100', 'NONE', angle)
+
+        total_distance = 0
+        distance_map = (30, 50, 100)
+
+        for i, time in enumerate((short, medium, long)):
+            if time != 0:
+                total_distance += distance_map[i]
+
+        total_time = (short + medium + long)
+        if total_time == 0:
+            return 'N/A'
+        return f'{round(total_distance / total_time, 2):,}m/s'
