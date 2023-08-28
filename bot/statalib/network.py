@@ -14,6 +14,8 @@ from .errors import HypixelInvalidResponseError
 from .aliases import PlayerUUID
 
 
+logger = logging.getLogger('statalytics')
+
 historic_cache = SQLiteBackend(
     cache_name=f'{REL_PATH}/.cache/historic_cache', expire_after=300)
 
@@ -64,10 +66,10 @@ async def fetch_hypixel_data(
             async with CachedSession(cache=cached_session) as session:
                 return await (await session.get(**options)).json()
 
-        except (ReadTimeout, ConnectTimeout,
+        except (ReadTimeout, ConnectTimeout, TimeoutError,
                 JSONDecodeError, RemoteDisconnected) as exc:
             if attempt < retries:
-                logging.warning(
+                logger.warning(
                     f"Hypixel request failed. Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
             else:
@@ -94,13 +96,13 @@ async def fetch_skin_model(
     """
     options = {
         'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
-        'timeout': 3
+        'timeout': 5
     }
     try:
         async with CachedSession(cache=skin_session) as session:
             res_content = (await session.get(**options)).content
             return await res_content.read()
 
-    except (ReadTimeout, ConnectTimeout):
+    except (ReadTimeout, ConnectTimeout, TimeoutError):
         skin_res = skin_from_file()
     return skin_res

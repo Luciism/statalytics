@@ -1,3 +1,4 @@
+import asyncio
 import sqlite3
 
 import discord
@@ -39,6 +40,7 @@ class Milestones(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(player, interaction)
 
+        # I have no clue what the fuck this is doing
         if session is None:
             session = 100
 
@@ -58,8 +60,10 @@ class Milestones(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
         session = 1 if session == 100 else session
 
-        hypixel_data = await fetch_hypixel_data(uuid)
-        skin_res = await fetch_skin_model(uuid, 128)
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 128),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,

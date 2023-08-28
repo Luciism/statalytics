@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -34,13 +36,14 @@ class Year(commands.Cog):
 
     async def year_command(self, interaction: discord.Interaction,
                            name: str, uuid: str, session: int, year: int):
-
         session = await find_dynamic_session(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
-        skin_res = await fetch_skin_model(uuid, 144)
 
-        hypixel_data = await fetch_hypixel_data(uuid)
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,

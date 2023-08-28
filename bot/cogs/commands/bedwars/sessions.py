@@ -1,3 +1,4 @@
+import asyncio
 import sqlite3
 
 import discord
@@ -101,8 +102,11 @@ class Sessions(commands.Cog):
         session = await find_dynamic_session(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
-        hypixel_data = await fetch_hypixel_data(uuid)
-        skin_res = await fetch_skin_model(uuid, 144)
+
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,

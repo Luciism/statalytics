@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -32,8 +34,11 @@ class Average(commands.Cog):
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await fetch_hypixel_data(uuid)
+
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,

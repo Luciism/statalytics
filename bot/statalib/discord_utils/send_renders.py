@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import asyncio
 
 import discord
 
@@ -60,8 +61,10 @@ async def handle_modes_renders(
     except discord.errors.NotFound:
         return
 
-    await func(mode="Solos", **kwargs)
-    await func(mode="Doubles", **kwargs)
-    await func(mode="Threes", **kwargs)
-    await func(mode="Fours", **kwargs)
-    await func(mode="4v4", **kwargs)
+    await asyncio.gather(
+        func(mode="Solos", **kwargs),
+        func(mode="Doubles", **kwargs),
+        func(mode="Threes", **kwargs),
+        func(mode="Fours", **kwargs),
+        func(mode="4v4", **kwargs),
+    )

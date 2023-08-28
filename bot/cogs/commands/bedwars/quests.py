@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -33,8 +35,10 @@ class Quests(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        hypixel_data = await fetch_hypixel_data(uuid)
-        skin_res = await fetch_skin_model(uuid, 144)
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         rendered = await render_quests(name, uuid, hypixel_data, skin_res)
 

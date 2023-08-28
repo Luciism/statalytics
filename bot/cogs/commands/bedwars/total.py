@@ -1,3 +1,6 @@
+import asyncio
+from typing import Callable
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -22,15 +25,20 @@ class Total(commands.Cog):
         self.LOADING_MSG = loading_message()
 
 
-    async def total_command(self, interaction: discord.Interaction,
-                            player: str, method: str):
+    async def total_command(
+        self, interaction: discord.Interaction,
+        player: str, method: str, render_func: Callable
+    ):
         await interaction.response.defer()
 
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await fetch_hypixel_data(uuid)
+
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,
@@ -40,10 +48,7 @@ class Total(commands.Cog):
             "save_dir": interaction.id
         }
 
-        if method == 'generic':
-            await handle_modes_renders(interaction, render_total, kwargs)
-        else:
-            await handle_modes_renders(interaction, render_pointless, kwargs)
+        await handle_modes_renders(interaction, render_func, kwargs)
         update_command_stats(interaction.user.id, method)
 
 
@@ -54,7 +59,8 @@ class Total(commands.Cog):
     @app_commands.autocomplete(player=username_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def total(self, interaction: discord.Interaction, player: str=None):
-        await self.total_command(interaction, player, method='generic')
+        await self.total_command(
+            interaction, player, method='generic', render_func=render_total)
 
 
     @app_commands.command(
@@ -65,7 +71,8 @@ class Total(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def pointless(self, interaction: discord.Interaction,
                         player: str=None):
-        await self.total_command(interaction, player, method='pointless')
+        await self.total_command(
+            interaction, player, method='pointless', render_func=render_pointless)
 
 
 async def setup(client: commands.Bot) -> None:

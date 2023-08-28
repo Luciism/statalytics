@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 
@@ -57,8 +58,11 @@ class Yearly(commands.Cog):
             return
 
         await interaction.followup.send(self.LOADING_MSG)
-        skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await fetch_hypixel_data(uuid)
+
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         relative_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
@@ -154,8 +158,11 @@ class Yearly(commands.Cog):
 
         # Render and send
         await interaction.followup.send(self.LOADING_MSG)
-        skin_res = await fetch_skin_model(uuid, 144)
-        hypixel_data = await fetch_hypixel_data(uuid)
+
+        skin_res, hypixel_data = await asyncio.gather(
+            fetch_skin_model(uuid, 144),
+            fetch_hypixel_data(uuid)
+        )
 
         kwargs = {
             "name": name,
