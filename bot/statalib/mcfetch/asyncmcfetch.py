@@ -1,15 +1,16 @@
 import json
 from base64 import b64decode
 
-import requests
+from aiohttp import ClientSession
+from aiohttp_client_cache import CacheBackend, CachedSession
 
 
-class FetchPlayer:
+class AsyncFetchPlayer:
     def __init__(
         self,
         name: str=None,
         uuid: str=None,
-        requests_obj=requests
+        cache_backend: CacheBackend=None
     ):
         """
         Initializes a FetchPlayer object with a name and/or uuid.
@@ -17,8 +18,8 @@ class FetchPlayer:
         Args:
             name (str, optional): The player's name. Defaults to None.
             uuid (str, optional): The player's uuid. Defaults to None.
-            requests_obj (module, optional): The requests module or a compatible
-            object to use for making HTTP requests. Defaults to the requests module.
+            cache_backend (class, optional): The backend used for caching
+            responses, if `None`, caching won't be used.
 
         Raises:
             AssertionError: If both name and uuid are None or if both are not None.
@@ -33,53 +34,68 @@ class FetchPlayer:
         self._skin_texture = None
 
         self._player_exists = True
+
         self._has_loaded_by_uuid = False
 
-        self._requests_obj = requests_obj
+        self.cache_backend = cache_backend
 
 
     @property
-    def name(self) -> str | None:
+    async def name(self) -> str | None:
         """Returns the player's pretty name."""
         if self._pretty_name is None:
             if self._name is None:
-                self._load_by_uuid()
+                await self._load_by_uuid()
             else:
-                self._load_by_name()
+                await self._load_by_name()
         return self._pretty_name
 
 
     @property
-    def uuid(self) -> str | None:
+    async def uuid(self) -> str | None:
         """Returns the player's uuid."""
-        self._load_by_name()
+        await self._load_by_name()
         return self._uuid
 
 
     @property
-    def skin_url(self) -> str | None:
+    async def skin_url(self) -> str | None:
         """Returns the player's skin url."""
         if self._skin_url is None:
             if self._uuid is None:
-                self._load_by_name()
-            self._load_by_uuid()
+                await self._load_by_name()
+            await self._load_by_uuid()
         return self._skin_url
 
 
     @property
-    def skin_texture(self) -> str | None:
-        """Returns the player's skin texture images as bytes."""
+    async def skin_texture(self) -> str | None:
+        """Returns the player's skin texture image as bytes."""
         if self._skin_texture is None:
-            if self.skin_url is None:
+            skin_url = await self.skin_url
+            if skin_url is None:
                 return None
-            self._skin_texture = self._requests_obj.get(self.skin_url).content
+            texture = (await self._make_request(skin_url)).content
+            self._skin_texture = await texture.read()
+
         return self._skin_texture
 
 
-    def _load_by_name(self):
+    async def _make_request(self, url: str):
+        if self.cache_backend is None:
+            async with ClientSession() as session:
+                data = await session.get(url)
+        else:
+            async with CachedSession(cache=self.cache_backend) as session:
+                data = await session.get(url)
+        return data
+
+
+    async def _load_by_name(self):
         if self._uuid is None and self._player_exists:
-            data: dict = self._requests_obj.get(
-                f"https://api.mojang.com/users/profiles/minecraft/{self._name}").json()
+            data: dict = await (await self._make_request(
+                f"https://api.mojang.com/users/profiles/minecraft/{self._name}"
+            )).json()
 
             self._uuid = data.get("id")
             self._pretty_name = data.get("name")
@@ -88,11 +104,11 @@ class FetchPlayer:
                 self._player_exists = False
 
 
-    def _load_by_uuid(self):
+    async def _load_by_uuid(self):
         if (not self._has_loaded_by_uuid) and self._player_exists:
-            data: dict = self._requests_obj.get(
+            data: dict = await (await self._make_request(
                 f"https://sessionserver.mojang.com/session/minecraft/profile/{self._uuid}"
-            ).json()
+            )).json()
 
             name = data.get("name")
 
@@ -111,9 +127,15 @@ class FetchPlayer:
                     self._skin_url = textures.get('textures', {}).get('SKIN', {}).get('url')
                     break
 
+            self._has_loaded_by_uuid == True
 
-class FetchPlayer2(FetchPlayer):
-    def __init__(self, identifier: str, requests_obj=requests):
+
+class AsyncFetchPlayer2(AsyncFetchPlayer):
+    def __init__(
+        self,
+        identifier: str,
+        cache_backend: CacheBackend=None
+    ):
         """
         Wrapper for the `FetchPlayer` class that allows either a username or uuid to
         be passed as the `identifier` parameter. Whether the identifier is a username
@@ -121,10 +143,10 @@ class FetchPlayer2(FetchPlayer):
 
         Args:
             identifier (str, optional): The player's username or uuid.
-            requests_obj (module | class, optional): The requests module or a compatible
-            object to use for making HTTP requests. Defaults to the requests module.
+            cache_backend (class, optional): The backend used for caching
+            responses, if `None`, caching won't be used.
         """
         if len(identifier) > 16:
-            super().__init__(uuid=identifier, requests_obj=requests_obj)
+            super().__init__(uuid=identifier, cache_backend=cache_backend)
         else:
-            super().__init__(name=identifier, requests_obj=requests_obj)
+            super().__init__(name=identifier, cache_backend=cache_backend)

@@ -3,30 +3,33 @@
 import time
 from os import getenv
 
-import requests
 import discord
 from discord import app_commands
 from discord.ext import commands
+from aiohttp import ClientSession
 
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
-    load_embeds,
-    to_thread
+    load_embeds
 )
 
 
-@to_thread
-def _fetch_server_status(key, ip):
+
+async def _fetch_server_status(api_key: str, ip: str):
     try:
-        res: dict = requests.get(
-            f"https://api.polsu.xyz/polsu/minecraft/server?key={key}&ip={ip}",
-            timeout=10
-        ).json()
+        options = {
+            'url': f"https://api.polsu.xyz/polsu/minecraft/server?ip={ip}",
+            'headers': {'Api-Key': api_key},
+            'timeout': 10
+        }
+        async with ClientSession() as session:
+            res = await session.get(**options)
+            data = await res.json()
     except Exception:  # polsulpicien wrote this code dont look at me
         # In case the API doesn't respond or reponds with HTML instead of JSON.
-        res = {"success": False}
-    return res
+        data = {"success": False}
+    return data
 
 
 class Status(commands.Cog):

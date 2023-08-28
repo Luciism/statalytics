@@ -5,7 +5,7 @@ from discord import app_commands, Interaction
 
 from .functions import REL_PATH
 from .linking import get_linked_player
-from .mcfetch import FetchPlayer
+from .mcfetch import AsyncFetchPlayer
 
 
 async def session_autocompletion(
@@ -33,14 +33,12 @@ async def session_autocompletion(
                 break
 
     if username:
-        try:
-            uuid: str = FetchPlayer(name=username).uuid
-        except KeyError:
-            return []
+        uuid = await AsyncFetchPlayer(name=username).uuid
     else:
         uuid = get_linked_player(interaction.user.id)
-        if not uuid:
-            return []
+
+    if uuid is None:
+        return []
 
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()

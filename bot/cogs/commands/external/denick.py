@@ -1,18 +1,17 @@
 # api.antisniper.net
 
 import typing
-import requests
 import discord
 from os import getenv
 
+from aiohttp import ClientSession
 from discord import app_commands
 from discord.ext import commands
 
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
-    get_embed_color,
-    to_thread
+    get_embed_color
 )
 
 
@@ -21,8 +20,11 @@ class Denick(commands.Cog):
         self.client: commands.Bot = client
 
 
-    async def number_autocomplete(self, interaction: discord.Interaction,
-                                  current: str) -> typing.List[app_commands.Choice[str]]:
+    async def number_autocomplete(
+        self,
+        interaction: discord.Interaction,
+        current: str
+    ) -> typing.List[app_commands.Choice[str]]:
         data = [
             app_commands.Choice(name="finals", value="finals"),
             app_commands.Choice(name="beds", value="beds")
@@ -30,17 +32,18 @@ class Denick(commands.Cog):
         return data
 
 
-    @to_thread
-    def fetch_denick_data(self, mode, count):
+
+    async def fetch_denick_data(self, mode: str, count: int):
         api_key = getenv('API_KEY_ANTISNIPER')
 
-        headers = {'Apikey': api_key}
-        res = requests.get(
-            f'https://api.antisniper.net/v2/other/denick/number/{mode}?value={count}',
-            headers=headers,
-            timeout=10
-        )
-        return res.json()
+        options = {
+            'url': 'https://api.antisniper.net/v2/other/'
+                    f'denick/number/{mode}?value={count}',
+            'headers': {'Apikey': api_key},
+            'timeout': 10
+        }
+        async with ClientSession() as session:
+            return await (await session.get(**options)).json()
 
 
     @app_commands.command(

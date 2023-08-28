@@ -1,12 +1,10 @@
 from os import getenv
 
-import requests
-import discord
+from aiohttp import ClientSession
 from discord.ext import commands, tasks
 
 from statalib import (
     get_user_total,
-    to_thread,
     align_to_hour,
     log_error_msg
 )
@@ -22,48 +20,46 @@ class Listings(commands.Cog):
         self.BOTLIST_TOKEN = getenv('BOTLIST_TOKEN')
 
 
-    @to_thread
-    def update_listings(self):
+    @tasks.loop(hours=1)
+    async def update_listings_loop(self):
+        await self.client.wait_until_ready()
+
         guild_count = len(self.client.guilds)
         total_users = get_user_total()
 
         client_id = self.client.user.id
 
-        requests.post(
-            url=f'https://top.gg/api/bots/{client_id}/stats',
-            data={'server_count': guild_count},
-            headers={'Authorization': self.TOPGG_TOKEN},
-            timeout=10
-        )
+        async with ClientSession() as session:
+            await session.post(
+                url=f'https://top.gg/api/bots/{client_id}/stats',
+                data={'server_count': guild_count},
+                headers={'Authorization': self.TOPGG_TOKEN},
+                timeout=10
+            )
 
-        requests.post(
-            url=f'https://discordbotlist.com/api/v1/bots/{client_id}/stats',
-            data={
-                'guilds': guild_count,
-                'users': total_users
-            },
-            headers={'Authorization': self.DBL_TOKEN},
-            timeout=10
-        )
+            await session.post(
+                url=f'https://discordbotlist.com/api/v1/bots/{client_id}/stats',
+                data={
+                    'guilds': guild_count,
+                    'users': total_users
+                },
+                headers={'Authorization': self.DBL_TOKEN},
+                timeout=10
+            )
 
-        requests.post(
-            url=f'https://discords.com/bots/api/bot/{client_id}',
-            data={'server_count': guild_count},
-            headers={'Authorization': self.DISCORDS_TOKEN},
-            timeout=10
-        )
+            await session.post(
+                url=f'https://discords.com/bots/api/bot/{client_id}',
+                data={'server_count': guild_count},
+                headers={'Authorization': self.DISCORDS_TOKEN},
+                timeout=10
+            )
 
-        requests.post(
-            url=f'https://api.botlist.me/api/v1/bots/{client_id}/stats',
-            data={'server_count': guild_count},
-            headers={'Authorization': self.BOTLIST_TOKEN},
-            timeout=10
-        )
-
-
-    @tasks.loop(hours=1)
-    async def update_listings_loop(self):
-        await self.update_listings()
+            await session.post(
+                url=f'https://api.botlist.me/api/v1/bots/{client_id}/stats',
+                data={'server_count': guild_count},
+                headers={'Authorization': self.BOTLIST_TOKEN},
+                timeout=10
+            )
 
 
     @update_listings_loop.error

@@ -333,7 +333,8 @@ async def _reset_historical(
     historical: list | tuple,
     period_format: str
 ):
-    hypixel_data = await fetch_hypixel_data(uuid, cache=True, cache_obj=historic_cache)
+    hypixel_data = await fetch_hypixel_data(
+        uuid, cache=True, cached_session=historic_cache)
     bedwars_stats = get_player_dict(hypixel_data).get("stats", {}).get("Bedwars", {})
 
     stat_keys: list = get_config()['tracked_bedwars_stats']

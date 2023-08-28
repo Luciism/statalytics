@@ -1,36 +1,42 @@
 import time
 import logging
+from typing import Literal
 from os import getenv
 from json import JSONDecodeError
 from http.client import RemoteDisconnected
 
-import requests
 from requests import ReadTimeout, ConnectTimeout
-from requests_cache import CachedSession
+from aiohttp import ClientSession
+from aiohttp_client_cache import CachedSession, SQLiteBackend
 
-from .functions import to_thread, REL_PATH
+from .functions import REL_PATH
 from .errors import HypixelInvalidResponseError
 from .aliases import PlayerUUID
 
 
-historic_cache = CachedSession(
+historic_cache = SQLiteBackend(
     cache_name=f'{REL_PATH}/.cache/historic_cache', expire_after=300)
 
-stats_session = CachedSession(
+stats_session = SQLiteBackend(
     cache_name=f'{REL_PATH}/.cache/stats_cache', expire_after=300)
 
-skin_session = CachedSession(
+skin_session = SQLiteBackend(
     cache_name=f'{REL_PATH}/.cache/skin_cache', expire_after=900)
 
-mojang_session = CachedSession(
+mojang_session = SQLiteBackend(
     cache_name=f'{REL_PATH}/.cache/mojang_cache', expire_after=60)
 
 
-@to_thread
-def fetch_hypixel_data(
+SkinStyle = Literal[
+    'face', 'front', 'frontfull', 'head',
+    'bust', 'full', 'skin', 'processedskin'
+]
+
+
+async def fetch_hypixel_data(
     uuid: PlayerUUID,
     cache: bool = True,
-    cache_obj: CachedSession = stats_session,
+    cached_session: SQLiteBackend = stats_session,
     retries: int = 3,
     retry_delay: int = 5
 ) -> dict:
@@ -38,7 +44,7 @@ def fetch_hypixel_data(
     Fetch a user's Hypixel data from Hypixel's API with retries and delay between retries.
     :param uuid: The UUID of the user's data to fetch.
     :param cache: Whether to use caching or not.
-    :param cache_obj: Use a custom cache instead of the default stats cache.
+    :param cached_session: Use a custom cache instead of the default stats cache.
     :param retries: Number of retries in case of a failed request.
     :param retry_delay: Delay (in seconds) between retries.
     """
@@ -52,8 +58,11 @@ def fetch_hypixel_data(
     for attempt in range(retries + 1):
         try:
             if not cache:
-                return requests.get(**options).json()
-            return cache_obj.get(**options).json()
+                async with ClientSession() as session:
+                    return await (await session.get(**options)).json()
+
+            async with CachedSession(cache=cached_session) as session:
+                return await (await session.get(**options)).json()
 
         except (ReadTimeout, ConnectTimeout,
                 JSONDecodeError, RemoteDisconnected) as exc:
@@ -72,18 +81,26 @@ def skin_from_file(skin_type: str='bust') -> bytes:
         return skin.read()
 
 
-@to_thread
-def fetch_skin_model(uuid: PlayerUUID, size: int) -> bytes:
+async def fetch_skin_model(
+    uuid: PlayerUUID,
+    size: int,
+    style: SkinStyle='bust'
+) -> bytes:
     """
     Fetches a 3d skin model visage.surgeplay.com
     If something goes wrong, a steve skin will returned
     :param uuid: The uuid of the relative player
     :param size: The skin render size in pixels
     """
+    options = {
+        'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
+        'timeout': 3
+    }
     try:
-        skin_res = skin_session.get(
-            f'https://visage.surgeplay.com/bust/{size}/{uuid}',
-            timeout=3).content
+        async with CachedSession(cache=skin_session) as session:
+            res_content = (await session.get(**options)).content
+            return await res_content.read()
+
     except (ReadTimeout, ConnectTimeout):
         skin_res = skin_from_file()
     return skin_res

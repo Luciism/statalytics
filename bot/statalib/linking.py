@@ -2,13 +2,14 @@ import sqlite3
 
 from discord import Interaction
 
-from .mcfetch import FetchPlayer
+from .mcfetch import AsyncFetchPlayer, AsyncFetchPlayer2
 from .errors import PlayerNotFoundError
 from .sessions import start_session, _find_dynamic_session
 from .views.info import SessionInfoButton
 from .network import fetch_hypixel_data, mojang_session
 from .subscriptions import get_subscription
 from .aliases import PlayerDynamic, PlayerName, PlayerUUID
+from .discord_utils import interaction_send_object
 from .functions import (
     load_embeds,
     fname,
@@ -149,7 +150,7 @@ async def fetch_player_info(
         uuid = get_linked_player(interaction.user.id)
 
         if uuid:
-            name = FetchPlayer(uuid=uuid, requests_obj=mojang_session).name
+            name = await AsyncFetchPlayer2(uuid, cache_backend=mojang_session).name
             update_autofill(interaction.user.id, uuid, name)
         else:
             msg = ("You are not linked! Either specify "
@@ -161,22 +162,17 @@ async def fetch_player_info(
                 await interaction.response.send_message(msg, ephemeral=eph)
             raise PlayerNotFoundError
     else:
-        if len(player) <= 16:
-            player_data = FetchPlayer(name=player, requests_obj=mojang_session)
-        else:
-            # allow for linked discord ids
-            if player.isnumeric():
-                player = get_linked_player(int(player)) or ''
+        # allow for linked discord ids
+        if player.isnumeric():
+            player = get_linked_player(int(player)) or ''
+        player_data = AsyncFetchPlayer2(player, cache_backend=mojang_session)
 
-            player_data = FetchPlayer(uuid=player, requests_obj=mojang_session)
-        name = player_data.name
-        uuid = player_data.uuid
+        name = await player_data.name
+        uuid = await player_data.uuid
 
         if name is None:
-            if interaction.response.is_done():
-                await interaction.followup.send("That player does not exist!")
-            else:
-                await interaction.response.send_message("That player does not exist!", ephemeral=eph)
+            await interaction_send_object(interaction)(
+                "That player does not exist!", ephemeral=eph)
             raise PlayerNotFoundError
     return name, uuid
 
@@ -216,7 +212,7 @@ async def link_account(
     if hypixel_discord_tag:
         if discord_tag == hypixel_discord_tag:
             if not name:
-                name = FetchPlayer(uuid=uuid).name
+                name = await AsyncFetchPlayer(uuid=uuid).name
 
             set_linked_data(discord_id, uuid)
             update_autofill(discord_id, uuid, name)
@@ -224,7 +220,6 @@ async def link_account(
             if not _find_dynamic_session(uuid):
                 await start_session(uuid, session=1, hypixel_data=hypixel_data)
                 return 2
-
             return 1
         return 0
     return -1

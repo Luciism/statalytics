@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from render.session import render_session
 from statalib import (
-    FetchPlayer,
+    AsyncFetchPlayer,
     fetch_player_info,
     get_linked_player,
     username_autocompletion,
@@ -209,7 +209,7 @@ class Sessions(commands.Cog):
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        name = FetchPlayer(uuid=uuid).name
+        name = await AsyncFetchPlayer(uuid=uuid).name
         session = await find_dynamic_session(
             interaction, name, uuid, session, eph=True)
 

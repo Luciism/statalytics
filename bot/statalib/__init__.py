@@ -31,7 +31,8 @@ from .discord_utils.responses import *
 from .discord_utils.cooldowns import *
 
 from .mcfetch.mcfetch import *
-from .mcfetch.mctools import *
+from .mcfetch.tools import *
+from .mcfetch.asyncmcfetch import *
 
 
 __all__ = [
