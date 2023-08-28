@@ -103,7 +103,7 @@ class Sessions(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
         )
@@ -113,7 +113,7 @@ class Sessions(commands.Cog):
             "uuid": uuid,
             "session": session,
             "hypixel_data": hypixel_data,
-            "skin_res": skin_res,
+            "skin_model": skin_model,
             "save_dir": interaction.id
         }
 

@@ -34,18 +34,18 @@ def image_to_bytes(image: Image.Image) -> bytes:
 
 
 def paste_skin(
-    skin_res: bytes,
+    skin_model: bytes,
     image: Image.Image,
     positions: tuple[int, int]
 ) -> Image.Image:
     """
     Pastes a skin onto image
-    :param skin_res: the image bytes object for the skin
+    :param skin_model: the image bytes object for the skin
     :param image: the image object to paste onto
     :param positions: the X & Y coordinates to paste at
     """
     try:
-        skin = Image.open(BytesIO(skin_res))
+        skin = Image.open(BytesIO(skin_model))
     except UnidentifiedImageError:
         skin = Image.open(f'{REL_PATH}/assets/steve_bust.png')
 

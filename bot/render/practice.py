@@ -17,7 +17,7 @@ def render_practice(
     name: str,
     uuid: str,
     hypixel_data: dict,
-    skin_res: bytes
+    skin_model: bytes
 ) -> bytes:
     stats = PracticeStats(hypixel_data)
     progress_of_10 = stats.progress[2]
@@ -80,7 +80,7 @@ def render_practice(
         align='center'
     )
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/practice/overlay.png')

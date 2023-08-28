@@ -26,7 +26,7 @@ def render_difference(
     method: str,
     mode: str,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str
 ):
     stats = DifferenceStats(uuid, method, hypixel_data, mode)
@@ -115,7 +115,7 @@ def render_difference(
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Render skin
-    paste_skin(skin_res, image, positions=(465, 67))
+    paste_skin(skin_model, image, positions=(465, 67))
 
     # Save the image
     image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')

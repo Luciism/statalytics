@@ -60,7 +60,7 @@ class Milestones(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
         session = 1 if session == 100 else session
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 128),
             fetch_hypixel_data(uuid)
         )
@@ -70,7 +70,7 @@ class Milestones(commands.Cog):
             "uuid": uuid,
             "session": session,
             "hypixel_data": hypixel_data,
-            "skin_res": skin_res,
+            "skin_model": skin_model,
             "save_dir": interaction.id
         }
 

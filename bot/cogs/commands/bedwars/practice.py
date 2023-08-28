@@ -36,12 +36,12 @@ class Practice(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
         )
 
-        rendered = await render_practice(name, uuid, hypixel_data, skin_res)
+        rendered = await render_practice(name, uuid, hypixel_data, skin_model)
 
         await interaction.edit_original_response(
             content=None,

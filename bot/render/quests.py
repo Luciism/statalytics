@@ -19,7 +19,7 @@ def render_quests(
     name: str,
     uuid: str,
     hypixel_data: dict,
-    skin_res: bytes
+    skin_model: bytes
 ):
     stats = QuestStats(hypixel_data)
     progress, target, progress_of_10 = stats.progress
@@ -121,7 +121,7 @@ def render_quests(
     )
 
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
     overlay_image = Image.open('./assets/bg/quests/overlay.png')

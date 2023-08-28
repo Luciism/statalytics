@@ -20,7 +20,7 @@ def render_milestones(
     mode: str,
     session: int,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str
 ):
     stats = MilestonesStats(uuid, session, hypixel_data, mode)
@@ -155,6 +155,6 @@ def render_milestones(
         align='center'
     )
 
-    paste_skin(skin_res, image, positions=(472, 61))
+    paste_skin(skin_model, image, positions=(472, 61))
 
     image.save(f'./database/rendered/{save_dir}/{mode.lower()}.png')

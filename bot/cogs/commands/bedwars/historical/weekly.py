@@ -52,7 +52,7 @@ class Weekly(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
         )
@@ -73,7 +73,7 @@ class Weekly(commands.Cog):
             "relative_date": formatted_date,
             "title": "Weekly Stats",
             "hypixel_data": hypixel_data,
-            "skin_res": skin_res,
+            "skin_model": skin_model,
             "save_dir": interaction.id
         }
 
@@ -131,7 +131,7 @@ class Weekly(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
         )
@@ -144,7 +144,7 @@ class Weekly(commands.Cog):
             "title": f"{weeks} {pluralize(weeks, 'Week')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
-            "skin_res": skin_res,
+            "skin_model": skin_model,
             "save_dir": interaction.id
         }
 

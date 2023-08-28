@@ -58,7 +58,7 @@ class Difference(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        skin_res, hypixel_data = await asyncio.gather(
+        skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
         )
@@ -72,7 +72,7 @@ class Difference(commands.Cog):
             "relative_date": formatted_date,
             "method": method,
             "hypixel_data": hypixel_data,
-            "skin_res": skin_res,
+            "skin_model": skin_model,
             "save_dir": interaction.id
         }
 

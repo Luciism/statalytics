@@ -19,7 +19,7 @@ def render_projection(
     mode: str,
     target: int,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str
 ):
     stats = ProjectedStats(uuid, session, target, hypixel_data, mode)
@@ -112,7 +112,7 @@ def render_projection(
         align='center'
     )
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
     overlay_image = Image.open('./assets/bg/projection/overlay.png')

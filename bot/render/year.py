@@ -19,7 +19,7 @@ def render_year(
     year: int,
     mode: str,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str
 ):
     stats = YearStats(uuid, session, year, hypixel_data, mode)
@@ -123,7 +123,7 @@ def render_year(
         align='center'
     )
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/year/overlay.png')

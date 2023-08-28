@@ -104,5 +104,5 @@ async def fetch_skin_model(
             return await res_content.read()
 
     except (ReadTimeout, ConnectTimeout, TimeoutError):
-        skin_res = skin_from_file()
-    return skin_res
+        skin_model = skin_from_file()
+    return skin_model

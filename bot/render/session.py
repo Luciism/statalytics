@@ -18,7 +18,7 @@ def render_session(
     session: int,
     mode: str,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str
 ):
     stats = SessionStats(uuid, session, hypixel_data, mode)
@@ -93,7 +93,7 @@ def render_session(
     )
 
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
     overlay_image = Image.open('./assets/bg/session/overlay.png')

@@ -18,7 +18,7 @@ def render_pointless(
     uuid: str,
     mode: str,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str,
 ):
     stats = TotalStats(hypixel_data, mode)
@@ -88,7 +88,7 @@ def render_pointless(
         align='center'
     )
 
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
     overlay_image = Image.open(f'./assets/bg/total/overlay_pointless.png')

@@ -21,7 +21,7 @@ def render_historical(
     title: str,
     mode: str,
     hypixel_data: dict,
-    skin_res: bytes,
+    skin_model: bytes,
     save_dir: str,
     period: str=None
 ):
@@ -110,7 +110,7 @@ def render_historical(
     )
 
     # Paste skin
-    paste_skin(skin_res, image, positions=(466, 69))
+    paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = Image.open('./assets/bg/historical/overlay.png')
