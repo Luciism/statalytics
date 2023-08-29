@@ -1,4 +1,3 @@
-from .calctools import *
 from .errors import *
 from .functions import *
 from .historical import *
@@ -33,6 +32,11 @@ from .discord_utils.cooldowns import *
 from .mcfetch.mcfetch import *
 from .mcfetch.tools import *
 from .mcfetch.asyncmcfetch import *
+
+from .calctools.bedwars_stats import *
+from .calctools.cumulative_stats import *
+from .calctools.projected_stats import *
+from .calctools.utils import *
 
 
 __all__ = [
