@@ -3,6 +3,7 @@
 **/__pycache__/
 **/.env
 **/.cache/
+**/test.py
 bot/database/
 bot/cache/
 website/

@@ -1,11 +1,7 @@
 import math
 import sqlite3
 
-from statalib.calctools import (
-    BedwarsStats,
-    get_rank_info,
-    get_mode,
-)
+from statalib.calctools import BedwarsStats, get_rank_info, get_mode
 
 
 class MilestonesStats(BedwarsStats):

@@ -1,11 +1,6 @@
 from statalib.functions import prefix_int
 from statalib.calctools import (
-    BedwarsStats,
-    get_rank_info,
-    get_mode,
-    rround,
-    ratio
-)
+    BedwarsStats, get_rank_info, get_mode, rround, ratio)
 
 
 class CompareStats:

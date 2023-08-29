@@ -11,6 +11,8 @@ import functools
 from typing import Literal
 from datetime import datetime, timedelta
 
+from .aliases import PlayerUUID
+
 import discord
 
 
@@ -297,3 +299,18 @@ def pluralize(number: int, word: str) -> str:
     if number != 1:
         return f'{word}s'
     return word
+
+
+def get_session_data(uuid: PlayerUUID, session_id=1, as_dict=False):
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM sessions WHERE session=? AND uuid=?", (session_id, uuid))
+        session_data = cursor.fetchone()
+
+        if as_dict:
+            column_names = [desc[0] for desc in cursor.description]
+            session_data = dict(zip(column_names, session_data))
+
+    return session_data

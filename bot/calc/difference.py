@@ -1,12 +1,7 @@
 import sqlite3
 
 from statalib.functions import prefix_int
-from statalib.calctools import (
-    CumulativeStats,
-    get_rank_info,
-    get_mode,
-    ratio
-)
+from statalib.calctools import CumulativeStats, get_rank_info, ratio
 
 
 class DifferenceStats(CumulativeStats):
