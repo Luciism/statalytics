@@ -17,6 +17,10 @@ class HypixelInvalidResponseError(AppCommandError):
     """Hypixel request timeout exception class."""
 
 
+class HypixelRateLimitedError(AppCommandError):
+    """Hypixel rate limit exception class"""
+
+
 class ThemeNotFoundError(Exception):
     """Theme not found exception class."""
     def __init__(self, message):

@@ -163,8 +163,9 @@ async def fetch_player_info(
             raise PlayerNotFoundError
     else:
         # allow for linked discord ids
-        if player.isnumeric():
+        if player.isnumeric() and len(player) >= 16:
             player = get_linked_player(int(player)) or ''
+
         player_data = AsyncFetchPlayer2(player, cache_backend=mojang_session)
 
         name = await player_data.name

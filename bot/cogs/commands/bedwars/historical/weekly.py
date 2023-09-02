@@ -45,7 +45,7 @@ class Weekly(commands.Cog):
         historical_data = historic.get_historical(identifier='weekly')
 
         if not historical_data:
-            await historic.start_historical()
+            await historic.start_trackers()
             await interaction.followup.send(
                 f'Historical stats for {fname(name)} will now be tracked.')
             return
@@ -110,12 +110,17 @@ class Weekly(commands.Cog):
 
         weeks = max(weeks, 1)
 
-        gmt_offset = historic.get_reset_time()[0]
+        gmt_offset, reset_hour = historic.get_reset_time()
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
 
         try:
             relative_date = now - timedelta(weeks=weeks)
+
+            # today's reset has not occured yet
+            if now.hour < reset_hour:
+                relative_date -= timedelta(days=1)
+
             formatted_date = relative_date.strftime("Week %U, %Y")
             period = relative_date.strftime("weekly_%Y_%U")
         except OverflowError:

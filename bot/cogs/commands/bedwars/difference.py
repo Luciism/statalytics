@@ -51,7 +51,7 @@ class Difference(commands.Cog):
         historical_data = historic.get_historical(identifier=method)
 
         if not historical_data:
-            await historic.start_historical()
+            await historic.start_trackers()
             await interaction.followup.send(
                 f'Historical stats for {fname(name)} will now be tracked.')
             return
