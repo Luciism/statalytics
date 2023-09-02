@@ -22,10 +22,8 @@ from statalib import (
     get_config,
 )
 
-
+logging.getLogger().addHandler(CustomTimedRotatingFileHandler())
 logger = logging.getLogger('statalytics')
-logger.setLevel(logging.INFO)
-logger.addHandler(CustomTimedRotatingFileHandler())
 
 
 class Client(commands.Bot):

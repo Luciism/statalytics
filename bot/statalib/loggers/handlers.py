@@ -1,7 +1,13 @@
 import os
 import time
-
+import logging
 from logging.handlers import TimedRotatingFileHandler
+
+
+_default_formatter = logging.Formatter(
+    fmt='%(asctime)s %(levelname)s %(name)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
@@ -17,7 +23,8 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         delay=False,
         utc=False,
         atTime=None,
-        errors=None
+        errors=None,
+        formatter=_default_formatter
     ):
         self.backup_format = backup_format
         self.logs_dir = logs_dir
@@ -31,6 +38,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
             filename, when, interval, backupCount,
             encoding, delay, utc, atTime, errors
         )
+        self.setFormatter(formatter)
 
 
     def rotation_filename(self, default_name):
