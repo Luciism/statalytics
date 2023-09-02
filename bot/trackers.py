@@ -24,11 +24,11 @@ from statalib import (
     PlayerUUID
 )
 
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+root_logger.addHandler(CustomTimedRotatingFileHandler())
 
-logger = logging.getLogger('statalytics')
-logger.setLevel(logging.INFO)
-logger.addHandler(CustomTimedRotatingFileHandler())
-
+logger = logging.getLogger('statalytics.trackers')
 
 """
 This query is designed to find data from the `trackers` table that
@@ -76,10 +76,10 @@ class Client(commands.Bot):
         super().__init__(intents=None, command_prefix='$')
 
     async def on_ready(self):
-        print(f'Logged in as {client.user} (ID: {client.user.id})\n------')
+        logger.info(f'Logged in as {client.user} (ID: {client.user.id})\n------')
 
     async def setup_hook(self) -> None:
-        reset_trackers.start()
+        reset_trackers_loop.start()
 
 client = Client()
 
@@ -90,9 +90,7 @@ async def on_command_error(_, __):
     return
 
 
-@tasks.loop(hours=1)
 async def reset_trackers():
-    logger.info('Scheduled tracker reset event starting...')
     fetched_players = []
 
     utc_now = datetime.utcnow()
@@ -135,6 +133,12 @@ async def reset_trackers():
             # limit requests to 1 per 2 seconds
             time_elapsed = time.time() - start_time
             await asyncio.sleep(2 - time_elapsed)
+
+
+@tasks.loop(hours=1)
+async def reset_trackers_loop():
+    logger.info('Scheduled tracker reset event starting...')
+    await reset_trackers()
 
 
 @client.event
@@ -205,14 +209,14 @@ async def on_tracker_reset(
             uuid, tracker='yearly', bedwars_data=bedwars_data_list)
 
 
-@reset_trackers.before_loop
-async def before_reset_trackers():
+@reset_trackers_loop.before_loop
+async def before_reset_trackers_loop():
     await align_to_hour()
 
 
-@reset_trackers.error
-async def on_reset_trackers_error(error):
-    reset_trackers.restart()
+@reset_trackers_loop.error
+async def on_reset_trackers_loop_error(error):
+    reset_trackers_loop.restart()
     await log_error_msg(client, error)
 
 
