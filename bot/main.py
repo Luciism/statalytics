@@ -22,7 +22,11 @@ from statalib import (
     get_config,
 )
 
-logging.getLogger().addHandler(CustomTimedRotatingFileHandler())
+
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+root_logger.addHandler(CustomTimedRotatingFileHandler())
+
 logger = logging.getLogger('statalytics')
 
 
