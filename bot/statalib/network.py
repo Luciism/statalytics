@@ -1,5 +1,4 @@
 import asyncio
-import time
 import logging
 from typing import Literal
 from os import getenv
@@ -13,7 +12,6 @@ from aiohttp_client_cache import CachedSession, SQLiteBackend
 from .functions import REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
 from .aliases import PlayerUUID
-
 
 logger = logging.getLogger('statalytics')
 
@@ -65,7 +63,7 @@ async def fetch_hypixel_data(
             async with CachedSession(cache=cached_session) as session:
                 return await (await session.get(**options)).json()
 
-        except (ReadTimeout, ConnectTimeout, TimeoutError,
+        except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError,
                 JSONDecodeError, RemoteDisconnected) as exc:
             if attempt < retries:
                 logger.warning(
@@ -143,6 +141,7 @@ async def fetch_skin_model(
             res_content = (await session.get(**options)).content
             return await res_content.read()
 
-    except (ReadTimeout, ConnectTimeout, TimeoutError):
+    # except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError):
+    except Exception:  # shit just wasnt working idk why
         skin_model = skin_from_file()
     return skin_model
