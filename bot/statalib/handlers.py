@@ -47,6 +47,14 @@ async def handle_hypixel_error(interaction: discord.Interaction):
         pass
 
 
+async def handle_mojang_error(interaction: discord.Interaction):
+    try:
+        embeds = load_embeds('mojang_error', color='danger')
+        await interaction.edit_original_response(content=None, embeds=embeds)
+    except discord.errors.NotFound:
+        pass
+
+
 async def handle_cooldown_error(interaction: discord.Interaction, error: Exception):
     format_values = {'retry_after': round(error.retry_after, 2)}
     embeds = load_embeds('command_cooldown', format_values, color='warning')

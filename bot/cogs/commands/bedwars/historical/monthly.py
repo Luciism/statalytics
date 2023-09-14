@@ -19,7 +19,9 @@ from statalib import (
     ordinal, loading_message,
     handle_modes_renders,
     fname,
-    pluralize
+    timezone_relative_timestamp,
+    pluralize,
+    has_auto_reset
 )
 
 
@@ -40,17 +42,6 @@ class Monthly(commands.Cog):
 
         name, uuid = await fetch_player_info(player, interaction)
 
-        historic = HistoricalManager(interaction.user.id, uuid)
-        gmt_offset, hour = historic.get_reset_time()
-
-        historical_data = historic.get_historical(identifier='monthly')
-
-        if not historical_data:
-            await historic.start_trackers()
-            await interaction.followup.send(
-                f'Historical stats for {fname(name)} will now be tracked.')
-            return
-
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
@@ -58,18 +49,36 @@ class Monthly(commands.Cog):
             fetch_hypixel_data(uuid)
         )
 
+        historic = HistoricalManager(interaction.user.id, uuid)
+        gmt_offset, hour = historic.get_reset_time()
+
+        historical_data = historic.get_tracker_data(tracker='monthly')
+
+        if not historical_data:
+            await historic.start_trackers(hypixel_data)
+            await interaction.edit_original_response(
+                content=f'Historical stats for {fname(name)} will now be tracked.')
+            return
+
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
-        next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
-        if now >= next_occurrence:
-            next_occurrence = next_occurrence.replace(
-                day=1, month=next_occurrence.month + 1)
 
-        while next_occurrence.day != 1:
-            next_occurrence += timedelta(days=1)
-        utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
-        timestamp = int(utc_next_occurrence.timestamp())
+        if has_auto_reset(uuid):
+            next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+            if now >= next_occurrence:
+                next_occurrence = next_occurrence.replace(
+                    day=1, month=next_occurrence.month + 1)
+
+            while next_occurrence.day != 1:
+                next_occurrence += timedelta(days=1)
+            utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
+            timestamp = int(utc_next_occurrence.timestamp())
+
+            message = f':alarm_clock: Resets <t:{timestamp}:R>'
+        else:
+            timestamp = int(timezone_relative_timestamp(historical_data[2]))
+            message = f':alarm_clock: Last reset <t:{timestamp}:R>'
 
         kwargs = {
             "name": name,
@@ -86,7 +95,7 @@ class Monthly(commands.Cog):
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
-            message=f':alarm_clock: Resets <t:{timestamp}:R>'
+            message=message
         )
         update_command_stats(interaction.user.id, 'monthly')
 
@@ -133,7 +142,7 @@ class Monthly(commands.Cog):
             await interaction.followup.send('Big, big number... too big number...')
             return
 
-        historical_data = historic.get_historical(identifier=period)
+        historical_data = historic.get_historical_data(period=period)
 
         if not historical_data:
             await interaction.followup.send(

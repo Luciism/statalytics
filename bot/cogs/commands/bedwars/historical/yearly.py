@@ -15,12 +15,13 @@ from statalib import (
     generic_command_cooldown,
     fetch_hypixel_data,
     update_command_stats,
-    yearly_eligibility_check,
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
+    timezone_relative_timestamp,
     fname,
-    pluralize
+    pluralize,
+    has_auto_reset
 )
 
 
@@ -41,22 +42,6 @@ class Yearly(commands.Cog):
 
         name, uuid = await fetch_player_info(player, interaction)
 
-        historic = HistoricalManager(interaction.user.id, uuid)
-        gmt_offset, hour = historic.get_reset_time()
-
-        historical_data = historic.get_historical(identifier='yearly')
-
-        if not historical_data:
-            await historic.start_trackers()
-            await interaction.followup.send(
-                f'Historical stats for {fname(name)} will now be tracked.')
-            return
-
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        result = await yearly_eligibility_check(interaction, discord_id)
-        if not result:
-            return
-
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
@@ -64,24 +49,37 @@ class Yearly(commands.Cog):
             fetch_hypixel_data(uuid)
         )
 
+        historic = HistoricalManager(interaction.user.id, uuid)
+        gmt_offset, hour = historic.get_reset_time()
+
+        historical_data = historic.get_tracker_data(tracker='yearly')
+
+        if not historical_data:
+            await historic.start_trackers()
+            await interaction.edit_original_response(
+                content=f'Historical stats for {fname(name)} will now be tracked.')
+            return
+
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         relative_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
         if hour > 0:
             hour -= 1
 
-        next_occurrence = datetime(
-            year=now.year + 1,
-            month=1,
-            day=1,
-            hour=hour,
-            minute=0,
-            second=0,
-            tzinfo=timezone(timedelta(hours=gmt_offset))
-        )
 
-        utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
-        timestamp = int(utc_next_occurrence.timestamp())
+        if has_auto_reset(uuid):
+            next_occurrence = datetime(
+                year=now.year+1, month=1, day=1, hour=hour, minute=0,
+                second=0, tzinfo=timezone(timedelta(hours=gmt_offset))
+            )
+            utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
+            timestamp = int(utc_next_occurrence.timestamp())
+
+            message = f':alarm_clock: Resets <t:{timestamp}:R>'
+        else:
+            timestamp = int(timezone_relative_timestamp(historical_data[2]))
+            message = f':alarm_clock: Last reset <t:{timestamp}:R>'
+
 
         kwargs = {
             "name": name,
@@ -98,7 +96,7 @@ class Yearly(commands.Cog):
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
-            message=f':alarm_clock: Resets <t:{timestamp}:R>'
+            message=message
         )
 
         update_command_stats(interaction.user.id, 'yearly')
@@ -120,21 +118,16 @@ class Yearly(commands.Cog):
         historic = HistoricalManager(interaction.user.id, uuid)
         discord_id = uuid_to_discord_id(uuid=uuid)
 
-        # Check if user is allowed to use command
-        result = await yearly_eligibility_check(interaction, discord_id)
-        if not result:
-            return
+        years = max(years, 1)
 
         # Check if user is within their lookback limitations
-        # First checks if a user is checking 1 year back with a basic plan
+        # First checks if a user is checking only 1 year back
         # and then checks if the max lookback days are within the given amount
         max_lookback = historic.get_max_lookback(discord_id, interaction.user.id)
-        if not (max_lookback == 60 and years == 1) and -1 != max_lookback < (years * 365):
+        if years != 1 and -1 != max_lookback < (years * 365):
             embeds = historic.build_invalid_lookback_embeds(max_lookback)
             await interaction.followup.send(embeds=embeds)
             return
-
-        years = max(years, 1)
 
         # Get time / date information
         gmt_offset, reset_hour = historic.get_reset_time()
@@ -154,7 +147,7 @@ class Yearly(commands.Cog):
             return
 
         # Check if historical data exists
-        historical_data = historic.get_historical(identifier=period)
+        historical_data = historic.get_historical_data(period=period)
 
         if not historical_data:
             await interaction.followup.send(

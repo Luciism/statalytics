@@ -21,21 +21,27 @@ from statalib import (
     get_reset_time,
     get_player_dict,
     get_level,
+    get_config,
+    has_auto_reset,
     PlayerUUID
 )
+
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(CustomTimedRotatingFileHandler())
 
 logger = logging.getLogger('statalytics.trackers')
+logger.setLevel(logging.DEBUG)
+
 
 """
-This query is designed to find data from the `trackers` table that
+This query is designed to find data from the `trackers_new` table that
 needs to be reset based on the reset times configured in the
-`configured_reset_times` and `default_reset_times` tables.
-The query uses `LEFT JOIN` to combine data from the `trackers`,
-`linked_accounts`, `configured_reset_times`, and `default_reset_times` tables.
+`configured_reset_times` and `default_reset_times` tables. The query
+uses `LEFT JOIN` to combine data from the `trackers_new`,
+`linked_accounts`, `configured_reset_times`, and `default_reset_times`
+tables.
 
 The `configured_reset_times` table stores reset times configured by
 discord id, while the `default_reset_times` table stores default reset
@@ -45,7 +51,7 @@ The query uses data from the `configured_reset_times` table if it is
 available for the respective discord id, otherwise it uses data from
 the `default_reset_times` table.
 
-The query checks if the combined `timezone + reset_hour` value from
+The query checks if the combined `reset_hour - timezone` value from
 either the `configured_reset_times` or `default_reset_times` tables
 equals x, where x is a parameter passed to the query. The query also
 wraps, so 23 would be 23, but 24 would be 0, etc. If neither the
@@ -53,12 +59,40 @@ wraps, so 23 would be 23, but 24 would be 0, etc. If neither the
 data for the respective discord id or player uuid, then the query
 returns a value of 0.
 
-The result of the query is a set of rows from the `trackers` table
+The result of the query is a set of rows from the `trackers_new` table
 that meet the specified conditions. You can use this result set to
-find and process data from the `trackers` table that needs to be reset
-based on the configured reset times.
+find and process data from the `trackers_new` table that needs to be
+reset based on the configured reset times.
+
+Please note that if a negative value is obtained from subtracting
+timezone from reset_hour, it will be adjusted by adding 24 before
+performing modulus operation. This ensures that negative numbers are
+handled appropriately.
 """
+
 query = """
+SELECT trackers_new.uuid FROM trackers_new
+LEFT JOIN linked_accounts
+    ON trackers_new.uuid = linked_accounts.uuid
+LEFT JOIN configured_reset_times
+    ON linked_accounts.discord_id = configured_reset_times.discord_id
+LEFT JOIN default_reset_times
+    ON trackers_new.uuid = default_reset_times.uuid
+WHERE (
+    COALESCE(
+        CASE WHEN configured_reset_times.reset_hour - configured_reset_times.timezone < 0
+            THEN configured_reset_times.reset_hour - configured_reset_times.timezone + 24
+            ELSE configured_reset_times.reset_hour - configured_reset_times.timezone END,
+        CASE WHEN default_reset_times.reset_hour - default_reset_times.timezone < 0
+            THEN default_reset_times.reset_hour - default_reset_times.timezone + 24
+            ELSE default_reset_times.reset_hour - default_reset_times.timezone END,
+        0
+    ) % 24
+) = ?;
+"""
+
+# OLD query
+"""
 SELECT trackers.uuid FROM trackers
 LEFT JOIN linked_accounts ON trackers.uuid = linked_accounts.uuid
 LEFT JOIN configured_reset_times ON linked_accounts.discord_id = configured_reset_times.discord_id
@@ -93,6 +127,8 @@ async def on_command_error(_, __):
 async def reset_trackers():
     fetched_players = []
 
+    auto_reset_config: dict = get_config('tracker_resetting.automatic') or {}
+
     utc_now = datetime.utcnow()
 
     with sqlite3.connect('database/core.db') as conn:
@@ -106,33 +142,44 @@ async def reset_trackers():
     for tracker_data in data_to_reset:
         uuid = tracker_data[0]
 
-        # prevents fetching data for multiple trackers
-        if not uuid in fetched_players:
+        # prevents refetching data for multiple trackers
+        if uuid in fetched_players:
+            continue
+
+        try:
+            start_time = time.time()
+
+            # criteria
+            if not has_auto_reset(uuid, auto_reset_config):
+                continue
+
             logger.info(f'Resetting trackers for: {uuid}')
+            reset_time = get_reset_time(uuid)
 
-            try:
-                start_time = time.time()
+            # now + gmt offset
+            timezone = utc_now + timedelta(hours=reset_time[0])
 
-                reset_time = get_reset_time(uuid)
+            fetched_players.append(uuid)
 
-                # now + gmt offset
-                timezone = utc_now + timedelta(hours=reset_time[0])
+            hypixel_data = await fetch_hypixel_data_rate_limit_safe(uuid, attempts=15)
 
-                hypixel_data = await fetch_hypixel_data_rate_limit_safe(uuid, attempts=15)
-                client.dispatch(
-                    'tracker_reset',
-                    uuid=uuid,
-                    hypixel_data=hypixel_data,
-                    timezone=timezone
-                )
+            if not hypixel_data.get('success'):
+                logger.warning(f"Hypixel request unsuccessful: {hypixel_data}")
+                continue
 
-                fetched_players.append(uuid)
-            except Exception as error:
-                await log_error_msg(client, error)
+            client.dispatch(
+                'tracker_reset',
+                uuid=uuid,
+                hypixel_data=hypixel_data,
+                timezone=timezone
+            )
 
-            # limit requests to 1 per 2 seconds
-            time_elapsed = time.time() - start_time
-            await asyncio.sleep(2 - time_elapsed)
+        except Exception as error:
+            await log_error_msg(client, error)
+
+        # limit requests to 1 per 2 seconds
+        time_elapsed = time.time() - start_time
+        await asyncio.sleep(2 - time_elapsed)
 
 
 @tasks.loop(hours=1)
@@ -171,6 +218,7 @@ async def on_tracker_reset(
     )
     await reset_tracker(
         uuid, tracker='daily', bedwars_data=bedwars_data_list)
+    logger.debug(f'Reset daily tracker for: {uuid}')
 
     # reset weekly
     if timezone.weekday() == 6:
@@ -183,6 +231,7 @@ async def on_tracker_reset(
         )
         await reset_tracker(
             uuid, tracker='weekly', bedwars_data=bedwars_data_list)
+        logger.debug(f'Reset weekly tracker for: {uuid}')
 
     # reset monthly
     if timezone.day == 1:
@@ -195,6 +244,7 @@ async def on_tracker_reset(
         )
         await reset_tracker(
             uuid, tracker='monthly', bedwars_data=bedwars_data_list)
+        logger.debug(f'Reset monthly tracker for: {uuid}')
 
     # reset yearly
     if timezone.timetuple().tm_yday == 1:
@@ -207,11 +257,12 @@ async def on_tracker_reset(
         )
         await reset_tracker(
             uuid, tracker='yearly', bedwars_data=bedwars_data_list)
+        logger.debug(f'Reset yearly tracker for: {uuid}')
 
 
-@reset_trackers_loop.before_loop
-async def before_reset_trackers_loop():
-    await align_to_hour()
+# @reset_trackers_loop.before_loop
+# async def before_reset_trackers_loop():
+#     await align_to_hour()
 
 
 @reset_trackers_loop.error

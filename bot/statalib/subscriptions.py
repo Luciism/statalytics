@@ -2,7 +2,7 @@ import json
 import sqlite3
 from datetime import datetime
 
-from .functions import get_timestamp, REL_PATH
+from .functions import get_timestamp, get_config, REL_PATH
 
 
 def get_all_subscription_data(discord_id: int) -> tuple | None:
@@ -55,9 +55,12 @@ def is_booster(discord_id: int) -> bool:
     return False
 
 
-def get_subscription(discord_id: int=None, package_data: dict=None,
-                     include_booster: bool=True, get_expiry: bool=False
-                     ) -> str | tuple | None:
+def get_subscription(
+    discord_id: int=None,
+    package_data: dict[str, dict]=None,
+    include_booster: bool=True,
+    get_expiry: bool=False
+) -> str | tuple | None:
     """
     Returns a users subscription data from subscription database\n
     Either `discord_id` or `package_data` must be set\n
@@ -71,7 +74,7 @@ def get_subscription(discord_id: int=None, package_data: dict=None,
     assert (discord_id, package_data).count(None) == 1
 
     if discord_id and include_booster and is_booster(discord_id):
-        return 'pro-booster'
+        return 'pro'
 
     if package_data is None:
         package_data = get_package_data(discord_id)
@@ -254,6 +257,17 @@ def remove_subscription(discord_id: int, package: str,
 
     set_package_data(discord_id, package_data)
     set_current_package(discord_id, package='idle', expiry=0)
+
+
+def get_package_permissions(package: str) -> list:
+    """
+    Returns a list of the configured permissions for a given package
+    :param package: the package to get the permissions of
+    """
+    packages_config: dict[str, dict[str, list]] = get_config('packages')
+
+    package_perms = packages_config.get(package, {}).get('permissions', [])
+    return package_perms
 
 
 class SubscriptionManager:

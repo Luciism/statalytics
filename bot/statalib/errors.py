@@ -39,3 +39,11 @@ class NoLinkedAccountError(Exception):
 
     def __str__(self):
         return self.message
+
+
+class MojangInvalidResponseError(AppCommandError):
+    """Mojang invalid response error"""
+
+
+class MojangRateLimitError(MojangInvalidResponseError):
+    """Mojang rate limit error"""

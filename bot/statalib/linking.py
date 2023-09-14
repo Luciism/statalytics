@@ -1,18 +1,10 @@
 import sqlite3
 
-from discord import Interaction
-
-from .mcfetch import AsyncFetchPlayer, AsyncFetchPlayer2
-from .errors import PlayerNotFoundError
-from .sessions import start_session, _find_dynamic_session
-from .views.info import SessionInfoButton
-from .network import fetch_hypixel_data, mojang_session
+from .mcfetch import AsyncFetchPlayer
+from .sessions import start_session, find_dynamic_session
 from .subscriptions import get_subscription
-from .aliases import PlayerDynamic, PlayerName, PlayerUUID
-from .discord_utils import interaction_send_object
+from .aliases import PlayerName, PlayerUUID
 from .functions import (
-    load_embeds,
-    fname,
     insert_growth_data,
     REL_PATH
 )
@@ -135,52 +127,10 @@ def update_autofill(
                 cursor.execute(query, (uuid, username, discord_id))
 
 
-async def fetch_player_info(
-    player: PlayerDynamic,
-    interaction: Interaction,
-    eph=False
-) -> tuple[PlayerName, PlayerUUID]:
-    """
-    Get formatted username & uuid of a user from their minecraft ign / uuid
-    :param player: Username, uuid, or linked discord id of the player
-    :param interaction: The discord interaction object used
-    :param eph: whether or not to respond with an ephemeral message (default false)
-    """
-    if player is None:
-        uuid = get_linked_player(interaction.user.id)
-
-        if uuid:
-            name = await AsyncFetchPlayer2(uuid, cache_backend=mojang_session).name
-            update_autofill(interaction.user.id, uuid, name)
-        else:
-            msg = ("You are not linked! Either specify "
-                   "a player or link your account using `/link`!")
-
-            if interaction.response.is_done():
-                await interaction.followup.send(msg)
-            else:
-                await interaction.response.send_message(msg, ephemeral=eph)
-            raise PlayerNotFoundError
-    else:
-        # allow for linked discord ids
-        if player.isnumeric() and len(player) >= 16:
-            player = get_linked_player(int(player)) or ''
-
-        player_data = AsyncFetchPlayer2(player, cache_backend=mojang_session)
-
-        name = await player_data.name
-        uuid = await player_data.uuid
-
-        if name is None:
-            await interaction_send_object(interaction)(
-                "That player does not exist!", ephemeral=eph)
-            raise PlayerNotFoundError
-    return name, uuid
-
-
 async def link_account(
     discord_tag: str,
     discord_id: int,
+    hypixel_data: dict,
     uuid: PlayerUUID=None,
     name: PlayerName=None
 ) -> bool | None:
@@ -188,6 +138,7 @@ async def link_account(
     Attempt to link an discord account to a hypixel account
     :param discord_tag: The discord user's full tag eg: Example#1234
     :param discord_id: The discord user's id
+    :param hypixel_data: the hypixel data of the player
     :param uuid: The uuid of the hypixel account being linked
     :param name: The username of the hypixel account being linked
 
@@ -202,8 +153,7 @@ async def link_account(
     if discord_tag.endswith('#0'):
         discord_tag = discord_tag[:-2]
 
-    hypixel_data: dict = await fetch_hypixel_data(uuid=uuid, cache=False)
-    if not hypixel_data['player']:
+    if not hypixel_data.get('player'):
         return -1
 
     hypixel_discord_tag: str = hypixel_data.get('player', {}).get(
@@ -218,44 +168,12 @@ async def link_account(
             set_linked_data(discord_id, uuid)
             update_autofill(discord_id, uuid, name)
 
-            if not _find_dynamic_session(uuid):
+            if not find_dynamic_session(uuid):
                 await start_session(uuid, session=1, hypixel_data=hypixel_data)
                 return 2
             return 1
         return 0
     return -1
-
-
-async def linking_interaction(
-    interaction: Interaction,
-    username: PlayerName
-):
-    """
-    discord.py interaction for account linking
-    :param interaction: the discord interaction to be used
-    :param username: the username of the respective player
-    """
-    await interaction.response.defer()
-    name, uuid = await fetch_player_info(username, interaction)
-
-    # Linking Logic
-    discord_tag = str(interaction.user)
-    response = await link_account(discord_tag, interaction.user.id, uuid, name)
-
-    if response == 1:
-        await interaction.followup.send(f"Successfully linked to **{fname(name)}**")
-        return
-
-    if response == 2:
-        await interaction.followup.send(
-            f"Successfully linked to **{fname(name)}**\n"
-            "No sessions where found for this player so one was created.",
-            view=SessionInfoButton())
-        return
-
-    # Player not linked embed
-    embeds = load_embeds('linking', color='primary')
-    await interaction.followup.send(embeds=embeds)
 
 
 class LinkingManager:
@@ -305,29 +223,27 @@ class LinkingManager:
 
 
     async def link_account(
-            self, discord_tag: str, name: PlayerName, uuid: PlayerUUID):
+        self,
+        discord_tag: str,
+        hypixel_data: dict,
+        name: PlayerName=None,
+        uuid: PlayerUUID=None
+    ):
         """
         Attempt to link an discord account to a hypixel account
         :param discord_tag: The discord user's full tag eg: Example#1234
-        :param name: The username of the hypixel account being linked
+        :param hypixel_data: the hypixel data of the player
         :param uuid: The uuid of the hypixel account being linked
+        :param name: The username of the hypixel account being linked
+
+        Either uuid, name, or both must be passed
 
         #### Returns:
-            1 if linking was a success\n
-            0 if discord tags don't match\n
-            -1 if discord tag isn't set\n
+            2 - linking was a success and session was created\n
+            1 - linking was a success\n
+            0 - discord tags don't match\n
+            -1 - discord tag isn't set\n
         """
-        response = await link_account(discord_tag, self._discord_id, uuid, name)
+        response = await link_account(
+            discord_tag, self._discord_id, hypixel_data, uuid, name)
         return response
-
-
-    async def fetch_player_info(
-            self, username: PlayerName, interaction: Interaction, eph=False):
-        """
-        Get formatted username & uuid of a user from their minecraft ign / uuid
-        :param username: The minecraft ign of the player to return (can also take a uuid)
-        :param interaction: The discord interaction object used
-        :param eph: whether or not to respond with an ephemeral message (default false)
-        """
-        name, uuid = await fetch_player_info(username, interaction, eph)
-        return name, uuid

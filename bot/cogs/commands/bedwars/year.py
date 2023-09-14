@@ -13,7 +13,7 @@ from statalib import (
     generic_command_cooldown,
     fetch_hypixel_data,
     update_command_stats,
-    find_dynamic_session,
+    find_dynamic_session_interaction,
     get_subscription,
     fetch_skin_model,
     handle_modes_renders,
@@ -36,7 +36,7 @@ class Year(commands.Cog):
 
     async def year_command(self, interaction: discord.Interaction,
                            name: str, uuid: str, session: int, year: int):
-        session = await find_dynamic_session(interaction, name, uuid, session)
+        session = await find_dynamic_session_interaction(interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
 

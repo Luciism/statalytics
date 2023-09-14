@@ -1,0 +1,10 @@
+{
+  "type": "dict",
+  "embeds": [
+    {
+      "title": "Mojang API error",
+      "description": "There was an issue fetching player information from Mojang's API.\nPlease try again in a moment!",
+      "color": 5793266
+    }
+  ]
+}

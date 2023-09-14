@@ -1,16 +1,10 @@
 import sqlite3
 from datetime import datetime
 
-import discord
-
-from .errors import SessionNotFoundError
 from .calctools import get_player_dict
-from .discord_utils.responses import interaction_send_object
-from .network import fetch_hypixel_data
-from .aliases import PlayerName, PlayerUUID
+from .aliases import PlayerUUID
 from .functions import (
     get_config,
-    fname,
     REL_PATH
 )
 
@@ -18,16 +12,14 @@ from .functions import (
 async def start_session(
     uuid: PlayerUUID,
     session: int,
-    hypixel_data: dict | None = None
+    hypixel_data: dict
 ) -> None:
     """
     Initiate a bedwars stats session
     :param uuid: The uuid of the player to initiate a session for
     :param session: The id of the session being initiated
-    :param hypixel_data: pass in optional custom hypixel data
+    :param hypixel_data: the player's current hypixel data
     """
-    if not hypixel_data:
-        hypixel_data = await fetch_hypixel_data(uuid, cache=False)
     hypixel_data = get_player_dict(hypixel_data)
 
     stat_keys = get_config()['tracked_bedwars_stats']
@@ -60,7 +52,7 @@ async def start_session(
             cursor.execute(query, tuple(values))
 
 
-def _find_dynamic_session(
+def find_dynamic_session(
     uuid: PlayerUUID,
     session: int | None=None
 ) -> tuple | None:
@@ -82,41 +74,3 @@ def _find_dynamic_session(
         session_data: tuple = cursor.fetchone()
 
     return session_data[0] if session_data else None
-
-
-async def find_dynamic_session(
-    interaction: discord.Interaction,
-    username: PlayerName,
-    uuid: PlayerUUID,
-    session: int | None=None,
-    eph=True
-) -> tuple | bool:
-    """
-    Dynamically gets a session of a user\n
-    If session is 100, the first session to exist will be returned
-    :param interaction: The discord interaction object used
-    :param username: The username of the session owner
-    :param uuid: The uuid of the session owner
-    :param session: The session to attempt to be retrieved
-    :param eph: whether or not to respond ephemerally
-    """
-    returned_session = _find_dynamic_session(uuid, session)
-    respond = interaction_send_object(interaction)
-
-    # no sessions exist because... i forgot to finish this comment now idk
-    if not returned_session and not session:
-        await start_session(uuid, session=1)
-        await respond(
-            f"**{fname(username)}** has no active sessions so one was created!",
-            ephemeral=eph
-        )
-        raise SessionNotFoundError
-
-    if not returned_session:
-        await respond(
-            f"**{fname(username)}** doesn't have an active session with ID: `{session}`!",
-            ephemeral=eph
-        )
-        raise SessionNotFoundError
-
-    return returned_session

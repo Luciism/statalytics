@@ -47,7 +47,7 @@ class BedwarsStats:
         self.most_played = get_most_played(self._bedwars_data)
 
         self.experience = self._bedwars_data.get('Experience', 0)
-        self.progress = get_progress(self._bedwars_data)
+        self.progress = get_progress(self.experience)
         self.level = get_level(self.experience)
 
         self.items_purchased = self._get_mode_stats('items_purchased_bedwars')

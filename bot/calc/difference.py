@@ -16,7 +16,10 @@ class DifferenceStats(CumulativeStats):
             cursor = conn.cursor()
 
             cursor.execute(
-                "SELECT * FROM trackers WHERE uuid = ? and tracker = ?", (uuid, tracker))
+                "SELECT * FROM trackers_new WHERE uuid = ? and tracker = ?",
+                (uuid, tracker)
+            )
+
             historic_data = cursor.fetchone()
 
             column_names = [desc[0] for desc in cursor.description]

@@ -1,3 +1,4 @@
+import time
 import asyncio
 import logging
 from typing import Literal
@@ -12,6 +13,8 @@ from aiohttp_client_cache import CachedSession, SQLiteBackend
 from .functions import REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
 from .aliases import PlayerUUID
+from .historical import manual_tracker_reset
+
 
 logger = logging.getLogger('statalytics')
 
@@ -58,10 +61,14 @@ async def fetch_hypixel_data(
         try:
             if not cache:
                 async with ClientSession() as session:
-                    return await (await session.get(**options)).json()
+                    hypixel_data = await (await session.get(**options)).json()
+                    await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
+                    return hypixel_data
 
             async with CachedSession(cache=cached_session) as session:
-                return await (await session.get(**options)).json()
+                hypixel_data = await (await session.get(**options)).json()
+                await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
+                return hypixel_data
 
         except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError,
                 JSONDecodeError, RemoteDisconnected) as exc:

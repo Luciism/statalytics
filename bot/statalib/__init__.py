@@ -28,6 +28,7 @@ from .views.utils import *
 from .discord_utils.send_renders import *
 from .discord_utils.responses import *
 from .discord_utils.cooldowns import *
+from .discord_utils.interactions import *
 
 from .mcfetch.mcfetch import *
 from .mcfetch.tools import *

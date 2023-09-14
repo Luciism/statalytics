@@ -314,3 +314,15 @@ def get_session_data(uuid: PlayerUUID, session_id=1, as_dict=False):
             session_data = dict(zip(column_names, session_data))
 
     return session_data
+
+
+def timezone_relative_timestamp(timestamp: int | float):
+    """
+    Adds local time difference to a UTC timestamp
+    :param timestamp: the timestamp to modify
+    """
+    now_timestamp = datetime.now().timestamp()
+    utcnow_timestamp = datetime.utcnow().timestamp()
+    timezone_difference = now_timestamp - utcnow_timestamp
+
+    return timestamp + timezone_difference

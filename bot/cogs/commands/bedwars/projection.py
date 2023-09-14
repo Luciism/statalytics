@@ -12,7 +12,7 @@ from statalib import (
     generic_command_cooldown,
     fetch_hypixel_data,
     update_command_stats,
-    find_dynamic_session,
+    find_dynamic_session_interaction,
     fetch_skin_model,
     handle_modes_renders,
     loading_message
@@ -42,7 +42,8 @@ class Projection(commands.Cog):
 
         name, uuid = await fetch_player_info(player, interaction)
 
-        session = await find_dynamic_session(interaction, name, uuid, session)
+        session = await find_dynamic_session_interaction(
+            interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
 

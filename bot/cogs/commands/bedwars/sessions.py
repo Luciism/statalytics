@@ -17,7 +17,7 @@ from statalib import (
     update_command_stats,
     get_subscription,
     start_session,
-    find_dynamic_session,
+    find_dynamic_session_interaction,
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
@@ -63,7 +63,8 @@ class ManageSession(discord.ui.View):
             )
 
         if self.method == "reset":
-            await start_session(self.uuid, self.session)
+            hypixel_data = await fetch_hypixel_data(self.uuid)
+            await start_session(self.uuid, self.session, hypixel_data)
             await interaction.followup.send(
                 f'Session `{self.session}` has been reset successfully!', ephemeral=True)
             return
@@ -99,7 +100,8 @@ class Sessions(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(player, interaction)
 
-        session = await find_dynamic_session(interaction, name, uuid, session)
+        session = await find_dynamic_session_interaction(
+            interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -160,7 +162,9 @@ class Sessions(commands.Cog):
         else:
             session_id = sessions + 1
 
-        await start_session(uuid, session=session_id)
+        hypixel_data = await fetch_hypixel_data(uuid)
+        await start_session(uuid, session_id, hypixel_data)
+
         await interaction.followup.send(
             f'A new session was successfully created! Session ID: `{session_id}`')
 
@@ -214,7 +218,7 @@ class Sessions(commands.Cog):
             return
 
         name = await AsyncFetchPlayer(uuid=uuid).name
-        session = await find_dynamic_session(
+        session = await find_dynamic_session_interaction(
             interaction, name, uuid, session, eph=True)
 
         view = ManageSession(session, uuid, method="reset")

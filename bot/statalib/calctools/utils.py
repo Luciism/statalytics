@@ -124,6 +124,15 @@ def get_rank_info(hypixel_data: dict) -> dict:
     return rank_info
 
 
+def decimal_of(number: float):
+    """
+    Returns the decimal on the right side of the . for a float
+    for example `1.521` would return `521`
+    :param number: the floating point number to get the decimal of
+    """
+    return int(str(number).split(".")[-1])
+
+
 def xp_from_level(level: float) -> float | int:
     """
     Get the bedwars experience required for a given level
@@ -157,22 +166,29 @@ def get_level(xp: int) -> float | int:
     return level + (xp - 7000) / 5000 + 4
 
 
-def get_progress(bedwars_data: dict) -> tuple[str, str, int]:
+def get_progress(experience: int) -> tuple[str, str, int]:
     """
-    Get xp progress information: progress, target, and progress out of 10
-    :param bedwars_data: Bedwars data stemming from player > stats > Bedwars
+    Get the leveling progress information from bedwars experience
+    :param experience: the bedwars experience to get the level progress of
+    :param return: (level xp progress, level xp target, level xp progress of 10)
     """
-    bedwars_level: float | int = get_level(bedwars_data.get('Experience', 0))
+    level: float = get_level(experience)
 
-    remainder: int = int(str(int(bedwars_level) / 100).split(".")[-1])
-    remainder_map: dict = {0: 500, 1: 1000, 2: 2000, 3: 3500}
+    # levels gained this prestige
+    lvls_since_pres = level % 100
 
-    target: int = remainder_map.get(remainder, 5000)
-    progress: float = float('.' + str(bedwars_level).split('.')[-1]) * target
-    devide_by = target / 10
-    progress_out_of_ten = round(progress / devide_by)
+    # target xp for getting to next level based on levels gained
+    # this current prestige. for `0` it would be `500` xp for the next level
+    # `1` would be `1000` xp, etc, otherwise if it is above `3`, it will always
+    # be `5000` xp
+    level_xp_map: dict = {0: 500, 1: 1000, 2: 2000, 3: 3500}
+    target_xp: int = level_xp_map.get(lvls_since_pres, 5000)
 
-    return f'{int(progress):,}', f'{int(target):,}', progress_out_of_ten
+    lvl_progress = float(f'.{decimal_of(level)}') * target_xp
+    devide_by = target_xp / 10
+    progress_out_of_ten = round(lvl_progress / devide_by)
+
+    return f'{int(lvl_progress):,}', f'{int(target_xp):,}', progress_out_of_ten
 
 
 def rround(number: float | int, ndigits: int=0) -> float | int:

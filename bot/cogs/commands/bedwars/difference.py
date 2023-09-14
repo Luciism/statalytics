@@ -9,7 +9,6 @@ from render.difference import render_difference
 from statalib import (
     HistoricalManager,
     fetch_player_info,
-    uuid_to_discord_id,
     username_autocompletion,
     generic_command_cooldown,
     fetch_hypixel_data,
@@ -17,7 +16,6 @@ from statalib import (
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    yearly_eligibility_check,
     fname
 )
 
@@ -34,27 +32,11 @@ class Difference(commands.Cog):
     )
 
 
-    async def difference_command(self, interaction: discord.Interaction,
-                                 player: str, method: str):
+    async def difference_command(
+        self, interaction: discord.Interaction, player: str, tracker: str
+    ) -> None:
         await interaction.response.defer()
         name, uuid = await fetch_player_info(player, interaction)
-
-        historic = HistoricalManager(interaction.user.id, uuid)
-
-        discord_id = uuid_to_discord_id(uuid=uuid)
-        if method == 'yearly':
-            result = await yearly_eligibility_check(interaction, discord_id)
-            if not result:
-                return
-
-        gmt_offset = historic.get_reset_time()[0]
-        historical_data = historic.get_historical(identifier=method)
-
-        if not historical_data:
-            await historic.start_trackers()
-            await interaction.followup.send(
-                f'Historical stats for {fname(name)} will now be tracked.')
-            return
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -63,6 +45,17 @@ class Difference(commands.Cog):
             fetch_hypixel_data(uuid)
         )
 
+        historic = HistoricalManager(interaction.user.id, uuid)
+
+        gmt_offset = historic.get_reset_time()[0]
+        historical_data = historic.get_tracker_data(tracker=tracker)
+
+        if not historical_data:
+            await historic.start_trackers(hypixel_data)
+            await interaction.followup.send(
+                f'Historical stats for {fname(name)} will now be tracked.')
+            return
+
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
         formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
 
@@ -70,14 +63,14 @@ class Difference(commands.Cog):
             "name": name,
             "uuid": uuid,
             "relative_date": formatted_date,
-            "method": method,
+            "method": tracker,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id
         }
 
         await handle_modes_renders(interaction, render_difference, kwargs)
-        update_command_stats(interaction.user.id, f'difference_{method}')
+        update_command_stats(interaction.user.id, f'difference_{tracker}')
 
 
     @difference_group.command(

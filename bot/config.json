@@ -2,7 +2,7 @@
     "loading_message": "Arguing with Hypixel <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
     "bot_id": 903765373181112360,
-    "version": "1.12.2",
+    "version": "1.12.3",
     "developers": [
         "lukism"
     ],
@@ -29,6 +29,23 @@
     "embed_primary_color": "5865F2",
     "embed_danger_color": "FC2B2B",
     "embed_warning_color": "FFE100",
+    "tracker_resetting": {
+        "automatic": {
+            "whitelist_only": false,
+            "uuid_whitelist": [
+                "bcc52cc103a3486aa822cc0853d60b3e",
+                "13b272aca6184383bba8a240beb4cf5c"
+            ],
+            "permission_whitelist": ["automatic_tracker_reset"],
+            "allow_star_permission": true
+        }
+    },
+    "packages": {
+        "pro": {
+            "permissions": ["automatic_tracker_reset"],
+            "properties": {}
+        }
+    },
     "max_free_sessions": 2,
     "max_premium_sessions": 5,
     "voter_reward_duration_hours": 24,

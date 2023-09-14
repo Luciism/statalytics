@@ -15,8 +15,10 @@ from statalib import (
     SessionNotFoundError,
     HypixelInvalidResponseError,
     CustomTimedRotatingFileHandler,
+    MojangInvalidResponseError,
     add_info_view,
     handle_cooldown_error,
+    handle_mojang_error,
     handle_hypixel_error,
     handle_all_errors,
     get_config,
@@ -81,6 +83,10 @@ async def on_tree_error(
 
     if isinstance(error, HypixelInvalidResponseError):
         await handle_hypixel_error(interaction)
+        return
+
+    if isinstance(error, MojangInvalidResponseError):
+        await handle_mojang_error(interaction)
         return
 
     await handle_all_errors(interaction, client, error)

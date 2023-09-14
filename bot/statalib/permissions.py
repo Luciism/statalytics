@@ -1,6 +1,7 @@
 import sqlite3
 
 from .functions import REL_PATH
+from .subscriptions import get_subscription, get_package_permissions
 
 
 def get_permissions(discord_id: int) -> list:
@@ -20,20 +21,29 @@ def get_permissions(discord_id: int) -> list:
     return []
 
 
-def has_permission(discord_id: int, permission: str,
-                   allow_star: bool=True) -> bool:
+def has_permission(
+    discord_id: int,
+    permissions: str | list[str],
+    allow_star: bool=True
+) -> bool:
     """
     Returns bool `True` or `False` if a user has a permission
     :param discord_id: the discord id of the respective user
-    :param permission: the permission to check for
+    :param permissions: the permission(s) to check for. if multiple permissions
+        are provided, `True` will be returned if the user has
+        at least one of the given permissions.
     :param allow_star: returns `True` if the user has the `*` permission
     """
-    permissions = get_permissions(discord_id)
+    user_permissions = get_permissions(discord_id)
 
-    if allow_star and '*' in permissions:
+    if allow_star and '*' in user_permissions:
         return True
 
-    if permission in permissions:
+    if isinstance(permissions, str):
+        permissions = [permissions]
+
+    # at least one permission is in user_permissions
+    if set(permissions) & set(user_permissions):
         return True
 
     return False
@@ -94,6 +104,46 @@ def remove_permission(discord_id: int, permission: str):
         set_permissions(discord_id, permissions)
 
 
+def has_access(
+    discord_id: int,
+    permissions: str | list[str],
+    allow_star=True
+):
+    """
+    Similar to `has_permission` but accounts for subscription based permissions
+    Returns bool `True` or `False` if a user has a permission
+    :param discord_id: the discord id of the respective user
+    :param permissions: the permission(s) to check for. if multiple permissions
+        are provided, `True` will be returned if the user has
+        at least one of the given permissions.
+    :param allow_star: returns `True` if the user has the `*` permission
+    """
+    if not discord_id:
+        return False
+
+    subscription = get_subscription(discord_id)
+    package_perms = get_package_permissions(subscription)
+
+    package_perms = set(package_perms)
+
+    user_permissions = get_permissions(discord_id)
+
+    for user_permission in user_permissions:
+        package_perms.add(user_permission)
+
+    if '*' in package_perms and allow_star:
+        return True
+
+    if isinstance(permissions, str):
+        permissions = [permissions]
+
+    # user has at least one of the following permissions
+    if set(permissions) & package_perms:
+        return True
+
+    return False
+
+
 class PermissionManager:
     def __init__(self, discord_id: int):
         self.discord_id = discord_id
@@ -130,10 +180,22 @@ class PermissionManager:
         return get_permissions(self.discord_id)
 
 
-    def has_permission(self, permission: str, allow_star: bool=True):
+    def has_permission(self, permissions: str | list[str], allow_star: bool=True):
         """
         Returns bool `True` or `False` if a user has a permission
         :param permission: the permission to check for
         :param allow_star: returns `True` if the user has the `*` permission
         """
-        return has_permission(self.discord_id, permission, allow_star)
+        return has_permission(self.discord_id, permissions, allow_star)
+
+
+    def has_access(self, permissions: str | list[str], allow_star: bool=True):
+        """
+        Similar to `has_permission` but accounts for subscription based permissions
+        Returns bool `True` or `False` if a user has a permission
+        :param permissions: the permission(s) to check for. if multiple permissions
+            are provided, `True` will be returned if the user has
+            at least one of the given permissions.
+        :param allow_star: returns `True` if the user has the `*` permission
+        """
+        return has_access(self.discord_id, permissions, allow_star)
