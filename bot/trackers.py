@@ -260,9 +260,9 @@ async def on_tracker_reset(
         logger.debug(f'Reset yearly tracker for: {uuid}')
 
 
-# @reset_trackers_loop.before_loop
-# async def before_reset_trackers_loop():
-#     await align_to_hour()
+@reset_trackers_loop.before_loop
+async def before_reset_trackers_loop():
+    await align_to_hour()
 
 
 @reset_trackers_loop.error
