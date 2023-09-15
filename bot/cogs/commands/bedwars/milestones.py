@@ -15,7 +15,8 @@ from statalib import (
     update_command_stats,
     fetch_skin_model,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    find_dynamic_session
 )
 
 
@@ -30,7 +31,7 @@ class Milestones(commands.Cog):
         description="View the milestone stats of a player")
     @app_commands.describe(
         player='The player you want to view',
-        session='The session you want to use (0 for none, defaults to 1 if active)')
+        session='The session you want to use (0 for none)')
     @app_commands.autocomplete(
         player=username_autocompletion,
         session=session_autocompletion)
@@ -40,25 +41,20 @@ class Milestones(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(player, interaction)
 
-        # I have no clue what the fuck this is doing
-        if session is None:
-            session = 100
+        # check if session if valid only if a session is being used
+        if session == 0:
+            valid_session = 0
+        else:
+            valid_session = find_dynamic_session(uuid, session)
 
-        with sqlite3.connect('./database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM sessions WHERE session=? AND uuid=?",
-                (int(str(session)[0]), uuid)
-            )
-
-            if not cursor.fetchone() and not session in (0, 100):
-                await interaction.followup.send(
-                    f"`{name}` doesn't have an active session with ID: `{session}`!\n"
-                    "Select a valid session or specify `0` in order to not use session data!")
-                return
+        # specified session doesnt exist
+        if valid_session is None:
+            await interaction.followup.send(
+                f"`{name}` doesn't have an active session with ID: `{session}`!\n"
+                "Select a valid session or specify `0` in order to not use a session!")
+            return
 
         await interaction.followup.send(self.LOADING_MSG)
-        session = 1 if session == 100 else session
 
         skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 128),
@@ -68,7 +64,7 @@ class Milestones(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "session": session,
+            "session": valid_session,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id

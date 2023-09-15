@@ -55,7 +55,7 @@ class Yearly(commands.Cog):
         historical_data = historic.get_tracker_data(tracker='yearly')
 
         if not historical_data:
-            await historic.start_trackers()
+            await historic.start_trackers(hypixel_data)
             await interaction.edit_original_response(
                 content=f'Historical stats for {fname(name)} will now be tracked.')
             return

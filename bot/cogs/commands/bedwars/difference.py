@@ -52,8 +52,8 @@ class Difference(commands.Cog):
 
         if not historical_data:
             await historic.start_trackers(hypixel_data)
-            await interaction.followup.send(
-                f'Historical stats for {fname(name)} will now be tracked.')
+            await interaction.edit_original_response(
+                content=f'Historical stats for {fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))

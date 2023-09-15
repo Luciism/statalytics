@@ -1,4 +1,5 @@
 from aiohttp import ContentTypeError
+from typing import Callable
 
 from discord import Interaction
 
@@ -107,17 +108,17 @@ async def linking_interaction(
 
 
 async def find_dynamic_session_interaction(
-    interaction: Interaction,
+    interaction_response: Callable[[str], None],
     username: PlayerName,
     uuid: PlayerUUID,
     hypixel_data: dict,
-    session: int | None=None,
-    eph=True
+    session: int | None=None
 ) -> tuple | bool:
     """
     Dynamically gets a session of a user\n
     If session is 100, the first session to exist will be returned
-    :param interaction: The discord interaction object used
+    :param interaction_response: The discord interaction response object
+    to reply with.
     :param username: The username of the session owner
     :param uuid: The uuid of the session owner
     :param hypixel_data: the current hypixel data of the session owner
@@ -125,21 +126,19 @@ async def find_dynamic_session_interaction(
     :param eph: whether or not to respond ephemerally
     """
     returned_session = find_dynamic_session(uuid, session)
-    respond = interaction_send_object(interaction)
 
     # no sessions exist because... i forgot to finish this comment now idk
     if not returned_session and not session:
         await start_session(uuid, session=1, hypixel_data=hypixel_data)
-        await respond(
-            f"**{fname(username)}** has no active sessions so one was created!",
-            ephemeral=eph
+        await interaction_response(
+            content=f"**{fname(username)}** has no active sessions so one was created!"
         )
         raise SessionNotFoundError
 
     if not returned_session:
-        await respond(
-            f"**{fname(username)}** doesn't have an active session with ID: `{session}`!",
-            ephemeral=eph
+        await interaction_response(
+            content=f"**{fname(username)}** doesn't have an"
+                    f" active session with ID: `{session}`!"
         )
         raise SessionNotFoundError
 

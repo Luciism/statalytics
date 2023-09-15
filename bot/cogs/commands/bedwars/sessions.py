@@ -1,3 +1,5 @@
+"""Code that needs to be rewritten"""
+
 import asyncio
 import sqlite3
 
@@ -7,7 +9,6 @@ from discord.ext import commands
 
 from render.session import render_session
 from statalib import (
-    AsyncFetchPlayer,
     fetch_player_info,
     get_linked_player,
     username_autocompletion,
@@ -17,11 +18,11 @@ from statalib import (
     update_command_stats,
     start_session,
     find_dynamic_session_interaction,
+    find_dynamic_session,
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
-    get_user_property,
-    STATIC_CONFIG
+    get_user_property
 )
 
 
@@ -100,14 +101,19 @@ class Sessions(commands.Cog):
         await interaction.response.defer()
         name, uuid = await fetch_player_info(player, interaction)
 
-        session = await find_dynamic_session_interaction(
-            interaction, name, uuid, session)
-
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
+        )
+
+        session = await find_dynamic_session_interaction(
+            interaction_response=interaction.followup.send,
+            username=name,
+            uuid=uuid,
+            hypixel_data=hypixel_data,
+            session=session
         )
 
         kwargs = {
@@ -212,13 +218,16 @@ class Sessions(commands.Cog):
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        name = await AsyncFetchPlayer(uuid=uuid).name
-        session = await find_dynamic_session_interaction(
-            interaction, name, uuid, session, eph=True)
+        valid_session = find_dynamic_session(uuid, session)
 
-        view = ManageSession(session, uuid, method="reset")
+        if valid_session is None:
+            await interaction.response.send_message(
+                f"Couldn't find a session with ID: `{session or 1}`")
+            return
+
+        view = ManageSession(valid_session, uuid, method="reset")
         await interaction.response.send_message(
-            f'Are you sure you want to reset session {session}?',
+            f'Are you sure you want to reset session {valid_session}?',
             view=view, ephemeral=True)
         view.message = await interaction.original_response()
 

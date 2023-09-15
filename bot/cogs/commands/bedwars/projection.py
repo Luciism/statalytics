@@ -42,14 +42,19 @@ class Projection(commands.Cog):
 
         name, uuid = await fetch_player_info(player, interaction)
 
-        session = await find_dynamic_session_interaction(
-            interaction, name, uuid, session)
-
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
             fetch_skin_model(uuid, 144),
             fetch_hypixel_data(uuid)
+        )
+
+        session = await find_dynamic_session_interaction(
+            interaction_response=interaction.edit_original_response,
+            username=name,
+            uuid=uuid,
+            hypixel_data=hypixel_data,
+            session=session
         )
 
         if not prestige:
