@@ -61,9 +61,12 @@ async def handle_cooldown_error(interaction: discord.Interaction, error: Excepti
     await interaction.response.send_message(embeds=embeds, ephemeral=True)
 
 
-async def handle_all_errors(interaction: discord.Interaction,
-                            client: discord.Client, error: Exception):
-    support_url = get_config()["links"]["support_server"]
+async def handle_all_errors(
+    interaction: discord.Interaction,
+    client: discord.Client,
+    error: Exception
+):
+    support_url = get_config('links.support_server')
     embed = discord.Embed(
         title=f'An error occured running /{interaction.data["name"]}',
         description=f'```{error}```\nIf the problem persists, '

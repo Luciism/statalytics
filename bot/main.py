@@ -40,7 +40,7 @@ class Client(commands.Bot):
         )
 
     async def setup_hook(self):
-        cogs = get_config()['enabled_cogs']
+        cogs = get_config('enabled_cogs')
         for ext in cogs:
             try:
                 await client.load_extension(f'cogs.{ext}')

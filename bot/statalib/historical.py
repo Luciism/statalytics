@@ -221,7 +221,7 @@ async def start_trackers(uuid: PlayerUUID, hypixel_data: dict) -> None:
 
     hypixel_data = get_player_dict(hypixel_data)
 
-    stat_keys: dict = get_config()['tracked_bedwars_stats']
+    stat_keys: dict = get_config('tracked_bedwars_stats')
     stat_values = []
 
     for key in stat_keys:

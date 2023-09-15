@@ -19,7 +19,7 @@ class Vote(commands.Cog):
     async def vote(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        vote_links = get_config()['links']['voting']
+        vote_links = get_config('links.voting')
 
         voting_data = get_voting_data(interaction.user.id)
         if voting_data:
