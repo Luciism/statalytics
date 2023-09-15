@@ -1,5 +1,5 @@
 {
-    "loading_message": "Arguing with Hypixel <a:loading1:1062561739989860462>",
+    "loading_message": "Lagging back <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
     "bot_id": 903765373181112360,
     "version": "1.12.3",
@@ -42,12 +42,53 @@
     },
     "packages": {
         "pro": {
-            "permissions": ["automatic_tracker_reset"],
-            "properties": {}
+            "permissions": [
+                "automatic_tracker_reset",
+                "custom_backgrounds",
+                "voter_themes",
+                "year_2025",
+                "autofill",
+                "cooldown_bypass",
+                "no_tips"
+            ],
+            "properties": {
+                "max_sessions": 5,
+                "max_lookback": -1,
+                "generic_command_cooldown": {
+                    "rate": 1,
+                    "per": 0
+                }
+            }
+        },
+        "basic": {
+            "permissions": [
+                "voter_themes",
+                "year_2025",
+                "autofill",
+                "cooldown_bypass",
+                "no_tips"
+            ],
+            "properties": {
+                "max_sessions": 5,
+                "max_lookback": 60,
+                "generic_command_cooldown": {
+                    "rate": 1,
+                    "per": 0
+                }
+            }
+        },
+        "free": {
+            "permissions": [],
+            "properties": {
+                "max_sessions": 2,
+                "max_lookback": 30,
+                "generic_command_cooldown": {
+                    "rate": 1,
+                    "per": 3.5
+                }
+            }
         }
     },
-    "max_free_sessions": 2,
-    "max_premium_sessions": 5,
     "voter_reward_duration_hours": 24,
     "theme_packs": {
         "voter_themes": {

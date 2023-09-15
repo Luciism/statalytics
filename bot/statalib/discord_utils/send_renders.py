@@ -6,16 +6,16 @@ import asyncio
 import discord
 
 from ..functions import REL_PATH
-from ..subscriptions import get_subscription
+from ..permissions import has_access
 from ..views.modes import ModesView
 
 
 def discord_message(discord_id):
     """
-    Chooses a random message to send if the discord id has no subscription
+    Chooses a random message to send if the user doesnt have tip bypass perms
     :param discord_id: the discord id of the respective user
     """
-    if get_subscription(discord_id):
+    if has_access(discord_id, 'no_tips'):
         return None
 
     if random.choice(([False]*5) + ([True]*2)):  # 2 in 7 chance

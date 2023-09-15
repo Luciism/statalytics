@@ -2,7 +2,7 @@ import sqlite3
 
 from .mcfetch import AsyncFetchPlayer
 from .sessions import start_session, find_dynamic_session
-from .subscriptions import get_subscription
+from .permissions import has_access
 from .aliases import PlayerName, PlayerUUID
 from .functions import (
     insert_growth_data,
@@ -112,8 +112,7 @@ def update_autofill(
     :param uuid: The uuid of the target linked user
     :param username: The updated username of the target linked user
     """
-    subscription = get_subscription(discord_id)
-    if subscription:
+    if has_access(discord_id, 'autofill'):
         with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")

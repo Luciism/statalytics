@@ -8,7 +8,7 @@ from PIL import Image, UnidentifiedImageError
 
 from ..linking import uuid_to_discord_id
 from ..functions import get_config, REL_PATH
-from ..subscriptions import get_subscription
+from ..permissions import has_access
 from ..themes import get_theme_properties
 from .colors import Colors, get_prestige_primary_color, get_rank_color
 
@@ -123,16 +123,17 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
     :param default: The default file name of the background (excluding .png extension)
     :param **kwargs: Any additional keyword arguments that may be used to get a background
     """
+    default_path = f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png'
+
     discord_id = uuid_to_discord_id(uuid)
     if not discord_id:
-        return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png')
-
-    subscription = get_subscription(discord_id) or ''
+        return Image.open(default_path)
 
     # User has a pro subscription and a custom background
-    path_to_custom = f'{REL_PATH}/database/custom_bg/{bg_dir}/{discord_id}.png'
-    if 'pro' in subscription and os.path.exists(path_to_custom):
-        return Image.open(path_to_custom)
+    custom_path = f'{REL_PATH}/database/custom_bg/{bg_dir}/{discord_id}.png'
+    access = has_access(discord_id, 'custom_backgrounds')
+    if access and os.path.exists(custom_path):
+        return Image.open(custom_path)
 
 
     # Voting and rewards data for active theme pack
@@ -165,9 +166,9 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
         if themes_data[1]:
             owned_themes = themes_data[1].split(',')
 
-        # If the user has voted, is premium, or is using an exclusive theme
+        # If the user has voted, is permission, or is using an exclusive theme
         is_exclusive = not theme in voter_themes
-        if voted_recently or subscription or is_exclusive:
+        if voted_recently or is_exclusive or has_access(discord_id, 'voter_themes'):
             # Check if the user is using a selected unowned exclusive theme
             if not is_exclusive or theme in owned_themes:
                 try:
@@ -175,4 +176,4 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
                 except FileNotFoundError:
                     pass
 
-    return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png')
+    return Image.open(default_path)

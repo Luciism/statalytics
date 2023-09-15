@@ -7,12 +7,10 @@ from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 from typing import Literal
 
-from discord import Interaction
-
 from .errors import NoLinkedAccountError
 from .calctools import get_player_dict, get_level
 from .linking import get_linked_player, uuid_to_discord_id
-from .subscriptions import get_subscription
+from .subscriptions import get_user_property
 from .aliases import PlayerUUID
 from .permissions import has_access
 from .functions import (
@@ -327,42 +325,19 @@ def get_max_lookback(
 ) -> int:
     """
     Returns the amount of days back a user can check a player's historical stats
-    :param discord_id_primary: the primary discord id to use (linked discord account of player)
-    :param discord_id_secondary: the secondary discord id to use (the interaction user's id)
+    :param discord_id_primary: the primary discord id to
+    use (linked discord account of player)
+    :param discord_id_secondary: the secondary
+    discord id to use (the interaction user's id)
     """
-    subscription = None
+    max_lookback = None
     if discord_id_primary:
-        subscription = get_subscription(discord_id=discord_id_primary)
+        max_lookback = get_user_property(discord_id_primary, 'max_lookback')
 
-    if not subscription or not discord_id_primary:
-        subscription = get_subscription(discord_id=discord_id_secondary)
+    if not max_lookback or not discord_id_primary:
+        max_lookback = get_user_property(discord_id_secondary, 'max_lookback', 30)
 
-    if subscription:
-        if 'basic' in subscription:
-            return 60
-        if 'pro' in subscription:
-            return -1
-    return 30
-
-
-async def yearly_eligibility_check(
-    interaction: Interaction,
-    discord_id: int | None
-) -> bool:
-    """
-    Checks if a user is able to use yearly stats commands and responds accordingly
-    :param interaction: the discord interaction object
-    :param discord_id: the discord id of the linked player being checked
-    """
-    subscription = None
-    if discord_id:
-        subscription = get_subscription(discord_id=discord_id)
-
-    if not subscription and not get_subscription(interaction.user.id):
-        embeds = load_embeds('yearly_eligibility_check', color='primary')
-        await interaction.followup.send(embeds=embeds)
-        return False
-    return True
+    return max_lookback
 
 
 def bedwars_data_to_tracked_stats_tuple(

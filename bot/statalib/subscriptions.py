@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from typing import Any
 from datetime import datetime
 
 from .functions import get_timestamp, get_config, REL_PATH
@@ -224,17 +225,23 @@ def add_subscription(discord_id: int, package: str, expires: int) -> None:
 
     set_current_package(discord_id, package, expires)
 
-    with open('../utils/database/new_subscriptions.json', 'r+') as datafile:
-        new_subscriptions = json.load(datafile)
-        new_subscriptions[str(discord_id)] = package
+    try:
+        with open(f'{REL_PATH}/../utils/database/new_subscriptions.json', 'r+') as datafile:
+            new_subscriptions = json.load(datafile)
+            new_subscriptions[str(discord_id)] = package
 
-        datafile.seek(0)  # Move the file pointer to the beginning
-        json.dump(new_subscriptions, datafile, indent=4)
-        datafile.truncate()
+            datafile.seek(0)  # Move the file pointer to the beginning
+            json.dump(new_subscriptions, datafile, indent=4)
+            datafile.truncate()
+    except FileNotFoundError:
+        pass
 
 
-def remove_subscription(discord_id: int, package: str,
-                        max_removals: int=-1):
+def remove_subscription(
+    discord_id: int,
+    package: str,
+    max_removals: int=-1
+):
     """
     Removes certain amount occurences of a subscription from a user
     :param discord_id: the discord_id of the respective user
@@ -268,6 +275,40 @@ def get_package_permissions(package: str) -> list:
 
     package_perms = packages_config.get(package, {}).get('permissions', [])
     return package_perms
+
+
+def get_package_property(
+    package: str,
+    prop: str,
+    default: Any=None
+) -> Any:
+    """
+    Gets a specified property of a specified package as defined
+    in the `config.json` file
+    :param package: the package to get the property value of
+    :param prop: the property name to get the value of
+    :param default: the default value to return if no value is found
+    """
+    packages_config: dict[str, dict[str, dict]] = get_config('packages')
+    properties = packages_config.get(package, {}).get('properties', {})
+
+    return properties.get(prop, default)
+
+
+def get_user_property(
+    discord_id: int,
+    prop: str,
+    default: Any=None
+) -> Any:
+    """
+    Wrapper around the `get_package_property` function that gets
+    the property value directly for a certain discord user based
+    off of their subscription
+    """
+    package = get_subscription(discord_id) or 'free'
+
+    prop_value = get_package_property(package, prop, default)
+    return prop_value
 
 
 class SubscriptionManager:

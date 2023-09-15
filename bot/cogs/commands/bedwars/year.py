@@ -14,11 +14,11 @@ from statalib import (
     fetch_hypixel_data,
     update_command_stats,
     find_dynamic_session_interaction,
-    get_subscription,
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
-    load_embeds
+    load_embeds,
+    has_access
 )
 
 
@@ -34,9 +34,16 @@ class Year(commands.Cog):
     )
 
 
-    async def year_command(self, interaction: discord.Interaction,
-                           name: str, uuid: str, session: int, year: int):
-        session = await find_dynamic_session_interaction(interaction, name, uuid, session)
+    async def year_command(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+        uuid: str,
+        session: int,
+        year: int
+    ):
+        session = await find_dynamic_session_interaction(
+            interaction, name, uuid, session)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -92,11 +99,12 @@ class Year(commands.Cog):
         name, uuid = await fetch_player_info(player, interaction)
 
         discord_id = uuid_to_discord_id(uuid)
-        subscription = None
-        if discord_id:
-            subscription = get_subscription(discord_id=discord_id)
 
-        if not subscription and not get_subscription(interaction.user.id):
+        # Either command user or checked player has access
+        condition_1 = has_access(discord_id, 'year_2025')
+        condition_2 = has_access(interaction.user.id, 'year_2025')
+
+        if not condition_1 and not condition_2:
             embeds = load_embeds('2025', color='primary')
             await interaction.followup.send(embeds=embeds)
             return

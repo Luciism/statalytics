@@ -15,12 +15,12 @@ from statalib import (
     generic_command_cooldown,
     fetch_hypixel_data,
     update_command_stats,
-    get_subscription,
     start_session,
     find_dynamic_session_interaction,
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
+    get_user_property,
     STATIC_CONFIG
 )
 
@@ -140,15 +140,10 @@ class Sessions(commands.Cog):
                 f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
             session_data = cursor.fetchall()
 
-        subscription = get_subscription(interaction.user.id)
-        sessions = len(session_data)
+        active_sessions = len(session_data)
+        max_sessions = get_user_property(interaction.user.id, 'max_sessions', 2)
 
-        if subscription:
-            max_sessions = STATIC_CONFIG.get('max_premium_sessions', 5)
-        else:
-            max_sessions = STATIC_CONFIG.get('max_free_sessions', 2)
-
-        if sessions > max_sessions:
+        if active_sessions >= max_sessions:
             await interaction.followup.send(
                 'You already have the maximum sessions active for your plan! '
                 'To remove a session use `/session end <id>`!')
@@ -160,7 +155,7 @@ class Sessions(commands.Cog):
                 session_id = i + 1
                 break
         else:
-            session_id = sessions + 1
+            session_id = active_sessions + 1
 
         hypixel_data = await fetch_hypixel_data(uuid)
         await start_session(uuid, session_id, hypixel_data)
