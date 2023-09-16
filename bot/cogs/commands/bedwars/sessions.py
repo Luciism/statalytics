@@ -109,7 +109,7 @@ class Sessions(commands.Cog):
         )
 
         session = await find_dynamic_session_interaction(
-            interaction_response=interaction.followup.send,
+            interaction_response=interaction.edit_original_response,
             username=name,
             uuid=uuid,
             hypixel_data=hypixel_data,

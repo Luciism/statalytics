@@ -47,10 +47,13 @@ class Milestones(commands.Cog):
         else:
             valid_session = find_dynamic_session(uuid, session)
 
+        # session is not specified and none are found, so use no session
+        if session is None and valid_session is None:
+            valid_session = 0
         # specified session doesnt exist
-        if valid_session is None:
+        elif valid_session is None:
             await interaction.followup.send(
-                f"`{name}` doesn't have an active session with ID: `{session}`!\n"
+                f"`{name}` doesn't have an active session with ID: `{session or 1}`!\n"
                 "Select a valid session or specify `0` in order to not use a session!")
             return
 
