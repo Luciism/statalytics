@@ -1,13 +1,8 @@
 import os
 import time
-import logging
 from logging.handlers import TimedRotatingFileHandler
 
-
-_default_formatter = logging.Formatter(
-    fmt='%(asctime)s %(levelname)s %(name)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+from .formatters import UncoloredFormatter
 
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
@@ -24,7 +19,7 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         utc=False,
         atTime=None,
         errors=None,
-        formatter=_default_formatter
+        formatter=UncoloredFormatter
     ):
         self.backup_format = backup_format
         self.logs_dir = logs_dir

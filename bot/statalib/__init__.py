@@ -12,6 +12,7 @@ from .permissions import *
 from .aliases import *
 
 from .loggers.handlers import *
+from .loggers.formatters import *
 
 from .render.progress import *
 from .render.tools import *
