@@ -50,16 +50,16 @@ def render_difference(
         {'position': (242, 429), 'text': f'&c{stats.deaths_cum}'},
 
         {'position': (474, 249), 'text':
-         f'&6{stats.wlr_old} &f-> &6{stats.wlr_new} {color(stats.wlr_diff)}'},
+         f'&6{stats.wlr_old} &f➡ &6{stats.wlr_new} {color(stats.wlr_diff)}'},
 
         {'position': (474, 309), 'text':
-         f'&6{stats.fkdr_old} &f-> &6{stats.fkdr_new} {color(stats.fkdr_diff)}'},
+         f'&6{stats.fkdr_old} &f➡ &6{stats.fkdr_new} {color(stats.fkdr_diff)}'},
 
         {'position': (474, 369), 'text':
-         f'&6{stats.bblr_old} &f-> &6{stats.bblr_new} {color(stats.bblr_diff)}'},
+         f'&6{stats.bblr_old} &f➡ &6{stats.bblr_new} {color(stats.bblr_diff)}'},
 
         {'position': (474, 429), 'text':
-         f'&6{stats.kdr_old} &f-> &6{stats.kdr_new} {color(stats.kdr_diff)}'},
+         f'&6{stats.kdr_old} &f➡ &6{stats.kdr_new} {color(stats.kdr_diff)}'},
 
         {'position': (118, 189), 'text': f'&d{stats.stars_gained}'},
         {'position': (332, 189), 'text': f'&d{relative_date}'},
