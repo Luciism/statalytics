@@ -1,7 +1,8 @@
 import sqlite3
 
-from .functions import REL_PATH
+from .functions import comma_separated_to_list, REL_PATH
 from .subscriptions import get_subscription, get_package_permissions
+from .accounts import create_account
 
 
 def get_permissions(discord_id: int) -> list:
@@ -12,12 +13,14 @@ def get_permissions(discord_id: int) -> list:
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
+        create_account(discord_id, cursor=cursor)
+
         cursor.execute(
-            'SELECT * FROM permissions WHERE discord_id = ?', (discord_id,))
+            'SELECT permissions FROM accounts WHERE discord_id = ?', (discord_id,))
         permissions: tuple = cursor.fetchone()
 
-    if permissions and permissions[1]:
-        return permissions[1].split(',')
+    if permissions:
+        return comma_separated_to_list(permissions[0])
     return []
 
 
@@ -64,17 +67,15 @@ def set_permissions(discord_id: int, permissions: list | str):
         cursor = conn.cursor()
 
         cursor.execute(
-            'SELECT discord_id FROM permissions WHERE discord_id = ?', (discord_id,))
+            'SELECT account_id FROM accounts WHERE discord_id = ?', (discord_id,))
         existing_data: tuple = cursor.fetchone()
 
         if existing_data:
             cursor.execute(
-                "UPDATE permissions SET permissions = ? WHERE discord_id = ?",
+                "UPDATE accounts SET permissions = ? WHERE discord_id = ?",
                 (permissions, discord_id))
         else:
-            cursor.execute(
-                "INSERT INTO permissions (discord_id, permissions) VALUES (?, ?)",
-                (discord_id, permissions))
+            create_account(discord_id, permissions=permissions, cursor=cursor)
 
 
 def add_permission(discord_id: int, permission: str):

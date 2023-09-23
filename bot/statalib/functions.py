@@ -8,12 +8,12 @@ import typing
 import sqlite3
 import asyncio
 import functools
-from typing import Literal
+from typing import Literal, Any
 from datetime import datetime, timedelta
 
-from .aliases import PlayerUUID
-
 import discord
+
+from .aliases import PlayerUUID
 
 
 REL_PATH = os.path.abspath(f'{__file__}/../..')
@@ -60,16 +60,23 @@ def loading_message() -> str:
     return STATIC_CONFIG.get('loading_message')
 
 
-def get_voting_data(discord_id: int) -> tuple:
+def _get_voting_data(discord_id: int, cursor: sqlite3.Cursor) -> tuple:
+    cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
+    return cursor.fetchone()
+
+
+def get_voting_data(discord_id: int, cursor: sqlite3.Cursor=None) -> tuple:
     """
     Returns a users voting data
     :param discord_id: The discord id of the user's voting data to be fetched
+    :param cursor: custom `sqlite3.Cursor` object to execute queries with
     """
+    if cursor:
+        return _get_voting_data(discord_id, cursor)
+
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
-
-        cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
-        return cursor.fetchone()
+        return _get_voting_data(discord_id, cursor)
 
 
 def insert_growth_data(
@@ -112,7 +119,9 @@ def _update_usage(command, discord_id):
             cursor.execute(f'ALTER TABLE command_usage ADD COLUMN {command} INTEGER')
 
         # Update users command usage stats
-        cursor.execute(f"SELECT overall, {command} FROM command_usage WHERE discord_id = {discord_id}")
+        cursor.execute(
+            f"SELECT overall, {command} FROM command_usage WHERE discord_id = ?",
+            (discord_id,))
         result = cursor.fetchone()
 
         if result and result[0]:
@@ -124,7 +133,8 @@ def _update_usage(command, discord_id):
             """)  # if command current is null, it will be set to 1
         else:
             cursor.execute(
-                f"INSERT INTO command_usage (discord_id, overall, {command}) VALUES (?, ?, ?)",
+                "INSERT INTO command_usage "
+                f"(discord_id, overall, {command}) VALUES (?, ?, ?)",
                 (discord_id, 1, 1))
 
     if not result:
@@ -171,6 +181,36 @@ def get_user_total() -> int:
     return 0
 
 
+def _commands_ran(discord_id: int, default: Any, cursor: sqlite3.Cursor):
+    cursor.execute(
+        'SELECT overall FROM command_usage WHERE discord_id = ?', (discord_id,))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    return default
+
+
+def commands_ran(
+    discord_id: int,
+    default: Any=0,
+    cursor: sqlite3.Cursor=None
+) -> int | Any:
+    """
+    Returns the total commands ran for a certain user
+    :param discord_id: the discord id of the respective user
+    :param default: the default value to return if the user has\
+        never run any commands
+    :param cursor: custom `sqlite3.Cursor` object to execute queries with
+    """
+    if cursor:
+        return _commands_ran(discord_id, default, cursor)
+
+    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        cursor = conn.cursor()
+        return _commands_ran(discord_id, default, cursor)
+
+
 def get_commands_total() -> int:
     """
     Returns total amount of commands run by all users
@@ -198,9 +238,11 @@ def load_embeds(filename: str, format_values: dict=None, color: int | str=None):
     Embeds can either be in string form or in dictionary formstring embeds must\n
     use double curly braces `'{{"a": 1, "b": 2}}'` in order to escape formatting\n
     Only string embeds can have values formatted into them
-    :param filename: the name of the file containing the embed json data (.json ext optional)
+    :param filename: the name of the file containing the embed json data\
+        (.json ext optional)
     :param format_values: format values into the dict (string dicts only)
-    :param color: override embed color, can be integer directly or 'primary', 'warning', etc
+    :param color: override embed color, can be integer directly or 'primary',\
+        'warning', etc
     """
     if not filename.endswith('.json'):
         filename += '.json'
@@ -326,3 +368,15 @@ def timezone_relative_timestamp(timestamp: int | float):
     timezone_difference = now_timestamp - utcnow_timestamp
 
     return timestamp + timezone_difference
+
+
+def comma_separated_to_list(comma_seperated_list: str) -> list:
+    """
+    Converts a comma seperated list (string) to a list of strings
+
+    Example `"foo,bar"` -> `["foo", "bar"]`
+    :param comma_seperated_list: the comma seperated list of items
+    """
+    if comma_seperated_list:
+        return comma_seperated_list.split(',')
+    return []

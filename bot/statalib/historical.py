@@ -563,14 +563,34 @@ async def manual_tracker_reset(
 
 class HistoricalManager:
     def __init__(self, discord_id: int, uuid: PlayerUUID=None):
+        """
+        Historical / tracker stats manager
+        :param discord_id: the discord id of the user to manage
+        :param uuid: override the default player uuid linked to the discord id
+        """
         self._discord_id = discord_id
         self._uuid = uuid
 
         self.TIMEZONE = 'timezone'
         self.RESET_HOUR = 'reset_hour'
 
+        self.refresh()
 
-    def _get_uuid(self):
+
+    def refresh(self):
+        """Refresh the class data"""
+        # default values are `False` since values could be `None`
+        self._configured_timezone = False
+        self._configured_reset_hour = False
+
+        self._default_timezone = False
+        self._default_reset_hour = False
+
+        self._timezone = False
+        self._reset_hour = False
+
+
+    def _get_uuid(self, safe: bool=False):
         if self._uuid:
             return self._uuid
 
@@ -578,8 +598,10 @@ class HistoricalManager:
         if uuid:
             return uuid
 
-        raise NoLinkedAccountError(
-            "Couldn't find a linked player associated with the passed discord id!")
+        if safe:
+            raise NoLinkedAccountError(
+                "Couldn't find a linked player associated with the passed discord id!")
+        return None
 
 
     def get_reset_time_configured(self):
@@ -590,7 +612,7 @@ class HistoricalManager:
     def get_reset_time_default(self, uuid: PlayerUUID=None):
         """Gets the default reset time assigned randomly for a player"""
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         return get_reset_time_default(uuid)
 
 
@@ -602,7 +624,7 @@ class HistoricalManager:
         :param uuid: The backup uuid if the discord user has no configured reset time
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=False)
         return get_reset_time(uuid)
 
 
@@ -612,7 +634,7 @@ class HistoricalManager:
         :param uuid: The uuid of the relative player
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         update_reset_time_default(uuid)
 
 
@@ -634,7 +656,7 @@ class HistoricalManager:
         :param hypixel_data: the current hypixel data to initalize the tracker with
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         await start_trackers(uuid, hypixel_data)
 
 
@@ -663,7 +685,7 @@ class HistoricalManager:
         :param tracker: the tracker to get (daily, weekly, etc)
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         return get_tracker_data(uuid, tracker)
 
 
@@ -674,7 +696,7 @@ class HistoricalManager:
         :param period: the period of the historical data
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         return get_historical_data(uuid, period)
 
 
@@ -688,7 +710,7 @@ class HistoricalManager:
         :param table: the table the data is in (trackers / historical)
         """
         if not uuid:
-            uuid = self._get_uuid()
+            uuid = self._get_uuid(safe=True)
         return get_historical(uuid, identifier, table)
 
 
@@ -709,3 +731,105 @@ class HistoricalManager:
         :param discord_id_secondary: the secondary discord id to use (the interaction user's id)
         """
         return get_max_lookback(discord_id_primary, discord_id_secondary)
+
+
+    def _set_configured_reset_time(self):
+        reset_time = get_reset_time_configured(self._discord_id)
+
+        self._configured_timezone, self._configured_reset_hour\
+            = reset_time or (None, None)
+
+
+    def _set_default_reset_time(self):
+        uuid = self._get_uuid(safe=False)
+
+        if uuid:
+            reset_time = get_reset_time_default(uuid)
+
+            if reset_time:
+                self._default_timezone, self._default_reset_hour = reset_time
+                return
+        self._default_timezone, self._default_reset_hour = (None, None)
+
+
+    def _set_reset_time(self):
+        # use configured discord bound if it exists
+        configured = get_reset_time_configured(self._discord_id)
+
+        if configured is not None:
+            self._timezone, self._reset_hour = configured
+            return
+
+        # use player bound
+        uuid = self._get_uuid(safe=False)
+
+        if uuid:
+            reset_time = get_reset_time(uuid)
+            if reset_time:
+                self._timezone, self._reset_hour = reset_time
+                return
+
+        # use fallback
+        self._timezone, self._reset_hour = (0, 0)
+
+
+    @property
+    def configured_timezone(self) -> int | None:
+        """The configured timezone bound to discord user's discord account"""
+        if self._configured_timezone is False:
+            self._set_configured_reset_time()
+        return self._configured_timezone
+
+    @property
+    def configured_reset_hour(self) -> int | None:
+        """The configured tracker reset hour bound to discord user's discord account"""
+        if self._configured_reset_hour is False:
+            self._set_configured_reset_time()
+        return self._configured_reset_hour
+
+    @property
+    def default_timezone(self) -> int | None:
+        """The default timezone bound to discord user's linked minecraft account."""
+        if self._default_timezone is False:
+            self._set_default_reset_time()
+        return self._default_timezone
+
+    @property
+    def default_reset_hour(self) -> int | None:
+        """The default tracker reset hour bound to
+        discord user's linked minecraft account."""
+        if self._default_reset_hour is False:
+            self._set_default_reset_time()
+        return self._default_reset_hour
+
+    @property
+    def timezone(self) -> int:
+        """
+        The dynamically determined timezone of the discord account.
+
+        First it will find and return the user configured discord
+        account bound timezone if it exists, otherwise it will return
+        the default linked minecraft account bound timezone.
+
+        If there is no linked minecraft account or no default timezone,
+        `0` will be returned.
+        """
+        if self._timezone is False:
+            self._set_reset_time()
+        return self._timezone
+
+    @property
+    def reset_hour(self) -> int:
+        """
+        The dynamically determined tracker reset hour of the discord account.
+
+        First it will find and return the user configured discord
+        account bound reset hour if it exists, otherwise it will return
+        the default linked minecraft account bound reset hour.
+
+        If there is no linked minecraft account or no default reset hour,
+        `0` will be returned.
+        """
+        if self._reset_hour is False:
+            self._set_reset_time()
+        return self._reset_hour
