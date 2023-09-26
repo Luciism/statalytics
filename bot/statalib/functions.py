@@ -242,7 +242,7 @@ def load_embeds(filename: str, format_values: dict=None, color: int | str=None):
         (.json ext optional)
     :param format_values: format values into the dict (string dicts only)
     :param color: override embed color, can be integer directly or 'primary',\
-        'warning', etc
+        'warning', 'danger'
     """
     if not filename.endswith('.json'):
         filename += '.json'

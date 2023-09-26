@@ -47,3 +47,10 @@ class MojangInvalidResponseError(AppCommandError):
 
 class MojangRateLimitError(MojangInvalidResponseError):
     """Mojang rate limit error"""
+
+
+class UserBlacklistedError(AppCommandError):
+    """User is blacklisted error"""
+
+class MissingPermissionsError(AppCommandError):
+    """User is missing required error"""

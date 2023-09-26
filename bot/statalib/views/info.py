@@ -1,6 +1,7 @@
 import discord
 
 from ..functions import load_embeds
+from .base_view import CustomBaseView
 
 
 class InfoButton(discord.ui.Button):
@@ -26,43 +27,43 @@ class InfoButton(discord.ui.Button):
         await interaction.response.send_message(embeds=embeds, ephemeral=True)
 
 
-class SessionInfoButton(discord.ui.View):
+class SessionInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Sessions', 'help/sessions'))
 
-class ProjectionInfoButton(discord.ui.View):
+class ProjectionInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Projection', 'help/projection'))
 
-class ComparisonInfoButton(discord.ui.View):
+class ComparisonInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Comparison', 'help/compare'))
 
-class HistoricalInfoButton(discord.ui.View):
+class HistoricalInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Historical', 'help/historical'))
 
-class LinkingInfoButton(discord.ui.View):
+class LinkingInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Linking', 'help/linking'))
 
-class SettingsInfoButton(discord.ui.View):
+class SettingsInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Settings', 'help/settings'))
 
-class OtherInfoButton(discord.ui.View):
+class OtherInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Other', 'help/other'))
 
 
-class HelpMenuButtons(discord.ui.View):
+class HelpMenuButtons(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Sessions', 'help/sessions', row=1))

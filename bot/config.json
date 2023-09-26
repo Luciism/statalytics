@@ -148,6 +148,10 @@
         }
     },
     "enabled_cogs": [
+        "misc.manage_cogs",
+        "misc.error_handling",
+        "misc.management",
+
         "tasks.listings",
         "tasks.metrics",
 

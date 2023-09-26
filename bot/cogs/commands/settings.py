@@ -4,6 +4,7 @@ from discord.ext import commands
 
 
 from statalib import (
+    CustomBaseView,
     PlayerNotFoundError,
     set_active_theme,
     get_owned_themes,
@@ -62,7 +63,7 @@ class SettingsSelect(discord.ui.Select):
             return
 
 
-class SettingsSelectView(discord.ui.View):
+class SettingsSelectView(CustomBaseView):
     def __init__(self, interaction: discord.Interaction,
                  view_data: list | tuple, *, timeout=300):
         super().__init__(timeout=timeout)
@@ -98,7 +99,7 @@ class LinkAccountModal(discord.ui.Modal, title='Link Account'):
             return
 
 
-class SettingsButtons(discord.ui.View):
+class SettingsButtons(CustomBaseView):
     def __init__(self, interaction: discord.Interaction) -> None:
         super().__init__(timeout=300)
         self.interaction = interaction

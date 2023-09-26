@@ -1,9 +1,11 @@
-from aiohttp import ContentTypeError
+import logging
 from typing import Callable
 
-from discord import Interaction
+from aiohttp import ContentTypeError
+from discord import Interaction, Embed
 
 from .responses import interaction_send_object
+from ..account_manager import Account
 from ..aliases import PlayerName, PlayerUUID, PlayerDynamic
 from ..functions import fname, load_embeds
 from ..views.info import SessionInfoButton
@@ -13,13 +15,18 @@ from ..sessions import find_dynamic_session, start_session
 from ..errors import (
     PlayerNotFoundError,
     SessionNotFoundError,
-    MojangInvalidResponseError
+    MojangInvalidResponseError,
+    UserBlacklistedError,
+    MissingPermissionsError
 )
 from ..linking import (
     link_account,
     get_linked_player,
     update_autofill
 )
+
+
+logger = logging.getLogger('statalytics')
 
 
 async def fetch_player_info(
@@ -143,3 +150,58 @@ async def find_dynamic_session_interaction(
         raise SessionNotFoundError
 
     return returned_session
+
+
+async def _send_interaction_check_response(
+    interaction: Interaction,
+    embeds: list[Embed]
+):
+    if interaction.response.is_done():
+        await interaction.edit_original_response(
+            embeds=embeds, content=None, attachments=[])
+    else:
+        await interaction.response.send_message(
+            embeds=embeds, content=None, files=[])
+
+
+async def run_interaction_checks(
+    interaction: Interaction,
+    check_blacklisted: bool=True,
+    permissions: list | str=None,
+    allow_star: bool=True
+):
+    """
+    Runs any checks to see if the interaction is allowed to proceed.
+    Checks things such as if the user is blacklisted, or requires\
+        certain permissions
+    :param interaction: the `discord.Interaction` object for the interaction
+    :param check_blacklisted: whether or not to check if the user is blacklisted
+    :param permissions: A required list of permissions that the user must have\
+        in order for the interaction to proceed. It will check if the user has\
+        at least one of the permissions in the provided list.
+    :param allow_star: whether or not to allow star permissions if certain\
+        permissions are required
+    """
+    account = Account(interaction.user.id)
+
+    if account.exists:
+        if check_blacklisted and account.blacklisted:
+            embeds = load_embeds('blacklisted', color='danger')
+            await _send_interaction_check_response(interaction, embeds)
+
+            logger.debug(
+                f'`Blacklisted User`: Denied {interaction.user} '
+                f'({interaction.user.id}) access to an interaction')
+            raise UserBlacklistedError
+
+    if permissions:
+        # User doesn't have at least one of the required permissions
+        if not (allow_star and '*' in account.permissions):
+            if not set(permissions) & set(account.permissions):
+                embeds = load_embeds('missing_permissions', color='danger')
+                await _send_interaction_check_response(interaction, embeds)
+
+                logger.debug(
+                    f'`Missing permissions`: Denied {interaction.user} '
+                    f'({interaction.user.id}) access to an interaction.')
+                raise MissingPermissionsError

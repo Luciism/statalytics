@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from render.session import render_session
 from statalib import (
+    CustomBaseView,
     fetch_player_info,
     get_linked_player,
     username_autocompletion,
@@ -26,7 +27,7 @@ from statalib import (
 )
 
 
-class ManageSession(discord.ui.View):
+class ManageSession(CustomBaseView):
     def __init__(self, session: int, uuid: str, method: str) -> None:
         super().__init__(timeout=20)
         self.method = method

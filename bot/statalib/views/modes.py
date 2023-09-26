@@ -5,6 +5,7 @@ import discord
 
 from ..functions import REL_PATH
 from ..calctools import real_title_case
+from .base_view import CustomBaseView
 
 
 class SelectModes(discord.ui.Select):
@@ -41,7 +42,7 @@ class SelectModes(discord.ui.Select):
             await self.inter.edit_original_response(attachments=[image], view=view)
 
 
-class ModesView(discord.ui.View):
+class ModesView(CustomBaseView):
     def __init__(self, inter, mode, *, timeout = 300):
         super().__init__(timeout=timeout)
         self.add_item(SelectModes(inter, mode))

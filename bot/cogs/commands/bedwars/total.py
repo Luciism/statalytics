@@ -15,7 +15,8 @@ from statalib import (
     update_command_stats,
     fetch_skin_model,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -30,6 +31,7 @@ class Total(commands.Cog):
         player: str, method: str, render_func: Callable
     ):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 
