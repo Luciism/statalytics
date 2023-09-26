@@ -12,6 +12,7 @@ from statalib import (
     update_command_stats,
     get_embed_color,
     fname,
+    run_interaction_checks
 )
 
 
@@ -26,6 +27,8 @@ class Skin(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def skin(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         image_bytes = await fetch_skin_model(uuid, size=256, style='full')

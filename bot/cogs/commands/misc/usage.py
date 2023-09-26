@@ -5,7 +5,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib.functions import update_command_stats, get_embed_color
+from statalib import (
+    update_command_stats,
+    get_embed_color,
+    run_interaction_checks
+)
 
 
 class Usage(commands.Cog):
@@ -15,8 +19,11 @@ class Usage(commands.Cog):
 
     @app_commands.command(name="usage", description="View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
-        discord_id = interaction.user.id
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
+        discord_id = interaction.user.id
+
         with open('./assets/command_map.json', 'r') as datafile:
             command_map: dict = load_json(datafile)['commands']
 

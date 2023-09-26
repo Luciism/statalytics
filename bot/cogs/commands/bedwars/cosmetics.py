@@ -9,7 +9,8 @@ from statalib import (
     generic_command_cooldown,
     fetch_hypixel_data,
     update_command_stats,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -28,6 +29,7 @@ class Cosmetics(commands.Cog):
     async def active_cosmetics(self, interaction: discord.Interaction,
                                player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 

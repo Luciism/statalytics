@@ -13,7 +13,8 @@ from statalib import (
     update_command_stats,
     fetch_skin_model,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -31,6 +32,8 @@ class Average(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def average(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)

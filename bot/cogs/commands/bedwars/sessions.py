@@ -23,12 +23,14 @@ from statalib import (
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
-    get_user_property
+    get_user_property,
+    run_interaction_checks
 )
 
 
 class ManageSession(CustomBaseView):
     def __init__(self, session: int, uuid: str, method: str) -> None:
+        """who the fuck made this class"""
         super().__init__(timeout=20)
         self.method = method
         self.session = session
@@ -46,12 +48,12 @@ class ManageSession(CustomBaseView):
 
 
     @discord.ui.button(
-        label="Confirm",
-        style=discord.ButtonStyle.danger,
-        custom_id="confirm")
-    async def delete(self, interaction: discord.Interaction,
-                     button: discord.ui.Button):
+        label="Confirm", style=discord.ButtonStyle.danger, custom_id="confirm")
+    async def delete(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ) -> None:
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         button.disabled = True
         await self.message.edit(view=self)
@@ -100,6 +102,8 @@ class Sessions(commands.Cog):
     async def session(self, interaction: discord.Interaction,
                       player: str=None, session: int=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -133,6 +137,8 @@ class Sessions(commands.Cog):
     @session_group.command(name="start", description="Starts a new session")
     async def session_start(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         uuid = get_linked_player(interaction.user.id)
 
         if not uuid:
@@ -177,6 +183,8 @@ class Sessions(commands.Cog):
     @app_commands.autocomplete(session=session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
     async def end_session(self, interaction: discord.Interaction, session: int = None):
+        await run_interaction_checks(interaction)
+
         if session is None:
             session = 1
 
@@ -212,6 +220,8 @@ class Sessions(commands.Cog):
     @app_commands.autocomplete(session=session_autocompletion)
     async def reset_session(self, interaction: discord.Interaction,
                             session: int = None):
+        await run_interaction_checks(interaction)
+
         uuid = get_linked_player(interaction.user.id)
 
         if not uuid:
@@ -238,6 +248,8 @@ class Sessions(commands.Cog):
     @session_group.command(name="active", description="View all active sessions")
     async def active_sessions(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         uuid = get_linked_player(interaction.user.id)
 
         if not uuid:

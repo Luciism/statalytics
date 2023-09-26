@@ -89,6 +89,8 @@ async def linking_interaction(
     :param username: the username of the respective player
     """
     await interaction.response.defer()
+    await run_interaction_checks(interaction)
+
     name, uuid = await fetch_player_info(username, interaction)
 
     hypixel_data = await fetch_hypixel_data(uuid, cache=False)

@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from statalib import (
     CustomBaseView,
-    PlayerNotFoundError,
+    CustomBaseModal,
     set_active_theme,
     get_owned_themes,
     get_config,
@@ -13,9 +13,9 @@ from statalib import (
     update_reset_time_configured,
     update_command_stats,
     load_embeds,
-    prefix_int
+    prefix_int,
+    run_interaction_checks
 )
-
 
 
 HOURS = ['12am', '1am', '2am', '3am', '4am', '5am',
@@ -38,6 +38,8 @@ class SettingsSelect(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         discord_id = interaction.user.id
 
         value = self.values[0]
@@ -85,7 +87,7 @@ class SettingsSelectView(CustomBaseView):
             pass
 
 
-class LinkAccountModal(discord.ui.Modal, title='Link Account'):
+class LinkAccountModal(CustomBaseModal, title='Link Account'):
     player = discord.ui.TextInput(
         label='Player',
         placeholder='Statalytics',
@@ -93,10 +95,7 @@ class LinkAccountModal(discord.ui.Modal, title='Link Account'):
     )
 
     async def on_submit(self, interaction: discord.Interaction):
-        try:
-            await linking_interaction(interaction, str(self.player))
-        except PlayerNotFoundError:
-            return
+        await linking_interaction(interaction, str(self.player))
 
 
 class SettingsButtons(CustomBaseView):
@@ -121,6 +120,8 @@ class SettingsButtons(CustomBaseView):
         row=1)
     async def active_theme(self, interaction: discord.Interaction,
                            button: discord.ui.Button):
+        await run_interaction_checks(interaction)
+
         embeds = load_embeds('active_theme', color='primary')
 
         owned_themes = get_owned_themes(interaction.user.id)
@@ -154,6 +155,7 @@ class SettingsButtons(CustomBaseView):
         custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction,
                          button: discord.ui.Button):
+        await run_interaction_checks(interaction)
 
         embeds = load_embeds('reset_time', color='primary')
 
@@ -190,6 +192,7 @@ class SettingsButtons(CustomBaseView):
         custom_id="linked_account", row=1)
     async def linked_account(self, interaction: discord.Interaction,
                              button: discord.ui.Button):
+        await run_interaction_checks(interaction)
         await interaction.response.send_modal(LinkAccountModal())
 
 
@@ -203,6 +206,7 @@ class Settings(commands.Cog):
         description="Edit your configuration for statalytics")
     async def settings(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         embeds = load_embeds('settings', color='primary')
         await interaction.followup.send(

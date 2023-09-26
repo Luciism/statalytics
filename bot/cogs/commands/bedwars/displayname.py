@@ -8,7 +8,8 @@ from statalib import (
     generic_command_cooldown,
     username_autocompletion,
     fetch_hypixel_data,
-    update_command_stats
+    update_command_stats,
+    run_interaction_checks
 )
 
 
@@ -26,9 +27,9 @@ class DisplayName(commands.Cog):
     async def displayname(self, interaction: discord.Interaction,
                           player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
-
         hypixel_data = await fetch_hypixel_data(uuid)
 
         if not hypixel_data.get('player'):

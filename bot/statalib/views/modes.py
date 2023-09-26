@@ -5,7 +5,7 @@ import discord
 
 from ..functions import REL_PATH
 from ..calctools import real_title_case
-from .base_view import CustomBaseView
+from .custom import CustomBaseView
 
 
 class SelectModes(discord.ui.Select):

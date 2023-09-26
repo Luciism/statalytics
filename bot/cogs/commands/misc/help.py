@@ -2,8 +2,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib.functions import update_command_stats, load_embeds
-from statalib import HelpMenuButtons
+from statalib import (
+    HelpMenuButtons,
+    update_command_stats,
+    load_embeds,
+    run_interaction_checks
+)
 
 
 class Help(commands.Cog):
@@ -13,6 +17,8 @@ class Help(commands.Cog):
 
     @app_commands.command(name="help", description="Help Page")
     async def get_help(self, interaction: discord.Interaction):
+        await run_interaction_checks(interaction)
+
         embeds = load_embeds('help', color='primary')
         view = HelpMenuButtons()
         await interaction.response.send_message(embeds=embeds, view=view)

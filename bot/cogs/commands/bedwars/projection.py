@@ -15,7 +15,8 @@ from statalib import (
     find_dynamic_session_interaction,
     fetch_skin_model,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -36,9 +37,15 @@ class Projection(commands.Cog):
         player=username_autocompletion,
         session=session_autocompletion)
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
-    async def projected_stats(self, interaction: discord.Interaction,
-                              prestige: int=None, player: str=None, session: int=None):
+    async def projected_stats(
+        self,
+        interaction: discord.Interaction,
+        prestige: int=None,
+        player: str=None,
+        session: int=None
+    ) -> None:
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 

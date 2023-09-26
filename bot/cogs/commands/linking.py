@@ -6,7 +6,8 @@ from statalib import (
     linking_interaction,
     delete_linked_data,
     update_command_stats,
-    generic_command_cooldown
+    generic_command_cooldown,
+    run_interaction_checks
 )
 
 
@@ -26,6 +27,7 @@ class Linking(commands.Cog):
     @app_commands.command(name="unlink", description="Unlink your account")
     async def unlink(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         previous_uuid = delete_linked_data(interaction.user.id)
 

@@ -1,7 +1,7 @@
 import discord
 
 from ..functions import load_embeds
-from .base_view import CustomBaseView
+from .custom import CustomBaseView
 
 
 class InfoButton(discord.ui.Button):

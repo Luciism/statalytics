@@ -10,7 +10,8 @@ from statalib import (
     fetch_hypixel_data,
     update_command_stats,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -33,6 +34,7 @@ class Compare(commands.Cog):
     async def compare(self, interaction: discord.Interaction,
                       player_1: str, player_2: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name_1 = player_1 if player_2 else None
         name_2 = player_2 if player_2 else player_1

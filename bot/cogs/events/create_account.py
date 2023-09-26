@@ -17,8 +17,8 @@ class CreateAccount(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         """Create account if it doesnt exist"""
-        logger.debug(
-            f'Created account for {interaction.user} ({interaction.user.id})')
+        # logger.debug(
+        #     f'Created account for {interaction.user} ({interaction.user.id})')
         create_account(interaction.user.id)
 
 

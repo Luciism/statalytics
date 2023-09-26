@@ -20,7 +20,8 @@ from statalib import (
     timezone_relative_timestamp,
     fname,
     pluralize,
-    has_auto_reset
+    has_auto_reset,
+    run_interaction_checks
 )
 
 
@@ -38,6 +39,7 @@ class Daily(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def daily(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 
@@ -108,6 +110,7 @@ class Daily(commands.Cog):
     async def lastday(self, interaction: discord.Interaction,
                       player: str=None, days: int=1):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 

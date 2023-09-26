@@ -11,7 +11,8 @@ from aiohttp import ClientSession
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
-    load_embeds
+    load_embeds,
+    run_interaction_checks
 )
 
 
@@ -49,6 +50,7 @@ class Status(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         res = await _fetch_server_status(self.key, self.ip)
 

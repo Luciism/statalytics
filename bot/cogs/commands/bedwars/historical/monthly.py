@@ -21,7 +21,8 @@ from statalib import (
     fname,
     timezone_relative_timestamp,
     pluralize,
-    has_auto_reset
+    has_auto_reset,
+    run_interaction_checks
 )
 
 
@@ -39,6 +40,7 @@ class Monthly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 
@@ -111,6 +113,8 @@ class Monthly(commands.Cog):
     async def lastmonth(self, interaction: discord.Interaction,
                         player: str=None, months: int=1):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         historic = HistoricalManager(interaction.user.id, uuid)

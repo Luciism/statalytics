@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib.functions import update_command_stats, get_config
+from statalib import update_command_stats, get_config
 
 
 class Invite(commands.Cog):

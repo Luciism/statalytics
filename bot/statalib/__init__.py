@@ -27,6 +27,7 @@ from .render.text import *
 
 from .views.modes import *
 from .views.info import *
+from .views.custom import *
 
 from .discord_utils.send_renders import *
 from .discord_utils.responses import *

@@ -11,7 +11,8 @@ from discord.ext import commands
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
-    get_embed_color
+    get_embed_color,
+    run_interaction_checks
 )
 
 
@@ -58,6 +59,8 @@ class Denick(commands.Cog):
     async def numberdenick(self, interaction: discord.Interaction,
                            mode: str, count: int):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         mode = mode.lower()
         if not mode in ('finals', 'beds'):
             await interaction.followup.send('Invalid mode! Valid options: (finals / beds)')

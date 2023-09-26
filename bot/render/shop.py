@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageFont
 
-from statalib import get_rank_info, to_thread
+from statalib import get_rank_info, to_thread, get_player_dict
 from statalib.render import (
     get_background,
     render_mc_text,
@@ -33,7 +33,7 @@ def render_shop(
                 'iron_sword', 'iron_boots', 'shears', 'arrow',
                 'jump_v_potion_(45_seconds)', 'water_bucket'] + ['null'] * 7
 
-    rank_info = get_rank_info(hypixel_data=hypixel_data['player'])
+    rank_info = get_rank_info(hypixel_data=get_player_dict(hypixel_data))
 
     base_image = get_background(
         bg_dir='shop', uuid=uuid, level=0, rank_info=rank_info

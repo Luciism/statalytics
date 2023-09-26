@@ -16,7 +16,8 @@ from statalib import (
     fetch_skin_model,
     handle_modes_renders,
     loading_message,
-    find_dynamic_session
+    find_dynamic_session,
+    run_interaction_checks
 )
 
 
@@ -39,6 +40,8 @@ class Milestones(commands.Cog):
     async def milestones(self, interaction: discord.Interaction,
                          player: str=None, session: int=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         # check if session if valid only if a session is being used

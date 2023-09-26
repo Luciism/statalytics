@@ -16,7 +16,8 @@ from statalib import (
     fetch_skin_model,
     ordinal, loading_message,
     handle_modes_renders,
-    fname
+    fname,
+    run_interaction_checks
 )
 
 
@@ -36,6 +37,8 @@ class Difference(commands.Cog):
         self, interaction: discord.Interaction, player: str, tracker: str
     ) -> None:
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)

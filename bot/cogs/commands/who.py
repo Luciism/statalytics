@@ -2,7 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import update_command_stats, fetch_player_info
+from statalib import (
+    update_command_stats,
+    fetch_player_info,
+    run_interaction_checks
+)
 
 
 class Who(commands.Cog):
@@ -17,6 +21,8 @@ class Who(commands.Cog):
         player='The player whos username / uuid you want to view')
     async def who(self, interaction: discord.Interaction,
                   player: str=None):
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction, eph=True)
 
         if player is None or len(player) <= 16:

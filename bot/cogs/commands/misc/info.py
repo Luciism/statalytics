@@ -15,7 +15,8 @@ from statalib import (
     get_linked_total,
     get_commands_total,
     get_config,
-    load_embeds
+    load_embeds,
+    run_interaction_checks
 )
 
 
@@ -29,6 +30,7 @@ class Info(commands.Cog):
         description="View information and stats for Statalytics")
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         commands_ran = get_commands_total()
         linked_accounts = get_linked_total()

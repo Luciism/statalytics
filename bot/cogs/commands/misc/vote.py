@@ -2,11 +2,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib.functions import (
+from statalib import (
     update_command_stats,
     get_voting_data,
     get_config,
-    load_embeds
+    load_embeds,
+    run_interaction_checks
 )
 
 
@@ -18,6 +19,7 @@ class Vote(commands.Cog):
     @app_commands.command(name="vote", description="Get a list of our vote links")
     async def vote(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         vote_links = get_config('links.voting')
 

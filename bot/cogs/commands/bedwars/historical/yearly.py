@@ -21,7 +21,8 @@ from statalib import (
     timezone_relative_timestamp,
     fname,
     pluralize,
-    has_auto_reset
+    has_auto_reset,
+    run_interaction_checks
 )
 
 
@@ -39,6 +40,7 @@ class Yearly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
     async def yearly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
 
         name, uuid = await fetch_player_info(player, interaction)
 
@@ -113,6 +115,8 @@ class Yearly(commands.Cog):
     async def lastyear(self, interaction: discord.Interaction,
                        player: str=None, years: int=1):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         historic = HistoricalManager(interaction.user.id, uuid)

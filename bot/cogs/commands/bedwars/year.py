@@ -18,7 +18,8 @@ from statalib import (
     handle_modes_renders,
     loading_message,
     load_embeds,
-    has_access
+    has_access,
+    run_interaction_checks
 )
 
 
@@ -42,6 +43,7 @@ class Year(commands.Cog):
         session: int,
         year: int
     ):
+        await run_interaction_checks(interaction)
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(

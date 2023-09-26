@@ -10,7 +10,8 @@ from statalib import (
     fetch_hypixel_data,
     update_command_stats,
     handle_modes_renders,
-    loading_message
+    loading_message,
+    run_interaction_checks
 )
 
 
@@ -29,6 +30,8 @@ class Resources(commands.Cog):
     async def resources(self, interaction: discord.Interaction,
                         player: str=None):
         await interaction.response.defer()
+        await run_interaction_checks(interaction)
+
         name, uuid = await fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
