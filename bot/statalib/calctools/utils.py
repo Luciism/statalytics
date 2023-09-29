@@ -182,7 +182,7 @@ def get_progress(experience: int) -> tuple[str, str, int]:
     # `1` would be `1000` xp, etc, otherwise if it is above `3`, it will always
     # be `5000` xp
     level_xp_map: dict = {0: 500, 1: 1000, 2: 2000, 3: 3500}
-    target_xp: int = level_xp_map.get(lvls_since_pres, 5000)
+    target_xp: int = level_xp_map.get(int(lvls_since_pres), 5000)
 
     lvl_progress = float(f'.{decimal_of(level)}') * target_xp
     devide_by = target_xp / 10
