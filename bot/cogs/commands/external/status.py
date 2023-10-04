@@ -90,7 +90,7 @@ class Status(commands.Cog):
                 "description": f"""
                     Hypixel's current server information.
 
-                    ""**` > ` Status**: `{d.status}`
+                    **` > ` Status**: `{d.status}`
                     **` > ` IP**: **`{d.ip}`**
                     **` > ` Version**: `{d.version}`
 
