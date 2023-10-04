@@ -1,5 +1,4 @@
 {
-  "type": "dict",
   "embeds": [
     {
       "url": "https://namemc.com/profile/{uuid}",
