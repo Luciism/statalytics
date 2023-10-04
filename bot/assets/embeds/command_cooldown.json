@@ -1,6 +1,13 @@
 {
-  "type": "string",
+  "type": "dict",
   "embeds": [
-    "{{\"title\": \"Command on cooldown!\", \"description\": \"Wait another `{retry_after}` and try again!\\nPremium users bypass this restriction.\", \"thumbnail\": {{\"url\": \"https://statalytics.net/static/images/cooldown_hourglass.png\"}}, \"color\": 5793266}}"
+    {
+      "title": "Command on cooldown!",
+      "description": "Wait another `{retry_after}` and try again!\nPremium users bypass this restriction.",
+      "thumbnail": {
+        "url": "https://statalytics.net/static/images/cooldown_hourglass.png"
+      },
+      "color": 5793266
+    }
   ]
 }

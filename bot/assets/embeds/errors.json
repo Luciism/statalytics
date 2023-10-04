@@ -1,6 +1,10 @@
 {
-  "type": "string",
+  "type": "dict",
   "embeds": [
-    "{{\"title\": \"An error occured running /{command}\", \"description\": \"```{error}```\\nIf the problem persists, please [get in touch]({support_url})\", \"color\": 3092790}}"
+    {
+      "title": "An error occured running /{command}",
+      "description": "```{error}```\nIf the problem persists, please [get in touch]({support_url})",
+      "color": 3092790
+    }
   ]
 }

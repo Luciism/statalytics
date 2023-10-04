@@ -1,6 +1,14 @@
 {
-  "type": "string",
+  "type": "dict",
   "embeds": [
-    "{{\"url\": \"https://namemc.com/profile/{uuid}\", \"title\": \"{username}'s skin\", \"description\": \"Click [here](https://crafatar.com/skins/{uuid}) to download\", \"image\": {{\"url\": \"attachment://skin.png\"}}, \"color\": 3092790}}"
+    {
+      "url": "https://namemc.com/profile/{uuid}",
+      "title": "{username}'s skin",
+      "description": "Click [here](https://crafatar.com/skins/{uuid}) to download",
+      "image": {
+        "url": "attachment://skin.png"
+      },
+      "color": 3092790
+    }
   ]
 }

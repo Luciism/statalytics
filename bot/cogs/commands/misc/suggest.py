@@ -26,9 +26,17 @@ class SubmitSuggestion(CustomBaseModal, title='Submit Suggestion'):
         await run_interaction_checks(interaction)
 
         format_values = {
-            'user': interaction.user,
-            'discord_id': interaction.user.id,
-            'suggestion': str(self.suggestion)
+            'title': {
+                'user': interaction.user,
+                'discord_id': interaction.user.id
+            },
+            'fields': {
+                0: {
+                    'value': {
+                        'suggestion': str(self.suggestion)
+                    }
+                }
+            }
         }
         embeds = load_embeds('suggestion', format_values, color='primary')
 

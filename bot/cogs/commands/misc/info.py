@@ -44,7 +44,7 @@ class Info(commands.Cog):
         time_since_started = int(round(time.time() - start_time))
         uptime = str(datetime.timedelta(seconds=time_since_started))
 
-        config = get_config()
+        config: dict = get_config()
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
@@ -55,19 +55,32 @@ class Info(commands.Cog):
         ram_usage = round(process_mem / 1024 ** 2, 2)
 
         format_values = {
-            't': '┌', 'c': '├', 'b': '└', 'br': '\u200B',  # Special chars
-            'uptime': uptime,
-            'ping': f'{ping:,}',
-            'commands': f'{total_commands:,}',
-            'version': config['version'],
-            'servers': f'{total_guilds:,}',
-            'users': f'{total_users:,}',
-            'commands_ran': f'{commands_ran:,}',
-            'linked_users': f'{linked_accounts:,}',
-            'devs': ', '.join(config["developers"]),
-            'library': 'discord.py',
-            'python_ver': python_version,
-            'ram_usage': ram_usage
+            'fields': {
+                0: {
+                    'value': {
+                        'uptime': uptime,
+                        'ping': f'{ping:,}',
+                        'commands': f'{total_commands:,}',
+                        'version': config.get('version'),
+                    }
+                },
+                2: {
+                    'value': {
+                    'servers': f'{total_guilds:,}',
+                    'users': f'{total_users:,}',
+                    'commands_ran': f'{commands_ran:,}',
+                    'linked_users': f'{linked_accounts:,}'
+                    }
+                },
+                3: {
+                    'value': {
+                        'devs': ', '.join(config["developers"]),
+                        'library': 'discord.py',
+                        'python_ver': python_version,
+                        'ram_usage': ram_usage
+                    }
+                }
+            }
         }
 
         embeds = load_embeds('info', format_values, color='primary')

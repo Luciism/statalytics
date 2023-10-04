@@ -11,10 +11,8 @@ from aiohttp import ClientSession
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
-    load_embeds,
     run_interaction_checks
 )
-
 
 
 async def _fetch_server_status(api_key: str, ip: str):
@@ -31,6 +29,27 @@ async def _fetch_server_status(api_key: str, ip: str):
         # In case the API doesn't respond or reponds with HTML instead of JSON.
         data = {"success": False}
     return data
+
+
+class StatusData:
+    def __init__(self, data: dict) -> None:
+        self.now: int = int(time.time())
+        self.updated_timestamp: int = data['time']['last']
+
+        self.ip: str = data['ip']
+        self.status: str = 'Online' if data['online'] else 'Offline'
+        self.version: str = data['version']
+
+        self.ping: str = f"{data['ping']['last']:,}"
+        self.max_ping: str = f"{data['ping']['max']:,}"
+        self.avg_ping: str = f"{data['ping']['average']:,}"
+        self.min_ping: str = f"{data['ping']['min']:,}"
+
+        self.players: str = f"{data['players']['current']:,}"
+        self.max_players: str = f"{data['players']['server_max']:,}"
+        self.peak_players: str = f"{data['players']['max']:,}"
+        self.avg_players: str = f"{data['players']['average']:,}"
+        self.min_players: str = f"{data['players']['min']:,}"
 
 
 class Status(commands.Cog):
@@ -63,24 +82,72 @@ class Status(commands.Cog):
             return
 
         data = res["data"]
+        d = StatusData(data)
 
-        format_values = {
-            'now': int(time.time()),
-            'status': 'Online' if data['online'] else 'Offline',
-            'ip': data['ip'],
-            'version': data['version'],
-            'updated_timestamp': data['time']['last'],
-            'ping': f"{data['ping']['last']:,}",
-            'max_ping': f"{data['ping']['max']:,}",
-            'avg_ping': f"{data['ping']['average']:,}",
-            'min_ping': f"{data['ping']['min']:,}",
-            'players': f"{data['players']['current']:,}",
-            'max_players': f"{data['players']['server_max']:,}",
-            'peak_players': f"{data['players']['max']:,}",
-            'avg_players': f"{data['players']['average']:,}",
-            'min_players': f"{data['players']['min']:,}"
-        }
-        embeds = load_embeds('status_hypixel', format_values)
+        embeds = [
+            {
+                "title": "Hypixel Status",
+                "description": f"""
+                    Hypixel's current server information.
+
+                    ""**` > ` Status**: `{d.status}`
+                    **` > ` IP**: **`{d.ip}`**
+                    **` > ` Version**: `{d.version}`
+
+                    **` > ` Updated**: <t:{d.updated_timestamp}>
+                """.replace('\t', ''),
+                "footer": {
+                    "text": "Powered by api.polsu.xyz"
+                },
+                "thumbnail": {
+                    "url":
+                        f"https://api.polsu.xyz/assets/minecraft/server/icon/{d.ip}.png?t={d.now}"
+                },
+                "image": {
+                    "url":
+                        f"https://api.polsu.xyz/assets/minecraft/server/motd/{d.ip}.png?t={d.now}"
+                },
+                "color": 3092790
+            },
+            {
+                "title": "Ping",
+                "description": f"""
+                    **` > ` Ping**: `{d.ping}`
+
+                    **` > ` Max**: `{d.max_ping}`
+                    **` > ` Average**: `{d.avg_ping}`
+                    **` > ` Min**: `{d.min_ping}`
+                """.replace('\t', ''),
+                "footer": {
+                    "text": "UTC Time  -  Ping in ms (USA - Los Angeles)"
+                },
+                "image": {
+                    "url":
+                        f"https://api.polsu.xyz/assets/minecraft/server/ping/{d.ip}.png?t={d.now}"
+                },
+                "color": 3092790
+            },
+            {
+                "title": "Players",
+                "description": f"""
+                    **` > ` Players**: `{d.players} / {d.max_players}`
+
+                    **` > ` Peak**: `{d.peak_players}`
+                    **` > ` Average**: `{d.avg_players}`
+                    **` > ` Min**: `{d.min_players}`
+                """.replace('\t', ''),
+                "footer": {
+                    "text": "Hypixel Status"
+                },
+                "image": {
+                    "url":
+                        f"https://api.polsu.xyz/assets/minecraft/server/players/{d.ip}.png?t={d.now}"
+                },
+                "color": 3092790
+            }
+        ]
+
+        embeds = [discord.Embed.from_dict(embed) for embed in embeds]
         await interaction.followup.send(embeds=embeds)
 
         update_command_stats(interaction.user.id, 'status_hypixel')

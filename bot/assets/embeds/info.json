@@ -1,6 +1,44 @@
 {
-  "type": "string",
+  "type": "dict",
   "embeds": [
-    "{{\"title\": \"Statalytics Info\", \"color\": 3092790, \"thumbnail\": {{\"url\": \"https://statalytics.net/image/logo.png?v=2\"}}, \"fields\": [{{\"name\": \"Key Metrics\", \"value\": \"`{t}` **Uptime:** `{uptime}`\\n`{c}` **Ping:** `{ping}ms`\\n`{c}` **Commands:** `{commands}`\\n`{b}` **Version:** `{version}`\", \"inline\": true}}, {{\"name\": \"\", \"value\": \"\", \"inline\": true}}, {{\"name\": \"Bot Usage Stats\", \"value\": \"`{t}` **Servers:** `{servers}`\\n`{c}` **Users:** `{users}`\\n`{c}` **Commands Ran:** `{commands_ran}`\\n`{b}` **Linked Users**: `{linked_users}`\\n{br}\", \"inline\": true}}, {{\"name\": \"Specifications\",\"value\": \"`{t}` **Devs:** `{devs}`\\n`{c}` **Library:** `{library}`\\n`{c}` **Python:** `{python_ver}`\\n`{b}` **Used RAM:** `{ram_usage}mb`\", \"inline\": true}}, {{\"name\": \"\", \"value\": \"\", \"inline\": true}}, {{\"name\": \"Links\", \"value\": \"`{t}` [Invite](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\\n`{c}` [Website](https://statalytics.net/)\\n`{c}` [Support](https://discord.gg/rHmHZ9vvwE)\\n`{b}` [Github](https://github.com/oDepleted/statalytics)\", \"inline\": true}}]}}"
+    {
+      "title": "Statalytics Info",
+      "color": 3092790,
+      "thumbnail": {
+        "url": "https://statalytics.net/image/logo.png?v=2"
+      },
+      "fields": [
+        {
+          "name": "Key Metrics",
+          "value": "`\u250C` **Uptime:** `{uptime}`\n`\u251C` **Ping:** `{ping}ms`\n`\u251C` **Commands:** `{commands}`\n`\u2514` **Version:** `{version}`",
+          "inline": true
+        },
+        {
+          "name": "",
+          "value": "",
+          "inline": true
+        },
+        {
+          "name": "Bot Usage Stats",
+          "value": "`\u250C` **Servers:** `{servers}`\n`\u251C` **Users:** `{users}`\n`\u251C` **Commands Ran:** `{commands_ran}`\n`\u2514` **Linked Users**: `{linked_users}`\n\u200B",
+          "inline": true
+        },
+        {
+          "name": "Specifications",
+          "value": "`\u250C` **Devs:** `{devs}`\n`\u251C` **Library:** `{library}`\n`\u251C` **Python:** `{python_ver}`\n`\u2514` **Used RAM:** `{ram_usage}mb`",
+          "inline": true
+        },
+        {
+          "name": "",
+          "value": "",
+          "inline": true
+        },
+        {
+          "name": "Links",
+          "value": "`\u250C` [Invite](https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot)\n`\u251C` [Website](https://statalytics.net/)\n`\u251C` [Support](https://discord.gg/rHmHZ9vvwE)\n`\u2514` [Github](https://github.com/oDepleted/statalytics)",
+          "inline": true
+        }
+      ]
+    }
   ]
 }

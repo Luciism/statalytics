@@ -61,7 +61,6 @@ def has_auto_reset(
     return True
 
 
-
 # Used to get player bound reset times that are assigned automatically.
 def get_reset_time_default(uuid: PlayerUUID) -> tuple | None:
     """
@@ -311,7 +310,18 @@ def build_invalid_lookback_embeds(max_lookback) -> list:
     Responds to a interaction with an max lookback exceeded message
     :param max_lookback: The maximum lookback the user had availiable
     """
-    format_values = {'max_lookback': max_lookback}
+    format_values = {
+        'description': {
+            'max_lookback': max_lookback
+        },
+        'fields': {
+            0: {
+                'value': {
+                    'max_lookback': max_lookback
+                }
+            }
+        }
+    }
     embeds = load_embeds('max_lookback', format_values, color='primary')
 
     return embeds

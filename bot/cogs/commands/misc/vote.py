@@ -33,13 +33,22 @@ class Vote(commands.Cog):
             last_vote_timestamp = 'N/A'
 
         format_values = {
-            'top_gg': vote_links["top.gg"],
-            'discordbotlist_com': vote_links["discordbotlist.com"],
-            'discords_com': vote_links["discords.com"],
-            'last_vote': last_vote_timestamp,
-            'total_votes': total_votes
+            'fields': {
+                0: {
+                    'value': {
+                        'top_gg': vote_links["top.gg"],
+                        'discordbotlist_com': vote_links["discordbotlist.com"],
+                        'discords_com': vote_links["discords.com"]
+                    }
+                },
+                2: {
+                    'value': {
+                        'last_vote': last_vote_timestamp,
+                        'total_votes': total_votes
+                    }
+                }
+            }
         }
-
         embeds = load_embeds('vote', format_values, color='primary')
 
         await interaction.followup.send(embeds=embeds)

@@ -66,8 +66,15 @@ async def _handle_mojang_error(interaction: discord.Interaction):
         pass
 
 
-async def _handle_cooldown_error(interaction: discord.Interaction, error: Exception):
-    format_values = {'retry_after': round(error.retry_after, 2)}
+async def _handle_cooldown_error(
+    interaction: discord.Interaction,
+    error: discord.app_commands.CommandOnCooldown
+):
+    format_values = {
+        'description': {
+            'retry_after': round(error.retry_after, 2)
+        }
+    }
     embeds = load_embeds('command_cooldown', format_values, color='warning')
     await interaction.response.send_message(embeds=embeds, ephemeral=True)
 
