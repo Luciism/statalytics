@@ -7,7 +7,7 @@ from ..handlers import handle_interaction_errors
 class CustomBaseView(discord.ui.View):
     async def on_error(
         self,
-        interaction: discord.Interaction[discord.Client],
+        interaction: discord.Interaction,
         error: Exception,
         item: discord.ui.Item[Any]
     ) -> None:
@@ -17,7 +17,7 @@ class CustomBaseView(discord.ui.View):
 class CustomBaseModal(discord.ui.Modal):
     async def on_error(
         self,
-        interaction: discord.Interaction[discord.Client],
+        interaction: discord.Interaction,
         error: Exception
     ) -> None:
         await handle_interaction_errors(interaction, error)
