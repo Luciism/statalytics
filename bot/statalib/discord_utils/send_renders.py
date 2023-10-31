@@ -4,6 +4,7 @@ import random
 import asyncio
 
 import discord
+from discord.utils import MISSING
 
 from ..functions import REL_PATH
 from ..permissions import has_access
@@ -33,14 +34,16 @@ async def handle_modes_renders(
     interaction: discord.Interaction,
     func: object,
     kwargs: dict,
-    message=None
-):
+    message=None,
+    custom_view: discord.ui.View=None
+) -> None:
     """
     Renders and sends all modes to discord for the selected render
     :param interaction: the relative discord interaction object
     :param func: the function object to render with
     :param kwargs: the keyword arguments needed to render the image
     :param message: the message to send to discord with the image
+    :param view: a discord view to merge with the sent view
     """
     if not message:
         message = discord_message(interaction.user.id)
@@ -51,6 +54,10 @@ async def handle_modes_renders(
         inter=interaction,
         mode='Select a mode'
     )
+
+    if view:
+        for child in custom_view.children:
+            view.add_item(child)
 
     image = discord.File(
         f"{REL_PATH}/database/rendered/{interaction.id}/overall.png")

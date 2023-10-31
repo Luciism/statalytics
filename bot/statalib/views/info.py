@@ -62,6 +62,10 @@ class OtherInfoButton(CustomBaseView):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Other', 'help/other'))
 
+class TrackerResettingInfoButton(CustomBaseView):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(InfoButton('Historical Resetting', 'tracker_resetting'))
 
 class HelpMenuButtons(CustomBaseView):
     def __init__(self):
@@ -83,3 +87,4 @@ def add_info_view(client: discord.Client):
     client.add_view(LinkingInfoButton())
     client.add_view(OtherInfoButton())
     client.add_view(HelpMenuButtons())
+    client.add_view(TrackerResettingInfoButton())

@@ -31,7 +31,7 @@
     "embed_warning_color": "FFE100",
     "tracker_resetting": {
         "automatic": {
-            "whitelist_only": false,
+            "whitelist_only": true,
             "uuid_whitelist": [
                 "bcc52cc103a3486aa822cc0853d60b3e",
                 "13b272aca6184383bba8a240beb4cf5c"

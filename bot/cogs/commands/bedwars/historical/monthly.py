@@ -22,7 +22,8 @@ from statalib import (
     timezone_relative_timestamp,
     pluralize,
     has_auto_reset,
-    run_interaction_checks
+    run_interaction_checks,
+    tracker_view
 )
 
 
@@ -97,7 +98,8 @@ class Monthly(commands.Cog):
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
-            message=message
+            message=message,
+            custom_view=tracker_view()
         )
         update_command_stats(interaction.user.id, 'monthly')
 
