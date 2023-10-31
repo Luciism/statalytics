@@ -2,7 +2,7 @@
     "loading_message": "Lagging back <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
     "bot_id": 903765373181112360,
-    "version": "1.13.1",
+    "version": "1.13.2",
     "developers": [
         "lukism"
     ],
@@ -140,7 +140,7 @@
         "website": "https://statalytics.net/",
         "support_server": "https://discord.gg/rHmHZ9vvwE",
         "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
-        "github": "https://github.com/oDepleted/statalytics",
+        "github": "https://github.com/Luciism/statalytics",
         "voting": {
             "top.gg": "https://top.gg/bot/903765373181112360/vote",
             "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
