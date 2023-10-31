@@ -6,7 +6,7 @@ from json import JSONDecodeError
 from http.client import RemoteDisconnected
 
 from requests import ReadTimeout, ConnectTimeout
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ContentTypeError
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
 from .functions import REL_PATH
@@ -33,6 +33,27 @@ SkinStyle = Literal[
 ]
 
 
+async def __make_hypixel_request(
+    session: ClientSession,
+    uuid: str
+) -> dict:
+    api_key = getenv('API_KEY_HYPIXEL')
+
+    options = {
+        'url': f"https://api.hypixel.net/player?uuid={uuid}",
+        'headers': {"API-Key": api_key},
+        'timeout': 5
+    }
+
+    # fetch hypixel data
+    hypixel_data = await (await session.get(**options)).json()
+
+    # reset trackers using the data if they are due
+    await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
+
+    return hypixel_data
+
+
 async def fetch_hypixel_data(
     uuid: PlayerUUID,
     cache: bool = True,
@@ -49,28 +70,17 @@ async def fetch_hypixel_data(
     :param retries: Number of retries in case of a failed request.
     :param retry_delay: Delay (in seconds) between retries.
     """
-    api_key = getenv('API_KEY_HYPIXEL')
-
-    options = {
-        'url': f"https://api.hypixel.net/player?uuid={uuid}",
-        'headers': {"API-Key": api_key},
-        'timeout': 5
-    }
     for attempt in range(retries + 1):
         try:
             if not cache:
                 async with ClientSession() as session:
-                    hypixel_data = await (await session.get(**options)).json()
-                    await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
-                    return hypixel_data
+                    return await __make_hypixel_request(session, uuid)
 
             async with CachedSession(cache=cached_session) as session:
-                hypixel_data = await (await session.get(**options)).json()
-                await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
-                return hypixel_data
+                return await __make_hypixel_request(session, uuid)
 
         except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError,
-                JSONDecodeError, RemoteDisconnected) as exc:
+                JSONDecodeError, RemoteDisconnected, ContentTypeError) as exc:
             if attempt < retries:
                 logger.warning(
                     f"Hypixel request failed. Retrying in {retry_delay} seconds...")
