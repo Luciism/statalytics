@@ -173,11 +173,11 @@ def get_user_total() -> int:
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
 
-        cursor.execute('SELECT COUNT(discord_id) FROM command_usage')
+        cursor.execute('SELECT COUNT(account_id) FROM accounts')
         result = cursor.fetchone()
 
     if result:
-        return result[0] - 1
+        return result[0]
     return 0
 
 
