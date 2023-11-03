@@ -43,7 +43,7 @@ async def log_error_msg(client: discord.Client, error: Exception):
         await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
 
 
-async def _handle_hypixel_error(interaction: discord.Interaction):
+async def handle_hypixel_error(interaction: discord.Interaction):
     try:
         embeds = load_embeds('hypixel_connection_error', color='danger')
         button = discord.ui.Button(
@@ -126,7 +126,7 @@ async def handle_interaction_errors(
         return
 
     if isinstance(error, HypixelInvalidResponseError):
-        await _handle_hypixel_error(interaction)
+        await handle_hypixel_error(interaction)
         return
 
     if isinstance(error, MojangInvalidResponseError):
