@@ -116,7 +116,6 @@ async def handle_interaction_errors(
         return
 
     if isinstance(error, UserBlacklistedError):
-        print('blacklisted error, returning')
         return
 
     if isinstance(error, MissingPermissionsError):
