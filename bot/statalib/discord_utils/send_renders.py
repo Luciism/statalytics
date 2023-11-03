@@ -55,7 +55,7 @@ async def handle_modes_renders(
         mode='Select a mode'
     )
 
-    if view:
+    if custom_view is not None:
         for child in custom_view.children:
             view.add_item(child)
 
