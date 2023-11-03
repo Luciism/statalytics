@@ -79,7 +79,7 @@ async def _handle_cooldown_error(
     await interaction.response.send_message(embeds=embeds, ephemeral=True)
 
 
-async def _handle_remaining_tree_errors(
+async def handle_remaining_tree_errors(
     interaction: discord.Interaction,
     error: Exception
 ):
@@ -133,4 +133,4 @@ async def handle_interaction_errors(
         await _handle_mojang_error(interaction)
         return
 
-    await _handle_remaining_tree_errors(interaction, error)
+    await handle_remaining_tree_errors(interaction, error)
