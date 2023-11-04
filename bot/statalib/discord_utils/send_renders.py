@@ -51,8 +51,8 @@ async def handle_modes_renders(
     os.makedirs(f'{REL_PATH}/database/rendered/{interaction.id}')
     await func(mode="Overall", **kwargs)
     view = ModesView(
-        inter=interaction,
-        mode='Select a mode'
+        interaction_origin=interaction,
+        placeholder='Select a mode'
     )
 
     if custom_view is not None:
