@@ -1,7 +1,7 @@
 import logging
 from typing import Callable
 
-from aiohttp import ContentTypeError
+from aiohttp import ContentTypeError, ClientConnectionError
 from discord import Interaction, Embed
 
 from .responses import interaction_send_object
@@ -46,7 +46,7 @@ async def fetch_player_info(
         if uuid:
             try:
                 name = await AsyncFetchPlayer2(uuid, cache_backend=mojang_session).name
-            except ContentTypeError as exc:
+            except (ContentTypeError, ClientConnectionError) as exc:
                 raise MojangInvalidResponseError from exc
 
             update_autofill(interaction.user.id, uuid, name)
@@ -69,7 +69,7 @@ async def fetch_player_info(
         try:
             name = await player_data.name
             uuid = await player_data.uuid
-        except ContentTypeError as exc:
+        except (ContentTypeError, ClientConnectionError) as exc:
             raise MojangInvalidResponseError from exc
 
         if name is None:
