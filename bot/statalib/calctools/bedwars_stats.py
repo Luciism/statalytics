@@ -63,9 +63,10 @@ class BedwarsStats:
         self.loot_chests_christmas = self._bedwars_data.get('bedwars_christmas_boxes', 0)
         self.loot_chests_easter = self._bedwars_data.get('bedwars_easter_boxes', 0)
         self.loot_chests_halloween = self._bedwars_data.get('bedwars_halloween_boxes', 0)
+        self.loot_chests_golden = self._bedwars_data.get('bedwars_golden_boxes', 0)
 
-        self.loot_chests = int(self.loot_chests_regular + self.loot_chests_christmas
-            + self.loot_chests_easter + self.loot_chests_halloween)
+        self.loot_chests = int(self.loot_chests_regular + self.loot_chests_christmas +
+            self.loot_chests_easter + self.loot_chests_halloween + self.loot_chests_golden)
 
         self.coins = self._bedwars_data.get('coins', 0)
 
