@@ -70,8 +70,17 @@ class Monthly(commands.Cog):
         if has_auto_reset(uuid):
             next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
             if now >= next_occurrence:
-                next_occurrence = next_occurrence.replace(
-                    day=1, month=next_occurrence.month + 1)
+                next_month = next_occurrence.month + 1
+
+                if next_month > 12:
+                    # wrap to the next year
+                    next_year = next_occurrence.year + next_month // 12
+                    next_month = next_month % 12
+
+                    next_occurrence = next_occurrence.replace(
+                        day=1, month=next_month, year=next_year)
+                else:
+                    next_occurrence = next_occurrence.replace(day=1, month=next_month)
 
             while next_occurrence.day != 1:
                 next_occurrence += timedelta(days=1)
