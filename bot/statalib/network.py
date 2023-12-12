@@ -9,7 +9,7 @@ from requests import ReadTimeout, ConnectTimeout
 from aiohttp import ClientSession, ContentTypeError
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
-from .functions import REL_PATH
+from .functions import get_config, REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
 from .aliases import PlayerUUID
 from .historical import manual_tracker_reset
@@ -133,6 +133,7 @@ async def fetch_hypixel_data_rate_limit_safe(
 
 def skin_from_file(skin_type: str='bust') -> bytes:
     """Loads a steve skin from file"""
+    print('loading from file')
     with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
         return skin.read()
 
@@ -150,8 +151,12 @@ async def fetch_skin_model(
     """
     options = {
         'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
-        'timeout': 5
+        'timeout': 5,
+        'headers': {
+            'User-Agent': f'Statalytics {get_config("version")}'
+        }
     }
+
     try:
         async with CachedSession(cache=skin_session) as session:
             res_content = (await session.get(**options)).content
