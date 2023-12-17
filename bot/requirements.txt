@@ -1,4 +1,4 @@
-requests==2.25.1  # used in mcfetch
+requests==2.31.0  # used in mcfetch
 requests-cache==1.0.1
 discord.py==2.2.3
 Pillow==10.0.1
