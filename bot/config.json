@@ -46,7 +46,7 @@
                 "automatic_tracker_reset",
                 "custom_backgrounds",
                 "voter_themes",
-                "year_2025",
+                "year_2026",
                 "autofill",
                 "cooldown_bypass",
                 "no_tips"
@@ -63,7 +63,7 @@
         "basic": {
             "permissions": [
                 "voter_themes",
-                "year_2025",
+                "year_2026",
                 "autofill",
                 "cooldown_bypass",
                 "no_tips"

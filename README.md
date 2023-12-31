@@ -27,7 +27,7 @@ Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with 
 #### Projections & Predictions
 | Command | Function |
 | ------- | -------- |
-| `/year 2024` | View projected next years stats a player (requires session)|
+| `/year 2025` | View projected next years stats for a player (requires session)|
 | `/prestige` | View projected stats of a player (requires session)|
 | `/milestones` | View milestone stats of any player |
 
