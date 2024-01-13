@@ -23,7 +23,8 @@ class BedwarsStats:
         self._strict_mode = strict_mode
         self._hypixel_data = get_player_dict(hypixel_data)
 
-        self._bedwars_data = self._hypixel_data.get('stats', {}).get('Bedwars', {})
+        self._bedwars_data: dict | None = \
+            self._hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.title_mode = real_title_case(strict_mode or 'overall')
 

@@ -1,8 +1,8 @@
 {
-    "loading_message": "Fighting kangaroos <a:loading1:1062561739989860462>",
+    "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
     "bot_name": "Statalytics",
     "bot_id": 903765373181112360,
-    "version": "1.13.7",
+    "version": "1.14.0",
     "developers": [
         "lukism"
     ],
@@ -171,6 +171,7 @@
         "commands.misc.vote",
 
         "commands.bedwars.year",
+        "commands.bedwars.winstreaks",
         "commands.bedwars.sessions",
         "commands.bedwars.projection",
         "commands.bedwars.shop",
