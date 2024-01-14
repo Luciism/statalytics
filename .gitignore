@@ -1,14 +1,9 @@
-**/custom/
 **/logs/
 **/__pycache__/
 **/.env
 **/.cache/
 **/test.py
-bot/database/
-bot/cache/
-website/
-utils/
-api/
 .vscode/
 .devtools/
 desktop.ini
+.git

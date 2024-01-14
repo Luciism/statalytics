@@ -1,0 +1,9 @@
+{
+  "apps": {
+    "bot": {},
+    "api": {},
+    "backend": {},
+    "website": {}
+  },
+  "global": {}
+}

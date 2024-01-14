@@ -1,9 +1,0 @@
-{
-  "embeds": [
-    {
-      "title": "You are blacklisted!",
-      "description": "You are currently unable to access commands due to an active blacklist on your account!",
-      "color": 3092790
-    }
-  ]
-}

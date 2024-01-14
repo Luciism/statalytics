@@ -1,9 +1,0 @@
-{
-  "embeds": [
-    {
-      "title": "Missing permissions!",
-      "description": "You do not have the required permissions to access this command!",
-      "color": 3092790
-    }
-  ]
-}
