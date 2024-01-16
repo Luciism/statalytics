@@ -1,18 +1,24 @@
 # api.antisniper.net
 
+import asyncio
 import typing
 import discord
+from http.client import RemoteDisconnected
+from json import JSONDecodeError
 from os import getenv
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ContentTypeError, ClientConnectionError
 from discord import app_commands
 from discord.ext import commands
+from requests import ReadTimeout, ConnectTimeout
+
 
 from statalib import (
     generic_command_cooldown,
     update_command_stats,
     get_embed_color,
-    run_interaction_checks
+    run_interaction_checks,
+    load_embeds
 )
 
 
@@ -33,7 +39,6 @@ class Denick(commands.Cog):
         return data
 
 
-
     async def fetch_denick_data(self, mode: str, count: int):
         api_key = getenv('API_KEY_ANTISNIPER')
 
@@ -43,8 +48,13 @@ class Denick(commands.Cog):
             'headers': {'Apikey': api_key},
             'timeout': 10
         }
-        async with ClientSession() as session:
-            return await (await session.get(**options)).json()
+
+        try:
+            async with ClientSession() as session:
+                return await (await session.get(**options)).json()
+        except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError,
+                JSONDecodeError, RemoteDisconnected, ContentTypeError, ClientConnectionError):
+            return None
 
 
     @app_commands.command(
@@ -62,11 +72,16 @@ class Denick(commands.Cog):
         await run_interaction_checks(interaction)
 
         mode = mode.lower()
-        if not mode in ('finals', 'beds'):
+        if mode not in ('finals', 'beds'):
             await interaction.followup.send('Invalid mode! Valid options: (finals / beds)')
             return
 
         data = await self.fetch_denick_data(mode, count)
+
+        if data is None:
+            await interaction.followup.send(
+                embeds=load_embeds('antisniper_connection_error', color='danger'))
+            return
 
         embed_color = get_embed_color(embed_type='primary')
         embed = discord.Embed(
