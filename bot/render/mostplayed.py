@@ -54,8 +54,8 @@ def render_mostplayed(
     for i, value in enumerate(ratios):
         height = 250 if value * 500 > 250 else value * 500
 
-        top_left = (positions[i][0] + 77, positions[i][1] - height)
-        bottom_right = positions[i]
+        top_left = (positions[i][0], positions[i][1] - height)
+        bottom_right = (positions[i][0] + 77, positions[i][1])
         draw.rectangle((top_left, bottom_right), fill=color)
 
     base_image = Image.alpha_composite(base_image, bar_plot_img)
