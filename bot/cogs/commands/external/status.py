@@ -76,7 +76,7 @@ class Status(commands.Cog):
         if not res["success"]:
             await interaction.followup.send(
                 content="Something went while contacting"
-                        "`api.polsu.xyz`!\nPlease try again layer",
+                        "`api.polsu.xyz`!\nPlease try again later.",
                 ephemeral=True
             )
             return
