@@ -129,7 +129,7 @@ class PrestigeColorMaps:
         2200: (c['gold'], c['gold'], c['white'], c['white'], c['aqua'], c['dark_aqua'], c['dark_aqua']),
         2100: (c['white'], c['white'], c['yellow'], c['yellow'], c['gold'], c['gold'], c['gold']),
         2000: (c['dark_gray'], c['gray'], c['white'], c['white'], c['gray'], c['gray'], c['dark_gray']),
-        1900: (c['gray'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['gray'], c['gray']),
+        1900: (c['gray'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['dark_gray'], c['gray']),
         1800: (c['gray'], c['blue'], c['blue'], c['blue'], c['blue'], c['dark_blue'], c['gray']),
         1700: (c['gray'], c['light_purple'], c['light_purple'], c['light_purple'], c['light_purple'], c['dark_purple'], c['gray']),
         1600: (c['gray'], c['red'], c['red'], c['red'], c['red'], c['dark_red'], c['gray']),
