@@ -71,7 +71,7 @@ class BedwarsStats:
 
         self.coins = self._bedwars_data.get('coins', 0)
 
-        self.winstreak = self._bedwars_data.get('winstreak')
+        self.winstreak = self._get_mode_stats('winstreak')
         if self.winstreak is not None:
             self.winstreak_str = f'{self.winstreak:,}'
         else:
