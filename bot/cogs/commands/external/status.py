@@ -75,7 +75,7 @@ class Status(commands.Cog):
 
         if not res["success"]:
             await interaction.followup.send(
-                content="Something went while contacting"
+                content="Something went wrong while contacting"
                         "`api.polsu.xyz`!\nPlease try again later.",
                 ephemeral=True
             )
@@ -101,11 +101,11 @@ class Status(commands.Cog):
                 },
                 "thumbnail": {
                     "url":
-                        f"https://api.polsu.xyz/assets/minecraft/server/icon/{d.ip}.png?t={d.now}"
+                        f"https://assets.polsu.xyz/minecraft/server/icon/{d.ip}.png?t={d.now}"
                 },
                 "image": {
                     "url":
-                        f"https://api.polsu.xyz/assets/minecraft/server/motd/{d.ip}.png?t={d.now}"
+                        f"https://assets.polsu.xyz/minecraft/server/motd/{d.ip}.png?t={d.now}"
                 },
                 "color": 3092790
             },
@@ -123,7 +123,7 @@ class Status(commands.Cog):
                 },
                 "image": {
                     "url":
-                        f"https://api.polsu.xyz/assets/minecraft/server/ping/{d.ip}.png?t={d.now}"
+                        f"https://assets.polsu.xyz/minecraft/server/ping/{d.ip}.png?t={d.now}"
                 },
                 "color": 3092790
             },
@@ -141,7 +141,7 @@ class Status(commands.Cog):
                 },
                 "image": {
                     "url":
-                        f"https://api.polsu.xyz/assets/minecraft/server/players/{d.ip}.png?t={d.now}"
+                        f"https://assets.polsu.xyz/minecraft/server/players/{d.ip}.png?t={d.now}"
                 },
                 "color": 3092790
             }
