@@ -11,7 +11,7 @@ from ..views import add_info_view
 logger = logging.getLogger('statalytics')
 
 
-class Client(commands.Bot):
+class Client(commands.AutoShardedBot):
     def __init__(self, *, intents: discord.Intents=None):
         if intents is None:
             intents = discord.Intents(messages=True)
