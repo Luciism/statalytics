@@ -9,6 +9,6 @@ bot/cache/
 website/
 utils/
 api/
-# .vscode/
+.vscode/
 .devtools/
 desktop.ini
