@@ -1,6 +1,5 @@
 """A set of useful functions used throughout the bot"""
 
-import os
 import json
 import time
 import random
@@ -14,9 +13,8 @@ from datetime import datetime, timedelta
 import discord
 
 from .aliases import PlayerUUID
-
-
-REL_PATH = os.path.abspath(f'{__file__}/../..')
+from .cfg import config
+from .common import REL_PATH
 
 
 def to_thread(func: typing.Callable) -> typing.Coroutine:
@@ -26,30 +24,11 @@ def to_thread(func: typing.Callable) -> typing.Coroutine:
     return wrapper
 
 
-def get_config(path: str=None):
-    """
-    Returns contents of the `config.json` file
-    :param path: the json path to the value for example `key_1.key_2`
-    """
-    with open(f'{REL_PATH}/config.json', 'r') as datafile:
-        config_data = json.load(datafile)
-
-    if path:
-        for key in path.split('.'):
-            config_data = config_data[key]
-
-    return config_data
-
-
-STATIC_CONFIG = get_config()
-
-
 def get_embed_color(embed_type: str) -> int:
     """
     Returns a base 16 integer from a hex code.
     :param embed_type: the embed color type (primary, warning, danger)
     """
-    config = get_config()
     return int(config[f'embed_{embed_type}_color'], base=16)
 
 
@@ -57,7 +36,7 @@ def loading_message() -> str:
     """
     Returns loading message from the `config.json` file
     """
-    return STATIC_CONFIG.get('loading_message')
+    return config('loading_message')
 
 
 def _get_voting_data(discord_id: int, cursor: sqlite3.Cursor) -> tuple:

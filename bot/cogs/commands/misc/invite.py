@@ -14,7 +14,7 @@ class Invite(commands.Cog):
         name='invite',
         description='Invite Statalytics to your server')
     async def invite(self, interaction: discord.Interaction):
-        invite_url = lib.get_config('links.invite_url')
+        invite_url = lib.config('links.invite_url')
 
         await interaction.response.send_message(
             f'To add Statalytics to your server, click [here]({invite_url})')

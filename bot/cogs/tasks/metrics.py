@@ -40,7 +40,7 @@ class Metrics(commands.Cog):
             'servers': len(self.client.guilds)
         }
 
-        channels_config: dict = lib.get_config('metrics_channels')
+        channels_config: dict = lib.config('metrics_channels')
 
         for key, value in metrics.items():
             channel_name = channels_config[key]['name']

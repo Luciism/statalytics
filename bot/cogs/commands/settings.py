@@ -114,7 +114,7 @@ class SettingsButtons(lib.CustomBaseView):
         embeds = lib.load_embeds('active_theme', color='primary')
 
         owned_themes = lib.get_owned_themes(interaction.user.id)
-        theme_packs: dict = lib.get_config('theme_packs')
+        theme_packs: dict = lib.config('theme_packs')
 
         # themes available to anyone through voting
         available_themes: dict = theme_packs['voter_themes']

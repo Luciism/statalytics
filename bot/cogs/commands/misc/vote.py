@@ -15,7 +15,7 @@ class Vote(commands.Cog):
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)
 
-        vote_links = lib.get_config('links.voting')
+        vote_links = lib.config('links.voting')
 
         voting_data = lib.get_voting_data(interaction.user.id)
         if voting_data:

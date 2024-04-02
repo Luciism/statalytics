@@ -4,9 +4,8 @@ import random
 import asyncio
 
 import discord
-from discord.utils import MISSING
 
-from ..functions import REL_PATH
+from ..common import REL_PATH
 from ..permissions import has_access
 from ..views.modes import ModesView
 

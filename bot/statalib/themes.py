@@ -1,7 +1,8 @@
 import sqlite3
 
 from .errors import ThemeNotFoundError
-from .functions import get_config, REL_PATH
+from .cfg import config
+from .common import REL_PATH
 
 
 def get_owned_themes(discord_id: int) -> list:
@@ -25,7 +26,7 @@ def get_voter_themes() -> list:
     """
     Returns a list of voter themes
     """
-    config_data = get_config()
+    config_data = config()
     themes: dict = config_data['theme_packs']['voter_themes']
 
     return list(themes.keys())
@@ -35,7 +36,7 @@ def get_exclusive_themes() -> list:
     """
     Returns a list of exclusive themes
     """
-    config_data = get_config()
+    config_data = config()
     themes: dict = config_data['theme_packs']['exclusive_themes']
 
     return list(themes.keys())
@@ -47,7 +48,7 @@ def get_theme_properties(theme_name: str) -> dict:
     Works for both voter and exclusive themes.
     :param theme_name: the name of the theme to get the properties of
     """
-    theme_packs: dict = get_config('theme_packs')
+    theme_packs: dict = config('theme_packs')
 
     theme_properties = theme_packs.get('voter_themes', {}).get(theme_name)
 

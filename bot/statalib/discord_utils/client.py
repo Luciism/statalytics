@@ -5,7 +5,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from ..functions import get_config
+from ..cfg import config
 from ..views import add_info_view
 
 logger = logging.getLogger('statalytics')
@@ -23,7 +23,7 @@ class Client(commands.AutoShardedBot):
         )
 
     async def setup_hook(self):
-        cogs = get_config('enabled_cogs')
+        cogs = config('enabled_cogs')
         for ext in cogs:
             try:
                 await self.load_extension(f'cogs.{ext}')

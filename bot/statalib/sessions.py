@@ -1,12 +1,10 @@
 import sqlite3
 from datetime import datetime
 
+from .cfg import config
 from .calctools import get_player_dict
 from .aliases import PlayerUUID
-from .functions import (
-    get_config,
-    REL_PATH
-)
+from .common import REL_PATH
 
 
 async def start_session(
@@ -22,7 +20,7 @@ async def start_session(
     """
     hypixel_data = get_player_dict(hypixel_data)
 
-    stat_keys = get_config('tracked_bedwars_stats')
+    stat_keys = config('tracked_bedwars_stats')
 
     stat_values = {
         "session": session,

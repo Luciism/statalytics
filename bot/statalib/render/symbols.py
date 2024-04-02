@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
-from ..functions import REL_PATH
+from ..common import REL_PATH
 from .colors import Colors
 from .tools import mc_text_shadow
 

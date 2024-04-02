@@ -4,7 +4,7 @@ from PIL import Image, ImageFont
 
 from .text import render_mc_text, get_actual_text, get_text_len
 from .colors import Colors, get_formatted_level
-from ..functions import REL_PATH
+from ..common import REL_PATH
 
 
 def get_rank_prefix(rank_info: dict):

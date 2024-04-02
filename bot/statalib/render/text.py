@@ -2,7 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
 
-from ..functions import REL_PATH
+from ..common import REL_PATH
 from .splitting import split_string, split_at_symbols
 from .colors import Colors
 from .tools import mc_text_shadow

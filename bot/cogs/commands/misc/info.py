@@ -36,7 +36,7 @@ class Info(commands.Cog):
         time_since_started = int(round(time.time() - start_time))
         uptime = str(datetime.timedelta(seconds=time_since_started))
 
-        config: dict = lib.get_config()
+        config: dict = lib.config()
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))

@@ -9,7 +9,8 @@ from requests import ReadTimeout, ConnectTimeout
 from aiohttp import ClientSession, ContentTypeError
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
-from .functions import get_config, REL_PATH
+from .cfg import config
+from .common import REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
 from .aliases import PlayerUUID
 from .historical import manual_tracker_reset
@@ -153,7 +154,7 @@ async def fetch_skin_model(
         'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
         'timeout': 5,
         'headers': {
-            'User-Agent': f'Statalytics {get_config("version")}'
+            'User-Agent': f'Statalytics {config("version")}'
         }
     }
 

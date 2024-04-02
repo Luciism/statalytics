@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from os import getenv
 
 from discord.ext import commands, tasks
@@ -21,7 +21,7 @@ from statalib import (
     get_reset_time,
     get_player_dict,
     get_level,
-    get_config,
+    config,
     has_auto_reset,
     PlayerUUID
 )
@@ -127,9 +127,9 @@ async def on_command_error(_, __):
 async def reset_trackers():
     fetched_players = []
 
-    auto_reset_config: dict = get_config('tracker_resetting.automatic') or {}
+    auto_reset_config: dict = config('tracker_resetting.automatic') or {}
 
-    utc_now = datetime.utcnow()
+    utc_now = datetime.now(UTC)
 
     with sqlite3.connect('database/core.db') as conn:
         cursor = conn.cursor()

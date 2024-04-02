@@ -3,7 +3,7 @@ import typing
 
 from discord import app_commands, Interaction
 
-from .functions import REL_PATH
+from .common import REL_PATH
 from .linking import get_linked_player
 from .mcfetch import AsyncFetchPlayer
 

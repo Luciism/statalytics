@@ -4,10 +4,8 @@ from .mcfetch import AsyncFetchPlayer
 from .sessions import start_session, find_dynamic_session
 from .permissions import has_access
 from .aliases import PlayerName, PlayerUUID
-from .functions import (
-    insert_growth_data,
-    REL_PATH
-)
+from .functions import insert_growth_data
+from .common import REL_PATH
 
 
 def get_linked_total() -> int:

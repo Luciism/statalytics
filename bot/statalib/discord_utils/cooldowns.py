@@ -6,7 +6,8 @@ from discord import app_commands
 
 from ..subscriptions import get_user_property
 from ..permissions import has_access
-from ..functions import get_voting_data, get_config
+from ..cfg import config
+from ..functions import get_voting_data
 
 
 def generic_command_cooldown(
@@ -27,7 +28,7 @@ def generic_command_cooldown(
 
     if voting_data:
         hours_since_voted = (time.time() - voting_data[3]) / 3600
-        rewards_duration = get_config('voter_reward_duration_hours')
+        rewards_duration = config('voter_reward_duration_hours')
 
         if (hours_since_voted < rewards_duration):
             return app_commands.Cooldown(1, 1.75)

@@ -5,7 +5,8 @@ from traceback import format_exception
 import discord
 from discord import app_commands
 
-from .functions import get_config, load_embeds, get_embed_color
+from .cfg import config
+from .functions import load_embeds, get_embed_color
 from .errors import (
     UserBlacklistedError,
     MissingPermissionsError,
@@ -31,7 +32,7 @@ async def log_error_msg(client: discord.Client, error: Exception):
     if getenv('ENVIRONMENT') == 'development' or not client:
         return
 
-    config = get_config()
+    config = config()
     await client.wait_until_ready()
     channel = client.get_channel(config.get('error_logs_channel_id'))
 
@@ -83,7 +84,7 @@ async def handle_remaining_tree_errors(
     interaction: discord.Interaction,
     error: Exception
 ):
-    support_url = get_config('links.support_server')
+    support_url = config('links.support_server')
     embed = discord.Embed(
         title=f'An error occured running /{interaction.data["name"]}',
         description=f'```{error}```\nIf the problem persists, '

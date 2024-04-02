@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 from typing import NamedTuple
 
-from .functions import REL_PATH
+from .common import REL_PATH
 
 
 class AccountDataTuple(NamedTuple):

@@ -2,7 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
 
-from ..functions import REL_PATH
+from ..common import REL_PATH
 from .colors import get_formatted_level
 from .usernames import render_level
 from .text import (

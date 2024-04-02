@@ -3,7 +3,9 @@ import sqlite3
 from typing import Any
 from datetime import datetime
 
-from .functions import get_timestamp, get_config, REL_PATH
+from .cfg import config
+from .common import REL_PATH
+from .functions import get_timestamp
 
 
 def get_all_subscription_data(discord_id: int) -> tuple | None:
@@ -271,7 +273,7 @@ def get_package_permissions(package: str) -> list:
     Returns a list of the configured permissions for a given package
     :param package: the package to get the permissions of
     """
-    packages_config: dict[str, dict[str, list]] = get_config('packages')
+    packages_config: dict[str, dict[str, list]] = config('packages')
 
     package_perms = packages_config.get(package, {}).get('permissions', [])
     return package_perms
@@ -289,7 +291,7 @@ def get_package_property(
     :param prop: the property name to get the value of
     :param default: the default value to return if no value is found
     """
-    packages_config: dict[str, dict[str, dict]] = get_config('packages')
+    packages_config: dict[str, dict[str, dict]] = config('packages')
     properties = packages_config.get(package, {}).get('properties', {})
 
     return properties.get(prop, default)

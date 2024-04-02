@@ -1,6 +1,7 @@
 import sqlite3
 
-from .functions import comma_separated_to_list, REL_PATH
+from .functions import comma_separated_to_list
+from .common import REL_PATH
 from .subscriptions import get_subscription, get_package_permissions
 from .accounts import create_account
 

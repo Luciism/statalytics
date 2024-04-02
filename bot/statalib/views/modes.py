@@ -3,7 +3,7 @@ import shutil
 
 import discord
 
-from ..functions import REL_PATH
+from ..common import REL_PATH
 from ..calctools import real_title_case
 from .custom import CustomBaseView
 

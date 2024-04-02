@@ -9,15 +9,13 @@ from typing import Literal
 
 from .errors import NoLinkedAccountError
 from .calctools import get_player_dict, get_level
+from .cfg import config
+from .common import REL_PATH
 from .linking import get_linked_player, uuid_to_discord_id
 from .subscriptions import get_user_property
 from .aliases import PlayerUUID
 from .permissions import has_access
-from .functions import (
-    REL_PATH,
-    get_config,
-    load_embeds
-)
+from .functions import load_embeds
 
 
 warnings.simplefilter('always', DeprecationWarning)
@@ -39,7 +37,7 @@ def has_auto_reset(
     that can be injected, otherwise the one `config.json` will be used
     """
     if auto_reset_config is None:
-        auto_reset_config: dict = get_config('tracker_resetting.automatic') or {}
+        auto_reset_config: dict = config('tracker_resetting.automatic') or {}
 
     is_whitelist_only = auto_reset_config.get('whitelist_only')
 
@@ -218,7 +216,7 @@ async def start_trackers(uuid: PlayerUUID, hypixel_data: dict) -> None:
 
     hypixel_data = get_player_dict(hypixel_data)
 
-    stat_keys: dict = get_config('tracked_bedwars_stats')
+    stat_keys: dict = config('tracked_bedwars_stats')
     stat_values = []
 
     for key in stat_keys:
@@ -361,7 +359,7 @@ def bedwars_data_to_tracked_stats_tuple(
     im sorry, im too tired to write any better documentation
     """
     if stat_keys is None:
-        stat_keys: list = get_config('tracked_bedwars_stats')
+        stat_keys: list = config('tracked_bedwars_stats')
 
     stat_values = []
     for key in stat_keys:
@@ -382,7 +380,7 @@ async def reset_tracker(
     :param bedwars_data: the current bedwars stats of the player
     :return: the saved bedwars data as a tuple
     """
-    stat_keys: list = get_config('tracked_bedwars_stats')
+    stat_keys: list = config('tracked_bedwars_stats')
 
     last_reset_timestamp = datetime.utcnow().timestamp()
 
@@ -422,7 +420,7 @@ def save_historical(
     # `uuid, tracker, last_reset_timestamp` onwards
     tracker_data = tracker_data[3:]
 
-    stat_keys = get_config('tracked_bedwars_stats')
+    stat_keys = config('tracked_bedwars_stats')
     stat_values = []
 
     for value1, value2 in zip(bedwars_data, tracker_data):

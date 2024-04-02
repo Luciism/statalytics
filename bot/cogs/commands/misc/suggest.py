@@ -50,7 +50,7 @@ class Suggest(commands.Cog):
     async def suggest(self, interaction: discord.Interaction):
         await lib.run_interaction_checks(interaction)
 
-        channel_id = lib.STATIC_CONFIG.get('suggestions_channel_id')
+        channel_id = lib.config('suggestions_channel_id')
         channel = self.client.get_channel(channel_id)
         await interaction.response.send_modal(SubmitSuggestion(channel))
 

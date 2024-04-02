@@ -7,7 +7,8 @@ import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 from ..linking import uuid_to_discord_id
-from ..functions import get_config, REL_PATH
+from ..cfg import config
+from ..common import REL_PATH
 from ..permissions import has_access
 from ..themes import get_theme_properties
 from .colors import Colors, get_prestige_primary_color, get_rank_color
@@ -149,9 +150,9 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
 
     # If the user has configured a theme
     if themes_data and themes_data[2]:
-        config = get_config()
-        voter_themes = config['theme_packs']['voter_themes'].keys()
-        rewards_duration = config['voter_reward_duration_hours']
+        cfg = config()
+        voter_themes = cfg['theme_packs']['voter_themes'].keys()
+        rewards_duration = cfg['voter_reward_duration_hours']
 
         # If the user has voted in the past 24 hours
         current_time = datetime.utcnow().timestamp()
