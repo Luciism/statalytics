@@ -5,25 +5,15 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import statalib as lib
 from render.total import render_total
 from render.pointless import render_pointless
-from statalib import (
-    fetch_player_info,
-    username_autocompletion,
-    generic_command_cooldown,
-    fetch_hypixel_data,
-    update_command_stats,
-    fetch_skin_model,
-    handle_modes_renders,
-    loading_message,
-    run_interaction_checks
-)
 
 
 class Total(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = loading_message()
+        self.LOADING_MSG = lib.loading_message()
 
 
     async def total_command(
@@ -31,15 +21,15 @@ class Total(commands.Cog):
         player: str, method: str, render_func: Callable
     ):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
         kwargs = {
@@ -50,16 +40,16 @@ class Total(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_func, kwargs)
-        update_command_stats(interaction.user.id, method)
+        await lib.handle_modes_renders(interaction, render_func, kwargs)
+        lib.update_command_stats(interaction.user.id, method)
 
 
     @app_commands.command(
         name="bedwars",
         description="View the general stats of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def total(self, interaction: discord.Interaction, player: str=None):
         await self.total_command(
             interaction, player, method='generic', render_func=render_total)
@@ -69,8 +59,8 @@ class Total(commands.Cog):
         name="pointless",
         description="View the general pointless stats of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def pointless(self, interaction: discord.Interaction,
                         player: str=None):
         await self.total_command(

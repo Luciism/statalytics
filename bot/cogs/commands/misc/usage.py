@@ -5,11 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import (
-    update_command_stats,
-    get_embed_color,
-    run_interaction_checks
-)
+import statalib as lib
 
 
 class Usage(commands.Cog):
@@ -20,7 +16,7 @@ class Usage(commands.Cog):
     @app_commands.command(name="usage", description="View Command Usage")
     async def usage_stats(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
 
@@ -44,7 +40,7 @@ class Usage(commands.Cog):
                 title='No Command Usage!',
                 description='You have no command usage stats'
                             'as you have never run a command.',
-                color=get_embed_color('primary')
+                color=lib.get_embed_color('primary')
             )
         else:
             for i, usage in enumerate(command_usage[1:]):
@@ -70,7 +66,7 @@ class Usage(commands.Cog):
             embed = discord.Embed(
                 title="Your Command Usage",
                 description=overall,
-                color=get_embed_color('primary')
+                color=lib.get_embed_color('primary')
             )
 
             for i in range(0, len(description), 10):
@@ -79,7 +75,7 @@ class Usage(commands.Cog):
 
         await interaction.followup.send(embed=embed)
 
-        update_command_stats(discord_id, 'usage')
+        lib.update_command_stats(discord_id, 'usage')
 
 
 async def setup(client: commands.Bot) -> None:

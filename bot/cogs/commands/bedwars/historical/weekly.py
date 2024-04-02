@@ -5,53 +5,36 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import statalib as lib
 from render.historical import render_historical
-from statalib import (
-    HistoricalManager,
-    fetch_player_info,
-    uuid_to_discord_id,
-    username_autocompletion,
-    generic_command_cooldown,
-    fetch_hypixel_data,
-    update_command_stats,
-    fetch_skin_model,
-    ordinal, loading_message,
-    handle_modes_renders,
-    timezone_relative_timestamp,
-    fname,
-    pluralize,
-    has_auto_reset,
-    run_interaction_checks,
-    tracker_view
-)
 
 
 class Weekly(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = loading_message()
+        self.LOADING_MSG = lib.loading_message()
 
 
     @app_commands.command(
         name="weekly",
         description="View the weekly stats of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
-        historic = HistoricalManager(interaction.user.id, uuid)
+        historic = lib.HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
         historical_data = historic.get_tracker_data(tracker='weekly')
@@ -59,14 +42,14 @@ class Weekly(commands.Cog):
         if not historical_data:
             await historic.start_trackers(hypixel_data)
             await interaction.edit_original_response(
-                content=f'Historical stats for {fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
 
-        if has_auto_reset(uuid):
+        if lib.has_auto_reset(uuid):
             next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
             while now >= next_occurrence or next_occurrence.weekday() != 6:
                 next_occurrence += timedelta(days=1)
@@ -75,7 +58,7 @@ class Weekly(commands.Cog):
 
             message = f':alarm_clock: Resets <t:{timestamp}:R>'
         else:
-            timestamp = int(timezone_relative_timestamp(historical_data[2]))
+            timestamp = int(lib.timezone_relative_timestamp(historical_data[2]))
             message = f':alarm_clock: Last reset <t:{timestamp}:R>'
 
 
@@ -90,14 +73,14 @@ class Weekly(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(
+        await lib.handle_modes_renders(
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
             message=message,
-            custom_view=tracker_view()
+            custom_view=lib.tracker_view()
         )
-        update_command_stats(interaction.user.id, 'weekly')
+        lib.update_command_stats(interaction.user.id, 'weekly')
 
 
     @app_commands.command(
@@ -106,17 +89,17 @@ class Weekly(commands.Cog):
     @app_commands.describe(
         player='The player you want to view',
         weeks='The lookback amount in weeks')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def lastweek(self, interaction: discord.Interaction,
                        player: str=None, weeks: int=1):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
-        historic = HistoricalManager(interaction.user.id, uuid)
-        discord_id = uuid_to_discord_id(uuid=uuid)
+        historic = lib.HistoricalManager(interaction.user.id, uuid)
+        discord_id = lib.uuid_to_discord_id(uuid=uuid)
 
         max_lookback = historic.get_max_lookback(discord_id, interaction.user.id)
         if -1 != max_lookback < (weeks * 7):
@@ -147,14 +130,14 @@ class Weekly(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{fname(name)} has no tracked data for {weeks} week(s) ago!')
+                f'{lib.fname(name)} has no tracked data for {weeks} week(s) ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
         kwargs = {
@@ -162,15 +145,15 @@ class Weekly(commands.Cog):
             "uuid": uuid,
             "identifier": "lastweek",
             "relative_date": formatted_date,
-            "title": f"{weeks} {pluralize(weeks, 'Week')} Ago",
+            "title": f"{weeks} {lib.pluralize(weeks, 'Week')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_historical, kwargs)
-        update_command_stats(interaction.user.id, 'lastweek')
+        await lib.handle_modes_renders(interaction, render_historical, kwargs)
+        lib.update_command_stats(interaction.user.id, 'lastweek')
 
 
 async def setup(client: commands.Bot) -> None:

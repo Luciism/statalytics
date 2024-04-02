@@ -8,11 +8,7 @@ from discord import app_commands
 from discord.ext import commands
 from aiohttp import ClientSession
 
-from statalib import (
-    generic_command_cooldown,
-    update_command_stats,
-    run_interaction_checks
-)
+import statalib as lib
 
 
 async def _fetch_server_status(api_key: str, ip: str):
@@ -66,10 +62,10 @@ class Status(commands.Cog):
 
 
     @status_group.command(name="hypixel", description="Hypixel's real-time status")
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         res = await _fetch_server_status(self.key, self.ip)
 
@@ -150,7 +146,7 @@ class Status(commands.Cog):
         embeds = [discord.Embed.from_dict(embed) for embed in embeds]
         await interaction.followup.send(embeds=embeds)
 
-        update_command_stats(interaction.user.id, 'status_hypixel')
+        lib.update_command_stats(interaction.user.id, 'status_hypixel')
 
 
 async def setup(client: commands.Bot) -> None:

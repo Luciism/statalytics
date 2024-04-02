@@ -2,11 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import (
-    update_command_stats,
-    fetch_player_info,
-    run_interaction_checks
-)
+import statalib as lib
 
 
 class Who(commands.Cog):
@@ -21,9 +17,9 @@ class Who(commands.Cog):
         player='The player whos username / uuid you want to view')
     async def who(self, interaction: discord.Interaction,
                   player: str=None):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction, eph=True)
+        name, uuid = await lib.fetch_player_info(player, interaction, eph=True)
 
         if player is None or len(player) <= 16:
             await interaction.response.send_message(
@@ -32,7 +28,7 @@ class Who(commands.Cog):
             await interaction.response.send_message(
                 f'Name for **{uuid}** -> `{name}`', ephemeral=True)
 
-        update_command_stats(interaction.user.id, 'who')
+        lib.update_command_stats(interaction.user.id, 'who')
 
 
 async def setup(client: commands.Bot) -> None:

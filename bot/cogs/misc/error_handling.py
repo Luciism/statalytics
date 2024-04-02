@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import handle_interaction_errors
+import statalib as lib
 
 
 class ErrorHandling(commands.Cog):
@@ -14,7 +14,7 @@ class ErrorHandling(commands.Cog):
             interaction: discord.Interaction,
             error: app_commands.AppCommandError
         ):
-            await handle_interaction_errors(interaction, error)
+            await lib.handle_interaction_errors(interaction, error)
 
 
     @commands.Cog.listener()

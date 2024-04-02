@@ -9,15 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import (
-    update_command_stats,
-    get_user_total,
-    get_linked_total,
-    get_commands_total,
-    get_config,
-    load_embeds,
-    run_interaction_checks
-)
+import statalib as lib
 
 
 class Info(commands.Cog):
@@ -30,13 +22,13 @@ class Info(commands.Cog):
         description="View information and stats for Statalytics")
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        commands_ran = get_commands_total()
-        linked_accounts = get_linked_total()
+        commands_ran = lib.get_commands_total()
+        linked_accounts = lib.get_linked_total()
 
         total_guilds = len(self.client.guilds)
-        total_users = get_user_total()
+        total_users = lib.get_user_total()
 
         with open('./database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']
@@ -44,7 +36,7 @@ class Info(commands.Cog):
         time_since_started = int(round(time.time() - start_time))
         uptime = str(datetime.timedelta(seconds=time_since_started))
 
-        config: dict = get_config()
+        config: dict = lib.get_config()
 
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
@@ -83,10 +75,10 @@ class Info(commands.Cog):
             }
         }
 
-        embeds = load_embeds('info', format_values, color='primary')
+        embeds = lib.load_embeds('info', format_values, color='primary')
         await interaction.followup.send(embeds=embeds)
 
-        update_command_stats(discord_id=interaction.user.id, command='info')
+        lib.update_command_stats(discord_id=interaction.user.id, command='info')
 
 
 async def setup(client: commands.Bot) -> None:

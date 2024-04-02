@@ -5,26 +5,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import statalib as lib
 from render.difference import render_difference
-from statalib import (
-    HistoricalManager,
-    fetch_player_info,
-    username_autocompletion,
-    generic_command_cooldown,
-    fetch_hypixel_data,
-    update_command_stats,
-    fetch_skin_model,
-    ordinal, loading_message,
-    handle_modes_renders,
-    fname,
-    run_interaction_checks
-)
 
 
 class Difference(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = loading_message()
+        self.LOADING_MSG = lib.loading_message()
 
 
     difference_group = app_commands.Group(
@@ -37,18 +25,18 @@ class Difference(commands.Cog):
         self, interaction: discord.Interaction, player: str, tracker: str
     ) -> None:
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
-        historic = HistoricalManager(interaction.user.id, uuid)
+        historic = lib.HistoricalManager(interaction.user.id, uuid)
 
         gmt_offset = historic.get_reset_time()[0]
         historical_data = historic.get_tracker_data(tracker=tracker)
@@ -56,11 +44,11 @@ class Difference(commands.Cog):
         if not historical_data:
             await historic.start_trackers(hypixel_data)
             await interaction.edit_original_response(
-                content=f'Historical stats for {fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
         kwargs = {
             "name": name,
@@ -72,16 +60,16 @@ class Difference(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_difference, kwargs)
-        update_command_stats(interaction.user.id, f'difference_{tracker}')
+        await lib.handle_modes_renders(interaction, render_difference, kwargs)
+        lib.update_command_stats(interaction.user.id, f'difference_{tracker}')
 
 
     @difference_group.command(
             name="daily",
             description="View the daily stas difference of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def daily(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'daily')
 
@@ -90,8 +78,8 @@ class Difference(commands.Cog):
         name="weekly",
         description="View the weekly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'weekly')
 
@@ -100,8 +88,8 @@ class Difference(commands.Cog):
         name="monthly",
         description="View the monthly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'monthly')
 
@@ -110,8 +98,8 @@ class Difference(commands.Cog):
         name="yearly",
         description="View the yearly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def yearly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'yearly')
 

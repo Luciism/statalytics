@@ -7,28 +7,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import statalib as lib
 from render.session import render_session
-from statalib import (
-    CustomBaseView,
-    fetch_player_info,
-    get_linked_player,
-    username_autocompletion,
-    session_autocompletion,
-    generic_command_cooldown,
-    fetch_hypixel_data,
-    update_command_stats,
-    start_session,
-    find_dynamic_session_interaction,
-    find_dynamic_session,
-    fetch_skin_model,
-    handle_modes_renders,
-    loading_message,
-    get_user_property,
-    run_interaction_checks
-)
 
 
-class ManageSession(CustomBaseView):
+class ManageSession(lib.CustomBaseView):
     def __init__(self, session: int, uuid: str, method: str) -> None:
         """who the fuck made this class"""
         super().__init__(timeout=20)
@@ -53,7 +36,7 @@ class ManageSession(CustomBaseView):
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         button.disabled = True
         await self.message.edit(view=self)
@@ -67,8 +50,8 @@ class ManageSession(CustomBaseView):
             )
 
         if self.method == "reset":
-            hypixel_data = await fetch_hypixel_data(self.uuid)
-            await start_session(self.uuid, self.session, hypixel_data)
+            hypixel_data = await lib.fetch_hypixel_data(self.uuid)
+            await lib.start_session(self.uuid, self.session, hypixel_data)
             await interaction.followup.send(
                 f'Session `{self.session}` has been reset successfully!', ephemeral=True)
             return
@@ -80,7 +63,7 @@ class ManageSession(CustomBaseView):
 class Sessions(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = loading_message()
+        self.LOADING_MSG = lib.loading_message()
 
 
     session_group = app_commands.Group(
@@ -96,24 +79,24 @@ class Sessions(commands.Cog):
         player='The player you want to view',
         session='The session you want to view')
     @app_commands.autocomplete(
-        player=username_autocompletion,
-        session=session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+        player=lib.username_autocompletion,
+        session=lib.session_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def session(self, interaction: discord.Interaction,
                       player: str=None, session: int=None):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
-        session = await find_dynamic_session_interaction(
+        session = await lib.find_dynamic_session_interaction(
             interaction_response=interaction.edit_original_response,
             username=name,
             uuid=uuid,
@@ -130,16 +113,16 @@ class Sessions(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_session, kwargs)
-        update_command_stats(interaction.user.id, 'session')
+        await lib.handle_modes_renders(interaction, render_session, kwargs)
+        lib.update_command_stats(interaction.user.id, 'session')
 
 
     @session_group.command(name="start", description="Starts a new session")
     async def session_start(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        uuid = get_linked_player(interaction.user.id)
+        uuid = lib.get_linked_player(interaction.user.id)
 
         if not uuid:
             await interaction.followup.send(
@@ -154,7 +137,7 @@ class Sessions(commands.Cog):
             session_data = cursor.fetchall()
 
         active_sessions = len(session_data)
-        max_sessions = get_user_property(interaction.user.id, 'max_sessions', 2)
+        max_sessions = lib.get_user_property(interaction.user.id, 'max_sessions', 2)
 
         if active_sessions >= max_sessions:
             await interaction.followup.send(
@@ -170,25 +153,25 @@ class Sessions(commands.Cog):
         else:
             session_id = active_sessions + 1
 
-        hypixel_data = await fetch_hypixel_data(uuid)
-        await start_session(uuid, session_id, hypixel_data)
+        hypixel_data = await lib.fetch_hypixel_data(uuid)
+        await lib.start_session(uuid, session_id, hypixel_data)
 
         await interaction.followup.send(
             f'A new session was successfully created! Session ID: `{session_id}`')
 
-        update_command_stats(interaction.user.id, 'startsession')
+        lib.update_command_stats(interaction.user.id, 'startsession')
 
 
     @session_group.command(name="end", description="Ends an active session")
-    @app_commands.autocomplete(session=session_autocompletion)
+    @app_commands.autocomplete(session=lib.session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
     async def end_session(self, interaction: discord.Interaction, session: int = None):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         if session is None:
             session = 1
 
-        uuid = get_linked_player(interaction.user.id)
+        uuid = lib.get_linked_player(interaction.user.id)
 
         if not uuid:
             await interaction.response.send_message(
@@ -212,24 +195,24 @@ class Sessions(commands.Cog):
             await interaction.response.send_message(
                 f"You don't have an active session with ID: `{session}`!")
 
-        update_command_stats(interaction.user.id, 'endsession')
+        lib.update_command_stats(interaction.user.id, 'endsession')
 
 
     @session_group.command(name="reset", description="Resets an active session")
     @app_commands.describe(session='The session you want to reset')
-    @app_commands.autocomplete(session=session_autocompletion)
+    @app_commands.autocomplete(session=lib.session_autocompletion)
     async def reset_session(self, interaction: discord.Interaction,
                             session: int = None):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        uuid = get_linked_player(interaction.user.id)
+        uuid = lib.get_linked_player(interaction.user.id)
 
         if not uuid:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        valid_session = find_dynamic_session(uuid, session)
+        valid_session = lib.find_dynamic_session(uuid, session)
 
         if valid_session is None:
             await interaction.response.send_message(
@@ -242,15 +225,15 @@ class Sessions(commands.Cog):
             view=view, ephemeral=True)
         view.message = await interaction.original_response()
 
-        update_command_stats(interaction.user.id, 'resetsession')
+        lib.update_command_stats(interaction.user.id, 'resetsession')
 
 
     @session_group.command(name="active", description="View all active sessions")
     async def active_sessions(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        uuid = get_linked_player(interaction.user.id)
+        uuid = lib.get_linked_player(interaction.user.id)
 
         if not uuid:
             await interaction.followup.send(
@@ -271,7 +254,7 @@ class Sessions(commands.Cog):
             await interaction.followup.send(
                 "You don't have any sessions active! Use `/session start` to create one!")
 
-        update_command_stats(interaction.user.id, 'activesessions')
+        lib.update_command_stats(interaction.user.id, 'activesessions')
 
 
 async def setup(client: commands.Bot) -> None:

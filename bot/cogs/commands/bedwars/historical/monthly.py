@@ -6,53 +6,36 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import statalib as lib
 from render.historical import render_historical
-from statalib import (
-    HistoricalManager,
-    fetch_player_info,
-    uuid_to_discord_id,
-    username_autocompletion,
-    generic_command_cooldown,
-    fetch_hypixel_data,
-    update_command_stats,
-    fetch_skin_model,
-    ordinal, loading_message,
-    handle_modes_renders,
-    fname,
-    timezone_relative_timestamp,
-    pluralize,
-    has_auto_reset,
-    run_interaction_checks,
-    tracker_view
-)
 
 
 class Monthly(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = loading_message()
+        self.LOADING_MSG = lib.loading_message()
 
 
     @app_commands.command(
         name="monthly",
         description="View the monthly stats of a player")
     @app_commands.describe(player='The player you want to view')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
-        historic = HistoricalManager(interaction.user.id, uuid)
+        historic = lib.HistoricalManager(interaction.user.id, uuid)
         gmt_offset, hour = historic.get_reset_time()
 
         historical_data = historic.get_tracker_data(tracker='monthly')
@@ -60,14 +43,14 @@ class Monthly(commands.Cog):
         if not historical_data:
             await historic.start_trackers(hypixel_data)
             await interaction.edit_original_response(
-                content=f'Historical stats for {fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=gmt_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
 
-        if has_auto_reset(uuid):
+        if lib.has_auto_reset(uuid):
             next_occurrence = now.replace(hour=hour, minute=0, second=0, microsecond=0)
             if now >= next_occurrence:
                 next_month = next_occurrence.month + 1
@@ -89,7 +72,7 @@ class Monthly(commands.Cog):
 
             message = f':alarm_clock: Resets <t:{timestamp}:R>'
         else:
-            timestamp = int(timezone_relative_timestamp(historical_data[2]))
+            timestamp = int(lib.timezone_relative_timestamp(historical_data[2]))
             message = f':alarm_clock: Last reset <t:{timestamp}:R>'
 
         kwargs = {
@@ -103,14 +86,14 @@ class Monthly(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(
+        await lib.handle_modes_renders(
             interaction=interaction,
             func=render_historical,
             kwargs=kwargs,
             message=message,
-            custom_view=tracker_view()
+            custom_view=lib.tracker_view()
         )
-        update_command_stats(interaction.user.id, 'monthly')
+        lib.update_command_stats(interaction.user.id, 'monthly')
 
 
     @app_commands.command(
@@ -119,17 +102,17 @@ class Monthly(commands.Cog):
     @app_commands.describe(
         player='The player you want to view',
         months='The lookback amount in months')
-    @app_commands.autocomplete(player=username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def lastmonth(self, interaction: discord.Interaction,
                         player: str=None, months: int=1):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        name, uuid = await fetch_player_info(player, interaction)
+        name, uuid = await lib.fetch_player_info(player, interaction)
 
-        historic = HistoricalManager(interaction.user.id, uuid)
-        discord_id = uuid_to_discord_id(uuid=uuid)
+        historic = lib.HistoricalManager(interaction.user.id, uuid)
+        discord_id = lib.uuid_to_discord_id(uuid=uuid)
 
         max_lookback = historic.get_max_lookback(discord_id, interaction.user.id)
 
@@ -161,14 +144,14 @@ class Monthly(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{fname(name)} has no tracked data for {months} month(s) ago!')
+                f'{lib.fname(name)} has no tracked data for {months} month(s) ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            fetch_skin_model(uuid, 144),
-            fetch_hypixel_data(uuid)
+            lib.fetch_skin_model(uuid, 144),
+            lib.fetch_hypixel_data(uuid)
         )
 
         kwargs = {
@@ -176,15 +159,15 @@ class Monthly(commands.Cog):
             "uuid": uuid,
             "identifier": "lastmonth",
             "relative_date": formatted_date,
-            "title": f"{months} {pluralize(months, 'Month')} Ago",
+            "title": f"{months} {lib.pluralize(months, 'Month')} Ago",
             "period": period,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id
         }
 
-        await handle_modes_renders(interaction, render_historical, kwargs)
-        update_command_stats(interaction.user.id, 'lastmonth')
+        await lib.handle_modes_renders(interaction, render_historical, kwargs)
+        lib.update_command_stats(interaction.user.id, 'lastmonth')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Monthly(client))

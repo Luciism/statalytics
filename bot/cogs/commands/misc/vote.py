@@ -2,13 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from statalib import (
-    update_command_stats,
-    get_voting_data,
-    get_config,
-    load_embeds,
-    run_interaction_checks
-)
+import statalib as lib
 
 
 class Vote(commands.Cog):
@@ -19,11 +13,11 @@ class Vote(commands.Cog):
     @app_commands.command(name="vote", description="Get a list of our vote links")
     async def vote(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        vote_links = get_config('links.voting')
+        vote_links = lib.get_config('links.voting')
 
-        voting_data = get_voting_data(interaction.user.id)
+        voting_data = lib.get_voting_data(interaction.user.id)
         if voting_data:
             total_votes = voting_data[1]
             last_vote = voting_data[3]
@@ -49,10 +43,10 @@ class Vote(commands.Cog):
                 }
             }
         }
-        embeds = load_embeds('vote', format_values, color='primary')
+        embeds = lib.load_embeds('vote', format_values, color='primary')
 
         await interaction.followup.send(embeds=embeds)
-        update_command_stats(interaction.user.id, command='vote')
+        lib.update_command_stats(interaction.user.id, command='vote')
 
 
 async def setup(client: commands.Bot) -> None:

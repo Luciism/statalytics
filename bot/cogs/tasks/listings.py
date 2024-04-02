@@ -3,11 +3,7 @@ from os import getenv
 from aiohttp import ClientSession
 from discord.ext import commands, tasks
 
-from statalib import (
-    get_user_total,
-    align_to_hour,
-    log_error_msg
-)
+import statalib as lib
 
 
 class Listings(commands.Cog):
@@ -25,7 +21,7 @@ class Listings(commands.Cog):
         await self.client.wait_until_ready()
 
         guild_count = len(self.client.guilds)
-        total_users = get_user_total()
+        total_users = lib.get_user_total()
 
         client_id = self.client.user.id
 
@@ -64,7 +60,7 @@ class Listings(commands.Cog):
 
     @update_listings_loop.error
     async def on_update_listings_error(self, error):
-        await log_error_msg(self.client, error)
+        await lib.log_error_msg(self.client, error)
 
 
     async def cog_load(self):
@@ -78,7 +74,7 @@ class Listings(commands.Cog):
 
     @update_listings_loop.before_loop
     async def before_update_listings(self):
-        await align_to_hour()
+        await lib.align_to_hour()
 
 
 async def setup(client: commands.Bot) -> None:

@@ -2,26 +2,15 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-
-from statalib import (
-    CustomBaseView,
-    CustomBaseModal,
-    set_active_theme,
-    get_owned_themes,
-    get_config,
-    linking_interaction,
-    update_reset_time_configured,
-    update_command_stats,
-    load_embeds,
-    prefix_int,
-    run_interaction_checks
-)
+import statalib as lib
 
 
-HOURS = ['12am', '1am', '2am', '3am', '4am', '5am',
-         '6am', '7am', '8am', '9am', '10am', '11am',
-         '12pm', '1pm', '2pm', '3pm', '4pm', '5pm',
-         '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
+HOURS = [
+    '12am', '1am', '2am', '3am', '4am', '5am',
+    '6am', '7am', '8am', '9am', '10am', '11am',
+    '12pm', '1pm', '2pm', '3pm', '4pm', '5pm',
+    '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
+]
 
 
 class SettingsSelect(discord.ui.Select):
@@ -38,7 +27,7 @@ class SettingsSelect(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
 
@@ -46,18 +35,18 @@ class SettingsSelect(discord.ui.Select):
         if self.placeholder == "Select Theme":
             if value == 'none':
                 value = None
-            set_active_theme(discord_id, value)
+            lib.set_active_theme(discord_id, value)
             await interaction.followup.send('Successfully updated theme!', ephemeral=True)
             return
 
         if self.placeholder in ('Select your GMT offset', 'Select your reset hour'):
             value = int(value)
             if self.placeholder == 'Select your GMT offset':
-                update_reset_time_configured(interaction.user.id, value, 'timezone')
+                lib.update_reset_time_configured(interaction.user.id, value, 'timezone')
 
-                message = f'Successfully updated timezone to `GMT{prefix_int(value)}:00`'
+                message = f'Successfully updated timezone to `GMT{lib.prefix_int(value)}:00`'
             else:
-                update_reset_time_configured(interaction.user.id, value, 'reset_hour')
+                lib.update_reset_time_configured(interaction.user.id, value, 'reset_hour')
 
                 message = f'Successfully updated reset hour to `{HOURS[value]}`'
 
@@ -65,7 +54,7 @@ class SettingsSelect(discord.ui.Select):
             return
 
 
-class SettingsSelectView(CustomBaseView):
+class SettingsSelectView(lib.CustomBaseView):
     def __init__(self, interaction: discord.Interaction,
                  view_data: list | tuple, *, timeout=300):
         super().__init__(timeout=timeout)
@@ -87,7 +76,7 @@ class SettingsSelectView(CustomBaseView):
             pass
 
 
-class LinkAccountModal(CustomBaseModal, title='Link Account'):
+class LinkAccountModal(lib.CustomBaseModal, title='Link Account'):
     player = discord.ui.TextInput(
         label='Player',
         placeholder='Statalytics',
@@ -95,10 +84,10 @@ class LinkAccountModal(CustomBaseModal, title='Link Account'):
     )
 
     async def on_submit(self, interaction: discord.Interaction):
-        await linking_interaction(interaction, str(self.player))
+        await lib.linking_interaction(interaction, str(self.player))
 
 
-class SettingsButtons(CustomBaseView):
+class SettingsButtons(lib.CustomBaseView):
     def __init__(self, interaction: discord.Interaction) -> None:
         super().__init__(timeout=300)
         self.interaction = interaction
@@ -120,12 +109,12 @@ class SettingsButtons(CustomBaseView):
         row=1)
     async def active_theme(self, interaction: discord.Interaction,
                            button: discord.ui.Button):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        embeds = load_embeds('active_theme', color='primary')
+        embeds = lib.load_embeds('active_theme', color='primary')
 
-        owned_themes = get_owned_themes(interaction.user.id)
-        theme_packs: dict = get_config('theme_packs')
+        owned_themes = lib.get_owned_themes(interaction.user.id)
+        theme_packs: dict = lib.get_config('theme_packs')
 
         # themes available to anyone through voting
         available_themes: dict = theme_packs['voter_themes']
@@ -155,12 +144,12 @@ class SettingsButtons(CustomBaseView):
         custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction,
                          button: discord.ui.Button):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        embeds = load_embeds('reset_time', color='primary')
+        embeds = lib.load_embeds('reset_time', color='primary')
 
         options_1 = [discord.SelectOption(
-            label=f'GMT{prefix_int(i-12)}', value=i-12)
+            label=f'GMT{lib.prefix_int(i-12)}', value=i-12)
             for i in reversed(range(25))]
 
         options_2 = [discord.SelectOption(label=hour, value=i)
@@ -192,7 +181,7 @@ class SettingsButtons(CustomBaseView):
         custom_id="linked_account", row=1)
     async def linked_account(self, interaction: discord.Interaction,
                              button: discord.ui.Button):
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
         await interaction.response.send_modal(LinkAccountModal())
 
 
@@ -206,13 +195,13 @@ class Settings(commands.Cog):
         description="Edit your configuration for statalytics")
     async def settings(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
-        embeds = load_embeds('settings', color='primary')
+        embeds = lib.load_embeds('settings', color='primary')
         await interaction.followup.send(
             embeds=embeds, view=SettingsButtons(interaction=interaction))
 
-        update_command_stats(interaction.user.id, 'settings')
+        lib.update_command_stats(interaction.user.id, 'settings')
 
 
 async def setup(client: commands.Bot) -> None:

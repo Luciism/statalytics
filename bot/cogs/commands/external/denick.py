@@ -12,14 +12,7 @@ from discord import app_commands
 from discord.ext import commands
 from requests import ReadTimeout, ConnectTimeout
 
-
-from statalib import (
-    generic_command_cooldown,
-    update_command_stats,
-    get_embed_color,
-    run_interaction_checks,
-    load_embeds
-)
+import statalib as lib
 
 
 class Denick(commands.Cog):
@@ -65,11 +58,11 @@ class Denick(commands.Cog):
         mode='The stat to denick with (finals / beds)',
         count='The count of the chosen stat')
     @app_commands.autocomplete(mode=number_autocomplete)
-    @app_commands.checks.dynamic_cooldown(generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction,
                            mode: str, count: int):
         await interaction.response.defer()
-        await run_interaction_checks(interaction)
+        await lib.run_interaction_checks(interaction)
 
         mode = mode.lower()
         if mode not in ('finals', 'beds'):
@@ -80,10 +73,10 @@ class Denick(commands.Cog):
 
         if data is None:
             await interaction.followup.send(
-                embeds=load_embeds('antisniper_connection_error', color='danger'))
+                embeds=lib.load_embeds('antisniper_connection_error', color='danger'))
             return
 
-        embed_color = get_embed_color(embed_type='primary')
+        embed_color = lib.get_embed_color(embed_type='primary')
         embed = discord.Embed(
             title='Number Denicker',
             description=f'Mode: {mode}\n'
@@ -118,7 +111,7 @@ class Denick(commands.Cog):
 
         await interaction.followup.send(embed=embed)
 
-        update_command_stats(interaction.user.id, 'numberdenick')
+        lib.update_command_stats(interaction.user.id, 'numberdenick')
 
 
 async def setup(client: commands.Bot) -> None:

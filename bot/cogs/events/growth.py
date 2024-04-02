@@ -3,7 +3,7 @@ import json
 import discord
 from discord.ext import commands
 
-from statalib import insert_growth_data
+import statalib as lib
 
 
 class Growth(commands.Cog):
@@ -18,13 +18,13 @@ class Growth(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        insert_growth_data(guild.id, action='add', growth='guild')
+        lib.insert_growth_data(guild.id, action='add', growth='guild')
         self.update_server_count_file()
 
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
-        insert_growth_data(guild.id, action='remove', growth='guild')
+        lib.insert_growth_data(guild.id, action='remove', growth='guild')
         self.update_server_count_file()
 
 

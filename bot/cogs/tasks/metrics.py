@@ -2,13 +2,7 @@ from os import getenv
 
 from discord.ext import commands, tasks
 
-from statalib import (
-    get_linked_total,
-    get_user_total,
-    get_commands_total,
-    get_config,
-    log_error_msg
-)
+import statalib as lib
 
 
 class Metrics(commands.Cog):
@@ -40,13 +34,13 @@ class Metrics(commands.Cog):
         await self.client.wait_until_ready()
 
         metrics = {
-            'linked': get_linked_total(),
-            'users': get_user_total(),
-            'commands': get_commands_total(),
+            'linked': lib.get_linked_total(),
+            'users': lib.get_user_total(),
+            'commands': lib.get_commands_total(),
             'servers': len(self.client.guilds)
         }
 
-        channels_config: dict = get_config('metrics_channels')
+        channels_config: dict = lib.get_config('metrics_channels')
 
         for key, value in metrics.items():
             channel_name = channels_config[key]['name']
@@ -62,7 +56,7 @@ class Metrics(commands.Cog):
 
     @update_metrics_loop.error
     async def on_update_metrics_error(self, error):
-        await log_error_msg(self.client, error)
+        await lib.log_error_msg(self.client, error)
 
 
     async def cog_load(self):
