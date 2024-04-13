@@ -21,11 +21,16 @@ from .errors import (
 logger = logging.getLogger('statalytics')
 
 
-async def log_error_msg(client: discord.Client, error: Exception):
+async def log_error_msg(
+    client: discord.Client,
+    error: Exception,
+    metadata: dict=None
+):
     """
     Prints and sends an error message to discord error logs channel
     :param client: The discord.py client object
     :param error: The exception object for the error
+    :param metadata: Metadata to include in the error message
     """
     traceback_str = ''.join(
         format_exception(type(error), error, error.__traceback__))
@@ -42,7 +47,8 @@ async def log_error_msg(client: discord.Client, error: Exception):
 
     await channel.send(
         content=
-            f"Error: `{error}`\n"
+            f"Error: `{error}`\n" +
+            "\n".join([f"{k}: `{v}`\n" for k, v in metadata.items()]) +
             "Traceback:",
         file=tb_file
     )
@@ -100,7 +106,13 @@ async def handle_remaining_tree_errors(
         pass
 
     # print & log traceback to discord channel
-    await log_error_msg(interaction.client, error)
+    await log_error_msg(
+        interaction.client,
+        error,
+        metadata={
+            "Invoked By": f"{interaction.user} ({interaction.user.id})"
+        }
+    )
 
 
 async def handle_interaction_errors(
