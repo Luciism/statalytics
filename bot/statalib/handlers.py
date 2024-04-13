@@ -1,4 +1,5 @@
 import logging
+from io import StringIO
 from os import getenv
 from traceback import format_exception
 
@@ -26,23 +27,25 @@ async def log_error_msg(client: discord.Client, error: Exception):
     :param client: The discord.py client object
     :param error: The exception object for the error
     """
-    traceback_str = ''.join(format_exception(type(error), error, error.__traceback__))
+    traceback_str = ''.join(
+        format_exception(type(error), error, error.__traceback__))
     logger.error(traceback_str)
 
     if getenv('ENVIRONMENT') == 'development' or not client:
         return
 
-    config = config()
     await client.wait_until_ready()
-    channel = client.get_channel(config.get('error_logs_channel_id'))
+    channel = client.get_channel(config('error_logs_channel_id'))
 
-    if len(traceback_str) > 1988:
-        for i in range(0, len(traceback_str), 1988):
-            substring = traceback_str[i:i+1988]
-            await channel.send(f'```cmd\n{substring}\n```')
-    else:
-        await channel.send(f'```cmd\n{traceback_str[-1988:]}\n```')
+    tb_file = discord.File(
+        fp=StringIO(traceback_str), filename="traceback.txt")
 
+    await channel.send(
+        content=
+            f"Error: `{error}`\n"
+            "Traceback:",
+        file=tb_file
+    )
 
 async def handle_hypixel_error(interaction: discord.Interaction):
     try:

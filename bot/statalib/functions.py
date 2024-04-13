@@ -29,7 +29,7 @@ def get_embed_color(embed_type: str) -> int:
     Returns a base 16 integer from a hex code.
     :param embed_type: the embed color type (primary, warning, danger)
     """
-    return int(config[f'embed_{embed_type}_color'], base=16)
+    return int(config(f'embed_{embed_type}_color'), base=16)
 
 
 def loading_message() -> str:
