@@ -12,7 +12,7 @@ from .calctools import get_player_dict, get_level
 from .cfg import config
 from .common import REL_PATH
 from .linking import get_linked_player, uuid_to_discord_id
-from .subscriptions import get_user_property
+from .subscriptions_old import get_user_property
 from .aliases import PlayerUUID
 from .permissions import has_access
 from .functions import load_embeds

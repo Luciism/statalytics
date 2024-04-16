@@ -6,7 +6,7 @@ from .functions import comma_separated_to_list, get_voting_data, commands_ran
 from .linking import LinkingManager, get_linked_player
 from .historical import HistoricalManager
 from .permissions import PermissionManager, has_access, has_permission
-from .subscriptions import SubscriptionManager, get_subscription
+from .subscriptions_old import SubscriptionManager, get_subscription
 from .themes import (
     ThemeManager, get_owned_themes, get_active_theme, get_voter_themes)
 

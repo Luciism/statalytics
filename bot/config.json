@@ -1,261 +1,263 @@
 {
-    "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
-    "bot_name": "Statalytics",
-    "bot_id": 903765373181112360,
-    "version": "1.14.4",
-    "developers": [
-        "lukism"
-    ],
-    "error_logs_channel_id": 1101006847831445585,
-    "suggestions_channel_id": 1065918528236040232,
-    "metrics_channels": {
-        "servers": {
-            "id": 1131754129610510356,
-            "name": "\\U0001F4CA {amount} Servers"
-        },
-        "users": {
-            "id": 1131754201442168882,
-            "name": "\\U0001F4CA {amount} Users"
-        },
-        "linked": {
-            "id": 1131754352399351879,
-            "name": "\\U0001F4CA {amount} Linked"
-        },
-        "commands": {
-            "id": 1131754268144181278,
-            "name": "\\U0001F4CA {amount} Commands"
-        }
+  "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
+  "bot_name": "Statalytics",
+  "bot_id": 903765373181112360,
+  "version": "1.15.0",
+  "developers": ["lukism"],
+  "error_logs_channel_id": 1101006847831445585,
+  "suggestions_channel_id": 1065918528236040232,
+  "metrics_channels": {
+    "servers": {
+      "id": 1131754129610510356,
+      "name": "\\U0001F4CA {amount} Servers"
     },
-    "embed_primary_color": "5865F2",
-    "embed_danger_color": "FC2B2B",
-    "embed_warning_color": "FFE100",
-    "tracker_resetting": {
-        "automatic": {
-            "whitelist_only": true,
-            "uuid_whitelist": [
-                "bcc52cc103a3486aa822cc0853d60b3e",
-                "13b272aca6184383bba8a240beb4cf5c"
-            ],
-            "permission_whitelist": ["automatic_tracker_reset"],
-            "allow_star_permission": true
-        }
+    "users": {
+      "id": 1131754201442168882,
+      "name": "\\U0001F4CA {amount} Users"
     },
-    "packages": {
-        "pro": {
-            "permissions": [
-                "automatic_tracker_reset",
-                "custom_backgrounds",
-                "voter_themes",
-                "year_2026",
-                "autofill",
-                "cooldown_bypass",
-                "no_tips"
-            ],
-            "properties": {
-                "max_sessions": 5,
-                "max_lookback": -1,
-                "generic_command_cooldown": {
-                    "rate": 1,
-                    "per": 0
-                }
-            }
-        },
-        "basic": {
-            "permissions": [
-                "voter_themes",
-                "year_2026",
-                "autofill",
-                "cooldown_bypass",
-                "no_tips"
-            ],
-            "properties": {
-                "max_sessions": 5,
-                "max_lookback": 60,
-                "generic_command_cooldown": {
-                    "rate": 1,
-                    "per": 0
-                }
-            }
-        },
-        "free": {
-            "permissions": [],
-            "properties": {
-                "max_sessions": 2,
-                "max_lookback": 30,
-                "generic_command_cooldown": {
-                    "rate": 1,
-                    "per": 3.5
-                }
-            }
-        }
+    "linked": {
+      "id": 1131754352399351879,
+      "name": "\\U0001F4CA {amount} Linked"
     },
-    "voter_reward_duration_hours": 24,
-    "theme_packs": {
-        "voter_themes": {
-            "none": {
-                "display_name": "None",
-                "dynamic_color": false
-            },
-            "color_sync_fusion": {
-                "display_name": "High Contrast",
-                "dynamic_color": true
-            },
-            "cold_feet": {
-                "display_name": "Cold Feet",
-                "dynamic_color": false
-            },
-            "crystal_dawn": {
-                "display_name": "Crystal Dawn",
-                "dynamic_color": false
-            },
-            "mooner_eclipse": {
-                "display_name": "Mooner Eclipse",
-                "dynamic_color": false
-            },
-            "blue_retreat": {
-                "display_name": "Blue Retreat",
-                "dynamic_color": false
-            },
-            "technoblade": {
-                "display_name": "The Blood God",
-                "dynamic_color": false
-            }
-        },
-        "exclusive_themes": {
-            "summer_2023": {
-                "display_name": "Summer Exclusive 2023",
-                "dynamic_color": false
-            },
-            "mono": {
-                "display_name": "Grayscale",
-                "dynamic_color": false
-            },
-            "mosaic": {
-                "display_name": "Mosiac",
-                "dynamic_color": true
-            }
+    "commands": {
+      "id": 1131754268144181278,
+      "name": "\\U0001F4CA {amount} Commands"
+    }
+  },
+  "embed_primary_color": "5865F2",
+  "embed_danger_color": "FC2B2B",
+  "embed_warning_color": "FFE100",
+  "tracker_resetting": {
+    "automatic": {
+      "whitelist_only": true,
+      "uuid_whitelist": [
+        "bcc52cc103a3486aa822cc0853d60b3e",
+        "13b272aca6184383bba8a240beb4cf5c"
+      ],
+      "permission_whitelist": ["automatic_tracker_reset"],
+      "allow_star_permission": true
+    }
+  },
+  "default_package": "free",
+  "packages": {
+    "pro": {
+      "tier": 2,
+      "permissions": [
+        "automatic_tracker_reset",
+        "custom_backgrounds",
+        "voter_themes",
+        "year_2026",
+        "autofill",
+        "cooldown_bypass",
+        "no_tips"
+      ],
+      "properties": {
+        "max_sessions": 5,
+        "max_lookback": -1,
+        "generic_command_cooldown": {
+          "rate": 1,
+          "per": 0
         }
+      }
     },
-    "links": {
-        "website": "https://statalytics.net/",
-        "support_server": "https://discord.gg/rHmHZ9vvwE",
-        "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
-        "github": "https://github.com/Luciism/statalytics",
-        "voting": {
-            "top.gg": "https://top.gg/bot/903765373181112360/vote",
-            "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
-            "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
+    "basic": {
+      "tier": 1,
+      "permissions": [
+        "voter_themes",
+        "year_2026",
+        "autofill",
+        "cooldown_bypass",
+        "no_tips"
+      ],
+      "properties": {
+        "max_sessions": 5,
+        "max_lookback": 60,
+        "generic_command_cooldown": {
+          "rate": 1,
+          "per": 0
         }
+      }
     },
-    "enabled_cogs": [
-        "misc.manage_cogs",
-        "misc.error_handling",
-        "misc.management",
+    "free": {
+      "tier": 0,
+      "permissions": [],
+      "properties": {
+        "max_sessions": 2,
+        "max_lookback": 30,
+        "generic_command_cooldown": {
+          "rate": 1,
+          "per": 3.5
+        }
+      }
+    }
+  },
+  "voter_reward_duration_hours": 24,
+  "theme_packs": {
+    "voter_themes": {
+      "none": {
+        "display_name": "None",
+        "dynamic_color": false
+      },
+      "color_sync_fusion": {
+        "display_name": "High Contrast",
+        "dynamic_color": true
+      },
+      "cold_feet": {
+        "display_name": "Cold Feet",
+        "dynamic_color": false
+      },
+      "crystal_dawn": {
+        "display_name": "Crystal Dawn",
+        "dynamic_color": false
+      },
+      "mooner_eclipse": {
+        "display_name": "Mooner Eclipse",
+        "dynamic_color": false
+      },
+      "blue_retreat": {
+        "display_name": "Blue Retreat",
+        "dynamic_color": false
+      },
+      "technoblade": {
+        "display_name": "The Blood God",
+        "dynamic_color": false
+      }
+    },
+    "exclusive_themes": {
+      "summer_2023": {
+        "display_name": "Summer Exclusive 2023",
+        "dynamic_color": false
+      },
+      "mono": {
+        "display_name": "Grayscale",
+        "dynamic_color": false
+      },
+      "mosaic": {
+        "display_name": "Mosiac",
+        "dynamic_color": true
+      }
+    }
+  },
+  "links": {
+    "website": "https://statalytics.net/",
+    "support_server": "https://discord.gg/rHmHZ9vvwE",
+    "invite_url": "https://discord.com/api/oauth2/authorize?client_id=903765373181112360&permissions=414464724033&scope=bot",
+    "github": "https://github.com/Luciism/statalytics",
+    "voting": {
+      "top.gg": "https://top.gg/bot/903765373181112360/vote",
+      "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
+      "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
+    }
+  },
+  "enabled_cogs": [
+    "misc.manage_cogs",
+    "misc.error_handling",
+    "misc.management",
 
-        "tasks.listings",
-        "tasks.metrics",
+    "tasks.listings",
+    "tasks.metrics",
 
-        "events.growth",
-        "events.create_account",
+    "events.growth",
+    "events.create_account",
 
-        "commands.linking",
-        "commands.skin",
-        "commands.who",
-        "commands.settings",
+    "commands.linking",
+    "commands.skin",
+    "commands.who",
+    "commands.settings",
 
-        "commands.misc.credits",
-        "commands.misc.help",
-        "commands.misc.info",
-        "commands.misc.invite",
-        "commands.misc.suggest",
-        "commands.misc.vote",
+    "commands.misc.credits",
+    "commands.misc.help",
+    "commands.misc.info",
+    "commands.misc.invite",
+    "commands.misc.suggest",
+    "commands.misc.vote",
 
-        "commands.bedwars.year",
-        "commands.bedwars.winstreaks",
-        "commands.bedwars.sessions",
-        "commands.bedwars.projection",
-        "commands.bedwars.shop",
-        "commands.bedwars.mostplayed",
-        "commands.bedwars.total",
-        "commands.bedwars.average",
-        "commands.bedwars.resources",
-        "commands.bedwars.practice",
-        "commands.bedwars.milestones",
-        "commands.bedwars.cosmetics",
-        "commands.bedwars.hotbar",
-        "commands.bedwars.compare",
-        "commands.bedwars.displayname",
-        "commands.bedwars.difference",
-        "commands.bedwars.quests",
-        "commands.bedwars.historical.daily",
-        "commands.bedwars.historical.weekly",
-        "commands.bedwars.historical.monthly",
-        "commands.bedwars.historical.yearly",
+    "commands.bedwars.year",
+    "commands.bedwars.winstreaks",
+    "commands.bedwars.sessions",
+    "commands.bedwars.projection",
+    "commands.bedwars.shop",
+    "commands.bedwars.mostplayed",
+    "commands.bedwars.total",
+    "commands.bedwars.average",
+    "commands.bedwars.resources",
+    "commands.bedwars.practice",
+    "commands.bedwars.milestones",
+    "commands.bedwars.cosmetics",
+    "commands.bedwars.hotbar",
+    "commands.bedwars.compare",
+    "commands.bedwars.displayname",
+    "commands.bedwars.difference",
+    "commands.bedwars.quests",
+    "commands.bedwars.historical.daily",
+    "commands.bedwars.historical.weekly",
+    "commands.bedwars.historical.monthly",
+    "commands.bedwars.historical.yearly",
 
-        "commands.external.denick",
-        "commands.external.status"
-    ],
-    "tracked_bedwars_stats": [
-        "Experience",
-        "wins_bedwars",
-        "losses_bedwars",
-        "final_kills_bedwars",
-        "final_deaths_bedwars",
-        "kills_bedwars",
-        "deaths_bedwars",
-        "beds_broken_bedwars",
-        "beds_lost_bedwars",
-        "games_played_bedwars",
-        "eight_one_wins_bedwars",
-        "eight_one_losses_bedwars",
-        "eight_one_final_kills_bedwars",
-        "eight_one_final_deaths_bedwars",
-        "eight_one_kills_bedwars",
-        "eight_one_deaths_bedwars",
-        "eight_one_beds_broken_bedwars",
-        "eight_one_beds_lost_bedwars",
-        "eight_one_games_played_bedwars",
-        "eight_two_wins_bedwars",
-        "eight_two_losses_bedwars",
-        "eight_two_final_kills_bedwars",
-        "eight_two_final_deaths_bedwars",
-        "eight_two_kills_bedwars",
-        "eight_two_deaths_bedwars",
-        "eight_two_beds_broken_bedwars",
-        "eight_two_beds_lost_bedwars",
-        "eight_two_games_played_bedwars",
-        "four_three_wins_bedwars",
-        "four_three_losses_bedwars",
-        "four_three_final_kills_bedwars",
-        "four_three_final_deaths_bedwars",
-        "four_three_kills_bedwars",
-        "four_three_deaths_bedwars",
-        "four_three_beds_broken_bedwars",
-        "four_three_beds_lost_bedwars",
-        "four_three_games_played_bedwars",
-        "four_four_wins_bedwars",
-        "four_four_losses_bedwars",
-        "four_four_final_kills_bedwars",
-        "four_four_final_deaths_bedwars",
-        "four_four_kills_bedwars",
-        "four_four_deaths_bedwars",
-        "four_four_beds_broken_bedwars",
-        "four_four_beds_lost_bedwars",
-        "four_four_games_played_bedwars",
-        "two_four_wins_bedwars",
-        "two_four_losses_bedwars",
-        "two_four_final_kills_bedwars",
-        "two_four_final_deaths_bedwars",
-        "two_four_kills_bedwars",
-        "two_four_deaths_bedwars",
-        "two_four_beds_broken_bedwars",
-        "two_four_beds_lost_bedwars",
-        "two_four_games_played_bedwars",
-        "items_purchased_bedwars",
-        "eight_one_items_purchased_bedwars",
-        "eight_two_items_purchased_bedwars",
-        "four_three_items_purchased_bedwars",
-        "four_four_items_purchased_bedwars",
-        "two_four_items_purchased_bedwars"
-    ]
+    "commands.external.denick",
+    "commands.external.status"
+  ],
+  "tracked_bedwars_stats": [
+    "Experience",
+    "wins_bedwars",
+    "losses_bedwars",
+    "final_kills_bedwars",
+    "final_deaths_bedwars",
+    "kills_bedwars",
+    "deaths_bedwars",
+    "beds_broken_bedwars",
+    "beds_lost_bedwars",
+    "games_played_bedwars",
+    "eight_one_wins_bedwars",
+    "eight_one_losses_bedwars",
+    "eight_one_final_kills_bedwars",
+    "eight_one_final_deaths_bedwars",
+    "eight_one_kills_bedwars",
+    "eight_one_deaths_bedwars",
+    "eight_one_beds_broken_bedwars",
+    "eight_one_beds_lost_bedwars",
+    "eight_one_games_played_bedwars",
+    "eight_two_wins_bedwars",
+    "eight_two_losses_bedwars",
+    "eight_two_final_kills_bedwars",
+    "eight_two_final_deaths_bedwars",
+    "eight_two_kills_bedwars",
+    "eight_two_deaths_bedwars",
+    "eight_two_beds_broken_bedwars",
+    "eight_two_beds_lost_bedwars",
+    "eight_two_games_played_bedwars",
+    "four_three_wins_bedwars",
+    "four_three_losses_bedwars",
+    "four_three_final_kills_bedwars",
+    "four_three_final_deaths_bedwars",
+    "four_three_kills_bedwars",
+    "four_three_deaths_bedwars",
+    "four_three_beds_broken_bedwars",
+    "four_three_beds_lost_bedwars",
+    "four_three_games_played_bedwars",
+    "four_four_wins_bedwars",
+    "four_four_losses_bedwars",
+    "four_four_final_kills_bedwars",
+    "four_four_final_deaths_bedwars",
+    "four_four_kills_bedwars",
+    "four_four_deaths_bedwars",
+    "four_four_beds_broken_bedwars",
+    "four_four_beds_lost_bedwars",
+    "four_four_games_played_bedwars",
+    "two_four_wins_bedwars",
+    "two_four_losses_bedwars",
+    "two_four_final_kills_bedwars",
+    "two_four_final_deaths_bedwars",
+    "two_four_kills_bedwars",
+    "two_four_deaths_bedwars",
+    "two_four_beds_broken_bedwars",
+    "two_four_beds_lost_bedwars",
+    "two_four_games_played_bedwars",
+    "items_purchased_bedwars",
+    "eight_one_items_purchased_bedwars",
+    "eight_two_items_purchased_bedwars",
+    "four_three_items_purchased_bedwars",
+    "four_four_items_purchased_bedwars",
+    "two_four_items_purchased_bedwars"
+  ]
 }

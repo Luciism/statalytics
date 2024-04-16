@@ -1,388 +1,344 @@
-import json
 import sqlite3
-from typing import Any
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import datetime, UTC
+from typing import Callable
 
 from .cfg import config
-from .common import REL_PATH
-from .functions import get_timestamp
 
 
-def get_all_subscription_data(discord_id: int) -> tuple | None:
-    """
-    Returns all columns of subscription data for a user
-    :param discord_id: the discord id of the respective user
-    """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
+class UnregisteredPackageError(Exception):
+    """Error class for if a package does not exist in the config file."""
 
-        cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
-        subscription_data = cursor.fetchone()
-
-    return subscription_data or None
+class PackageTierConflictError(Exception):
+    """Error class for if there's a conflict between two different package tiers."""
 
 
-def get_package_data(discord_id: int) -> dict:
-    """
-    Returns package data dict for a user
-    :param discord_id: the discord id of the respective user
-    """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
+@dataclass
+class Subscription:
+    """Subscription data class"""
+    package: str
+    expiry_timestamp: float | int | None
 
-        cursor.execute(
-            f"SELECT package_data FROM subscriptions WHERE discord_id = {discord_id}")
-        package_data = cursor.fetchone()
+    def expires_in(self) -> float | None:
+        """
+        The duration remaining of the subscription in seconds.
+        :return: remaining time, otherwise `None` if the subscription is permanent
+        """
+        if self.expiry_timestamp is None:
+            return None
+        return self.expiry_timestamp - datetime.now(UTC).timestamp()
 
-    if package_data and package_data[0]:
-        package_data: dict = json.loads(package_data[0])
-        # sort by timestamp purchased
-        return dict(sorted(package_data.items(), key=lambda x: -float(x[0])))
-    return {}
+    @staticmethod
+    def get_package_tier(package: str) -> int:
+        """
+        Abstract method that returns the numeric tier of a certain package.
+        If using an instantiated instance of `Subscription`, use the `.tier`
+        property instead.
+        :param package: The package to return the tier of.
+        :raises: `statalib.subscriptions.UnregisteredPackageError` - The package \
+            is not registered in the config file.
+        """
+        try:
+            return config(f"packages.{package}.tier")
+        except KeyError as exc:
+            raise UnregisteredPackageError(
+                "The package entered was not found in the config file!"
+            ) from exc
 
-
-def is_booster(discord_id: int) -> bool:
-    """
-    Returns a bool if the user has booster premium or not
-    :param discord_id: the discord id of the respective user
-    """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT booster FROM subscriptions WHERE discord_id = {discord_id}")
-        booster = cursor.fetchone()
-
-    if booster:
-        if booster[0] == 1:
-            return True
-    return False
-
-
-def get_subscription(
-    discord_id: int=None,
-    package_data: dict[str, dict]=None,
-    include_booster: bool=True,
-    get_expiry: bool=False
-) -> str | tuple | None:
-    """
-    Returns a users subscription data from subscription database\n
-    Either `discord_id` or `package_data` must be set\n
-    `is_booster` requires `discord_id`
-
-    :param discord_id: the discord id of the respective user
-    :param package_data: optionally pass custom package_data
-    :param include_booster: whether or not to include booster premium
-    :param get_expiry: whether or not to return the package expiry timestamp
-    """
-    assert (discord_id, package_data).count(None) == 1
-
-    if discord_id and include_booster and is_booster(discord_id):
-        return 'pro'
-
-    if package_data is None:
-        package_data = get_package_data(discord_id)
-
-    if package_data:
-        for data in package_data.values():
-            expires = data.get('expires')
-            package = data.get('package')
-
-            values = (package, expires) if get_expiry else package
-
-            if expires != -1:
-                # check if package is still valid
-                now = datetime.utcnow().timestamp()
-                if expires > now:
-                    return values
-            else:
-                return values
-    return None
-
-
-def set_package_data(discord_id: int, package_data: dict):
-    """
-    Sets a user's package data column to specified package data dictionary
-    :param discord_id: the discord id of the respective user
-    :param package_data: the package data to be set for the user
-    """
-    subscription_data = get_subscription(
-        package_data=package_data, get_expiry=True, include_booster=False)
-
-    if subscription_data:
-        package, expires = subscription_data
-        current_package = f'{package}:{expires}'
-    else:
-        current_package = None
-
-    package_data_str = json.dumps(package_data)
-
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f"SELECT * FROM subscriptions WHERE discord_id = {discord_id}")
-        current_subscription = cursor.fetchone()
-
-        if current_subscription:
-            cursor.execute(
-                'UPDATE subscriptions '
-                'SET current_package = ?, package_data = ? '
-                'WHERE discord_id = ?',
-                (current_package, package_data_str, discord_id))
-        else:
-            cursor.execute(
-                'INSERT INTO subscriptions '
-                '(discord_id, current_package, package_data) '
-                'VALUES (?, ?, ?)',
-                (discord_id, current_package, package_data_str))
-
-
-def get_all_of_package(where_clause: str) -> list:
-    """
-    Selects all row from subscriptions table of a certain package type
-    :param package: the package to select
-    """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            f"SELECT * FROM subscriptions WHERE {where_clause}")
-        subscription_data = cursor.fetchall()
-
-    return subscription_data
-
-
-def set_current_package(discord_id: int, package: str=None,
-                        expiry: int=None) -> None:
-    """
-    Sets a user's current package column to specified package
-    :param discord_id: the discord id of the respective user
-    :param package: the current package to set for the user
-    :param expiry: the expiry to set with the current package
-    if package or expiry is `None`, current_package will get
-    set to `None`
-    """
-    if (package, expiry).count(None) == 0:
-        current_package = f'{package}:{expiry}'
-    else:
-        current_package = None
-
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "UPDATE subscriptions SET current_package = ? WHERE discord_id = ?",
-            (current_package, discord_id)
-        )
-
-
-def update_current_package(discord_id: int):
-    """
-    Updates current_package column to match current
-    package determined from package_data json string
-    :param discord_id: the discord id of the respective user
-    """
-
-    subscription = get_subscription(
-        discord_id, include_booster=False, get_expiry=True)
-    if subscription:
-        package, expiry = subscription
-    else:
-        package, expiry = None, None
-    set_current_package(discord_id, package, expiry)
-
-
-def add_subscription(discord_id: int, package: str, expires: int) -> None:
-    """
-    Adds a subscription to a user
-    :param discord_id: the discord id of the respective user
-    :param package: package the same of the package to give the user
-    :param expires: the epoch timestamp that the package will expire 
-    """
-    package_data = get_package_data(discord_id)
-
-    timestamp_blacklist = [float(key) for key in package_data]
-    timestamp = get_timestamp(blacklist=timestamp_blacklist)
-
-    package_data[str(timestamp)] = {'package': package, 'expires': expires}
-    package_data_str = json.dumps(package_data)
-
-    current_package = f'{package}:{expires}'
-
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute('SELECT * FROM subscriptions WHERE discord_id = ?', (discord_id,))
-        current_subscription = cursor.fetchone()
-
-        if current_subscription:
-            cursor.execute(
-                "UPDATE subscriptions SET current_package = ?, package_data = ? WHERE discord_id = ?",
-                (current_package, package_data_str, discord_id))
-        else:
-            cursor.execute(
-                'INSERT INTO subscriptions '
-                '(discord_id, current_package, package_data) '
-                'VALUES (?, ?, ?)',
-                (discord_id, current_package, package_data_str))
-
-    set_current_package(discord_id, package, expires)
-
-    try:
-        with open(f'{REL_PATH}/../utils/database/new_subscriptions.json', 'r+') as datafile:
-            new_subscriptions = json.load(datafile)
-            new_subscriptions[str(discord_id)] = package
-
-            datafile.seek(0)  # Move the file pointer to the beginning
-            json.dump(new_subscriptions, datafile, indent=4)
-            datafile.truncate()
-    except FileNotFoundError:
-        pass
-
-
-def remove_subscription(
-    discord_id: int,
-    package: str,
-    max_removals: int=-1
-):
-    """
-    Removes certain amount occurences of a subscription from a user
-    :param discord_id: the discord_id of the respective user
-    :param package: the package to remove from the user
-    :param max_removals: the amount of packages in the user's package
-    history to remove from the user (`-1` for no limit)
-    """
-    package_data = get_package_data(discord_id)
-
-    removed = 0
-    now = datetime.utcnow().timestamp()
-    for key, value in package_data.items():
-        if value['package'] == package:
-            if max_removals == -1 or removed < max_removals:
-                package_data[key]['expires'] = now - 1
-
-                removed += 1
-                continue
-            break
-
-    set_package_data(discord_id, package_data)
-    set_current_package(discord_id, package='idle', expiry=0)
-
-
-def get_package_permissions(package: str) -> list:
-    """
-    Returns a list of the configured permissions for a given package
-    :param package: the package to get the permissions of
-    """
-    packages_config: dict[str, dict[str, list]] = config('packages')
-
-    package_perms = packages_config.get(package, {}).get('permissions', [])
-    return package_perms
-
-
-def get_package_property(
-    package: str,
-    prop: str,
-    default: Any=None
-) -> Any:
-    """
-    Gets a specified property of a specified package as defined
-    in the `config.json` file
-    :param package: the package to get the property value of
-    :param prop: the property name to get the value of
-    :param default: the default value to return if no value is found
-    """
-    packages_config: dict[str, dict[str, dict]] = config('packages')
-    properties = packages_config.get(package, {}).get('properties', {})
-
-    return properties.get(prop, default)
-
-
-def get_user_property(
-    discord_id: int,
-    prop: str,
-    default: Any=None
-) -> Any:
-    """
-    Wrapper around the `get_package_property` function that gets
-    the property value directly for a certain discord user based
-    off of their subscription
-    """
-    package = get_subscription(discord_id) or 'free'
-
-    prop_value = get_package_property(package, prop, default)
-    return prop_value
+    @property
+    def tier(self) -> int:
+        """The numeric tier of the subscription package."""
+        return self.get_package_tier(self.package)
 
 
 class SubscriptionManager:
-    def __init__(self, discord_id: int):
-        self.discord_id = discord_id
-
-
-    def get_subscription(self, include_booster=True, get_expiry=False):
+    """Class to manage user subscriptions."""
+    def __init__(self, discord_id: int) -> None:
         """
-        Returns a users subscription data from subscription database\n
-
-        :param include_booster: whether or not to include booster premium
-        :param get_expiry: whether or not to return the package expiry timestamp
+        Class to manage user subscriptions.
+        :param discord_id: the discord id of the respective user
         """
-        return get_subscription(
-            discord_id=self.discord_id,
-            include_booster=include_booster,
-            get_expiry=get_expiry
+        self._discord_id = discord_id
+
+    def __set_active_subscription(
+        self,
+        subscription: Subscription,
+        cursor: sqlite3.Cursor
+    ) -> None:
+        cursor.execute(
+            "SELECT * FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
+
+        if cursor.fetchone():
+            query = ("UPDATE subscriptions_active SET package = ?, "
+                "expires = ? WHERE discord_id = ?")
+        else:
+            query = ("INSERT INTO subscriptions_active "
+                "(package, expires, discord_id) VALUES (?, ?, ?)")
+
+        # Set active subscription to provided subscription
+        cursor.execute(
+            query,
+            (subscription.package, subscription.expiry_timestamp, self._discord_id)
         )
 
 
-    def add_subscription(self, package: str, expires: int):
+    def __update_active_subscription(
+        self,
+        cursor: sqlite3.Cursor
+    ) -> tuple[Subscription, Callable]:
         """
-        Adds a subscription to a user
-        :param package: package the same of the package to give the user
-        :param expires: the epoch timestamp that the package will expire
+        Updates active subscription based on paused subscriptions.
+        :param cursor: A database cursor to operate on
+        :return: The new active subscription of the user as well as a callable \
+            that will tell the utils bot to update the user's roles.
         """
-        add_subscription(self.discord_id, package, expires)
+        # Select all paused package data
+        cursor.execute(
+            "SELECT package, duration_remaining, id FROM subscriptions_paused "
+            "WHERE discord_id = ?", (self._discord_id,)
+        )
+        paused_subscriptions = cursor.fetchall()
+
+        # User has no paused subscriptions
+        if not paused_subscriptions:
+            # Return the default subscription as well as a filler callable
+            # because no further action is required.
+            return Subscription(config("default_package"), None), lambda: ...
+
+        # Get package with highest tier property
+        highest_tier_package = paused_subscriptions[0]
+
+        for sub in paused_subscriptions[1:]:
+            if config(f"packages.{sub[0]}.tier") \
+                > config(f"packages.{highest_tier_package[0]}.tier"):
+                highest_tier_package = sub
+
+        # Create subscription object from highest tier paused package
+        if highest_tier_package[1] is not None:  # Package duration is not permanent
+            expiry_timestamp = int(datetime.now(UTC).timestamp() + highest_tier_package[1])
+        else:
+            expiry_timestamp = None
+
+        subscription = Subscription(
+            package=highest_tier_package[0], expiry_timestamp=expiry_timestamp
+        )
+
+        # Insert or update new active subscription data
+        self.__set_active_subscription(subscription, cursor)
+
+        # Remove paused subscription
+        cursor.execute(
+            "DELETE FROM subscriptions_paused WHERE discord_id = ? AND id = ?",
+            (self._discord_id, highest_tier_package[2])
+        )
+
+        def callback() -> None:
+            # TODO implement callback
+            ...
+
+        return subscription, callback
 
 
-    def remove_subscription(self, package: str, max_removals: int=-1):
-        """
-        Removes certain amount occurences of a subscription from a user
-        :param package: the package to remove from the user
-        :param max_removals: the amount of packages in the user's package
-        history to remove from the user (`-1` for no limit)
-        """
-        remove_subscription(self.discord_id, package, max_removals)
+    def __get_subscription(
+        self,
+        cursor: sqlite3.Cursor
+    ) -> tuple[Subscription, Callable | None]:
+        callback = None
+
+        cursor.execute(
+            "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
+            (self._discord_id,))
+
+        active_subscription = cursor.fetchone()
+
+        if active_subscription is None:
+            return Subscription(config("default_package"), None), None
+
+        # Check if subscription has expired (and isn't lifetime)
+        if active_subscription[1] and \
+            active_subscription[1] < int(datetime.now(UTC).timestamp()):
+            # Update subscription data
+            subscription, callback = self.__update_active_subscription(cursor)
+        else:
+            subscription = Subscription(
+                package=active_subscription[0],
+                expiry_timestamp=active_subscription[1]
+            )
+
+        return subscription, callback
 
 
-    def update_current_package(self):
+    def get_subscription(
+        self,
+        update_roles: bool=True,
+        cursor: sqlite3.Cursor=None
+    ) -> Subscription:
         """
-        Updates current_package column to match current
-        package determined from package_data json string
+        Get the user's current subscription.
+        :param update_roles: Whether or not to update the user's subscription \
+            discord roles if their subscription state is updated.
         """
-        update_current_package(self.discord_id)
+        if cursor is not None:
+            subscription, callback = self.__get_subscription(cursor)
+        else:
+            with sqlite3.connect(config.DB_FILE_PATH) as conn:
+                cursor = conn.cursor()
+                subscription, callback = self.__get_subscription(cursor)
+
+        # Call callback function if it exists
+        if callback and update_roles:
+            callback()
+        return subscription
 
 
-    def set_package_data(self, package_data: dict):
-        """
-        Sets a user's package data column to specified package data dictionary
-        :param package_data: the package data to be set for the user
-        """
-        set_package_data(self.discord_id, package_data)
+    def __get_paused_subscriptions(
+        self,
+        package: str | None,
+        cursor: sqlite3.Cursor
+    ):
+        query = ("SELECT package, duration_remaining "
+            "FROM subscriptions_paused WHERE discord_id = ?")
+
+        if package is None:
+            cursor.execute(query, (self._discord_id,))
+            return cursor.fetchall()
+
+        query += " AND package = ?"
+        cursor.execute(query, (self._discord_id, package))
+        return cursor.fetchall()
+
+    def _get_paused_subscriptions(
+        self,
+        package: str | None = None,
+        cursor: sqlite3.Cursor | None = None
+    ) -> list[tuple]:
+        if cursor is not None:
+            return self.__get_paused_subscriptions(package, cursor)
+
+        with sqlite3.connect(config.DB_FILE_PATH) as conn:
+            cursor = conn.cursor()
+            return self.__get_paused_subscriptions(package, cursor)
 
 
-    def is_booster(self) -> bool:
-        """
-        Returns a bool if the user has booster premium or not
-        """
-        return is_booster(self.discord_id)
+    def __add_paused_subscription(
+        self,
+        package: str,
+        duration_remaining: int | None,
+        cursor: sqlite3.Cursor
+    ) -> None:
+        cursor.execute(
+            "INSERT INTO subscriptions_paused (discord_id, package, duration_remaining) "
+            "VALUES (?, ?, ?)", (self._discord_id, package, duration_remaining)
+        )
+
+    def _add_paused_subscription(
+        self,
+        package: str,
+        duration_remaining: int | None,
+        cursor: sqlite3.Cursor | None=None
+    ) -> None:
+        if cursor is not None:
+            return self.__add_paused_subscription(package, duration_remaining, cursor)
+
+        with sqlite3.connect(config.DB_FILE_PATH) as conn:
+            cursor = conn.cursor()
+            return self.__add_paused_subscription(package, duration_remaining, cursor)
 
 
-    def get_package_data(self) -> dict:
-        """
-        Returns package data dict for a user
-        """
-        return get_package_data(self.discord_id)
+
+    def __add_subscription_existing_subscription(
+        self,
+        cursor: sqlite3.Cursor,
+        existing_subscription: Subscription,
+        package: str,
+        duration: int
+    ) -> None:
+        # New subscription is same tier as existing one
+        if package == existing_subscription.package:
+            # Check if existing subscription is a lifetime subscription
+            if existing_subscription.expiry_timestamp == None:
+                raise PackageTierConflictError(
+                    "The package you are trying to add is the same tier as the currently "
+                    "active subscription package. Because the currently active subscription "
+                    "package has an infinite duration, it cannot be extended."
+                )
+
+            if existing_subscription.expires_in() > 0:
+                # Extend existing subscription because it is still running
+                expires = int(existing_subscription.expiry_timestamp + duration)
+            else:
+                # Set expiry to now + duration because existing subscription has expired
+                expires = int(datetime.now(UTC).timestamp() + duration)
+
+            cursor.execute(
+                "UPDATE subscriptions_active SET expires = ? WHERE discord_id = ?",
+                (expires, self._discord_id)
+            )
+            return
+
+        # New subscription is higher tier than existing one
+        if Subscription.get_package_tier(package) > existing_subscription.tier:
+            # Pause active subscription and activate new subscription
+            self._add_paused_subscription(
+                existing_subscription.package, existing_subscription.expires_in(), cursor)
+
+            new_subscription = Subscription(
+                package, int(datetime.now(UTC).timestamp() + duration))
+            self.__set_active_subscription(new_subscription, cursor)
+            return
+
+        # New subscription is lower tier than existing one
+        # Check if existing package is a lifetime subscription
+        if existing_subscription.expiry_timestamp is None:
+            raise PackageTierConflictError(
+                "The package you are attempting to add is a lower tier than "
+                "the currently active subscription package. Because the currently "
+                "active subscription package has an infinite duration, the "
+                "package you are attempting to add can never be activated."
+            )
+
+        self._add_paused_subscription(package, duration, cursor)
 
 
-    def get_all_subscription_data(self) -> tuple | None:
+    def add_subscription(
+        self,
+        package: str,
+        duration: int | None=None
+    ) -> bool:
         """
-        Returns all columns of subscription data for a user
+        Adds a subscription to the user's account.
+        :param package: The subscription package to add.
+        :param duration: The duration (in seconds) of the subscription. Can be \
+            left as `None` for an infinite duration.
+        :return: Boolean whether or not the subscription was successfully added
         """
-        return get_all_subscription_data(self.discord_id)
+        with sqlite3.connect(config.DB_FILE_PATH) as conn:
+            cursor = conn.cursor()
+
+            # Ensure active subscription is accurate
+            active_subscription = self.get_subscription(
+                update_roles=False, cursor=cursor)
+
+            # User has no active subscription.
+            # Simply add the subscription to the user's account
+            if active_subscription.package == config("default_package"):
+                # There may be an expired subscription in the active subscriptions table
+                cursor.execute(
+                    "DELETE FROM subscriptions_active WHERE discord_id = ?",
+                    (self._discord_id,))
+
+                # Insert new subscription
+                if duration is not None:
+                    expires = int(datetime.now(UTC).timestamp() + duration)
+                else:
+                    expires = None
+
+                cursor.execute(
+                    "INSERT INTO subscriptions_active (discord_id, package, expires) "
+                    "VALUES (?, ?, ?)", (self._discord_id, package, expires)
+                )
+                return True
+
+            self.__add_subscription_existing_subscription(
+                cursor, active_subscription, package, duration
+            )

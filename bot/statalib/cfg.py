@@ -5,6 +5,8 @@ from .common import REL_PATH
 
 
 class _Config:
+    DB_FILE_PATH = f'{REL_PATH}/database/core.db'
+
     def __init__(self) -> None:
         self._config_data: dict = None
 

@@ -4,7 +4,7 @@ import typing
 import discord
 from discord import app_commands
 
-from ..subscriptions import get_user_property
+from ..subscriptions_old import get_user_property
 from ..permissions import has_access
 from ..cfg import config
 from ..functions import get_voting_data
