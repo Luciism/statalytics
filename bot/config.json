@@ -42,6 +42,7 @@
   "packages": {
     "pro": {
       "tier": 2,
+      "role_id": 1129410064986415180,
       "permissions": [
         "automatic_tracker_reset",
         "custom_backgrounds",
@@ -62,6 +63,7 @@
     },
     "basic": {
       "tier": 1,
+      "role_id": 1129410064986415179,
       "permissions": [
         "voter_themes",
         "year_2026",
@@ -149,6 +151,7 @@
       "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
     }
   },
+  "utils_socket_server_port": 57621,
   "enabled_cogs": [
     "misc.manage_cogs",
     "misc.error_handling",
