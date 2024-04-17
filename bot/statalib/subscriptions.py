@@ -307,6 +307,24 @@ class SubscriptionManager:
             return __add_paused_subscription(cursor)
 
 
+    def has_package_conflicts(self, package: str) -> bool:
+        """
+        Checks whether a certain adding a certain package to a user's
+        subscription will have conflicts with their existing subscription.
+        :param package: The package to check for conflicts against.
+        :return bool: Whether (or not) there are conflicts.
+        """
+        package_tier = Subscription.get_package_tier(package)
+        subscription = self.get_subscription()
+
+        # Active subscription package is permanent
+        if subscription.expiry_timestamp is None:
+            # Package tier is not a higher tier than active subscription package
+            if package_tier <= subscription.tier:
+                return True
+        return False
+
+
     def __add_subscription_existing_subscription(
         self,
         cursor: sqlite3.Cursor,
