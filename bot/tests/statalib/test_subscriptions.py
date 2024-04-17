@@ -189,3 +189,13 @@ class TestAddSubscription(unittest.TestCase):
 
         assert s.get_subscription(False).package == "basic"
         assert s.get_subscription(False).expiry_timestamp == None
+
+    def test_add_subscription_lifetime_same_tier_existing(self):
+        s = SubscriptionManager(MockData.discord_id)
+
+        s.add_subscription("pro", 5000)
+        s.add_subscription("pro", None)
+
+        assert s.get_subscription(False).package == "pro"
+        assert s.get_subscription(False).expiry_timestamp == None
+        assert len(s._get_paused_subscriptions("pro")) == 1  # Original was paused

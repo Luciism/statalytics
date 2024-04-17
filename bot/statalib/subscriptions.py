@@ -342,12 +342,20 @@ class SubscriptionManager:
                     "package has an infinite duration, it cannot be extended."
                 )
 
-            if existing_subscription.expires_in() > 0:
-                # Extend existing subscription because it is still running
-                expires = existing_subscription.expiry_timestamp + duration
+            if duration is None:
+                # Subscription being added is a lifetime subscription
+                expires = None
+
+                # Pause active subscription (preserve it)
+                self._add_paused_subscription(
+                    existing_subscription.package, existing_subscription.expires_in(), cursor)
             else:
-                # Set expiry to now + duration because existing subscription has expired
-                expires = datetime.now(UTC).timestamp() + duration
+                if existing_subscription.expires_in() > 0:
+                    # Extend existing subscription because it is still running
+                    expires = existing_subscription.expiry_timestamp + duration
+                else:
+                    # Set expiry to now + duration because existing subscription has expired
+                    expires = datetime.now(UTC).timestamp() + duration
 
             cursor.execute(
                 "UPDATE subscriptions_active SET expires = ? WHERE discord_id = ?",
