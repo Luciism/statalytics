@@ -6,7 +6,7 @@ from .functions import comma_separated_to_list, get_voting_data, commands_ran
 from .linking import LinkingManager, get_linked_player
 from .historical import HistoricalManager
 from .permissions import PermissionManager, has_access, has_permission
-from .subscriptions_old import SubscriptionManager, get_subscription
+from .subscriptions import SubscriptionManager, Subscription
 from .themes import (
     ThemeManager, get_owned_themes, get_active_theme, get_voter_themes)
 
@@ -231,10 +231,10 @@ class Account:
         return self._player_uuid
 
     @property
-    def subscription(self) ->  str | None:
+    def subscription(self) ->  Subscription:
         """The subscription tier of the user"""
         if self._subscription is self.__default:
-            self._subscription = get_subscription(self.discord_id)
+            self._subscription = self.subscription_manager.get_subscription()
         return self._subscription
 
     @property

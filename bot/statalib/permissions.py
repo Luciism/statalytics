@@ -1,9 +1,9 @@
 import sqlite3
 
-from .functions import comma_separated_to_list
-from .common import REL_PATH
-from .subscriptions_old import get_subscription, get_package_permissions
 from .accounts import create_account
+from .common import REL_PATH
+from .functions import comma_separated_to_list
+from .subscriptions import SubscriptionManager
 
 
 def get_permissions(discord_id: int) -> list:
@@ -123,8 +123,8 @@ def has_access(
     if not discord_id:
         return False
 
-    subscription = get_subscription(discord_id)
-    package_perms = get_package_permissions(subscription)
+    subscription = SubscriptionManager(discord_id).get_subscription()
+    package_perms = subscription.package_permissions
 
     package_perms = set(package_perms)
 

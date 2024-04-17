@@ -137,7 +137,9 @@ class Sessions(commands.Cog):
             session_data = cursor.fetchall()
 
         active_sessions = len(session_data)
-        max_sessions = lib.get_user_property(interaction.user.id, 'max_sessions', 2)
+        max_sessions = lib.SubscriptionManager(interaction.user.id)\
+            .get_subscription()\
+            .package_property("max_sessions", 2)
 
         if active_sessions >= max_sessions:
             await interaction.followup.send(

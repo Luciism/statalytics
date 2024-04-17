@@ -8,7 +8,6 @@ from .themes import *
 from .autocomplete import *
 from .handlers import *
 from .subscriptions import *
-from .subscriptions_old import *
 from .network import *
 from .permissions import *
 from .aliases import *

@@ -3,6 +3,7 @@ import socket
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, UTC
+from typing import Any
 
 from .cfg import config
 
@@ -34,7 +35,7 @@ class Subscription:
     @staticmethod
     def get_package_tier(package: str) -> int:
         """
-        Abstract method that returns the numeric tier of a certain package.
+        Static method that returns the numeric tier of a certain package.
         If using an instantiated instance of `Subscription`, use the `.tier`
         property instead.
         :param package: The package to return the tier of.
@@ -53,6 +54,64 @@ class Subscription:
     def tier(self) -> int:
         """The numeric tier of the subscription package."""
         return self.get_package_tier(self.package)
+
+
+    @staticmethod
+    def __get_package_data(package: str) -> None:
+        packages_config: dict[str, dict] = config('packages')
+        package_data = packages_config.get(package)
+
+        if package_data is None:
+            raise UnregisteredPackageError(
+                "The package entered was not found in the config file!")
+        return package_data
+
+    @staticmethod
+    def get_package_permissions(package: str) -> list[str]:
+        """
+        Static method that returns a list of the configured permissions
+        for a given package. If using an instantiated instance of `Subscription`,
+        use the `.package_permissions` property instead.
+        :param package: The package to get the permissions for.
+        """
+        package_data = Subscription.__get_package_data(package)
+        package_perms = package_data.get('permissions', [])
+        return package_perms
+
+
+    @property
+    def package_permissions(self) -> list[str]:
+        """The permissions that the package tier includes"""
+        return self.get_package_permissions(self.package)
+
+
+    @staticmethod
+    def get_package_property(
+        package: str,
+        property: str,
+        default: Any=None
+    ) -> list[str]:
+        """
+        Static method that returns a property value configured
+        for the respective package. If using an instantiated
+        instance of `Subscription`, use the `.package_property()`
+        method instead.
+        :param package: The package to get the property for.
+        :param property: The property name to get the value for.
+        :param default: The default value to return if no value is found.
+        """
+        package_data = Subscription.__get_package_data(package)
+        properties: dict = package_data.get('properties', {})
+        return properties.get(property, default)
+
+
+    def package_property(self, property: str, default: Any=None) -> list[str]:
+        """
+        Returns the configured property value for the given property.
+        :param property: The property name to get the value for.
+        :param default: The default value to return if no value is found.
+        """
+        return self.get_package_property(self.package, property, default)
 
 
 class SubscriptionManager:

@@ -4,7 +4,7 @@ import typing
 import discord
 from discord import app_commands
 
-from ..subscriptions_old import get_user_property
+from ..subscriptions import SubscriptionManager
 from ..permissions import has_access
 from ..cfg import config
 from ..functions import get_voting_data
@@ -34,8 +34,8 @@ def generic_command_cooldown(
             return app_commands.Cooldown(1, 1.75)
 
     # default configured cooldown
-    cooldown_data: dict = get_user_property(
-        interaction.user.id, 'generic_command_cooldown', {})
+    cooldown_data = SubscriptionManager(interaction.user.id)\
+        .get_subscription().package_property("generic_command_cooldown", {})
 
     return app_commands.Cooldown(
         rate=cooldown_data.get('rate', 1),

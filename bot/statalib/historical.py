@@ -12,7 +12,7 @@ from .calctools import get_player_dict, get_level
 from .cfg import config
 from .common import REL_PATH
 from .linking import get_linked_player, uuid_to_discord_id
-from .subscriptions_old import get_user_property
+from .subscriptions import SubscriptionManager
 from .aliases import PlayerUUID
 from .permissions import has_access
 from .functions import load_embeds
@@ -340,10 +340,12 @@ def get_max_lookback(
     """
     max_lookback = None
     if discord_id_primary:
-        max_lookback = get_user_property(discord_id_primary, 'max_lookback')
+        max_lookback = SubscriptionManager(discord_id_primary)\
+            .get_subscription().package_property("max_lookback")
 
     if not max_lookback or not discord_id_primary:
-        max_lookback = get_user_property(discord_id_secondary, 'max_lookback', 30)
+        max_lookback = SubscriptionManager(discord_id_secondary)\
+            .get_subscription().package_property("max_lookback", 30)
 
     return max_lookback
 
