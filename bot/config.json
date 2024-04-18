@@ -42,7 +42,7 @@
   "packages": {
     "pro": {
       "tier": 2,
-      "role_id": 1083185744539037758,
+      "role_id": 1129410064986415180,
       "permissions": [
         "automatic_tracker_reset",
         "custom_backgrounds",
@@ -63,7 +63,7 @@
     },
     "basic": {
       "tier": 1,
-      "role_id": 1083186443523985448,
+      "role_id": 1129410064986415179,
       "permissions": [
         "voter_themes",
         "year_2026",

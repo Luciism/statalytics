@@ -409,3 +409,12 @@ def comma_separated_to_list(comma_seperated_list: str) -> list:
     if comma_seperated_list:
         return comma_seperated_list.split(',')
     return []
+
+
+def setup_database_schema(schema_fp="./schema.sql", db_fp=config.DB_FILE_PATH) -> None:
+    with open(schema_fp) as db_schema_file:
+        db_schema_setup = db_schema_file.read()
+
+    with sqlite3.connect(db_fp) as conn:
+        cursor = conn.cursor()
+        cursor.executescript(db_schema_setup)

@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import statalib
 from statalib import (
     CustomTimedRotatingFileHandler,
     save_historical,
@@ -131,7 +132,7 @@ async def reset_trackers():
 
     utc_now = datetime.now(UTC)
 
-    with sqlite3.connect('database/core.db') as conn:
+    with sqlite3.connect(statalib.config.DB_FILE_PATH) as conn:
         cursor = conn.cursor()
 
         cursor.execute(query, (utc_now.hour,))

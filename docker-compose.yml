@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: ./
+      dockerfile: ./bot/Dockerfile
+    env_file:
+      - ./bot/.env
+    volumes:
+      - bot_logs:/app/bot/logs
+      - database:/app/bot/database
+
+  trackers:
+    build:
+      context: ./
+      dockerfile: ./trackers/Dockerfile
+    env_file:
+      - ./bot/.env
+    volumes:
+      - bot_logs:/app/bot/logs
+      - database:/app/bot/database
+
+
+  utils:
+    build:
+      context: ./
+      dockerfile: ./utils/Dockerfile
+    env_file:
+      - ./utils/.env
+    volumes:
+      - utils_logs:/app/utils/logs
+      - database:/app/bot/database
+
+  website:
+    build:
+      context: ./
+      dockerfile: ./website/Dockerfile
+    env_file:
+      - ./website/.env
+    volumes:
+      - website_logs:/app/website/logs
+      - database:/app/bot/database
+    ports:
+      - 8000:443
+
+
+volumes:
+  database:
+  bot_logs:
+  utils_logs:
+  website_logs:

@@ -135,9 +135,12 @@ class SubscriptionManager:
             ]
         })
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-            client.connect(('127.0.0.1', config("utils_socket_server_port")))
-            client.send(json_data.encode())
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+                client.connect(('utils', config("utils_socket_server_port")))
+                client.send(json_data.encode())
+        except ConnectionRefusedError:
+            return  # Utils bot is probably offline
 
 
     def __set_active_subscription(
