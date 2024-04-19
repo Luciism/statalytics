@@ -3,11 +3,13 @@
     "support_server": {
       "id": 1129410064986415176,
       "channels": {
+        "error_logs_channel_id": 1129410066827718672,
+        "suggestions_channel_id": 1129410066827718673,
         "tickets": {
           "ticket_category_id": 1129410067117113377,
           "archived_tickets_category_id": 1129410067117113379
         },
-        "modlog_channel_id": 1129410066827718672,
+        "modlog_channel_id": 1129410067117113375,
         "lockdown_channels": [
           1129410065942708350, 1129410065942708351, 1129410066513141892,
           1129410066513141898

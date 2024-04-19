@@ -43,7 +43,7 @@ class Subscription:
             is not registered in the config file.
         """
         try:
-            return config(f"packages.{package}.tier")
+            return config(f"global.subscriptions.packages.{package}.tier")
         except KeyError as exc:
             raise UnregisteredPackageError(
                 "The package entered was not found in the config file!"
@@ -191,8 +191,10 @@ class SubscriptionManager:
         highest_tier_package = paused_subscriptions[0]
 
         for sub in paused_subscriptions[1:]:
-            if config(f"packages.{sub[0]}.tier") \
-                > config(f"packages.{highest_tier_package[0]}.tier"):
+            if (
+                config(f"global.subscriptions.packages.{sub[0]}.tier")
+                > config(f"global.subscriptions.packages.{highest_tier_package[0]}.tier")
+            ):
                 highest_tier_package = sub
 
         # Create subscription object from highest tier paused package
