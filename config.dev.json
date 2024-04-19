@@ -1,0 +1,33 @@
+{
+  "global": {
+    "support_server": {
+      "id": 1129410064986415176,
+      "channels": {
+        "tickets": {
+          "ticket_category_id": 1129410067117113377,
+          "archived_tickets_category_id": 1129410067117113379
+        },
+        "modlog_channel_id": 1129410066827718672,
+        "lockdown_channels": [
+          1129410065942708350, 1129410065942708351, 1129410066513141892,
+          1129410066513141898
+        ]
+      },
+      "roles": {
+        "member_role_id": 1129410064986415178,
+        "booster_role_id": 1129411486079524935,
+        "staff_role_id": 1129410064986415184
+      }
+    },
+    "subscriptions": {
+      "packages": {
+        "pro": {
+          "role_id": 1129410064986415180
+        },
+        "basic": {
+          "role_id": 1129410064986415179
+        }
+      }
+    }
+  }
+}

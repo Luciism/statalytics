@@ -4,49 +4,46 @@ services:
   bot:
     build:
       context: ./
-      dockerfile: ./bot/Dockerfile
+      dockerfile: ./apps/bot/Dockerfile
     env_file:
-      - ./bot/.env
+      - ./.env
     volumes:
-      - bot_logs:/app/bot/logs
-      - database:/app/bot/database
+      - logs:/app/logs
+      - database:/app/database
 
   trackers:
     build:
       context: ./
-      dockerfile: ./trackers/Dockerfile
+      dockerfile: ./apps/trackers/Dockerfile
     env_file:
-      - ./bot/.env
+      - ./.env
     volumes:
-      - bot_logs:/app/bot/logs
-      - database:/app/bot/database
-
+      - logs:/app/logs
+      - database:/app/database
 
   utils:
     build:
       context: ./
-      dockerfile: ./utils/Dockerfile
+      dockerfile: ./apps/utils/Dockerfile
     env_file:
-      - ./utils/.env
+      - ./.env
     volumes:
-      - utils_logs:/app/utils/logs
-      - database:/app/bot/database
+      - logs:/app/logs
+      - database:/app/database
 
   website:
     build:
       context: ./
-      dockerfile: ./website/Dockerfile
+      dockerfile: ./apps/website/Dockerfile
     env_file:
-      - ./website/.env
+      - ./.env
     volumes:
-      - website_logs:/app/website/logs
-      - database:/app/bot/database
+      - logs:/app/logs
+      - database:/app/database
     ports:
-      - 8000:443
+      - "${WEBSITE_PORT}:443"
 
 
 volumes:
   database:
-  bot_logs:
-  utils_logs:
-  website_logs:
+  logs:
