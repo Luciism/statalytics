@@ -36,7 +36,7 @@ async def log_error_msg(
         format_exception(type(error), error, error.__traceback__))
     logger.error(traceback_str)
 
-    if getenv('ENVIRONMENT') == 'development' or not client:
+    if client is None:
         return
 
     await client.wait_until_ready()
@@ -49,8 +49,8 @@ async def log_error_msg(
     await channel.send(
         content=
             f"Error: `{error}`\n" +
-            "\n".join([f"{k}: `{v}`\n" for k, v in metadata.items()]) +
-            "Traceback:",
+            "\n".join([f"{k}: `{v}`" for k, v in metadata.items()]) +
+            "\nTraceback:",
         file=tb_file
     )
 
@@ -111,7 +111,8 @@ async def handle_remaining_tree_errors(
         interaction.client,
         error,
         metadata={
-            "Invoked By": f"{interaction.user} ({interaction.user.id})"
+            "Invoked By": f"{interaction.user} ({interaction.user.id})",
+            "Latency": f"{int(interaction.client.latency * 1000)}ms"
         }
     )
 
