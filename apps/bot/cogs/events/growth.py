@@ -28,5 +28,10 @@ class Growth(commands.Cog):
         self.update_server_count_file()
 
 
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        self.update_server_count_file()
+
+
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Growth(client))
