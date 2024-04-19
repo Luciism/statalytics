@@ -1,6 +1,6 @@
 requests==2.31.0  # used in mcfetch
 discord.py==2.2.3
 Pillow==10.2.0
-psutil==5.9.4
+psutil==5.9.8
 python-dateutil==2.8.2
 python-dotenv==1.0.0

@@ -3,9 +3,9 @@
 **/__pycache__/
 **/.env
 **/.cache/
+**/cache/
 **/test.py
 **/database/
-bot/cache/
 website/
 utils/
 api/
