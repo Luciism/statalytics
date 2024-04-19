@@ -4,7 +4,6 @@ import time
 import datetime
 from json import load as load_json
 
-import psutil
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -43,8 +42,9 @@ class Info(commands.Cog):
 
         python_version = '.'.join(str(ver) for ver in sys.version_info[0:3])
 
-        process_mem = psutil.Process(os.getpid()).memory_info().rss
-        ram_usage = round(process_mem / 1024 ** 2, 2)
+        shard_count = self.client.shard_count
+        # process_mem = psutil.Process(os.getpid()).memory_info().rss
+        # ram_usage = round(process_mem / 1024 ** 2, 2)
 
         format_values = {
             'fields': {
@@ -69,7 +69,7 @@ class Info(commands.Cog):
                         'devs': ', '.join(lib.config("global.developers")),
                         'library': 'discord.py',
                         'python_ver': python_version,
-                        'ram_usage': ram_usage
+                        'shard_count': shard_count
                     }
                 }
             }
