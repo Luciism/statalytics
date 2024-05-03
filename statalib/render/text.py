@@ -3,10 +3,13 @@ from typing import Literal
 from PIL import Image, ImageFont, ImageDraw
 
 from ..common import REL_PATH
-from .splitting import split_string, split_at_symbols
+from .splitting import split_string
 from .colors import Colors
 from .tools import mc_text_shadow
-from .symbols import render_symbol, symbol_width, dummy_draw
+
+
+dummy_img = Image.new('RGBA', (0, 0))
+dummy_draw = ImageDraw.Draw(dummy_img)
 
 
 def get_text_len(text: str, font: ImageFont.ImageFont):
@@ -15,20 +18,7 @@ def get_text_len(text: str, font: ImageFont.ImageFont):
     :param text: the text to find the length of
     :param font: the primary font for the text to be in
     """
-    text_len = 0
-
-    text_dicts = split_at_symbols(text)
-
-    for text_dict in text_dicts:
-        value = text_dict.get('value')
-
-        if text_dict.get('type') == 'text':
-            text_len += dummy_draw.textlength(value, font=font)
-
-        elif text_dict.get('type') == 'symbol':
-            text_len += symbol_width(value, font.size)
-
-    return text_len
+    return dummy_draw.textlength(text, font=font)
 
 
 def get_actual_text(text: str) -> str:
@@ -106,7 +96,7 @@ def render_mc_text(
 
     if font is None:
         font = ImageFont.truetype(
-            f'{REL_PATH}/assets/fonts/minecraft.ttf', size=font_size)
+            f'{REL_PATH}/assets/fonts/main.ttf', size=font_size)
 
     split_chars = tuple(Colors.color_codes)
     bits = tuple(split_string(text, split_chars))
@@ -126,30 +116,13 @@ def render_mc_text(
     for text, color_code in bits:
         color = Colors.color_codes.get(color_code, Colors.white)
 
-        text_dicts = split_at_symbols(text)
+        if shadow_offset is not None:
+            off_x, off_y = shadow_offset
+            shadow_color = mc_text_shadow(color)
+            draw.text((x + off_x, y + off_y), text, fill=shadow_color, font=font)
 
-        for text_dict in text_dicts:
-            value = text_dict.get('value')
-            if text_dict.get('type') == 'symbol':
-                image, x = render_symbol(
-                    image=image,
-                    symbol=value,
-                    position=(x, y),
-                    font_size=font.size,
-                    color=color,
-                    shadow_offset=shadow_offset,
-                    return_x=True
-                )
-
-            elif text_dict.get('type') == 'text':
-                if shadow_offset is not None:
-                    off_x, off_y = shadow_offset
-                    shadow_color = mc_text_shadow(color)
-                    draw.text((x + off_x, y + off_y), value, fill=shadow_color, font=font)
-
-                draw.text((x, y), value, fill=color, font=font)
-
-                x += int(draw.textlength(value, font=font))
+        draw.text((x, y), text, fill=color, font=font)
+        x += int(draw.textlength(text, font=font))
 
     if return_x:
         return image, x

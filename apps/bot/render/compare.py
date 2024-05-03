@@ -35,7 +35,7 @@ def render_compare(
         bg_dir='compare', uuid=uuid_1, level=stats.level_1, rank_info=stats.rank_info_1
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [

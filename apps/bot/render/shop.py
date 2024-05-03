@@ -50,7 +50,7 @@ def render_shop(
         top_image = top_image.convert("RGBA")
         composite_image.paste(top_image, slots[i], top_image)
 
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 32)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 32)
 
     # If the name box is transparent, color the name, otherwise default gray
     name_backdrop_alpha = base_image.getpixel((49, 25))[3]

@@ -33,14 +33,14 @@ def render_historical(
     level = stats.level
     rank_info = stats.rank_info
 
-    progress, target, progress_of_10 = stats.progress
+    progress, target, xp_bar_progress = stats.progress
 
     image = get_background(
         bg_dir=f'historical/{identifier}', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
-    minecraft_17 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 17)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
+    minecraft_17 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 17)
 
     # Render the stat values
     data = [
@@ -86,7 +86,7 @@ def render_historical(
 
     render_progress_bar(
         level=level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(226, 91),
         image=image,
         align='center'

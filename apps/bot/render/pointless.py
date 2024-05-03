@@ -22,13 +22,13 @@ def render_pointless(
     save_dir: str,
 ):
     stats = TotalStats(hypixel_data, mode)
-    progress, target, progress_of_10 = stats.progress
+    progress, target, xp_bar_progress = stats.progress
 
     image = get_background(
         bg_dir='total', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [
@@ -74,7 +74,7 @@ def render_pointless(
 
     render_progress_bar(
         level=stats.level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(226, 91),
         image=image,
         align='center'

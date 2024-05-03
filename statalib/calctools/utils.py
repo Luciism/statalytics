@@ -1,3 +1,6 @@
+PROGRESS_BAR_MAX = 30
+
+
 bedwars_modes_map = {
     "overall": "",
     "solos": "eight_one_",
@@ -170,7 +173,7 @@ def get_progress(experience: int) -> tuple[str, str, int]:
     """
     Get the leveling progress information from bedwars experience
     :param experience: the bedwars experience to get the level progress of
-    :param return: (level xp progress, level xp target, level xp progress of 10)
+    :param return: (level xp progress, level xp target, level xp progress of 30)
     """
     level: float = get_level(experience)
 
@@ -185,10 +188,10 @@ def get_progress(experience: int) -> tuple[str, str, int]:
     target_xp: int = level_xp_map.get(int(lvls_since_pres), 5000)
 
     lvl_progress = float(f'.{decimal_of(level)}') * target_xp
-    devide_by = target_xp / 10
-    progress_out_of_ten = round(lvl_progress / devide_by)
+    devide_by = target_xp / PROGRESS_BAR_MAX
+    xp_bar_progress = round(lvl_progress / devide_by)
 
-    return f'{int(lvl_progress):,}', f'{int(target_xp):,}', progress_out_of_ten
+    return f'{int(lvl_progress):,}', f'{int(target_xp):,}', xp_bar_progress
 
 
 def rround(number: float | int, ndigits: int=0) -> float | int:

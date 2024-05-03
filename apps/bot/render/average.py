@@ -22,13 +22,13 @@ def render_average(
     save_dir: str
 ):
     stats = AverageStats(hypixel_data, mode)
-    progress, target, progress_of_10 = stats.progress
+    progress, target, xp_bar_progress = stats.progress
 
     image = get_background(
         bg_dir='average', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [
@@ -79,7 +79,7 @@ def render_average(
 
     render_progress_bar(
         level=stats.level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(225, 88),
         image=image,
         align='center'

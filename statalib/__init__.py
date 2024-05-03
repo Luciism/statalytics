@@ -23,7 +23,6 @@ from .render.tools import *
 from .render.usernames import *
 from .render.colors import *
 from .render.splitting import *
-from .render.symbols import *
 from .render.text import *
 
 from .views.modes import *

@@ -20,13 +20,13 @@ def render_practice(
     skin_model: bytes
 ) -> bytes:
     stats = PracticeStats(hypixel_data)
-    progress_of_10 = stats.progress[2]
+    xp_bar_progress = stats.progress[2]
 
     image = get_background(
         bg_dir='practice', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     data = [
         {'position': (87, 131), 'text': f'&a{stats.bridging_completed:,}'},
@@ -74,7 +74,7 @@ def render_practice(
 
     render_progress_bar(
         level=stats.level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(226, 61),
         image=image,
         align='center'

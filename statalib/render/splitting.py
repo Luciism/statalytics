@@ -31,29 +31,3 @@ def split_string(input_string: str, split_chars: tuple | list):
         values.insert(0, '')
 
     return zip(matches, values)
-
-
-def split_at_symbols(text: str) -> list[dict]:
-    """
-    Split a string whenever there is a unicode symbol.
-    The string will be split into a list of dictionaries.
-    :param text: the string to split
-
-    Example usage:
-    ```python
-    >>> split_at_symbols('Hello! 👋 Good Day! ⚝')
-    [{'value': 'Hello! ', 'type': 'text'},
-    {'value': '👋', 'type': 'symbol'},
-    {'value': ' Good Day! ', 'type': 'text'},
-    {'value': '⚝', 'type': 'symbol'}]
-    ```
-    """
-    result = []
-    pattern = r'[^\x00-\x7F]+|[\x00-\x7F]+'
-    segments = re.findall(pattern, text)
-    for segment in segments:
-        if re.match(r'[^\x00-\x7F]', segment):
-            result.append({'value': segment, 'type': 'symbol'})
-        else:
-            result.append({'value': segment, 'type': 'text'})
-    return result

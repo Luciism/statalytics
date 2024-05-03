@@ -22,7 +22,7 @@ def render_resources(
     stats = ResourcesStats(hypixel_data, mode)
 
     level = stats.level
-    progress, target, progress_of_10 = stats.progress
+    progress, target, xp_bar_progress = stats.progress
 
     rank_info = stats.rank_info
 
@@ -48,7 +48,7 @@ def render_resources(
         bg_dir='resources', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [
@@ -101,7 +101,7 @@ def render_resources(
 
     render_progress_bar(
         level=level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(226, 88),
         image=image,
         align='center'

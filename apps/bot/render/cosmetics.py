@@ -38,7 +38,7 @@ def render_cosmetics(
         bg_dir='cosmetics', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     for cosmetic, (x, y) in cosmetic_data.items():
         text = getattr(cosmetics, cosmetic)

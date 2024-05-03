@@ -29,7 +29,7 @@ def render_milestones(
     rank_info = stats.rank_info
 
     stars_until_value, stars_until_target = stats.get_stars()
-    progress, target, progress_of_10 = stats.progress
+    progress, target, xp_bar_progress = stats.progress
 
     wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins,\
         target_wins, losses_until_losses, target_losses = stats.get_wins()
@@ -49,8 +49,8 @@ def render_milestones(
         bg_dir='milestones', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 18)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
+    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 18)
 
     # Render the stat values
     data = [
@@ -123,7 +123,7 @@ def render_milestones(
 
     render_progress_bar(
         level=level,
-        progress_of_10=progress_of_10,
+        xp_bar_progress=xp_bar_progress,
         position=(225, 89),
         image=image,
         align='center'

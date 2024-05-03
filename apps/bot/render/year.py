@@ -28,8 +28,8 @@ def render_year(
         bg_dir='year', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 16)
-    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 18)
+    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
+    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 18)
 
     # Render the stat values
     data = [

@@ -70,7 +70,7 @@ def render_level(
     :param align: the alignment of the text relative to the x position
     :return: the final x position once the level has been rendered
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', font_size)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', font_size)
 
     formatted_lvl_str = get_formatted_level(level)
     image, x_after = render_mc_text(
@@ -107,7 +107,7 @@ def render_display_name(
     :param shadow_offset: X & Y positions to offset the drop shadow
     :param align: the alignment of the text relative to the x position
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', font_size)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', font_size)
 
     rank_prefix = get_rank_prefix(rank_info)
     full_string = f'{rank_prefix}{username}'

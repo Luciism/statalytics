@@ -60,7 +60,7 @@ def render_mostplayed(
 
     base_image = Image.alpha_composite(base_image, bar_plot_img)
 
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 20)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 20)
     text = f"{rank_color_code}{name}&f's Most Played Modes"
 
     render_mc_text(

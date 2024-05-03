@@ -48,7 +48,7 @@ def render_hotbar(
     base_image = Image.alpha_composite(base_image, composite_image)
 
     # Render name
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/minecraft.ttf', 36)
+    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 36)
     text = f"{rank_color_code}{name}&f's Hotbar"
 
     render_mc_text(
