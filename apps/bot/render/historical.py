@@ -1,6 +1,5 @@
-from PIL import Image, ImageFont
-
 from calc.historical import HistoricalStats, LookbackStats
+import statalib as lib
 from statalib import TRACKERS, to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -39,9 +38,6 @@ def render_historical(
         bg_dir=f'historical/{identifier}', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-    minecraft_17 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 17)
-
     # Render the stat values
     data = [
         {'position': (87, 190), 'text': f'&a{stats.wins_cum:,}'},
@@ -71,7 +67,7 @@ def render_historical(
             image=image,
             shadow_offset=(2, 2),
             align='center',
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             **values
         )
 
@@ -103,7 +99,7 @@ def render_historical(
     render_mc_text(
         text=title,
         position=(537, 27),
-        font=minecraft_17,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 17),
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -113,7 +109,7 @@ def render_historical(
     paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/historical/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/historical/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

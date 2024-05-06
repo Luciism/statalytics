@@ -1,3 +1,4 @@
+from .assets import ASSET_LOADER as ASSET_LOADER
 from .cfg import *
 from .errors import *
 from .functions import *

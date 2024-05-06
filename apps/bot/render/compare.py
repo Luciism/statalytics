@@ -1,6 +1,5 @@
-from PIL import Image, ImageFont
-
 from calc.compare import CompareStats
+import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -34,8 +33,6 @@ def render_compare(
     image = get_background(
         bg_dir='compare', uuid=uuid_1, level=stats.level_1, rank_info=stats.rank_info_1
     ).convert("RGBA")
-
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [
@@ -71,7 +68,7 @@ def render_compare(
             image=image,
             shadow_offset=(2, 2),
             align='center',
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             **values
         )
 
@@ -96,7 +93,7 @@ def render_compare(
     )
 
     # Paste overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/compare/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/compare/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 import discord
 
+from .assets import ASSET_LOADER
 from .aliases import PlayerUUID
 from .cfg import config
 from .common import REL_PATH
@@ -270,8 +271,8 @@ def load_embeds(
     if not filename.endswith('.json'):
         filename += '.json'
 
-    with open(f'{REL_PATH}/assets/embeds/{filename}', 'r') as datafile:
-        embed_dict: str = json.load(datafile)
+    # Load embed data
+    embed_dict = ASSET_LOADER.load_embed(filename)
 
     embeds = []
 

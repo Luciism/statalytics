@@ -1,7 +1,6 @@
-from PIL import Image, ImageFont
-
 from calc.cosmetics import ActiveCosmetics
-from statalib import to_thread, REL_PATH
+import statalib as lib
+from statalib import to_thread
 from statalib.render import (
     render_display_name,
     get_background,
@@ -38,15 +37,13 @@ def render_cosmetics(
         bg_dir='cosmetics', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-
     for cosmetic, (x, y) in cosmetic_data.items():
         text = getattr(cosmetics, cosmetic)
 
         render_mc_text(
             text=text,
             position=(x, y),
-            font=font,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             image=image,
             shadow_offset=(2, 2)
         )
@@ -62,7 +59,8 @@ def render_cosmetics(
     )
 
     # Render the overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/cosmetics/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/cosmetics/overlay.png")\
+        .convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 
     return image_to_bytes(image)

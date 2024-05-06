@@ -1,7 +1,7 @@
 {
   "apps": {
     "bot": {
-      "version": "1.16.0",
+      "version": "1.16.1",
       "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
       "embeds": {
         "primary_color": "5865F2",

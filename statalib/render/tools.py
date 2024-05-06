@@ -6,6 +6,7 @@ from datetime import datetime, UTC
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
+from ..assets import ASSET_LOADER
 from ..linking import uuid_to_discord_id
 from ..cfg import config
 from ..common import REL_PATH
@@ -48,7 +49,7 @@ def paste_skin(
     try:
         skin = Image.open(BytesIO(skin_model))
     except UnidentifiedImageError:
-        skin = Image.open(f'{REL_PATH}/assets/steve_bust.png')
+        skin = ASSET_LOADER.load_image("steve_bust.png")
 
     composite_image = Image.new("RGBA", image.size)
     composite_image.paste(skin, positions)
@@ -92,9 +93,8 @@ def dynamic_colored_theme(theme: str, bg_dir: str, **kwargs) -> Image.Image:
     rank_color = Colors.color_codes.get(get_rank_color(rank_info))
     star_color = get_prestige_primary_color(level)
 
-    image = Image.open(
-        f'{REL_PATH}/assets/bg/{bg_dir}/themes/{theme}.png'
-    ).convert('RGBA')
+    image = ASSET_LOADER.load_image(
+        f"bg/{bg_dir}/themes/{theme}.png").convert('RGBA')
 
     rgb_from = ((213, 213, 213), (214, 214, 214))
     rgb_to = (rank_color, star_color)
@@ -113,7 +113,7 @@ def get_theme_img(theme: str, bg_dir: str, **kwargs) -> Image:
     if theme_properties.get('dynamic_color') is True:
         return dynamic_colored_theme(theme, bg_dir, **kwargs)
 
-    return Image.open(f'{REL_PATH}/assets/bg/{bg_dir}/themes/{theme}.png')
+    return ASSET_LOADER.load_image(f"bg/{bg_dir}/themes/{theme}.png")
 
 
 def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
@@ -124,11 +124,11 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
     :param default: The default file name of the background (excluding .png extension)
     :param **kwargs: Any additional keyword arguments that may be used to get a background
     """
-    default_path = f'{REL_PATH}/assets/bg/{bg_dir}/{default}.png'
+    default_img = f'bg/{bg_dir}/{default}.png'
 
     discord_id = uuid_to_discord_id(uuid)
     if not discord_id:
-        return Image.open(default_path)
+        return ASSET_LOADER.load_image(default_img)
 
     # User has a pro subscription and a custom background
     custom_path = f'{REL_PATH}/database/custom_bg/{bg_dir}/{discord_id}.png'
@@ -176,4 +176,4 @@ def get_background(bg_dir, uuid, default='base', **kwargs) -> Image.Image:
                 except FileNotFoundError:
                     pass
 
-    return Image.open(default_path)
+    return ASSET_LOADER.load_image(default_img)

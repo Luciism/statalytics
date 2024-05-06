@@ -1,6 +1,7 @@
 from PIL import Image, ImageFont
 
 from calc.difference import DifferenceStats
+import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -36,8 +37,6 @@ def render_difference(
         bg_dir='difference', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-
     # Render the stat values
     data = [
         {'position': (88, 249), 'text': f'&a{stats.wins_cum}'},
@@ -71,7 +70,7 @@ def render_difference(
             image=image,
             shadow_offset=(2, 2),
             align='center',
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             **values
         )
 
@@ -110,7 +109,7 @@ def render_difference(
     )
 
     # Paste overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/difference/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/difference/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

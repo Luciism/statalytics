@@ -1,7 +1,6 @@
-from PIL import ImageFont, Image
-
 from calc.winstreaks import WinstreakStats
-from statalib import to_thread, REL_PATH
+import statalib as lib
+from statalib import to_thread
 from statalib.render import (
     render_display_name,
     get_background,
@@ -9,7 +8,6 @@ from statalib.render import (
     render_progress_bar,
     render_progress_text,
     render_mc_text,
-    get_formatted_level,
     image_to_bytes
 )
 
@@ -32,8 +30,6 @@ def render_winstreaks(
         bg_dir='winstreaks', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-
     # Render the stat values
     data = [
         {'position': (118, 190), 'text': f'&a{stats.winstreak_overall}'},
@@ -50,7 +46,7 @@ def render_winstreaks(
         render_mc_text(
             image=image,
             shadow_offset=(2, 2),
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             align='center',
             **values
         )
@@ -82,7 +78,7 @@ def render_winstreaks(
 
     paste_skin(skin_model, image, positions=(466, 69))
 
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/winstreaks/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/winstreaks/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

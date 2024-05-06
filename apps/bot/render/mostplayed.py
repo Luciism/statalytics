@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
+import statalib as lib
 from statalib import get_rank_info, to_thread, get_player_dict, REL_PATH
 from statalib.render import (
     get_background,
@@ -60,20 +61,19 @@ def render_mostplayed(
 
     base_image = Image.alpha_composite(base_image, bar_plot_img)
 
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 20)
     text = f"{rank_color_code}{name}&f's Most Played Modes"
 
     render_mc_text(
         text=text,
         position=(320, 33),
-        font=font,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 20),
         image=base_image,
         shadow_offset=(4, 4),
         align='center'
     )
 
     # Paste the overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/mostplayed/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/mostplayed/overlay.png")
     base_image = Image.alpha_composite(base_image, overlay_image)
 
     return image_to_bytes(base_image)

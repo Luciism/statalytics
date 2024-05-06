@@ -2,7 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
 
-from ..common import REL_PATH
+from ..assets import ASSET_LOADER
 from .splitting import split_string
 from .colors import Colors
 from .tools import mc_text_shadow
@@ -95,8 +95,7 @@ def render_mc_text(
     assert (font, font_size).count(None) > 0
 
     if font is None:
-        font = ImageFont.truetype(
-            f'{REL_PATH}/assets/fonts/main.ttf', size=font_size)
+        font = ASSET_LOADER.load_font("main.ttf", font_size)
 
     split_chars = tuple(Colors.color_codes)
     bits = tuple(split_string(text, split_chars))

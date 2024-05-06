@@ -1,6 +1,5 @@
-from PIL import Image, ImageFont
-
 from calc.projection import PrestigeStats
+import statalib as lib
 from statalib import to_thread, add_suffixes, REL_PATH
 from statalib.render import (
     get_background,
@@ -27,10 +26,6 @@ def render_projection(
     image = get_background(
         bg_dir='projection', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
-
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 18)
-    minecraft_20 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 20)
 
     # Render the stat values
     data = [
@@ -60,7 +55,7 @@ def render_projection(
         render_mc_text(
             image=image,
             shadow_offset=(2, 2),
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             align='center',
             **values
         )
@@ -77,7 +72,7 @@ def render_projection(
     render_mc_text(
         text=f'Projected to hit on: &d{stats.projection_date}',
         position=(229, 425),
-        font=minecraft_18,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 18),
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -90,7 +85,7 @@ def render_projection(
     render_mc_text(
         text=f'{formatted_lvl} &f/ {formatted_target}',
         position=(226, 84),
-        font=minecraft_20,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 20),
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -99,7 +94,7 @@ def render_projection(
     paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/projection/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/projection/overlay.png")
     overlay_image = overlay_image.convert('RGBA')
     image.paste(overlay_image, (0, 0), overlay_image)
 

@@ -1,8 +1,7 @@
-import os
+from PIL import Image
 
-from PIL import Image, ImageFont
-
-from statalib import get_rank_info, to_thread, get_player_dict, REL_PATH
+import statalib as lib
+from statalib import get_rank_info, to_thread, get_player_dict
 from statalib.render import (
     get_background,
     render_mc_text,
@@ -42,15 +41,13 @@ def render_shop(
     composite_image = Image.new("RGBA", base_image.size)
 
     for i, item in enumerate(shop):
-        if os.path.exists(f"{REL_PATH}/assets/bg/shop/{item}.png"):
-            top_image = Image.open(f"{REL_PATH}/assets/bg/shop/{item}.png")
+        if lib.ASSET_LOADER.image_file_exists(f"bg/shop/{item}.png"):
+            top_image = lib.ASSET_LOADER.load_image(f"bg/shop/{item}.png")
         else:
-            top_image = Image.open(f"{REL_PATH}/assets/bg/shop/rotational_item.png")
+            top_image = lib.ASSET_LOADER.load_image("bg/shop/rotational_item.png")
 
         top_image = top_image.convert("RGBA")
         composite_image.paste(top_image, slots[i], top_image)
-
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 32)
 
     # If the name box is transparent, color the name, otherwise default gray
     name_backdrop_alpha = base_image.getpixel((49, 25))[3]
@@ -58,7 +55,7 @@ def render_shop(
         render_mc_text(
             text=f"&f{name}'s Quick Buy",
             position=(350, 29),
-            font=font,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 32),
             image=base_image,
             shadow_offset=(2, 2),
             align='center'
@@ -67,7 +64,7 @@ def render_shop(
         render_mc_text(
             text=f"&8{name}'s Quick Buy",
             position=(42, 29),
-            font=font,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 32),
             image=base_image,
         )
 

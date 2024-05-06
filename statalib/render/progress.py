@@ -2,6 +2,7 @@ from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
 
+from ..assets import ASSET_LOADER
 from ..common import REL_PATH
 from ..calctools import PROGRESS_BAR_MAX
 from .colors import get_formatted_level
@@ -12,12 +13,6 @@ from .text import (
     get_start_point,
     render_mc_text
 )
-
-
-class Fonts:
-    minecraft_13 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 13)
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-    minecraft_20 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 20)
 
 
 def render_progress_bar(
@@ -41,14 +36,14 @@ def render_progress_bar(
     draw = ImageDraw.Draw(image)
 
     level_len = get_text_len(
-        get_actual_text(get_formatted_level(level)), font=Fonts.minecraft_20)
+        get_actual_text(get_formatted_level(level)), font=ASSET_LOADER.load_font("main.ttf", 20))
 
     target_len = get_text_len(
-        get_actual_text(get_formatted_level(level+1)), font=Fonts.minecraft_20)
+        get_actual_text(get_formatted_level(level+1)), font=ASSET_LOADER.load_font("main.ttf", 20))
 
     text_len = level_len \
         + target_len \
-        + draw.textlength(f' {progress_symbol*PROGRESS_BAR_MAX} ', font=Fonts.minecraft_20)
+        + draw.textlength(f' {progress_symbol*PROGRESS_BAR_MAX} ', font=ASSET_LOADER.load_font("main.ttf", 20))
 
     x = get_start_point(text_len=text_len, align=align, pos=x)
 
@@ -65,7 +60,7 @@ def render_progress_bar(
     x = render_mc_text(
         text=f' &b{colored_squares}&7{gray_squares} ',
         position=(x, y),
-        font=Fonts.minecraft_20,
+        font=ASSET_LOADER.load_font("main.ttf", 20),
         image=image,
         shadow_offset=(2, 2),
         return_x=True
@@ -93,7 +88,7 @@ def render_progress_text(
     image = render_mc_text(
         text=f'&fProgress: &d{progress} &f/ &a{target}',
         position=position,
-        font=Fonts.minecraft_20,
+        font=ASSET_LOADER.load_font("main.ttf", 20),
         image=image,
         shadow_offset=(2, 2),
         align=align

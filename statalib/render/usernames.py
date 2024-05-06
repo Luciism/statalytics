@@ -4,6 +4,7 @@ from PIL import Image, ImageFont
 
 from .text import render_mc_text, get_actual_text, get_text_len
 from .colors import Colors, get_formatted_level
+from ..assets import ASSET_LOADER
 from ..common import REL_PATH
 
 
@@ -70,13 +71,11 @@ def render_level(
     :param align: the alignment of the text relative to the x position
     :return: the final x position once the level has been rendered
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', font_size)
-
     formatted_lvl_str = get_formatted_level(level)
     image, x_after = render_mc_text(
         text=formatted_lvl_str,
         position=position,
-        font=font,
+        font=ASSET_LOADER.load_font("main.ttf", font_size),
         image=image,
         shadow_offset=shadow_offset,
         align=align,
@@ -107,7 +106,7 @@ def render_display_name(
     :param shadow_offset: X & Y positions to offset the drop shadow
     :param align: the alignment of the text relative to the x position
     """
-    font = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', font_size)
+    font = ASSET_LOADER.load_font("main.ttf", font_size)
 
     rank_prefix = get_rank_prefix(rank_info)
     full_string = f'{rank_prefix}{username}'

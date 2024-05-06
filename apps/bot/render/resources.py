@@ -1,6 +1,5 @@
-from PIL import Image, ImageFont
-
 from calc.resources import ResourcesStats
+import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -48,8 +47,6 @@ def render_resources(
         bg_dir='resources', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-
     # Render the stat values
     data = [
         {'position': (89, 189), 'text': f'&f{iron_collected}'},
@@ -85,7 +82,7 @@ def render_resources(
         render_mc_text(
             image=image,
             shadow_offset=(2, 2),
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             align='center',
             **values
         )
@@ -116,7 +113,7 @@ def render_resources(
     )
 
     # Paste overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/resources/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/resources/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

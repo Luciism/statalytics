@@ -1,6 +1,5 @@
-from PIL import Image, ImageFont
-
 from calc.session import SessionStats
+import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -27,8 +26,6 @@ def render_session(
     image = get_background(
         bg_dir='session', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
-
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
 
     # Render the stat values
     data = [
@@ -61,7 +58,7 @@ def render_session(
         render_mc_text(
             image=image,
             shadow_offset=(2, 2),
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             align='center',
             **values
         )
@@ -96,7 +93,7 @@ def render_session(
     paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay image
-    overlay_image = Image.open(f'{REL_PATH}/assets/bg/session/overlay.png')
+    overlay_image = lib.ASSET_LOADER.load_image("bg/session/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

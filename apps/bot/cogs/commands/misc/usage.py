@@ -20,9 +20,6 @@ class Usage(commands.Cog):
 
         discord_id = interaction.user.id
 
-        with open(f'{lib.REL_PATH}/assets/command_map.json', 'r') as datafile:
-            command_map: dict = load_json(datafile)['commands']
-
         with sqlite3.connect(f'{lib.REL_PATH}/database/core.db') as conn:
             cursor = conn.cursor()
 
@@ -60,7 +57,7 @@ class Usage(commands.Cog):
                 if key == 'overall':
                     overall = f'**Overall - {value}**'
                     continue
-                command = command_map.get(key, '/unknown')
+                command = lib.ASSET_LOADER.command_map.get(key, '/unknown')
                 description.append(f'`{command}` - `{value}`')
 
             embed = discord.Embed(

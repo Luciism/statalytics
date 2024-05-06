@@ -1,6 +1,5 @@
-from PIL import ImageFont
-
 from calc.milestones import MilestonesStats
+import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
@@ -49,9 +48,6 @@ def render_milestones(
         bg_dir='milestones', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
-    minecraft_16 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 16)
-    minecraft_18 = ImageFont.truetype(f'{REL_PATH}/assets/fonts/main.ttf', 18)
-
     # Render the stat values
     data = [
         {'position': (31, 212),
@@ -95,7 +91,7 @@ def render_milestones(
         render_mc_text(
             image=image,
             shadow_offset=(2, 2),
-            font=minecraft_16,
+            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
             **values
         )
 
@@ -106,7 +102,7 @@ def render_milestones(
     render_mc_text(
         text=stars_until_txt,
         position=(225, 169),
-        font=minecraft_16,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 16),
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -140,7 +136,7 @@ def render_milestones(
     render_mc_text(
         text='Milestones',
         position=(536, 23),
-        font=minecraft_18,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 18),
         image=image,
         shadow_offset=(2, 2),
         align='center'
@@ -149,7 +145,7 @@ def render_milestones(
     render_mc_text(
         text=f'({stats.title_mode})',
         position=(536, 45),
-        font=minecraft_16,
+        font=lib.ASSET_LOADER.load_font("main.ttf", 16),
         image=image,
         shadow_offset=(2, 2),
         align='center'
