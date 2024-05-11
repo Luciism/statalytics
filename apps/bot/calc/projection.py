@@ -1,21 +1,19 @@
-from statalib.functions import get_session_data
+from statalib import SessionManager
 from statalib.calctools import ProjectedStats, get_rank_info
+from statalib.sessions import BedwarsSession
 
 
 class PrestigeStats(ProjectedStats):
     def __init__(
         self,
-        uuid: str,
-        session: int,
+        session_info: BedwarsSession,
         target: int,
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        session_data = get_session_data(uuid, session, as_dict=True)
-
         super().__init__(
             hypixel_data=hypixel_data,
-            session_bedwars_data=session_data,
+            session_info=session_info,
             target_level=target,
             strict_mode=mode
         )

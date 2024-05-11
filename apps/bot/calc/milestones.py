@@ -1,34 +1,20 @@
 import math
-import sqlite3
 
-from statalib import REL_PATH
+from statalib import SessionManager, BedwarsSession, PlayerUUID
 from statalib.calctools import BedwarsStats, get_rank_info, get_mode
 
 
 class MilestonesStats(BedwarsStats):
     def __init__(
         self,
-        uuid: str,
-        session: int,
+        session_info: BedwarsSession,
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
         super().__init__(hypixel_data, strict_mode=mode)
 
         self.mode = get_mode(mode)
-
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
-
-            cursor.execute("SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-            session_data = cursor.fetchone()
-
-            if session_data:
-                column_names = [desc[0] for desc in cursor.description]
-                self.session_data = dict(zip(column_names, session_data))
-            else:
-                self.session_data = None
-
+        self.session = session_info
 
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_data)
@@ -55,9 +41,9 @@ class MilestonesStats(BedwarsStats):
 
         val_1_until_ratio = val_1_at_ratio - val_1
 
-        if self.session_data:
-            session_val_1 = val_1 - self.session_data[key_1]
-            session_val_2 = val_2 - self.session_data[key_2]
+        if self.session is not None:
+            session_val_1 = val_1 - self.session.data.__dict__[key_1]
+            session_val_2 = val_2 - self.session.data.__dict__[key_2]
 
             val_1_repitition = val_1_until_ratio / (session_val_1 or 1)
 

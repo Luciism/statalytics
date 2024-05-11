@@ -44,8 +44,8 @@ class Projection(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        session = await lib.find_dynamic_session_interaction(
-            interaction_response=interaction.edit_original_response,
+        session_info = await lib.find_dynamic_session_interaction(
+            interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
             hypixel_data=hypixel_data,
@@ -65,7 +65,7 @@ class Projection(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "session": session,
+            "session_info": session_info,
             "target": prestige,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,

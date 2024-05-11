@@ -11,7 +11,7 @@ from ..functions import fname, load_embeds
 from ..views.info import SessionInfoButton
 from ..network import fetch_hypixel_data, mojang_session
 from ..mcfetch import AsyncFetchPlayer2
-from ..sessions import find_dynamic_session, start_session
+from ..sessions import SessionManager, BedwarsSession
 from ..errors import (
     PlayerNotFoundError,
     SessionNotFoundError,
@@ -117,16 +117,16 @@ async def linking_interaction(
 
 
 async def find_dynamic_session_interaction(
-    interaction_response: Callable[[str], None],
+    interaction_callback: Callable[[str], None],
     username: PlayerName,
     uuid: PlayerUUID,
     hypixel_data: dict,
     session: int | None=None
-) -> tuple | bool:
+) -> BedwarsSession:
     """
     Dynamically gets a session of a user\n
-    If session is 100, the first session to exist will be returned
-    :param interaction_response: The discord interaction response object
+    If session is None, the first session to exist will be returned
+    :param interaction_callback: The discord interaction response object
     to reply with.
     :param username: The username of the session owner
     :param uuid: The uuid of the session owner
@@ -134,24 +134,28 @@ async def find_dynamic_session_interaction(
     :param session: The session to attempt to be retrieved
     :param eph: whether or not to respond ephemerally
     """
-    returned_session = find_dynamic_session(uuid, session)
+    session_manager = SessionManager(uuid)
+    session_info = session_manager.get_session(session)
 
     # no sessions exist because... i forgot to finish this comment now idk
-    if not returned_session and not session:
-        await start_session(uuid, session=1, hypixel_data=hypixel_data)
-        await interaction_response(
-            content=f"**{fname(username)}** has no active sessions so one was created!"
+    if not session_info:
+        session_count = session_manager.session_count()
+
+        if session_count == 0:
+            session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
+
+            await interaction_callback(
+                content=f"**{fname(username)}** has no active sessions so one was created!"
+            )
+            raise SessionNotFoundError
+
+        await interaction_callback(
+            content=
+                f"**{fname(username)}** doesn't have an active session with ID: `{session}`!"
         )
         raise SessionNotFoundError
 
-    if not returned_session:
-        await interaction_response(
-            content=f"**{fname(username)}** doesn't have an"
-                    f" active session with ID: `{session}`!"
-        )
-        raise SessionNotFoundError
-
-    return returned_session
+    return session_info
 
 
 async def _send_interaction_check_response(

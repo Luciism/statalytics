@@ -6,6 +6,7 @@ from discord import app_commands, Interaction
 from .common import REL_PATH
 from .linking import get_linked_player
 from .mcfetch import AsyncFetchPlayer
+from .sessions import SessionManager
 
 
 async def session_autocompletion(
@@ -40,12 +41,9 @@ async def session_autocompletion(
     if uuid is None:
         return []
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
-        sessions = cursor.fetchall()
+    active_sessions = SessionManager(uuid).active_sessions()
 
-    data = [app_commands.Choice(name=ses[0], value=ses[0]) for ses in sessions]
+    data = [app_commands.Choice(name=ses[0], value=ses[0]) for ses in active_sessions]
     return data
 
 

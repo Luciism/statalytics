@@ -1,5 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
+
+from ..sessions import BedwarsSession
 from .cumulative_stats import CumulativeStats
 from .utils import ratio, rround
 
@@ -8,7 +10,7 @@ class ProjectedStats(CumulativeStats):
     def __init__(
         self,
         hypixel_data: dict,
-        session_bedwars_data: dict,
+        session_info: BedwarsSession,
         target_level: float=None,
         target_date: datetime=None,
         strict_mode: str='overall'
@@ -16,7 +18,7 @@ class ProjectedStats(CumulativeStats):
         """
         #### Either `target_level` or `target_date` must be provided but only one
         :param hypixel_data: the raw hypixel response json
-        :param session_bedwars_data: locally stored snapshot of a player's stats
+        :param session_info: locally stored snapshot of a player's stats
         :param target_level: the level to predict stats for
         :param target_date: the date to predict the stats for
         :param strict_mode: the mode to fetch stats for (overall, solos, doubles, etc)
@@ -24,12 +26,12 @@ class ProjectedStats(CumulativeStats):
         # Ensure either target_level or target_date was provided
         assert (target_level, target_date).count(None) == 1
 
-        super().__init__(hypixel_data, session_bedwars_data, strict_mode)
+        super().__init__(hypixel_data, session_info.data, strict_mode)
 
-        now = datetime.now()
+        now = datetime.now(UTC)
 
-        session_start_time = datetime.strptime(
-            session_bedwars_data['date'], "%Y-%m-%d")
+        session_start_time = datetime.fromtimestamp(
+            session_info.creation_timestamp, UTC)
         self.session_duration_days = (now - session_start_time).days
 
         self.levels_per_day = ratio(self.levels_cum, self.session_duration_days)

@@ -1,22 +1,23 @@
 from .bedwars_stats import BedwarsStats
 from .utils import get_level, bedwars_modes_map
+from ..stats_snapshot import BedwarsStatsSnapshot
 
 
 class CumulativeStats(BedwarsStats):
     def __init__(
         self,
         hypixel_data: dict,
-        local_bedwars_data: dict,
+        bedwars_stats_snapshot: BedwarsStatsSnapshot,
         strict_mode: str='overall'
     ) -> None:
         """
         :param hypixel_data: the raw hypixel response json
-        :param local_bedwars_data: locally stored snapshot of a player's stats
+        :param bedwars_stats_snapshot: locally stored snapshot of a player's stats
         :param strict_mode: the mode to fetch stats for (overall, solos, doubles, etc)
         """
         super().__init__(hypixel_data, strict_mode)
 
-        self._local_bedwars_data = local_bedwars_data
+        self._bedwars_stats_snapshot = bedwars_stats_snapshot
 
         self.wins_local = self._get_mode_stats_local('wins_bedwars')
         self.losses_local = self._get_mode_stats_local('losses_bedwars')
@@ -49,7 +50,7 @@ class CumulativeStats(BedwarsStats):
         self.most_played_cum = self._get_most_played()
         self.games_played_cum = self._calc_cum('games_played_bedwars')
 
-        self.experience_local = self._local_bedwars_data.get(f'Experience', 0)
+        self.experience_local = self._bedwars_stats_snapshot.experience
         self.level_local = get_level(self.experience_local)
 
         self.experience_cum = self.experience - self.experience_local
@@ -59,15 +60,15 @@ class CumulativeStats(BedwarsStats):
 
 
     def _get_mode_stats_local(self, key: str, default=0) -> dict | int:
-        if self._strict_mode is None:
-            mode_stats = {}
-            for mode, prefix in bedwars_modes_map.items():
-                mode_stats[mode] = self._local_bedwars_data.get(
-                    f'{prefix}{key}', default)
-            return mode_stats
+        # if self._strict_mode is None:
+        #     mode_stats = {}
+        #     for mode, prefix in bedwars_modes_map.items():
+        #         mode_stats[mode] = self._bedwars_stats_snapshot.__dict__.get(
+        #             f'{prefix}{key}', default)
+        #     return mode_stats
 
         prefix = bedwars_modes_map.get(self._strict_mode.lower())
-        return self._local_bedwars_data.get(f'{prefix}{key}', default)
+        return self._bedwars_stats_snapshot.__dict__.get(f'{prefix}{key}', default)
 
 
     def _calc_cum(self, key: str) -> int:

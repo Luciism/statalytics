@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from statalib.functions import get_session_data
+from statalib import SessionManager
 from statalib.calctools import ProjectedStats, get_rank_info
 
 
@@ -13,12 +13,12 @@ class YearStats(ProjectedStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        session_data = get_session_data(uuid, session, as_dict=True)
+        session_info = SessionManager(uuid).get_session(session)
         target_date = datetime(year=year, month=1, day=1)
 
         super().__init__(
             hypixel_data=hypixel_data,
-            session_bedwars_data=session_data,
+            session_info=session_info,
             target_date=target_date,
             strict_mode=mode
         )

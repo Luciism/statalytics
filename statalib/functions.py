@@ -373,21 +373,6 @@ def pluralize(number: int, word: str) -> str:
     return word
 
 
-def get_session_data(uuid: PlayerUUID, session_id=1, as_dict=False):
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "SELECT * FROM sessions WHERE session=? AND uuid=?", (session_id, uuid))
-        session_data = cursor.fetchone()
-
-        if as_dict:
-            column_names = [desc[0] for desc in cursor.description]
-            session_data = dict(zip(column_names, session_data))
-
-    return session_data
-
-
 def timezone_relative_timestamp(timestamp: int | float):
     """
     Adds local time difference to a UTC timestamp

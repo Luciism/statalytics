@@ -1,6 +1,6 @@
 from calc.milestones import MilestonesStats
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import BedwarsSession, to_thread, REL_PATH
 from statalib.render import (
     render_display_name,
     get_background,
@@ -17,12 +17,12 @@ def render_milestones(
     name: str,
     uuid: str,
     mode: str,
-    session: int,
+    session_info: BedwarsSession,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str
-):
-    stats = MilestonesStats(uuid, session, hypixel_data, mode)
+) -> None:
+    stats = MilestonesStats(session_info, hypixel_data, mode)
 
     level = stats.level
     rank_info = stats.rank_info

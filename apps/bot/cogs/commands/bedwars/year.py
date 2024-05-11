@@ -37,7 +37,7 @@ class Year(commands.Cog):
         )
 
         session = await lib.find_dynamic_session_interaction(
-            interaction_response=interaction.edit_original_response,
+            interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
             hypixel_data=hypixel_data,

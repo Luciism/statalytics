@@ -1,6 +1,7 @@
 from calc.projection import PrestigeStats
 import statalib as lib
 from statalib import to_thread, add_suffixes, REL_PATH
+from statalib.sessions import BedwarsSession
 from statalib.render import (
     get_background,
     paste_skin,
@@ -14,14 +15,14 @@ from statalib.render import (
 def render_projection(
     name: str,
     uuid: str,
-    session: int,
+    session_info: BedwarsSession,
     mode: str,
     target: int,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str
-):
-    stats = PrestigeStats(uuid, session, target, hypixel_data, mode)
+) -> None:
+    stats = PrestigeStats(session_info, target, hypixel_data, mode)
 
     image = get_background(
         bg_dir='projection', uuid=uuid, level=stats.level, rank_info=stats.rank_info

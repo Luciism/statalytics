@@ -1,7 +1,7 @@
 import sqlite3
 
 from .mcfetch import AsyncFetchPlayer
-from .sessions import start_session, find_dynamic_session
+from .sessions import SessionManager
 from .permissions import has_access
 from .aliases import PlayerName, PlayerUUID
 from .functions import insert_growth_data
@@ -165,8 +165,9 @@ async def link_account(
             set_linked_data(discord_id, uuid)
             update_autofill(discord_id, uuid, name)
 
-            if not find_dynamic_session(uuid):
-                await start_session(uuid, session=1, hypixel_data=hypixel_data)
+            session_manager = SessionManager(uuid)
+            if session_manager.session_count() == 0:
+                session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
                 return 2
             return 1
         return 0

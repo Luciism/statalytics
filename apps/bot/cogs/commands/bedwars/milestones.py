@@ -6,6 +6,7 @@ from discord.ext import commands
 
 import statalib as lib
 from render.milestones import render_milestones
+from statalib.sessions import SessionManager
 
 
 class Milestones(commands.Cog):
@@ -24,28 +25,28 @@ class Milestones(commands.Cog):
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
-    async def milestones(self, interaction: discord.Interaction,
-                         player: str=None, session: int=None):
+    async def milestones(
+        self,
+        interaction: discord.Interaction,
+        player: str=None,
+        session: int=None
+    ) -> None:
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)
 
         name, uuid = await lib.fetch_player_info(player, interaction)
 
-        # check if session if valid only if a session is being used
-        if session == 0:
-            valid_session = 0
+        if session == 0:  # Use no session if `0` is specified.
+            session_info = None
         else:
-            valid_session = lib.find_dynamic_session(uuid, session)
+            session_info = SessionManager(uuid).get_session(session)
 
-        # session is not specified and none are found, so use no session
-        if session is None and valid_session is None:
-            valid_session = 0
-        # specified session doesnt exist
-        elif valid_session is None:
-            await interaction.followup.send(
-                f"`{name}` doesn't have an active session with ID: `{session or 1}`!\n"
-                "Select a valid session or specify `0` in order to not use a session!")
-            return
+            # Specified session doesn't exist
+            if session_info is None and session is not None:
+                await interaction.followup.send(
+                    f"`{name}` doesn't have an active session with ID: `{session or 1}`!\n"
+                    "Select a valid session or specify `0` in order to not use a session!")
+                return
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -57,7 +58,7 @@ class Milestones(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "session": valid_session,
+            "session_info": session_info,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id

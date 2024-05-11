@@ -13,7 +13,7 @@ from .utils import (
 
 class BedwarsStats:
     """Wrapper for generic hypixel bedwars stats"""
-    def __init__(self, hypixel_data: dict, strict_mode: str=None):
+    def __init__(self, hypixel_data: dict, strict_mode: str='overall'):
         """
         :param hypixel_data: the raw hypixel response json
         :param strict_mode: the mode to fetch stats for (solos, doubles, etc)
@@ -23,7 +23,7 @@ class BedwarsStats:
         self._strict_mode = strict_mode
         self._hypixel_data = get_player_dict(hypixel_data)
 
-        self._bedwars_data: dict | None = \
+        self._bedwars_data: dict = \
             self._hypixel_data.get('stats', {}).get('Bedwars', {})
 
         self.title_mode = real_title_case(strict_mode or 'overall')
@@ -106,22 +106,22 @@ class BedwarsStats:
 
 
     def _get_ratio(self, val_1: int, val_2: int):
-        if isinstance(val_1, dict):
-            ratios = {}
+        # if isinstance(val_1, dict):
+        #     ratios = {}
 
-            for key, value in val_1.items():
-                ratios[key] = rround(value / (val_2[key] or 1), 2)
-            return ratios
+        #     for key, value in val_1.items():
+        #         ratios[key] = rround(value / (val_2[key] or 1), 2)
+        #     return ratios
 
         return rround(val_1 / (val_2 or 1), 2)
 
 
-    def _get_mode_stats(self, key: str, default=0) -> dict | int:
-        if self._strict_mode is None:
-            mode_stats = {}
-            for mode, prefix in bedwars_modes_map.items():
-                mode_stats[mode] = self._bedwars_data.get(f'{prefix}{key}', default)
-            return mode_stats
+    def _get_mode_stats(self, key: str, default=0) -> int:
+        # if self._strict_mode is None:
+        #     mode_stats = {}
+        #     for mode, prefix in bedwars_modes_map.items():
+        #         mode_stats[mode] = self._bedwars_data.get(f'{prefix}{key}', default)
+        #     return mode_stats
 
         prefix = bedwars_modes_map.get(self._strict_mode.lower())
         return self._bedwars_data.get(f'{prefix}{key}', default)

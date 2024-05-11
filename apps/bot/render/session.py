@@ -8,19 +8,20 @@ from statalib.render import (
     render_progress_bar,
     render_mc_text
 )
+from statalib.sessions import BedwarsSession
 
 
 @to_thread
 def render_session(
     name: str,
     uuid: str,
-    session: int,
+    session_info: BedwarsSession,
     mode: str,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str
 ):
-    stats = SessionStats(uuid, session, hypixel_data, mode)
+    stats = SessionStats(uuid, session_info, hypixel_data, mode)
     xp_bar_progress = stats.progress[2]
 
     image = get_background(
@@ -47,7 +48,7 @@ def render_session(
         {'position': (82, 427), 'text': f'&d{stats.winspd}'},
         {'position': (226, 427), 'text': f'&d{stats.finalspd}'},
         {'position': (370, 427), 'text': f'&d{stats.bedspd}'},
-        {'position': (537, 250), 'text': f'&d# {session}'},
+        {'position': (537, 250), 'text': f'&d# {session_info.session_id}'},
         {'position': (537, 309), 'text': f'&d{stats.total_sessions}'},
         {'position': (537, 368), 'text': f'&d{stats.date_started}'},
         {'position': (537, 427), 'text': f'&d{stats.most_played_cum}'},

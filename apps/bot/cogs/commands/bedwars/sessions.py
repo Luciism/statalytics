@@ -9,13 +9,13 @@ from discord.ext import commands
 
 import statalib as lib
 from render.session import render_session
+from statalib.sessions import SessionManager
 
 
 class ManageSession(lib.CustomBaseView):
-    def __init__(self, session: int, uuid: str, method: str) -> None:
-        """who the fuck made this class"""
+    def __init__(self, session: int, uuid: str, action: str) -> None:
         super().__init__(timeout=20)
-        self.method = method
+        self.action = action
         self.session = session
         self.uuid = uuid
 
@@ -41,17 +41,13 @@ class ManageSession(lib.CustomBaseView):
         button.disabled = True
         await self.message.edit(view=self)
 
-        with sqlite3.connect(f'{lib.REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
+        session_manager = lib.SessionManager(self.uuid)
+        session_manager.delete_session(self.session)
 
-            cursor.execute(
-                "DELETE FROM sessions WHERE session = ? AND uuid = ?",
-                (self.session, self.uuid)
-            )
-
-        if self.method == "reset":
+        if self.action == "reset":
             hypixel_data = await lib.fetch_hypixel_data(self.uuid)
-            await lib.start_session(self.uuid, self.session, hypixel_data)
+            session_manager.create_session(self.session, hypixel_data)
+
             await interaction.followup.send(
                 f'Session `{self.session}` has been reset successfully!', ephemeral=True)
             return
@@ -82,8 +78,12 @@ class Sessions(commands.Cog):
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
-    async def session(self, interaction: discord.Interaction,
-                      player: str=None, session: int=None):
+    async def session(
+        self,
+        interaction: discord.Interaction,
+        player: str=None,
+        session: int=None
+    ) -> None:
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)
 
@@ -96,8 +96,8 @@ class Sessions(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        session = await lib.find_dynamic_session_interaction(
-            interaction_response=interaction.edit_original_response,
+        session_info = await lib.find_dynamic_session_interaction(
+            interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
             hypixel_data=hypixel_data,
@@ -107,7 +107,7 @@ class Sessions(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "session": session,
+            "session_info": session_info,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id
@@ -130,33 +130,30 @@ class Sessions(commands.Cog):
                 "Use `/session stats <player>` to create a session if none exists!")
             return
 
-        with sqlite3.connect(f'{lib.REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                f"SELECT session FROM sessions WHERE uuid='{uuid}' ORDER BY session ASC")
-            session_data = cursor.fetchall()
+        session_manager = lib.SessionManager(uuid)
+        active_sessions = session_manager.active_sessions()
+        active_sessions_count = len(active_sessions)
 
-        active_sessions = len(session_data)
-        max_sessions = lib.SubscriptionManager(interaction.user.id)\
+        max_user_sessions = lib.SubscriptionManager(interaction.user.id)\
             .get_subscription()\
             .package_property("max_sessions", 2)
 
-        if active_sessions >= max_sessions:
+        if active_sessions_count >= max_user_sessions:
             await interaction.followup.send(
                 'You already have the maximum sessions active for your plan! '
                 'To remove a session use `/session end <id>`!')
             return
 
         # Find the first gap in the active sessions
-        for i, session in enumerate(session_data):
+        for i, session in enumerate(sorted(active_sessions)):
             if session[0] != i + 1:
                 session_id = i + 1
                 break
         else:
-            session_id = active_sessions + 1
+            session_id = active_sessions_count + 1
 
         hypixel_data = await lib.fetch_hypixel_data(uuid)
-        await lib.start_session(uuid, session_id, hypixel_data)
+        session_manager.create_session(session_id, hypixel_data)
 
         await interaction.followup.send(
             f'A new session was successfully created! Session ID: `{session_id}`')
@@ -167,27 +164,21 @@ class Sessions(commands.Cog):
     @session_group.command(name="end", description="Ends an active session")
     @app_commands.autocomplete(session=lib.session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
-    async def end_session(self, interaction: discord.Interaction, session: int = None):
+    async def end_session(self, interaction: discord.Interaction, session: int=1):
         await lib.run_interaction_checks(interaction)
 
-        if session is None:
-            session = 1
-
         uuid = lib.get_linked_player(interaction.user.id)
-
         if not uuid:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        with sqlite3.connect(f'{lib.REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM sessions WHERE session=? AND uuid=?", (session, uuid))
-            session_data = cursor.fetchone()
+        session_manager = lib.SessionManager(uuid)
+        active_sessions = session_manager.active_sessions()
 
-        if session_data:
-            view = ManageSession(session, uuid, method="delete")
+        if session in active_sessions:
+            view = ManageSession(session, uuid, action="delete")
+
             await interaction.response.send_message(
                 f'Are you sure you want to delete session {session}?',
                 view=view, ephemeral=True)
@@ -203,27 +194,28 @@ class Sessions(commands.Cog):
     @session_group.command(name="reset", description="Resets an active session")
     @app_commands.describe(session='The session you want to reset')
     @app_commands.autocomplete(session=lib.session_autocompletion)
-    async def reset_session(self, interaction: discord.Interaction,
-                            session: int = None):
+    async def reset_session(
+        self,
+        interaction: discord.Interaction,
+        session: int=None
+    ) -> None:
         await lib.run_interaction_checks(interaction)
 
         uuid = lib.get_linked_player(interaction.user.id)
-
         if not uuid:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        valid_session = lib.find_dynamic_session(uuid, session)
-
-        if valid_session is None:
+        session_info = SessionManager(uuid).get_session(session)
+        if session_info is None:
             await interaction.response.send_message(
                 f"Couldn't find a session with ID: `{session or 1}`")
             return
 
-        view = ManageSession(valid_session, uuid, method="reset")
+        view = ManageSession(session_info.session_id, uuid, action="reset")
         await interaction.response.send_message(
-            f'Are you sure you want to reset session {valid_session}?',
+            f'Are you sure you want to reset session {session_info.session_id}?',
             view=view, ephemeral=True)
         view.message = await interaction.original_response()
 
@@ -242,14 +234,11 @@ class Sessions(commands.Cog):
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        with sqlite3.connect(f'{lib.REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM sessions WHERE uuid='{uuid}'")
-            sessions = cursor.fetchall()
-        session_list = [str(session[0]) for session in sessions]
+        session_manager = lib.SessionManager(uuid)
+        active_sessions = session_manager.active_sessions()
 
-        if session_list:
-            session_string = ", ".join(session_list)
+        if active_sessions:
+            session_string = ", ".join(active_sessions)
             await interaction.followup.send(
                 f'Your active sessions: `{session_string}`')
         else:
