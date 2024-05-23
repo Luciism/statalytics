@@ -185,10 +185,10 @@ CREATE TABLE IF NOT EXISTS session_info (
 
 CREATE TABLE IF NOT EXISTS historical_info (
     uuid TEXT,
-    period TEXT,
+    period_id TEXT,
     level REAL,
     snapshot_id TEXT NOT NULL UNIQUE,
-    PRIMARY KEY (uuid, period)
+    PRIMARY KEY (uuid, period_id)
 );
 
 CREATE TABLE IF NOT EXISTS rotational_info (
