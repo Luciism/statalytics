@@ -2,7 +2,7 @@ import sqlite3
 
 from .accounts import create_account
 from .common import REL_PATH
-from .functions import comma_separated_to_list
+from .functions import comma_separated_to_list, db_connect
 from .subscriptions import SubscriptionManager
 
 
@@ -11,7 +11,7 @@ def get_permissions(discord_id: int) -> list:
     Returns list of permissions for a discord user
     :param discord_id: the discord id of the respective user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         create_account(discord_id, cursor=cursor)
@@ -64,7 +64,7 @@ def set_permissions(discord_id: int, permissions: list | str):
     if isinstance(permissions, list):
         permissions = ','.join(permissions)
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(

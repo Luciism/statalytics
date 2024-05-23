@@ -1,6 +1,5 @@
 """A set of useful functions used throughout the bot"""
 
-import json
 import time
 import random
 import typing
@@ -13,9 +12,11 @@ from datetime import datetime, timedelta
 import discord
 
 from .assets import ASSET_LOADER
-from .aliases import PlayerUUID
 from .cfg import config
 from .common import REL_PATH
+
+
+db_connect = lambda: sqlite3.connect(config.DB_FILE_PATH)
 
 
 def to_thread(func: typing.Callable) -> typing.Coroutine:

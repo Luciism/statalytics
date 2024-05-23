@@ -50,7 +50,7 @@ class CumulativeStats(BedwarsStats):
         self.most_played_cum = self._get_most_played()
         self.games_played_cum = self._calc_cum('games_played_bedwars')
 
-        self.experience_local = self._bedwars_stats_snapshot.experience
+        self.experience_local = self._bedwars_stats_snapshot.Experience
         self.level_local = get_level(self.experience_local)
 
         self.experience_cum = self.experience - self.experience_local

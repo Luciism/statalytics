@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import NamedTuple
 
 from .common import REL_PATH
@@ -32,7 +32,7 @@ def create_account(
     :param cursor: custom `sqlite3.Cursor` object to insert the account data with
     """
     if creation_timestamp is None:
-        creation_timestamp = datetime.utcnow().timestamp()
+        creation_timestamp = datetime.now(UTC).timestamp()
 
     data = {
         'discord_id': discord_id,

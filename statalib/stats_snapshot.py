@@ -2,75 +2,10 @@ from dataclasses import dataclass
 import sqlite3
 
 
-BEDWARS_STATS_SNAPSHOT_KEYS = [
-    "Experience",
-    "wins_bedwars",
-    "losses_bedwars",
-    "final_kills_bedwars",
-    "final_deaths_bedwars",
-    "kills_bedwars",
-    "deaths_bedwars",
-    "beds_broken_bedwars",
-    "beds_lost_bedwars",
-    "games_played_bedwars",
-    "eight_one_wins_bedwars",
-    "eight_one_losses_bedwars",
-    "eight_one_final_kills_bedwars",
-    "eight_one_final_deaths_bedwars",
-    "eight_one_kills_bedwars",
-    "eight_one_deaths_bedwars",
-    "eight_one_beds_broken_bedwars",
-    "eight_one_beds_lost_bedwars",
-    "eight_one_games_played_bedwars",
-    "eight_two_wins_bedwars",
-    "eight_two_losses_bedwars",
-    "eight_two_final_kills_bedwars",
-    "eight_two_final_deaths_bedwars",
-    "eight_two_kills_bedwars",
-    "eight_two_deaths_bedwars",
-    "eight_two_beds_broken_bedwars",
-    "eight_two_beds_lost_bedwars",
-    "eight_two_games_played_bedwars",
-    "four_three_wins_bedwars",
-    "four_three_losses_bedwars",
-    "four_three_final_kills_bedwars",
-    "four_three_final_deaths_bedwars",
-    "four_three_kills_bedwars",
-    "four_three_deaths_bedwars",
-    "four_three_beds_broken_bedwars",
-    "four_three_beds_lost_bedwars",
-    "four_three_games_played_bedwars",
-    "four_four_wins_bedwars",
-    "four_four_losses_bedwars",
-    "four_four_final_kills_bedwars",
-    "four_four_final_deaths_bedwars",
-    "four_four_kills_bedwars",
-    "four_four_deaths_bedwars",
-    "four_four_beds_broken_bedwars",
-    "four_four_beds_lost_bedwars",
-    "four_four_games_played_bedwars",
-    "two_four_wins_bedwars",
-    "two_four_losses_bedwars",
-    "two_four_final_kills_bedwars",
-    "two_four_final_deaths_bedwars",
-    "two_four_kills_bedwars",
-    "two_four_deaths_bedwars",
-    "two_four_beds_broken_bedwars",
-    "two_four_beds_lost_bedwars",
-    "two_four_games_played_bedwars",
-    "items_purchased_bedwars",
-    "eight_one_items_purchased_bedwars",
-    "eight_two_items_purchased_bedwars",
-    "four_three_items_purchased_bedwars",
-    "four_four_items_purchased_bedwars",
-    "two_four_items_purchased_bedwars"
-]
-
-
 @dataclass
 class BedwarsStatsSnapshot:
     snapshot_id: str
-    experience: int
+    Experience: int
     wins_bedwars: int
     losses_bedwars: int
     final_kills_bedwars: int
@@ -131,6 +66,31 @@ class BedwarsStatsSnapshot:
     four_three_items_purchased_bedwars: int
     four_four_items_purchased_bedwars: int
     two_four_items_purchased_bedwars: int
+
+    def as_tuple(self, include_snapshot_id: bool=True) -> tuple:
+        result = tuple(self.__dict__.values())
+
+        if include_snapshot_id is False:
+            # Remove snapshot ID
+            result = result[1:]
+        return result
+
+    def as_dict(self, include_snapshot_id: bool=True) -> dict:
+        result = self.__dict__
+
+        if include_snapshot_id is False:
+            result.pop("snapshot_id")
+        return result
+
+    @staticmethod
+    def keys(include_snapshot_id: bool=True) -> list[str]:
+        """Stats keys"""
+        keys = list(BedwarsStatsSnapshot.__annotations__.keys())
+
+        if include_snapshot_id is False:
+            keys.remove("snapshot_id")  # Remove snapshot_id property
+
+        return keys
 
 
 def get_snapshot_data(

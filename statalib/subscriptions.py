@@ -125,6 +125,9 @@ class SubscriptionManager:
 
 
     def __update_user_roles(self, subscription: Subscription) -> None:
+        if not config.SHOULD_UPDATE_SUBSCRIPTION_ROLES:  # Overrules everything
+            return
+
         json_data = json.dumps({
             "action": "dispatch_event",
             "event_name": "subscription_update",

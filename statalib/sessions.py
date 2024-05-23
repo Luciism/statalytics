@@ -5,7 +5,7 @@ from uuid import uuid4
 from .calctools import get_player_dict
 from .aliases import PlayerUUID
 from .common import REL_PATH
-from .stats_snapshot import BedwarsStatsSnapshot, BEDWARS_STATS_SNAPSHOT_KEYS
+from .stats_snapshot import BedwarsStatsSnapshot
 
 
 class BedwarsSession:
@@ -78,7 +78,7 @@ class SessionManager:
         # Create dictionary of session data
         session_data = {
             k:bedwars_stats_data.get(k, 0)
-            for k in BEDWARS_STATS_SNAPSHOT_KEYS
+            for k in BedwarsStatsSnapshot.keys()
         }
 
         # Generate timestamp and session snapshot id

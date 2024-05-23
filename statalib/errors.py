@@ -54,3 +54,6 @@ class UserBlacklistedError(AppCommandError):
 
 class MissingPermissionsError(AppCommandError):
     """User is missing required error"""
+
+class DataNotFoundError(Exception):
+    """Expected data was not found in the database"""

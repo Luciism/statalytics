@@ -75,7 +75,7 @@ def real_title_case(text: str) -> str:
 
 def get_player_dict(hypixel_data: dict) -> dict:
     """
-    Checks if player key exits and returns data or empty dict
+    Checks if player key exists and returns data or empty dict
     :param hypixel_data: The hypixel data to the player of
     """
     if hypixel_data.get('player'):

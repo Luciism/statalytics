@@ -27,6 +27,7 @@ def merge_dicts(original_dict: dict, update_dict: dict):
 
 
 class _Config:
+    SHOULD_UPDATE_SUBSCRIPTION_ROLES = True
     DB_FILE_PATH = f'{REL_PATH}/database/core.db'
 
     def __init__(self) -> None:

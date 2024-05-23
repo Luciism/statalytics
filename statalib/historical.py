@@ -274,34 +274,6 @@ def get_historical_data(uuid: PlayerUUID, period: str) -> tuple:
     return historical_data
 
 
-def get_historical(uuid: PlayerUUID, identifier: str, table: str=None):
-    """
-    **Deprecated** use `get_tracker_data` or `get_historical_data` instead
-
-    Returns historical data from a specified table to a specified player
-    :param uuid: the uuid of the respective user
-    :param identifier: the column name of the tracker (daily, weekly, etc)
-    :param table: the table the data is in (trackers / historical)
-    """
-    warnings.warn("Use `get_tracker_data` or `get_historical_data`",
-                   DeprecationWarning, stacklevel=2)
-
-    if not table:
-        table = 'trackers' if identifier in TRACKERS else 'historical'
-    col = 'tracker' if table == 'trackers' else 'period'
-
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-        cursor = conn.cursor()
-        try:
-            cursor.execute(
-                f"SELECT * FROM {table} WHERE uuid = ? and {col} = ?", (uuid, identifier))
-            historical_data = cursor.fetchone()
-        except sqlite3.OperationalError:
-            historical_data = ()
-
-    return historical_data
-
-
 # Builds invalid lookback embed
 def build_invalid_lookback_embeds(max_lookback) -> list:
     """
@@ -708,20 +680,6 @@ class HistoricalManager:
         if not uuid:
             uuid = self._get_uuid(safe=True)
         return get_historical_data(uuid, period)
-
-
-    def get_historical(
-        self, uuid: PlayerUUID=None, identifier: str='daily', table: str=None
-    ) -> tuple:
-        """
-        Returns historical data from a specified table to a specified player
-        :param uuid: the uuid of the respective user
-        :param identifier: the column name of the tracker (daily, weekly, etc)
-        :param table: the table the data is in (trackers / historical)
-        """
-        if not uuid:
-            uuid = self._get_uuid(safe=True)
-        return get_historical(uuid, identifier, table)
 
 
     def build_invalid_lookback_embeds(self, max_lookback: int) -> list:
