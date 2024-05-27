@@ -28,6 +28,7 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
             .get_subscription() \
             .package_property("max_lookback", FALLBACK_MAX_LOOKBACK)
         for discord_id in discord_ids
+        if discord_id is not None
     ]
 
     # No limit
@@ -38,7 +39,7 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
     return max(max_lookbacks)
 
 
-def build_invalid_lookback_embeds(max_lookback) -> list:
+def build_invalid_lookback_embeds(max_lookback: int | None) -> list:
     """
     Responds to a interaction with an max lookback exceeded message
     :param max_lookback: The maximum lookback the user had availiable

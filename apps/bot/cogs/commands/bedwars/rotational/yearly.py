@@ -7,7 +7,8 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
-from render.historical import render_historical
+from statalib import rotational_stats as rotational
+from render.rotational import render_rotational
 
 
 class Yearly(commands.Cog):
@@ -35,42 +36,43 @@ class Yearly(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        historic = lib.HistoricalManager(interaction.user.id, uuid)
-        gmt_offset, hour = historic.get_reset_time()
+        manager = rotational.RotationalStatsManager(uuid)
+        reset_time = rotational.get_dynamic_reset_time(uuid)
 
-        historical_data = historic.get_tracker_data(tracker='yearly')
+        rotational_data = manager.get_rotational_data(
+            rotational.RotationType.from_string('yearly'))
 
-        if not historical_data:
-            await historic.start_trackers(hypixel_data)
+        if not rotational_data:
+            manager.initialize_rotational_tracking(hypixel_data)
+
             await interaction.edit_original_response(
                 content=f'Historical stats for {lib.fname(name)} will now be tracked.')
             return
 
-        now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
         relative_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
-        if hour > 0:
-            hour -= 1
-
+        if reset_time.reset_hour > 0:
+            reset_time.reset_hour -= 1  # Idk
 
         if lib.has_auto_reset(uuid):
             next_occurrence = datetime(
-                year=now.year+1, month=1, day=1, hour=hour, minute=0,
-                second=0, tzinfo=timezone(timedelta(hours=gmt_offset))
+                year=now.year+1, month=1, day=1, hour=reset_time.reset_hour, minute=0,
+                second=0, tzinfo=timezone(timedelta(hours=reset_time.utc_offset))
             )
             utc_next_occurrence = next_occurrence.astimezone(timezone.utc)
             timestamp = int(utc_next_occurrence.timestamp())
 
             message = f':alarm_clock: Resets <t:{timestamp}:R>'
         else:
-            timestamp = int(lib.timezone_relative_timestamp(historical_data[2]))
+            timestamp = int(
+                lib.timezone_relative_timestamp(rotational_data.last_reset_timestamp))
             message = f':alarm_clock: Last reset <t:{timestamp}:R>'
-
 
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "identifier": "yearly",
+            "tracker": "yearly",
             "relative_date": relative_date,
             "title": "Yearly Stats",
             "hypixel_data": hypixel_data,
@@ -80,7 +82,7 @@ class Yearly(commands.Cog):
 
         await lib.handle_modes_renders(
             interaction=interaction,
-            func=render_historical,
+            func=render_rotational,
             kwargs=kwargs,
             message=message,
             custom_view=lib.tracker_view()
@@ -103,44 +105,49 @@ class Yearly(commands.Cog):
         await lib.run_interaction_checks(interaction)
 
         name, uuid = await lib.fetch_player_info(player, interaction)
-
-        historic = lib.HistoricalManager(interaction.user.id, uuid)
         discord_id = lib.uuid_to_discord_id(uuid=uuid)
 
-        years = max(years, 1)
+        years = max(years, 1)  # Minimum of 1 year
 
         # Check if user is within their lookback limitations
         # First checks if a user is checking only 1 year back
         # and then checks if the max lookback days are within the given amount
-        max_lookback = historic.get_max_lookback(discord_id, interaction.user.id)
-        if years != 1 and -1 != max_lookback < (years * 365):
-            embeds = historic.build_invalid_lookback_embeds(max_lookback)
+        max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
+
+        if years != 1 and max_lookback is not None and max_lookback < (years * 365):
+            embeds = rotational.build_invalid_lookback_embeds(max_lookback)
             await interaction.followup.send(embeds=embeds)
             return
 
         # Get time / date information
-        gmt_offset, reset_hour = historic.get_reset_time()
+        reset_time = rotational.get_dynamic_reset_time(uuid)
 
-        now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        now = datetime.now(timezone(timedelta(hours=reset_time.reset_hour)))
         try:
             relative_date = now - relativedelta(years=years)
 
             # today's reset has not occured yet
-            if now.hour < reset_hour:
+            if now.hour < reset_time.reset_hour:
                 relative_date -= timedelta(days=1)
 
             formatted_date = relative_date.strftime("Year %Y")
-            period = relative_date.strftime("yearly_%Y")
         except ValueError:
             await interaction.followup.send('Big, big number... too big number...')
             return
 
+        period_id = rotational.HistoricalRotationPeriodID(
+            rotation_type=rotational.RotationType.YEARLY,
+            datetime_info=relative_date
+        )
+
         # Check if historical data exists
-        historical_data = historic.get_historical_data(period=period)
+        manager = rotational.RotationalStatsManager(uuid)
+        historical_data = manager.get_historical_rotation_data(period_id.to_string())
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fname(name)} has no tracked data for {years} year(s) ago!')
+                f'{lib.fname(name)} has no tracked data for {years} '
+                f'{lib.pluralize(years, "year")} ago!')
             return
 
         # Render and send
@@ -154,16 +161,16 @@ class Yearly(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "identifier": "lastyear",
+            "tracker": "lastyear",
             "relative_date": formatted_date,
             "title": f"{years} {lib.pluralize(years, 'Year')} Ago",
-            "period": period,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id,
+            "period_id": period_id
         }
 
-        await lib.handle_modes_renders(interaction, render_historical, kwargs)
+        await lib.handle_modes_renders(interaction, render_rotational, kwargs)
         lib.update_command_stats(interaction.user.id, 'lastyear')
 
 

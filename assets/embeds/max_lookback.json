@@ -7,7 +7,7 @@
       "fields": [
         {
           "name": "How it works:",
-          "value": "`-` You can view history up to `{max_lookback}` days with your's or the checked player's plan.\n  `-` You can view longer history if you or the checked player has a premium plan."
+          "value": "`-` You can view history up to `{max_lookback}` days with yours or the checked player's plan.\n  `-` You can view longer history if you or the checked player has a premium plan."
         },
         {
           "name": "Limits",

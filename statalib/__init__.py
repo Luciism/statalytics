@@ -1,3 +1,5 @@
+from . import rotational_stats as rotational_stats
+
 from .assets import ASSET_LOADER as ASSET_LOADER
 from .cfg import *
 from .errors import *

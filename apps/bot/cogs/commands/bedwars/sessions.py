@@ -145,9 +145,9 @@ class Sessions(commands.Cog):
             return
 
         # Find the first gap in the active sessions
-        for i, session in enumerate(sorted(active_sessions)):
-            if session[0] != i + 1:
-                session_id = i + 1
+        for i, session in enumerate(sorted(active_sessions), start=1):
+            if session != i:
+                session_id = i
                 break
         else:
             session_id = active_sessions_count + 1
@@ -238,7 +238,7 @@ class Sessions(commands.Cog):
         active_sessions = session_manager.active_sessions()
 
         if active_sessions:
-            session_string = ", ".join(active_sessions)
+            session_string = ", ".join([str(item) for item in active_sessions])
             await interaction.followup.send(
                 f'Your active sessions: `{session_string}`')
         else:

@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+from statalib import rotational_stats as rotational
 from render.difference import render_difference
 
 
@@ -36,18 +37,20 @@ class Difference(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        historic = lib.HistoricalManager(interaction.user.id, uuid)
+        utc_offset = rotational.get_dynamic_reset_time(uuid).utc_offset
+        manager = rotational.RotationalStatsManager(uuid)
 
-        gmt_offset = historic.get_reset_time()[0]
-        historical_data = historic.get_tracker_data(tracker=tracker)
+        rotational_data = manager.get_rotational_data(
+            rotational.RotationType.from_string(tracker))
 
-        if not historical_data:
-            await historic.start_trackers(hypixel_data)
+        if not rotational_data:
+            manager.initialize_rotational_tracking(hypixel_data)
+
             await interaction.edit_original_response(
                 content=f'Historical stats for {lib.fname(name)} will now be tracked.')
             return
 
-        now = datetime.now(timezone(timedelta(hours=gmt_offset)))
+        now = datetime.now(timezone(timedelta(hours=utc_offset)))
         formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
         kwargs = {

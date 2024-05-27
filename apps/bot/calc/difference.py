@@ -3,6 +3,7 @@ import sqlite3
 from statalib import REL_PATH
 from statalib.functions import prefix_int
 from statalib.calctools import CumulativeStats, get_rank_info, ratio
+from statalib import rotational_stats as rotational
 
 
 class DifferenceStats(CumulativeStats):
@@ -13,20 +14,11 @@ class DifferenceStats(CumulativeStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
-            cursor = conn.cursor()
+        rotation_type = rotational.RotationType.from_string(tracker)
+        bedwars_stats_snapshot = rotational.RotationalStatsManager(uuid) \
+            .get_rotational_data(rotation_type)
 
-            cursor.execute(
-                "SELECT * FROM trackers_new WHERE uuid = ? and tracker = ?",
-                (uuid, tracker)
-            )
-
-            historic_data = cursor.fetchone()
-
-            column_names = [desc[0] for desc in cursor.description]
-            self.historic_data = dict(zip(column_names, historic_data))
-
-        super().__init__(hypixel_data, self.historic_data, strict_mode=mode)
+        super().__init__(hypixel_data, bedwars_stats_snapshot.data, strict_mode=mode)
 
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_data)

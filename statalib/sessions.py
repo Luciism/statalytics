@@ -2,7 +2,6 @@ import sqlite3
 from datetime import datetime, UTC
 from uuid import uuid4
 
-from .calctools import get_player_dict
 from .aliases import PlayerUUID
 from .common import REL_PATH
 from .stats_snapshot import BedwarsStatsSnapshot
@@ -35,11 +34,12 @@ class SessionManager:
             if session_id is None:
                 # Use lowest session
                 cursor.execute(
-                    "SELECT * FROM sessions WHERE uuid = ? ORDER BY session ASC", (self._uuid,))
+                    "SELECT * FROM session_info WHERE uuid = ? ORDER BY session ASC",
+                    (self._uuid,))
             else:
                 # Use specified session
                 cursor.execute(
-                    "SELECT * FROM sessions WHERE uuid = ? AND session = ?",
+                    "SELECT * FROM session_info WHERE uuid = ? AND session = ?",
                     (self._uuid, session_id))
 
             session_info = cursor.fetchone()
@@ -59,11 +59,10 @@ class SessionManager:
 
             if session_data is None:
                 # Raise snapshot data missing error instead
-                raise NotImplementedError("Data missing")
+                raise NotImplementedError("Data missing")  # TODO: raise proper exception
 
             session_snapshot_data = BedwarsStatsSnapshot(*session_data)
             return BedwarsSession(session_info_dict, session_data=session_snapshot_data)
-
 
 
     def create_session(self, session_id: int, hypixel_data: dict) -> None:
@@ -72,7 +71,7 @@ class SessionManager:
         :param session_id: The ID of the session to be created.
         :param hypixel_data: The hypixel data to create the session with.
         """
-        hypixel_data = get_player_dict(hypixel_data)
+        hypixel_data = hypixel_data.get('player') or {}
         bedwars_stats_data: dict = hypixel_data.get("stats", {}).get("Bedwars", {})
 
         # Create dictionary of session data
@@ -90,7 +89,7 @@ class SessionManager:
 
             # Insert session info
             cursor.execute("""
-                INSERT INTO sessions
+                INSERT INTO session_info
                 (session, uuid, snapshot_id, creation_timestamp)
                 VALUES (?, ?, ?, ?)
             """, (session_id, self._uuid, snapshot_id, timestamp))
@@ -114,7 +113,8 @@ class SessionManager:
 
             # Get snapshot ID
             cursor.execute(
-                "SELECT snapshot_id FROM sessions WHERE session = ?", (session_id,))
+                "SELECT snapshot_id FROM session_info WHERE session = ? AND uuid = ?",
+                (session_id, self._uuid))
             result = cursor.fetchone()
 
             if result is None:
@@ -127,7 +127,7 @@ class SessionManager:
                 "DELETE FROM bedwars_stats_snapshots WHERE snapshot_id = ?", (snapshot_id,))
 
             cursor.execute(
-                "DELETE FROM sessions WHERE snapshot_id = ?", (snapshot_id,))
+                "DELETE FROM session_info WHERE snapshot_id = ?", (snapshot_id,))
 
 
     def session_count(self, cursor: sqlite3.Cursor | None=None) -> int:
@@ -138,7 +138,7 @@ class SessionManager:
         def __session_count(cursor: sqlite3.Cursor) -> int:
             # Get snapshot ID
             cursor.execute(
-                "SELECT COUNT(*) FROM sessions WHERE uuid = ?", (self._uuid,))
+                "SELECT COUNT(*) FROM session_info WHERE uuid = ?", (self._uuid,))
             result = cursor.fetchone()
 
             if result is None:
@@ -159,7 +159,7 @@ class SessionManager:
         """
         def __active_sessions(cursor: sqlite3.Cursor) -> list[int]:
             cursor.execute(
-                "SELECT session FROM sessions WHERE uuid = ? ORDER BY session ASC",
+                "SELECT session FROM session_info WHERE uuid = ? ORDER BY session ASC",
                 (self._uuid,))
             results = cursor.fetchall()
 

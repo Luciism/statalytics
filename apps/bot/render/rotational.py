@@ -1,6 +1,7 @@
-from calc.historical import HistoricalStats, LookbackStats
+from calc.rotational import RotationalStats, HistoricalRotationalStats
 import statalib as lib
-from statalib import TRACKERS, to_thread, REL_PATH
+from statalib import (
+    rotational_stats as rotational, to_thread, REL_PATH)
 from statalib.render import (
     render_display_name,
     get_background,
@@ -12,22 +13,23 @@ from statalib.render import (
 
 
 @to_thread
-def render_historical(
+def render_rotational(
     name: str,
     uuid: str,
-    identifier: str,
+    tracker: str,
     relative_date: str,
     title: str,
     mode: str,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str,
-    period: str=None
+    period_id: rotational.HistoricalRotationPeriodID | None=None
 ):
-    if identifier in TRACKERS:
-        stats = HistoricalStats(uuid, identifier, hypixel_data, mode)
+    if tracker in rotational.RotationType._value2member_map_:
+        rotation_type = rotational.RotationType.from_string(tracker)
+        stats = RotationalStats(uuid, rotation_type, hypixel_data, mode)
     else:
-        stats = LookbackStats(uuid, period, hypixel_data, mode)
+        stats = HistoricalRotationalStats(uuid, period_id, hypixel_data, mode)
 
     level = stats.level
     rank_info = stats.rank_info
@@ -35,7 +37,7 @@ def render_historical(
     progress, target, xp_bar_progress = stats.progress
 
     image = get_background(
-        bg_dir=f'historical/{identifier}', uuid=uuid, level=level, rank_info=rank_info
+        bg_dir=f'rotational/{tracker}', uuid=uuid, level=level, rank_info=rank_info
     ).convert("RGBA")
 
     # Render the stat values
@@ -109,7 +111,7 @@ def render_historical(
     paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
-    overlay_image = lib.ASSET_LOADER.load_image("bg/historical/overlay.png")
+    overlay_image = lib.ASSET_LOADER.load_image("bg/rotational/overlay.png")
     overlay_image = overlay_image.convert("RGBA")
     image.paste(overlay_image, (0, 0), overlay_image)
 

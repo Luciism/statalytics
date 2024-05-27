@@ -60,10 +60,10 @@
           "commands.bedwars.displayname",
           "commands.bedwars.difference",
           "commands.bedwars.quests",
-          "commands.bedwars.historical.daily",
-          "commands.bedwars.historical.weekly",
-          "commands.bedwars.historical.monthly",
-          "commands.bedwars.historical.yearly",
+          "commands.bedwars.rotational.daily",
+          "commands.bedwars.rotational.weekly",
+          "commands.bedwars.rotational.monthly",
+          "commands.bedwars.rotational.yearly",
 
           "commands.external.denick",
           "commands.external.status"
@@ -158,7 +158,7 @@
           ],
           "properties": {
             "max_sessions": 5,
-            "max_lookback": -1,
+            "max_lookback": null,
             "generic_command_cooldown": {
               "rate": 1,
               "per": 0
