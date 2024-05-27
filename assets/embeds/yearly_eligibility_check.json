@@ -2,7 +2,7 @@
   "embeds": [
     {
       "title": "That player doesn't have premium!",
-      "description": "In order to view yearly stats, a [premium plan](https://statalytics.net/store) is required!",
+      "description": "In order to view yearly stats, a [premium plan](https://statalytics.net/premium) is required!",
       "color": 3092790,
       "fields": [
         {

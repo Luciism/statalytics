@@ -14,6 +14,9 @@ class ResetTime:
     utc_offset: int=MISSING
     reset_hour: int=MISSING
 
+    def as_tuple(self) -> tuple[int, int]:
+        return (self.utc_offset, self.reset_hour)
+
 
 class _ResetTimeManagerBase(ABC):
     @staticmethod

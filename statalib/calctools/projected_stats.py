@@ -118,7 +118,7 @@ class ProjectedStats(CumulativeStats):
         """Projected date formatted as `%b %d, %Y`"""
         if self._projection_date is None:
             if self.target_date is None:
-                self._projection_date =  "Deceased"
+                self._projection_date = "Deceased"
             else:
                 self._projection_date = self.target_date.strftime("%b %d, %Y")
         return self._projection_date
