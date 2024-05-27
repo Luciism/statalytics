@@ -42,10 +42,10 @@ class ComparisonInfoButton(CustomBaseView):
         super().__init__(timeout=None)
         self.add_item(InfoButton('Comparison', 'help/compare'))
 
-class HistoricalInfoButton(CustomBaseView):
+class RotationalInfoButton(CustomBaseView):
     def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Historical', 'help/historical'))
+        self.add_item(InfoButton('Rotational', 'help/rotational'))
 
 class LinkingInfoButton(CustomBaseView):
     def __init__(self):
@@ -83,7 +83,7 @@ def add_info_view(client: discord.Client):
     client.add_view(SessionInfoButton())
     client.add_view(ProjectionInfoButton())
     client.add_view(ComparisonInfoButton())
-    client.add_view(HistoricalInfoButton())
+    client.add_view(RotationalInfoButton())
     client.add_view(LinkingInfoButton())
     client.add_view(OtherInfoButton())
     client.add_view(HelpMenuButtons())

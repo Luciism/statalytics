@@ -2,7 +2,7 @@
   "embeds": [
     {
       "title": "Maximum lookback exceeded!",
-      "description": "The maximum lookback for viewing that player's historical stats is {max_lookback}!",
+      "description": "The maximum lookback for viewing that player's historical rotational stats is {max_lookback}!",
       "color": 3092790,
       "fields": [
         {

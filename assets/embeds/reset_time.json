@@ -2,7 +2,7 @@
   "embeds": [
     {
       "title": "Configure reset time",
-      "description": "This will determine when your daily, weekly, monthly, and yearly stats roll over.\nGMT offset - your timezone offset to Greenwich Mean Time\nReset hour - the hour which your historical stats will rollover\n\nClick [here](https://greenwichmeantime.com/current-time/) if you are unsure of your GMT offset.",
+      "description": "This will determine when your daily, weekly, monthly, and yearly stats roll over.\nGMT offset - your timezone offset to Greenwich Mean Time\nReset hour - the hour which your rotational stats will rollover\n\nClick [here](https://greenwichmeantime.com/current-time/) if you are unsure of your GMT offset.",
       "color": 3092790
     }
   ]
