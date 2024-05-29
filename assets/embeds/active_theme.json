@@ -2,7 +2,7 @@
   "embeds": [
     {
       "title": "Select a theme pack!",
-      "description": "In order for your selected theme pack to take effect, you must have voted in the past 24 HOURS.\n\n [Premium users](https://statalytics.net/premium) bypass this restriction.",
+      "description": "In order for your selected theme pack to take effect, you must have voted in the past 24 HOURS.\n\n [Premium supporters](https://statalytics.net/premium) bypass this restriction.",
       "color": 3092790
     }
   ]

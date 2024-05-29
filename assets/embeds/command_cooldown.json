@@ -2,7 +2,7 @@
   "embeds": [
     {
       "title": "Command on cooldown!",
-      "description": "Wait another `{retry_after}` and try again!\nPremium users bypass this restriction.",
+      "description": "Wait another `{retry_after}` and try again!\n[Premium supporters](https://statalytics.net/premium) bypass this restriction.",
       "thumbnail": {
         "url": "https://statalytics.net/static/images/cooldown_hourglass.png"
       },
