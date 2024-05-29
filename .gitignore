@@ -1,16 +1,25 @@
-**/custom/
-**/logs/
+# Output
+**/database/
+**/cache/
+**/.cache/
 **/__pycache__/
+**/logs/
+
+# Secrets
 **/.env
 **/.env.test
-**/.cache/
-**/cache/
-**/test.py
-**/database/
-website/
-utils/
-api/
+apps/bot/tips.json
+
+# Private apps
+apps/website/
+apps/utils/
+apps/api/
+
+# Generated
 .vscode/
 .devtools/
-desktop.ini
 .hintrc
+desktop.ini
+
+# Misc
+**/test.py
