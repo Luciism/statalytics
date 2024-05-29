@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from ..cfg import config
-from ..views import add_info_view
+from ..views import add_info_view, PremiumInfoView
 from ..common import REL_PATH
 
 logger = logging.getLogger('statalytics')
@@ -33,6 +33,7 @@ class Client(commands.AutoShardedBot):
                 logger.info(f"Cog doesn't exist: {ext}")
 
         add_info_view(self)
+        self.add_view(PremiumInfoView())
 
         # await self.tree.sync()
         with open(f'{REL_PATH}/database/uptime.json', 'w') as datafile:

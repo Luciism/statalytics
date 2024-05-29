@@ -28,6 +28,7 @@ from .render.colors import *
 from .render.splitting import *
 from .render.text import *
 
+from . import views as views
 from .views.modes import *
 from .views.info import *
 from .views.custom import *

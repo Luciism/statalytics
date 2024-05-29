@@ -42,6 +42,7 @@
           "commands.misc.invite",
           "commands.misc.suggest",
           "commands.misc.vote",
+          "commands.misc.premium",
 
           "commands.bedwars.year",
           "commands.bedwars.winstreaks",
