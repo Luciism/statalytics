@@ -10,7 +10,7 @@ from ..permissions import has_access
 from ..views.modes import ModesView
 
 
-def discord_message(discord_id):
+def random_tip_message(discord_id: int):
     """
     Chooses a random message to send if the user doesnt have tip bypass perms
     :param discord_id: the discord id of the respective user
@@ -20,8 +20,9 @@ def discord_message(discord_id):
 
     if random.choice(([False]*5) + ([True]*2)):  # 2 in 7 chance
         try:
-            with open(f'{REL_PATH}/database/discord_messages.json', 'r') as datafile:
-                messages = json.load(datafile).get('active_messages')
+            with open(f'{REL_PATH}/bot/tips.json', 'r') as datafile:
+                messages = json.load(datafile).get('tip_messages')
+
             if messages:
                 return random.choice(messages)
         except (FileNotFoundError, json.JSONDecodeError):
@@ -45,7 +46,7 @@ async def handle_modes_renders(
     :param view: a discord view to merge with the sent view
     """
     if not message:
-        message = discord_message(interaction.user.id)
+        message = random_tip_message(interaction.user.id)
 
     os.makedirs(f'{REL_PATH}/database/rendered/{interaction.id}')
     await func(mode="Overall", **kwargs)

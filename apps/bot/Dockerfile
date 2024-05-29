@@ -13,6 +13,9 @@ COPY ./apps/bot/cogs/ bot/cogs/
 COPY ./apps/bot/render/ bot/render/
 COPY ./apps/bot/main.py bot/main.py
 
+# Optional
+COPY ./apps/bot/tips.json* bot/tips.json
+
 COPY ./assets/ assets/
 COPY ./statalib/ statalib/
 COPY ./config.json config.json
