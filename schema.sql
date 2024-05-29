@@ -199,12 +199,7 @@ CREATE TABLE IF NOT EXISTS rotational_info (
     PRIMARY KEY (uuid, rotation)
 );
 
--- SELECT s.session, s.uuid, s.date, s.level, bs.*
--- FROM sessions s
--- INNER JOIN bedwars_stats_snapshot bs
--- ON s.snapshot_id = bs.snapshot_id ORDER BY s.session;
-
--- Should probably do something about this monstrosity
+-- Deprecated
 CREATE TABLE IF NOT EXISTS sessions (
     session INTEGER,
     uuid TEXT,
