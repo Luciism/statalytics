@@ -19,5 +19,7 @@ from .managers import RotationalStatsManager as RotationalStatsManager
 from .resetting import (
     RotationalResetting as RotationalResetting,
     has_auto_reset_access as has_auto_reset_access,
-    reset_rotational_stats_if_whitelisted as reset_rotational_stats_if_whitelisted
+    reset_rotational_stats_if_whitelisted as reset_rotational_stats_if_whitelisted,
+    async_reset_rotational_stats_if_whitelisted \
+        as async_reset_rotational_stats_if_whitelisted
 )

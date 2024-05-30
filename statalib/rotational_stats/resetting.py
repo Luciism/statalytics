@@ -201,7 +201,7 @@ class RotationalResetting:
             )
 
 
-async def reset_rotational_stats_if_whitelisted(
+def reset_rotational_stats_if_whitelisted(
     uuid: PlayerUUID,
     hypixel_data: dict
 ) -> None:
@@ -294,3 +294,11 @@ async def reset_rotational_stats_if_whitelisted(
             reset_manager.refresh_rotational_data(RotationType.YEARLY, hypixel_data)
 
             logger.info(f'(Manual) Reset yearly tracker for: {uuid}')
+
+
+async def async_reset_rotational_stats_if_whitelisted(
+    uuid: PlayerUUID,
+    hypixel_data: dict
+) -> None:
+    """Async wrapper for ~reset_rotational_stats_if_whitelisted()"""
+    reset_rotational_stats_if_whitelisted(uuid, hypixel_data)

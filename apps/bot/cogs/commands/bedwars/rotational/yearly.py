@@ -55,7 +55,7 @@ class Yearly(commands.Cog):
         if reset_time.reset_hour > 0:
             reset_time.reset_hour -= 1  # Idk
 
-        if lib.has_auto_reset(uuid):
+        if lib.rotational_stats.has_auto_reset_access(uuid):
             next_occurrence = datetime(
                 year=now.year+1, month=1, day=1, hour=reset_time.reset_hour, minute=0,
                 second=0, tzinfo=timezone(timedelta(hours=reset_time.utc_offset))

@@ -62,7 +62,7 @@ class Daily(commands.Cog):
             "save_dir": interaction.id
         }
 
-        if lib.has_auto_reset(uuid):
+        if lib.rotational_stats.has_auto_reset_access(uuid):
             # i dont know why this works but it does so dont touch it
             # it doesnt do what i think it does
             next_occurrence = now.replace(

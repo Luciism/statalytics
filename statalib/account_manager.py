@@ -4,7 +4,6 @@ from .mcfetch import FetchPlayer2
 from .accounts import get_account, set_account_blacklist, create_account
 from .functions import comma_separated_to_list, get_voting_data, commands_ran
 from .linking import LinkingManager, get_linked_player
-from .historical import HistoricalManager
 from .permissions import PermissionManager, has_access, has_permission
 from .subscriptions import SubscriptionManager, Subscription
 from .themes import (
@@ -299,14 +298,6 @@ class Account:
             self._commands_ran = commands_ran(self.discord_id)
         return self._commands_ran
 
-
-    @property
-    def historical_manager(self) -> HistoricalManager:
-        """A historical / tracker manager for the user"""
-        if self._historical_manager is self.__default:
-            self._historical_manager = HistoricalManager(
-                self.discord_id, self.player_uuid)
-        return self._historical_manager
 
     @property
     def linking_manager(self) -> LinkingManager:

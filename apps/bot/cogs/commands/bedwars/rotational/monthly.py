@@ -53,7 +53,7 @@ class Monthly(commands.Cog):
         formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
 
 
-        if lib.has_auto_reset(uuid):
+        if lib.rotational_stats.has_auto_reset_access(uuid):
             next_occurrence = now.replace(
                 hour=reset_time.reset_hour, minute=0, second=0, microsecond=0)
 

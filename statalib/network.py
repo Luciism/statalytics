@@ -13,7 +13,7 @@ from .cfg import config
 from .common import REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
 from .aliases import PlayerUUID
-from .historical import manual_tracker_reset
+from .rotational_stats import async_reset_rotational_stats_if_whitelisted
 
 
 logger = logging.getLogger('statalytics')
@@ -50,7 +50,9 @@ async def __make_hypixel_request(
     hypixel_data = await (await session.get(**options)).json()
 
     # reset trackers using the data if they are due
-    await asyncio.ensure_future(manual_tracker_reset(uuid, hypixel_data))
+    asyncio.ensure_future(
+        async_reset_rotational_stats_if_whitelisted(uuid, hypixel_data)
+    )
 
     return hypixel_data
 
