@@ -22,7 +22,7 @@ def render_hotbar(
     try:
         hypixel_data = hypixel_data['player']
         hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
-    except KeyError:
+    except (KeyError, TypeError):
         hotbar = ['null'] * 9  # Hotbar not configured, use empty hotbar
 
     rank_info = get_rank_info(hypixel_data)
