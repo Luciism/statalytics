@@ -20,7 +20,7 @@ class BaseTestResetTime:
         reset_time = self.manager.get()
 
         assert reset_time.utc_offset == 0
-        assert reset_time.reset_hour in range(0, 23)
+        assert reset_time.reset_hour in range(0, 24)
 
     def test_update_reset_time_override(self):
         self.manager.update(ResetTime())  # Initial value

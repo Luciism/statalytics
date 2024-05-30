@@ -3,7 +3,8 @@ from datetime import datetime, UTC
 from uuid import uuid4
 
 from .aliases import PlayerUUID
-from .common import REL_PATH
+from .errors import DataNotFoundError
+from .functions import db_connect
 from .stats_snapshot import BedwarsStatsSnapshot
 
 
@@ -27,7 +28,7 @@ class SessionManager:
         :param session_id: The ID of the session to retrieve. If left as `None`, \
             an existing session with the lowest ID will be returned.
         """
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             cursor = conn.cursor()
 
             # Select session info
@@ -58,8 +59,8 @@ class SessionManager:
             session_data: tuple | None = cursor.fetchone()
 
             if session_data is None:
-                # Raise snapshot data missing error instead
-                raise NotImplementedError("Data missing")  # TODO: raise proper exception
+                raise DataNotFoundError(
+                    f"Snapshot data missing for snapshot ID '{snapshot_id}'")
 
             session_snapshot_data = BedwarsStatsSnapshot(*session_data)
             return BedwarsSession(session_info_dict, session_data=session_snapshot_data)
@@ -84,7 +85,7 @@ class SessionManager:
         timestamp = datetime.now(UTC).timestamp()
         snapshot_id = uuid4().hex
 
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             cursor = conn.cursor()
 
             # Insert session info
@@ -108,7 +109,7 @@ class SessionManager:
         Delete a session with a specific ID.
         :param session_id: The ID of the user's session to be deleted.
         """
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             cursor = conn.cursor()
 
             # Get snapshot ID
@@ -118,8 +119,8 @@ class SessionManager:
             result = cursor.fetchone()
 
             if result is None:
-                # Raise custom session not found exception
-                raise NotImplementedError("Session not found!")
+                raise DataNotFoundError(
+                    f"Session '{session_id}' not found for player '{self._uuid}'")
 
             snapshot_id = result[0]
 
@@ -148,7 +149,7 @@ class SessionManager:
         if cursor:
             return __session_count(cursor)
 
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             return __session_count(conn.cursor())
 
 
@@ -168,5 +169,5 @@ class SessionManager:
         if cursor:
             return __active_sessions(cursor)
 
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             return __active_sessions(conn.cursor())

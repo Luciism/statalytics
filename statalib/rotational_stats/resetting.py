@@ -97,12 +97,13 @@ class RotationalResetting:
         self,
         period_id: HistoricalRotationPeriodID,
         current_hypixel_data: dict,
-    ) -> None:
+    ) -> str:
         """
         Save currently active rotational data as a historical data snapshot.
 
         :param period_id: The period ID information for the reset
         :param current_hypixel_data: The current hypixel data of the player.
+        :return: The snapshot ID to identify the data.
         """
         manager = RotationalStatsManager(self._player_uuid)
         current_rotational_data = manager.get_rotational_data(period_id.rotation_type)
@@ -140,6 +141,8 @@ class RotationalResetting:
                 INSERT INTO bedwars_stats_snapshots
                 (snapshot_id, {column_names}) VALUES (?, {question_marks})
             """, (snapshot_id, *calculated_values))
+
+        return snapshot_id
 
 
     def refresh_rotational_data(
