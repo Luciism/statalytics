@@ -1,29 +1,24 @@
 from calc.year import YearStats
+
 import statalib as lib
-from statalib import to_thread, add_suffixes, REL_PATH
-from statalib.render import (
-    get_background,
-    paste_skin,
-    render_display_name,
-    render_mc_text,
-    get_formatted_level
-)
+from statalib import BedwarsSession, add_suffixes
+from statalib import render
 
 
-@to_thread
+@lib.to_thread
 def render_year(
     name: str,
     uuid: str,
-    session: int,
+    session_info: BedwarsSession,
     year: int,
     mode: str,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str
-):
-    stats = YearStats(uuid, session, year, hypixel_data, mode)
+) -> None:
+    stats = YearStats(uuid, session_info, year, hypixel_data, mode)
 
-    image = get_background(
+    image = render.get_background(
         bg_dir='year', uuid=uuid, level=stats.level, rank_info=stats.rank_info
     ).convert("RGBA")
 
@@ -52,7 +47,7 @@ def render_year(
     ]
 
     for values in data:
-        render_mc_text(
+        render.render_mc_text(
             image=image,
             shadow_offset=(2, 2),
             font=lib.ASSET_LOADER.load_font("main.ttf", 16),
@@ -60,7 +55,7 @@ def render_year(
             **values
         )
 
-    render_display_name(
+    render.render_display_name(
         username=name,
         rank_info=stats.rank_info,
         image=image,
@@ -69,8 +64,8 @@ def render_year(
         align='center'
     )
 
-    render_mc_text(
-        text=f'&fPredictions For Year:  &d{year}',  # intentional double space
+    render.render_mc_text(
+        text=f'&fPredictions For Year: &d{year}',  # intentional double space
         position=(229, 425),
         font=lib.ASSET_LOADER.load_font("main.ttf", 18),
         image=image,
@@ -79,10 +74,10 @@ def render_year(
     )
 
     # Render progress to target
-    formatted_lvl = get_formatted_level(stats.level)
-    formatted_target = get_formatted_level(int(stats.target_level))
+    formatted_lvl = render.get_formatted_level(stats.level)
+    formatted_target = render.get_formatted_level(int(stats.target_level))
 
-    render_mc_text(
+    render.render_mc_text(
         text=f'{formatted_lvl} &f/ {formatted_target}',
         position=(226, 84),
         font_size=20,
@@ -91,7 +86,7 @@ def render_year(
         align='center'
     )
 
-    render_mc_text(
+    render.render_mc_text(
         text=f'Year {year}',
         position=(537, 27),
         font=lib.ASSET_LOADER.load_font("main.ttf", 18),
@@ -100,7 +95,7 @@ def render_year(
         align='center'
     )
 
-    paste_skin(skin_model, image, positions=(466, 69))
+    render.paste_skin(skin_model, image, positions=(466, 69))
 
     # Paste overlay
     overlay_image = lib.ASSET_LOADER.load_image("bg/year/overlay.png")
@@ -108,6 +103,6 @@ def render_year(
     image.paste(overlay_image, (0, 0), overlay_image)
 
     # Save the image
-    image.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    image.save(f'{lib.REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
     if mode.lower() == "overall":
         return stats.level

@@ -36,7 +36,7 @@ class Year(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        session = await lib.find_dynamic_session_interaction(
+        session_info = await lib.find_dynamic_session_interaction(
             interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
@@ -47,7 +47,7 @@ class Year(commands.Cog):
         kwargs = {
             "name": name,
             "uuid": uuid,
-            "session": session,
+            "session_info": session_info,
             "year": year,
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
