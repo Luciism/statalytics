@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 from dotenv import load_dotenv
@@ -9,6 +10,7 @@ from statalib import config, REL_PATH
 
 load_dotenv(f"{REL_PATH}/.env.test")
 
+os.mkdir(f'{REL_PATH}/database/')
 config.DB_FILE_PATH = f"{REL_PATH}/database/tests.db"
 config.SHOULD_UPDATE_SUBSCRIPTION_ROLES = False
 statalib.setup_database_schema(db_fp=config.DB_FILE_PATH)
