@@ -35,8 +35,6 @@ class Info(commands.Cog):
         time_since_started = int(round(time.time() - start_time))
         uptime = str(datetime.timedelta(seconds=time_since_started))
 
-        config: dict = lib.config()
-
         ping = round(self.client.latency * 1000)
         total_commands = len(list(self.client.tree.walk_commands()))
 
@@ -53,7 +51,7 @@ class Info(commands.Cog):
                         'uptime': uptime,
                         'ping': f'{ping:,}',
                         'commands': f'{total_commands:,}',
-                        'version': config.get('apps.bot.version'),
+                        'version': lib.config('apps.bot.version'),
                     }
                 },
                 2: {
