@@ -55,7 +55,7 @@ def get_voting_data(discord_id: int, cursor: sqlite3.Cursor=None) -> tuple:
     if cursor:
         return _get_voting_data(discord_id, cursor)
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         return _get_voting_data(discord_id, cursor)
 
@@ -76,7 +76,7 @@ def insert_growth_data(
     if timestamp is None:
         timestamp = time.time()
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
@@ -88,7 +88,7 @@ def insert_growth_data(
 
 
 def _update_usage(command, discord_id):
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         # Check if command column exists
@@ -151,7 +151,7 @@ def ordinal(n: int) -> str:
 
 def get_user_total() -> int:
     """Returns total amount of users to have run a command"""
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute('SELECT COUNT(account_id) FROM accounts')
@@ -187,7 +187,7 @@ def commands_ran(
     if cursor:
         return _commands_ran(discord_id, default, cursor)
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         return _commands_ran(discord_id, default, cursor)
 
@@ -196,7 +196,7 @@ def get_commands_total() -> int:
     """
     Returns total amount of commands run by all users
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
