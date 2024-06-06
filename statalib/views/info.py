@@ -73,7 +73,7 @@ class HelpMenuButtons(CustomBaseView):
         self.add_item(InfoButton('Sessions', 'help/sessions', row=1))
         self.add_item(InfoButton('Projection', 'help/projection', row=1))
         self.add_item(InfoButton('Comparison', 'help/compare', row=1))
-        self.add_item(InfoButton('Historical', 'help/historical', row=2))
+        self.add_item(InfoButton('Rotational', 'help/rotational', row=2))
         self.add_item(InfoButton('Linking', 'help/linking', row=2))
         self.add_item(InfoButton('Settings', 'help/settings', row=2))
         self.add_item(InfoButton('Other', 'help/other', row=2))
