@@ -1,16 +1,13 @@
-import sqlite3
-
 from .mcfetch import AsyncFetchPlayer
 from .sessions import SessionManager
 from .permissions import has_access
 from .aliases import PlayerName, PlayerUUID
-from .functions import insert_growth_data
-from .common import REL_PATH
+from .functions import insert_growth_data, db_connect
 
 
 def get_linked_total() -> int:
     """Returns total linked accounts"""
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT COUNT(discord_id) FROM linked_accounts")
@@ -25,7 +22,7 @@ def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
     Attempts to fetch discord id from linked database
     :param uuid: The uuid of the player to find linked data for
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
@@ -40,7 +37,7 @@ def get_linked_player(discord_id: int) -> PlayerUUID | None:
     Returns a users linked player uuid from database
     :param discord_id: The discord id of user's linked data to be retrieved
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(
             f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
@@ -57,7 +54,7 @@ def set_linked_data(discord_id: int, uuid: PlayerUUID) -> None:
     :param discord_id: the discord id of the respective user
     :param uuid: the minecraft uuid of the relvative user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM linked_accounts WHERE discord_id = {discord_id}")
         linked_data = cursor.fetchone()
@@ -82,7 +79,7 @@ def delete_linked_data(discord_id: int) -> bool:
     :returns: former linked uuid of the discord user if the user
     was already linked and able to be unlinked otherwise `None`
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
@@ -111,7 +108,7 @@ def update_autofill(
     :param username: The updated username of the target linked user
     """
     if has_access(discord_id, 'autofill'):
-        with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+        with db_connect() as conn:
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM autofill WHERE discord_id = {discord_id}")
             autofill_data: tuple = cursor.fetchone()
