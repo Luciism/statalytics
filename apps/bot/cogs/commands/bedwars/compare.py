@@ -18,6 +18,8 @@ class Compare(commands.Cog):
     @app_commands.describe(
         player_1='The primary player in the comparison',
         player_2='The secondary player in the comparison')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(
         player_1=lib.username_autocompletion,
         player_2=lib.username_autocompletion)

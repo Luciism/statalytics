@@ -15,6 +15,8 @@ class Who(commands.Cog):
         description="Convert the name of uuid of a player")
     @app_commands.describe(
         player='The player whos username / uuid you want to view')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def who(self, interaction: discord.Interaction,
                   player: str=None):
         await lib.run_interaction_checks(interaction)

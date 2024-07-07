@@ -11,6 +11,8 @@ class Vote(commands.Cog):
 
 
     @app_commands.command(name="vote", description="Get a list of our vote links")
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def vote(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)

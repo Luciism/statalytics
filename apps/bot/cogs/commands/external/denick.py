@@ -57,6 +57,8 @@ class Denick(commands.Cog):
     @app_commands.describe(
         mode='The stat to denick with (finals / beds)',
         count='The count of the chosen stat')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(mode=number_autocomplete)
     @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction,

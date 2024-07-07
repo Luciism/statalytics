@@ -64,7 +64,10 @@ class Sessions(commands.Cog):
 
     session_group = app_commands.Group(
         name='session',
-        description='View and manage active sessions'
+        description='View and manage active sessions',
+        allowed_contexts=app_commands.AppCommandContext(
+            guild=True, dm_channel=True, private_channel=True),
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=True)
     )
 
 

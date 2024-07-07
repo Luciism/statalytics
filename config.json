@@ -92,7 +92,8 @@
           "commands.management.themes",
           "commands.management.subscriptions",
           "commands.management.permissions",
-          "commands.management.linking"
+          "commands.management.linking",
+          "commands.management.blacklist"
         ]
       }
     },

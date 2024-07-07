@@ -57,7 +57,10 @@ class Status(commands.Cog):
 
     status_group = app_commands.Group(
         name='status',
-        description='Status Group Command'
+        description='Status Group Command',
+        allowed_contexts=app_commands.AppCommandContext(
+            guild=True, dm_channel=True, private_channel=True),
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=True)
     )
 
 

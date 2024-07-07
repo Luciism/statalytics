@@ -1,4 +1,3 @@
-import os
 import sys
 import time
 import datetime
@@ -19,6 +18,8 @@ class Info(commands.Cog):
     @app_commands.command(
         name="info",
         description="View information and stats for Statalytics")
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)

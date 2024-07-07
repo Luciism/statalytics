@@ -11,14 +11,18 @@ class Linking(commands.Cog):
 
 
     @app_commands.command(name="link", description="Link your account")
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     @app_commands.describe(player='The player you want to link to')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def link(self, interaction: discord.Interaction, player: str):
         await lib.linking_interaction(interaction, player)
         lib.update_command_stats(interaction.user.id, 'link')
 
 
     @app_commands.command(name="unlink", description="Unlink your account")
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def unlink(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await lib.run_interaction_checks(interaction)

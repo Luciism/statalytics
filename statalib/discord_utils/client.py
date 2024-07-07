@@ -35,7 +35,7 @@ class Client(commands.AutoShardedBot):
         add_info_view(self)
         self.add_view(PremiumInfoView())
 
-        # await self.tree.sync()
+        await self.tree.sync()
         with open(f'{REL_PATH}/database/uptime.json', 'w') as datafile:
             json.dump({"start_time": datetime.now(UTC).timestamp()}, datafile, indent=4)
 

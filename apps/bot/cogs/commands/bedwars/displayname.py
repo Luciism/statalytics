@@ -15,6 +15,8 @@ class DisplayName(commands.Cog):
         name="displayname",
         description="Render the bedwars display name of any player")
     @app_commands.describe(player='The player whos display name to generate')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     @app_commands.autocomplete(player=lib.username_autocompletion)
     async def displayname(self, interaction: discord.Interaction,

@@ -18,6 +18,8 @@ class Practice(commands.Cog):
         name="practice",
         description="View the practice stats of a player")
     @app_commands.describe(player='The player you want to view')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
     @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
     async def practice(self, interaction: discord.Interaction,

@@ -21,6 +21,8 @@ class Projection(commands.Cog):
         player='The player you want to view',
         prestige='The prestige you want to view',
         session='The session you want to use as a benchmark (defaults to 1)')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)

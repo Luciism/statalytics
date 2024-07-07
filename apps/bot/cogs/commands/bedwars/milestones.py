@@ -21,6 +21,8 @@ class Milestones(commands.Cog):
     @app_commands.describe(
         player='The player you want to view',
         session='The session you want to use (0 for none)')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)

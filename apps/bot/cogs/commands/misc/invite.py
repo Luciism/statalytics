@@ -13,6 +13,8 @@ class Invite(commands.Cog):
     @app_commands.command(
         name='invite',
         description='Invite Statalytics to your server')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def invite(self, interaction: discord.Interaction):
         invite_url = lib.config('global.links.invite_url')
 

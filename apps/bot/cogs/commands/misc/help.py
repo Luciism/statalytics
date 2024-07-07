@@ -11,6 +11,8 @@ class Help(commands.Cog):
 
 
     @app_commands.command(name="help", description="Help Page")
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def get_help(self, interaction: discord.Interaction):
         await lib.run_interaction_checks(interaction)
 

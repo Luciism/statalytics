@@ -47,6 +47,8 @@ class Suggest(commands.Cog):
     @app_commands.command(
         name='suggest',
         description='Suggest a feature you would like to see added!')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def suggest(self, interaction: discord.Interaction):
         await lib.run_interaction_checks(interaction)
 
