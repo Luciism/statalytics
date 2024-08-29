@@ -43,7 +43,7 @@ async def session_autocompletion(
 
     active_sessions = SessionManager(uuid).active_sessions()
 
-    data = [app_commands.Choice(name=ses[0], value=ses[0]) for ses in active_sessions]
+    data = [app_commands.Choice(name=ses, value=ses) for ses in active_sessions]
     return data
 
 
