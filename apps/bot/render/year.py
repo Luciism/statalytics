@@ -40,7 +40,7 @@ def render_year(
         {'position': (230, 385), 'text': f'&d{add_suffixes(stats.final_kills_per_star)}'},
         {'position': (374, 385), 'text': f'&d{add_suffixes(stats.beds_broken_per_star)}'},
         {'position': (537, 250), 'text': f'&d{stats.complete_percent}'},
-        {'position': (537, 309), 'text': f'&d{add_suffixes(stats.levels_to_go)}'},
+        {'position': (537, 309), 'text': f'&d{add_suffixes(stats.days_to_go)}'},
         {'position': (537, 368), 'text': f'&d{add_suffixes(stats.levels_per_day)}'},
         {'position': (537, 427), 'text': f'&d{add_suffixes(stats.items_purchased_projected)}'},
         {'position': (537, 46), 'text': f'({stats.title_mode})'}
