@@ -36,19 +36,19 @@ def get_rank_prefix(rank_info: dict):
             return '&c[&fYOUTUBE&c] '
         return '&c[ADMIN] '
 
-    if 'VIP' in package_ranks:
-        return '&a[VIP] '
-
-    if 'VIP_PLUS' in package_ranks:
-        return '&a[VIP&6+&a] '
-
-    if 'MVP' in package_ranks:
-        return '&b[MVP] '
-
     if 'MVP_PLUS' in package_ranks:
         if monthly_package_rank == 'NONE':
             return f'&b[MVP{plus_color_code}+&b] '
         return f'&6[MVP{plus_color_code}++&6] '
+
+    if 'MVP' in package_ranks:
+        return '&b[MVP] '
+
+    if 'VIP_PLUS' in package_ranks:
+        return '&a[VIP&6+&a] '
+
+    if 'VIP' in package_ranks:
+        return '&a[VIP] '
 
     return '&7'
 
