@@ -1,5 +1,6 @@
 """A set of useful functions used throughout the bot"""
 
+import json
 import time
 import random
 import typing
@@ -273,7 +274,8 @@ def load_embeds(
         filename += '.json'
 
     # Load embed data
-    embed_dict = ASSET_LOADER.load_embed(filename)
+    with open(f"{REL_PATH}/assets/embeds/{filename}") as df:
+        embed_dict = json.load(df)
 
     embeds = []
 

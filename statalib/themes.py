@@ -3,6 +3,7 @@ import sqlite3
 from .errors import ThemeNotFoundError
 from .cfg import config
 from .common import REL_PATH
+from .functions import db_connect
 
 
 def get_owned_themes(discord_id: int) -> list:
@@ -10,7 +11,7 @@ def get_owned_themes(discord_id: int) -> list:
     Returns list of themes owned by a discord user
     :param discord_id: the discord id of the respective user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
@@ -57,7 +58,7 @@ def add_owned_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to be given to the user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(
             f"SELECT * FROM themes_data WHERE discord_id = {discord_id}")
@@ -87,7 +88,7 @@ def remove_owned_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to be taken from the user
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(
             f"SELECT owned_themes FROM themes_data WHERE discord_id = {discord_id}")
@@ -114,7 +115,7 @@ def set_owned_themes(discord_id: int, themes: list | tuple):
     if not themes:
         return
 
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM themes_data WHERE discord_id = {discord_id}")
 
@@ -138,7 +139,7 @@ def get_active_theme(discord_id: int, default='none') -> str:
     :param discord_id: the discord id of the respective user
     :param default: the default value to return if the user has no active theme
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
@@ -156,7 +157,7 @@ def set_active_theme(discord_id: int, theme_name: str):
     :param discord_id: the discord id of the respective user
     :param theme_name: the name of the theme to set as active
     """
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
 
         cursor.execute(

@@ -4,7 +4,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 from ..assets import ASSET_LOADER
 from .splitting import split_string
-from .colors import Colors
+from ..color import ColorMappings
 from .tools import mc_text_shadow
 
 
@@ -26,7 +26,7 @@ def get_actual_text(text: str) -> str:
     Returns text with color codes removed
     :param text: the text to clean
     """
-    split_chars = tuple(Colors.color_codes)
+    split_chars = tuple(ColorMappings.color_codes)
     bits = tuple(split_string(text, split_chars))
 
     actual_text = ''.join([bit[0] for bit in bits])
@@ -97,7 +97,7 @@ def render_mc_text(
     if font is None:
         font = ASSET_LOADER.load_font("main.ttf", font_size)
 
-    split_chars = tuple(Colors.color_codes)
+    split_chars = tuple(ColorMappings.color_codes)
     bits = tuple(split_string(text, split_chars))
 
     actual_text = ''.join([bit[0] for bit in bits])
@@ -113,7 +113,7 @@ def render_mc_text(
     )
 
     for text, color_code in bits:
-        color = Colors.color_codes.get(color_code, Colors.white)
+        color = ColorMappings.color_codes.get(color_code, ColorMappings.white)
 
         if shadow_offset is not None:
             off_x, off_y = shadow_offset

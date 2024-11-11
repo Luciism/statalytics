@@ -1,56 +1,10 @@
 from typing import Literal
 
-from PIL import Image, ImageFont
+from PIL import Image
 
 from .text import render_mc_text, get_actual_text, get_text_len
-from .colors import Colors, get_formatted_level
+from .prestige_colors import get_formatted_level
 from ..assets import ASSET_LOADER
-from ..common import REL_PATH
-
-
-def get_rank_prefix(rank_info: dict):
-    """
-    Returns rank prefix relative to rankinfo
-    :param rank_info: Dictionary of rank info
-    """
-    rank = rank_info['rank']
-    old_package_rank = rank_info['packageRank']
-    new_package_rank = rank_info['newPackageRank']
-    monthly_package_rank = rank_info['monthlyPackageRank']
-
-    plus_color: str = rank_info['rankPlusColor']
-
-    if plus_color is not None:
-        plus_color_code = Colors.str_to_color_code.get(plus_color.lower())
-    else:
-        plus_color_code = Colors.str_to_color_code.get('red')
-
-
-    package_ranks = (old_package_rank, new_package_rank)
-
-    if rank == 'TECHNO':
-        return '&d[PIG&b+++&d] '
-
-    if rank in ('YOUTUBER', 'ADMIN'):
-        if rank == 'YOUTUBER':
-            return '&c[&fYOUTUBE&c] '
-        return '&c[ADMIN] '
-
-    if 'MVP_PLUS' in package_ranks:
-        if monthly_package_rank == 'NONE':
-            return f'&b[MVP{plus_color_code}+&b] '
-        return f'&6[MVP{plus_color_code}++&6] '
-
-    if 'MVP' in package_ranks:
-        return '&b[MVP] '
-
-    if 'VIP_PLUS' in package_ranks:
-        return '&a[VIP&6+&a] '
-
-    if 'VIP' in package_ranks:
-        return '&a[VIP] '
-
-    return '&7'
 
 
 def render_level(
@@ -72,7 +26,7 @@ def render_level(
     :return: the final x position once the level has been rendered
     """
     formatted_lvl_str = get_formatted_level(level)
-    image, x_after = render_mc_text(
+    x_after = render_mc_text(
         text=formatted_lvl_str,
         position=position,
         font=ASSET_LOADER.load_font("main.ttf", font_size),
@@ -80,7 +34,7 @@ def render_level(
         shadow_offset=shadow_offset,
         align=align,
         return_x=True
-    )
+    )[1]
 
     return x_after
 
@@ -108,8 +62,7 @@ def render_display_name(
     """
     font = ASSET_LOADER.load_font("main.ttf", font_size)
 
-    rank_prefix = get_rank_prefix(rank_info)
-    full_string = f'{rank_prefix}{username}'
+    full_string = f'{rank_info["formatted_prefix"]}{username}'
 
     if level is not None:
         formatted_lvl = get_formatted_level(level)

@@ -67,5 +67,4 @@ class _AssetLoader:
                 self.__loaded_embeds[embed_file] = json.load(df)
         return self.__loaded_embeds[embed_file]
 
-
 ASSET_LOADER = _AssetLoader()

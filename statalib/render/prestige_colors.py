@@ -1,77 +1,8 @@
-class Colors:
-    black = (0, 0, 0)
-    dark_blue = (0, 0, 170)
-    dark_green = (0, 170, 0)
-    dark_aqua = (0, 170, 170)
-    dark_red = (170, 0, 0)
-    dark_purple = (170, 0, 170)
-    gold = (255, 170, 0)
-    gray = (170, 170, 170)
-    dark_gray = (85, 85, 85)
-    blue = (85, 85, 255)
-    green = (85, 255, 85)
-    aqua = (85, 255, 255)
-    red = (255, 85, 85)
-    light_purple = (255, 85, 255)
-    yellow = (255, 255, 85)
-    white = (255, 255, 255)
+from dataclasses import dataclass
+from enum import Enum
+from typing import Literal
 
-    color_codes: dict[str, tuple[int, int, int]] = {
-        '&0': black,
-        '&1': dark_blue,
-        '&2': dark_green,
-        '&3': dark_aqua,
-        '&4': dark_red,
-        '&5': dark_purple,
-        '&6': gold,
-        '&7': gray,
-        '&8': dark_gray,
-        '&9': blue,
-        '&a': green,
-        '&b': aqua,
-        '&c': red,
-        '&d': light_purple,
-        '&e': yellow,
-        '&f': white
-    }
-
-    str_to_color_code = {
-        'black': '&0',
-        'dark_blue': '&1',
-        'dark_green': '&2',
-        'dark_aqua': '&3',
-        'dark_red': '&4',
-        'dark_purple': '&5',
-        'gold': '&6',
-        'gray': '&7',
-        'dark_gray': '&8',
-        'blue': '&9',
-        'green': '&a',
-        'aqua': '&b',
-        'red': '&c',
-        'light_purple': '&d',
-        'yellow': '&e',
-        'white': '&f',
-    }
-
-    rgb_to_color_code: dict[tuple[int, int, int], str] = {
-        black: '&0',
-        dark_blue: '&1',
-        dark_green: '&2',
-        dark_aqua: '&3',
-        dark_red: '&4',
-        dark_purple: '&5',
-        gold: '&6',
-        gray: '&7',
-        dark_gray: '&8',
-        blue: '&9',
-        green: '&a',
-        aqua: '&b',
-        red: '&c',
-        light_purple: '&d',
-        yellow: '&e',
-        white: '&f'
-    }
+from ..color import ColorMappings
 
 
 class PrestigeColorMaps:
@@ -81,7 +12,7 @@ class PrestigeColorMaps:
     prestige_map_2: 1000 - 9900
 
     """
-    c = Colors.str_to_color_code
+    c = ColorMappings.str_to_color_code
 
     prestige_map = {
         10000: c['red'],
@@ -161,7 +92,8 @@ def get_prestige_colors(level: int) -> tuple:
 def get_prestige_primary_color(level: int) -> tuple[int, int, int]:
     """
     Returns primary rgb that represents a prestige
-    this is usually the first color in a prestige
+    This is usually the first color in a prestige.
+
     :param level: the level to get the primary color for
     """
     pres_color_code = get_prestige_colors(level)
@@ -169,7 +101,7 @@ def get_prestige_primary_color(level: int) -> tuple[int, int, int]:
     if 1000 <= level < 10000:
         pres_color_code = pres_color_code[0]
 
-    pres_color_rgb = Colors.color_codes.get(pres_color_code)
+    pres_color_rgb = ColorMappings.color_codes.get(pres_color_code)
     return pres_color_rgb
 
 
@@ -212,33 +144,100 @@ def get_formatted_level(level: int) -> str:
 
     return f'{prestige_colors}{level_string}'
 
+class PrestigeColorEnum(Enum):
+    single: 0
+    multi: 1
 
-def get_rank_color(rank_info: dict) -> tuple:
-    """
-    Returns a rank color based off of the rank information given
-    :param rank_info: the rank information
-    """
-    rank = rank_info['rank']
-    package_rank = rank_info['packageRank']
-    new_package_rank = rank_info['newPackageRank']
-    monthly_package_rank = rank_info['monthlyPackageRank']
+@dataclass
+class PrestigeColorType:
+    type: PrestigeColorEnum
+    color: tuple[int, int, int] | tuple[tuple[int, int, int]]
 
-    if rank == "TECHNO":
-        return '&d'
+class PrestigeColors:
+    def __init__(self, prestige: int) -> None:
+        self._prestige = prestige
+        self.__prestige_colors = None
+        self.__prestige_primary_rgb = None
 
-    if rank in ("YOUTUBER", "ADMIN"):
-        return '&c'
+    @property
+    def prestige_colors(self) -> PrestigeColorType:
+        """
+        The prestige colors for a given prestige.
+        Any prestige below 1000 (or above 10000) will be a single RGB and anything
+        from 1000 to 9900 will assign a color to each character in the formatted level.
+        """
+        if self.__prestige_colors is None:
+            c = PrestigeColorMaps
+            if 1000 <= self._prestige < 10000:
+                color = c.prestige_map_2.get(self._prestige, c.prestige_map_2.get(5000))
+                self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.multi, color)
+                return self.__prestige_colors
 
-    if rank == "NONE":
-        if (package_rank, new_package_rank) == ("NONE", "NONE"):
-            return '&7'
+            color =  c.prestige_map.get(self._prestige, c.prestige_map.get(10000))
+            self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.single, color)
 
-        if {"VIP", "VIP_PLUS"} & {package_rank, new_package_rank}:
-            return '&a'
+        return self.__prestige_colors
 
-        if {"MVP", "MVP_PLUS"} & {package_rank, new_package_rank}:
-            if monthly_package_rank == "SUPERSTAR":  # MVP++
-                return '&6'
-            return '&b'
+    @property
+    def primary_prestige_color(self) -> tuple[int, int, int]:
+        """The primary color of the prestige as RGB."""
+        if self.__prestige_primary_rgb is None:
+            pres_color_code = self.get_prestige_colors()
 
-    return '&2'
+            if 1000 <= self._prestige < 10000:
+                pres_color_code = pres_color_code[0]
+
+            self.__prestige_primary_rgb = ColorMappings.color_codes.get(pres_color_code)
+        return self.__prestige_primary_rgb
+
+
+class Prestige:
+    bedwars_star_symbol_map = {
+        3100: '✥',
+        2100: '⚝',
+        1100: '✪',
+        0: '✫'
+    }
+
+    def __init__(self, level: int) -> None:
+        self._level = level
+        self.colors = PrestigeColors(self.prestige)
+        self.__star_symbol = None
+        self.__formatted_level_string = None
+
+    @property
+    def prestige(self) -> int:
+        return self._level // 100 * 100
+
+    @property
+    def star_symbol(self) -> str:
+        """The star symbol respective to the prestige."""
+        if self.__star_symbol is None:
+            for key, value in self.bedwars_star_symbol_map.items():
+                if self._level >= key:
+                    self.__star_symbol = value
+                    break
+            else:
+                self.__star_symbol = self.bedwars_star_symbol_map.get(0)
+
+        return self.__star_symbol
+
+    @property
+    def formatted_level_string(self) -> str:
+        """Formats the level with colors, brackets, and the star symbol."""
+        if self.__formatted_level_string is None:
+            prestige_colors = self.colors.prestige_colors
+
+            star_symbol = self.star_symbol
+            level_string = f'[{self._level}{star_symbol}]'
+
+            if 1000 <= self._level < 10000:
+                new_level_string = ''
+
+                for i, char in enumerate(level_string):
+                    new_level_string += f'{prestige_colors[i]}{char}'
+                self.__formatted_level_string = new_level_string
+            else:
+                self.__formatted_level_string = f'{prestige_colors}{level_string}'
+
+        return self.__formatted_level_string

@@ -1,3 +1,10 @@
+from time import strftime
+from typing import TypedDict
+
+from ..cfg import config
+from ..color import ColorMappings
+
+
 PROGRESS_BAR_MAX = 30
 
 
@@ -111,20 +118,63 @@ def get_most_played(bedwars_data: dict) -> str:
     return get_most_mode(bedwars_data, 'games_played_bedwars')
 
 
-def get_rank_info(hypixel_data: dict) -> dict:
+def _get_default_rank(hypixel_data: dict) -> str:
+    if hypixel_data.get("rank"):
+        return hypixel_data["rank"]
+
+    if hypixel_data.get("monthlyPackageRank") == "SUPERSTAR":
+        return "MVP_PLUS_PLUS"
+
+    if hypixel_data.get("packageRank") or hypixel_data.get("newPackageRank"):
+        rank_hierarchy = ["MVP_PLUS", "MVP", "VIP_PLUS", "VIP", "NONE"]
+
+        old_package_rank = hypixel_data.get("packageRank", "NONE")
+        new_package_rank = hypixel_data.get("newPackageRank", "NONE")
+
+        # Get highest tier out of old and new package ranks
+        return rank_hierarchy[min([
+            rank_hierarchy.index(old_package_rank),
+            rank_hierarchy.index(new_package_rank)
+        ])]
+
+    return "NONE"
+
+class RankInfo(TypedDict):
+    rank: str
+    prefix: str
+    formatted_prefix: str
+    color: str
+    color_rgb: tuple[int, int, int]
+    plus_color: str
+
+
+def get_rank_info(hypixel_data: dict) -> RankInfo:
     """
     Returns player's rank information including plus color
     :param hypixel_data: Hypixel data stemming from player key
     """
-    name: str = hypixel_data.get('displayname')
-    rank_info: dict = {
-        'rank': hypixel_data.get('rank', 'NONE') if name != "Technoblade" else "TECHNO",
-        'packageRank': hypixel_data.get('packageRank', 'NONE'),
-        'newPackageRank': hypixel_data.get('newPackageRank', 'NONE'),
-        'monthlyPackageRank': hypixel_data.get('monthlyPackageRank', 'NONE'),
-        'rankPlusColor': hypixel_data.get('rankPlusColor', None) if name != "Technoblade" else "AQUA"
+    player_uuid: str | None = hypixel_data.get('uuid')
+    plus_color: str = hypixel_data.get("rankPlusColor", "RED")
+
+    rank_configs = config("global.ranks")
+
+    if player_uuid and player_uuid.replace("-", "") in rank_configs["custom"]:
+        rank = "CUSTOM"
+        rank_config = rank_configs["custom"][player_uuid]
+    else:
+        rank = _get_default_rank(hypixel_data)
+        rank_config = rank_configs["default"]\
+            .get(rank, rank_configs["default"]["NONE"])
+
+    return {
+        "rank": rank,
+        "prefix": rank_config["prefix"],
+        "formatted_prefix": rank_config["prefix"].format(
+            plus_color=ColorMappings.str_to_color_code.get(plus_color.lower())),
+        "color": rank_config["color"],
+        "color_rgb": ColorMappings.color_codes.get(rank_config["color"]),
+        "plus_color": plus_color
     }
-    return rank_info
 
 
 def decimal_of(number: float):
@@ -169,7 +219,7 @@ def get_level(xp: int) -> float | int:
     return level + (xp - 7000) / 5000 + 4
 
 
-def get_progress(experience: int) -> tuple[str, str, int]:
+def get_progress(experience: int) -> tuple[int, int, int]:
     """
     Get the leveling progress information from bedwars experience
     :param experience: the bedwars experience to get the level progress of
@@ -185,13 +235,13 @@ def get_progress(experience: int) -> tuple[str, str, int]:
     # `1` would be `1000` xp, etc, otherwise if it is above `3`, it will always
     # be `5000` xp
     level_xp_map: dict = {0: 500, 1: 1000, 2: 2000, 3: 3500}
-    target_xp: int = level_xp_map.get(int(lvls_since_pres), 5000)
+    lvl_target_xp: int = level_xp_map.get(int(lvls_since_pres), 5000)
 
-    lvl_progress = float(f'.{decimal_of(level)}') * target_xp
-    devide_by = target_xp / PROGRESS_BAR_MAX
-    xp_bar_progress = round(lvl_progress / devide_by)
+    # Use `decimal_of()` to prevent rounding errors.
+    lvl_progress_xp = float(f'.{decimal_of(level)}') * lvl_target_xp
+    lvl_progress_percentage = lvl_progress_xp / lvl_target_xp * 100
 
-    return f'{int(lvl_progress):,}', f'{int(target_xp):,}', xp_bar_progress
+    return int(lvl_progress_xp), int(lvl_target_xp), lvl_progress_percentage
 
 
 def rround(number: float | int, ndigits: int=0) -> float | int:
