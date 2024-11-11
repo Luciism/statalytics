@@ -1,16 +1,9 @@
 from calc.milestones import MilestonesStats
-import statalib as lib
 from statalib import BedwarsSession, to_thread, REL_PATH
-from statalib.render import (
-    render_display_name,
-    get_background,
-    paste_skin,
-    render_progress_bar,
-    render_progress_text,
-    render_mc_text,
-    get_formatted_level
-)
+from statalib.render import ImageRender, RenderBackground, get_formatted_level
 
+
+bg = RenderBackground(dir="milestones")
 
 @to_thread
 def render_milestones(
@@ -24,11 +17,8 @@ def render_milestones(
 ) -> None:
     stats = MilestonesStats(session_info, hypixel_data, mode)
 
-    level = stats.level
-    rank_info = stats.rank_info
-
     stars_until_value, stars_until_target = stats.get_stars()
-    progress, target, xp_bar_progress = stats.progress
+    progress, target, lvl_progress_percent = stats.progress
 
     wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins,\
         target_wins, losses_until_losses, target_losses = stats.get_wins()
@@ -44,113 +34,85 @@ def render_milestones(
     kills_until_kdr, kills_at_kdr, target_kdr, kills_until_kills,\
         target_kills, deaths_until_deaths, target_deaths = stats.get_kills()
 
-    image = get_background(
-        bg_dir='milestones', uuid=uuid, level=level, rank_info=rank_info
-    ).convert("RGBA")
+    im = ImageRender(bg.load_background_image(uuid, {
+        "level": stats.level, "rank_info": stats.rank_info}))
 
     # Render the stat values
-    data = [
-        {'position': (31, 212),
-         'text': f'&a{wins_until_wlr} &fWins Until &6{target_wlr}'},
-        {'position': (31, 241),
-         'text': f'&a{wins_at_wlr} &fWins At &6{target_wlr}'},
-        {'position': (31, 270),
-         'text': f'&a{wins_until_wins} &fWins Until &6{target_wins}'},
-        {'position': (31, 299),
-         'text': f'&c{losses_until_losses} &fLosses Until &6{target_losses}'},
-        {'position': (342, 212),
-         'text': f'&a{final_kills_until_fkdr} &fFinal K Until &6{target_fkdr}'},
-        {'position': (342, 241),
-         'text': f'&a{final_kills_at_fkdr} &fFinal K At &6{target_fkdr}'},
-        {'position': (342, 270),
-         'text': f'&a{final_kills_until_final_kills} '
-         f'&fFinal K Until &6{target_final_kills}'},
-        {'position': (342, 299),
-         'text': f'&c{final_deaths_until_final_deaths} '
-         f'&fFinal D Until &6{target_final_deaths}'},
-        {'position': (31, 343),
-         'text': f'&a{beds_broken_until_bblr} &fBeds B Until &6{target_bblr}'},
-        {'position': (31, 372),
-         'text': f'&a{beds_broken_at_bblr} &fBeds B At &6{target_bblr}'},
-        {'position': (31, 401),
-         'text': f'&a{beds_broken_until_beds_broken} '
-         f'&fBeds B Until &6{target_beds_broken}'},
-        {'position': (31, 430),
-         'text': f'&c{beds_lost_until_beds_lost} &fBeds L Until &6{target_beds_lost}'},
-        {'position': (342, 343),
-         'text': f'&a{kills_until_kdr} &fKills Until &6{target_kdr}'},
-        {'position': (342, 372),
-         'text': f'&a{kills_at_kdr} &fKills At &6{target_kdr}'},
-        {'position': (342, 401),
-         'text': f'&a{kills_until_kills} &fKills Until &6{target_kills}'},
-        {'position': (342, 430),
-         'text': f'&c{deaths_until_deaths} &fDeaths Until &6{target_deaths}'}
-    ]
-
-    for values in data:
-        render_mc_text(
-            image=image,
-            shadow_offset=(2, 2),
-            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
-            **values
-        )
+    im.text.draw_many([
+        (f'&a{wins_until_wlr} &fWins Until &6{target_wlr}', {'position': (31, 212)}),
+        (f'&a{wins_at_wlr} &fWins At &6{target_wlr}', {'position': (31, 241)}),
+        (f'&a{wins_until_wins} &fWins Until &6{target_wins}', {'position': (31, 270)}),
+        (f'&c{losses_until_losses} &fLosses Until &6{target_losses}',
+         {'position': (31, 299)}),
+        (f'&a{final_kills_until_fkdr} &fFinal K Until &6{target_fkdr}',
+         {'position': (342, 212)}),
+        (f'&a{final_kills_at_fkdr} &fFinal K At &6{target_fkdr}',
+         {'position': (342, 241)}),
+        (f'&a{final_kills_until_final_kills} &fFinal K Until &6{target_final_kills}',
+         {'position': (342, 270)}),
+        (f'&c{final_deaths_until_final_deaths} '
+         f'&fFinal D Until &6{target_final_deaths}',
+         {'position': (342, 299)}),
+        (f'&a{beds_broken_until_bblr} &fBeds B Until &6{target_bblr}',
+         {'position': (31, 343)}),
+        (f'&a{beds_broken_at_bblr} &fBeds B At &6{target_bblr}',
+         {'position': (31, 372)}),
+        (f'&a{beds_broken_until_beds_broken} &fBeds B Until &6{target_beds_broken}',
+         {'position': (31, 401)}),
+        (f'&c{beds_lost_until_beds_lost} &fBeds L Until &6{target_beds_lost}',
+         {'position': (31, 430)}),
+        (f'&a{kills_until_kdr} &fKills Until &6{target_kdr}',
+         {'position': (342, 343)}),
+        (f'&a{kills_at_kdr} &fKills At &6{target_kdr}', {'position': (342, 372)}),
+        (f'&a{kills_until_kills} &fKills Until &6{target_kills}',
+         {'position': (342, 401)}),
+        (f'&c{deaths_until_deaths} &fDeaths Until &6{target_deaths}',
+         {'position': (342, 430)}),
+    ], default_text_options={
+        "shadow_offset": (2, 2), "align": "left", "font_size": 16
+    })
 
     # Render stars until text
     formatted_lvl = get_formatted_level(stars_until_target)
     stars_until_txt = f'&7{stars_until_value} &fStars Until {formatted_lvl}'
 
-    render_mc_text(
-        text=stars_until_txt,
-        position=(225, 169),
-        font=lib.ASSET_LOADER.load_font("main.ttf", 16),
-        image=image,
-        shadow_offset=(2, 2),
-        align='center'
-    )
+    im.text.draw(stars_until_txt, {
+        "position": (225, 169),
+        "font_size": 16,
+        "shadow_offset": (2, 2),
+        "align": "center"
+    })
 
-    render_display_name(
-        username=name,
-        rank_info=rank_info,
-        image=image,
-        font_size=22,
-        position=(225, 28),
-        align='center'
-    )
+    im.player.render_hypixel_username(
+        name, stats.rank_info, text_options={
+        "align": "center",
+        "font_size": 22,
+        "position": (225, 28)
+    })
 
-    render_progress_bar(
-        level=level,
-        xp_bar_progress=xp_bar_progress,
+    im.progress.draw_progress_bar(
+        stats.level,
+        progress_percentage=lvl_progress_percent,
         position=(225, 89),
-        image=image,
-        align='center'
+        align="center"
     )
+    im.progress.draw_progress_text(
+        progress, target, position=(225, 120), align="center")
 
-    render_progress_text(
-        progress=progress,
-        target=target,
-        position=(225, 120),
-        image=image,
-        align='center'
-    )
+    im.text.draw("Milestones", text_options={
+        "position": (536, 23),
+        "font_size": 18,
+        "shadow_offset": (2, 2),
+        "align": "center"
+    })
 
-    render_mc_text(
-        text='Milestones',
-        position=(536, 23),
-        font=lib.ASSET_LOADER.load_font("main.ttf", 18),
-        image=image,
-        shadow_offset=(2, 2),
-        align='center'
-    )
+    im.text.draw(f'({stats.title_mode})', text_options={
+        "position": (536, 45),
+        "font_size": 16,
+        "shadow_offset": (2, 2),
+        "align": "center"
+    })
 
-    render_mc_text(
-        text=f'({stats.title_mode})',
-        position=(536, 45),
-        font=lib.ASSET_LOADER.load_font("main.ttf", 16),
-        image=image,
-        shadow_offset=(2, 2),
-        align='center'
-    )
+    im.player.paste_skin(skin_model, position=(472, 61))
 
-    paste_skin(skin_model, image, positions=(472, 61))
-
-    image.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')

@@ -1,20 +1,17 @@
 from calc.cosmetics import ActiveCosmetics
 import statalib as lib
 from statalib import to_thread
-from statalib.render import (
-    render_display_name,
-    get_background,
-    render_mc_text,
-    image_to_bytes
-)
+from statalib.render import ImageRender, RenderBackground
 
+
+bg = RenderBackground(dir="cosmetics")
 
 @to_thread
 def render_cosmetics(
     name: str,
     uuid: str,
     hypixel_data: dict
-):
+) -> bytes:
     cosmetics = ActiveCosmetics(name, hypixel_data)
     level = cosmetics.level
     rank_info = cosmetics.rank_info
@@ -33,34 +30,26 @@ def render_cosmetics(
         'kill_message': (299, 430)
     }
 
-    image = get_background(
-        bg_dir='cosmetics', uuid=uuid, level=level, rank_info=rank_info
-    ).convert("RGBA")
+    im = ImageRender(bg.load_background_image(
+        uuid, {"level": level, "rank_info": rank_info}))
 
     for cosmetic, (x, y) in cosmetic_data.items():
         text = getattr(cosmetics, cosmetic)
 
-        render_mc_text(
-            text=text,
-            position=(x, y),
-            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
-            image=image,
-            shadow_offset=(2, 2)
-        )
+        im.text.draw(text, {
+            "position": (x, y),
+            "font_size": 16,
+            "shadow_offset": (2, 2)
+        })
 
-    render_display_name(
-        username=name,
-        rank_info=rank_info,
-        level=level,
-        image=image,
-        font_size=20,
-        position=(320, 51),
-        align='center'
-    )
+    im.player.render_hypixel_username(
+        name, rank_info, text_options={
+        "align": "center",
+        "font_size": 20,
+        "position": (320, 51)
+    })
 
     # Render the overlay image
-    overlay_image = lib.ASSET_LOADER.load_image("bg/cosmetics/overlay.png")\
-        .convert("RGBA")
-    image.paste(overlay_image, (0, 0), overlay_image)
+    im.overlay_image(lib.ASSET_LOADER.load_image("bg/cosmetics/overlay.png"))
 
-    return image_to_bytes(image)
+    return im.to_bytes()

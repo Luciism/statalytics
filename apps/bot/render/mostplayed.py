@@ -1,14 +1,14 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 import statalib as lib
-from statalib import get_rank_info, to_thread, get_player_dict, REL_PATH
-from statalib.render import (
-    get_background,
-    get_rank_color,
-    image_to_bytes,
-    render_mc_text
-)
+from statalib import get_rank_info, to_thread, get_player_dict
+from statalib.render import ImageRender, RenderBackground
 
+
+bg = RenderBackground(dir="mostplayed")
+
+BAR_COLOR = (45, 45, 255, 127)
+BAR_POSITIONS = [(97, 354), (220, 354), (343, 354), (466, 354)]
 
 @to_thread
 def render_mostplayed(
@@ -25,22 +25,15 @@ def render_mostplayed(
     fours = bedwars_data.get('four_four_games_played_bedwars', 1)
 
     rank_info = get_rank_info(hypixel_data)
-    rank_color_code = get_rank_color(rank_info)
 
     # Get ratio
     numbers = [int(solos), int(doubles), int(threes), int(fours)]
     total = sum(numbers)
     ratios = [num / total for num in numbers]
 
-    color = (45, 45, 255, 127)
-
-    # Define the coordinates for the bars
-    positions = [(97, 354), (220, 354), (343, 354), (466, 354)]
-
     # Open Images
-    base_image = get_background(
-        bg_dir='mostplayed', uuid=uuid, level=0, rank_info=rank_info
-    ).convert("RGBA")
+    im = ImageRender(bg.load_background_image(uuid, {
+        "level": 0, "rank_info": rank_info}))
 
     bar_plot_img = Image.new('RGBA', (640, 420), (0, 0, 0, 0))
     draw = ImageDraw.Draw(bar_plot_img)
@@ -55,25 +48,22 @@ def render_mostplayed(
     for i, value in enumerate(ratios):
         height = 250 if value * 500 > 250 else value * 500
 
-        top_left = (positions[i][0], positions[i][1] - height)
-        bottom_right = (positions[i][0] + 77, positions[i][1])
-        draw.rectangle((top_left, bottom_right), fill=color)
+        top_left = (BAR_POSITIONS[i][0], BAR_POSITIONS[i][1] - height)
+        bottom_right = (BAR_POSITIONS[i][0] + 77, BAR_POSITIONS[i][1])
+        draw.rectangle((top_left, bottom_right), fill=BAR_COLOR)
 
-    base_image = Image.alpha_composite(base_image, bar_plot_img)
+    im.overlay_image(bar_plot_img)
 
-    text = f"{rank_color_code}{name}&f's Most Played Modes"
+    text = f"{rank_info['color']}{name}&f's Most Played Modes"
 
-    render_mc_text(
-        text=text,
-        position=(320, 33),
-        font=lib.ASSET_LOADER.load_font("main.ttf", 20),
-        image=base_image,
-        shadow_offset=(4, 4),
-        align='center'
-    )
+    im.text.draw(text, {
+        "position": (320, 33),
+        "font_size": 20,
+        "shadow_offset": (4, 4),
+        "align": "center"
+    })
 
     # Paste the overlay image
-    overlay_image = lib.ASSET_LOADER.load_image("bg/mostplayed/overlay.png")
-    base_image = Image.alpha_composite(base_image, overlay_image)
+    im.overlay_image(lib.ASSET_LOADER.load_image("bg/mostplayed/overlay.png"))
 
-    return image_to_bytes(base_image)
+    return im.to_bytes()

@@ -273,6 +273,72 @@
         "discordbotlist.com": "https://discordbotlist.com/bots/statalytics/upvote",
         "discords.com": "https://discords.com/bots/bot/903765373181112360/vote"
       }
+    },
+    "ranks": {
+      "default": {
+        "ADMIN": {
+          "prefix": "&c[ADMIN] ",
+          "color": "&c"
+        },
+        "GAME_MASTER": {
+          "prefix": "&2[GM] ",
+          "color": "&2"
+        },
+        "YOUTUBER": {
+          "prefix": "&c[&fYOUTUBE&c] ",
+          "color": "&c"
+        },
+        "MVP_PLUS_PLUS": {
+          "prefix": "&6[MVP{plus_color}++&6] ",
+          "color": "&6"
+        },
+        "MVP_PLUS": {
+          "prefix": "&b[MVP{plus_color}+&b] ",
+          "color": "&b"
+        },
+        "MVP": {
+          "prefix": "&b[MVP] ",
+          "color": "&b"
+        },
+        "VIP_PLUS": {
+          "prefix": "&a[VIP&6+&a] ",
+          "color": "&a"
+        },
+        "VIP": {
+          "prefix": "&a[VIP] ",
+          "color": "&a"
+        },
+        "NONE": {
+          "prefix": "&7",
+          "color": "&7"
+        }
+      },
+      "custom": {
+        "f7c77d999f154a66a87dc4a51ef30d19": {
+          "prefix": "&c[OWNER] ",
+          "color": "&c"
+        },
+        "9b2a30ecf8b34dfebf499c5c367383f8": {
+          "prefix": "&c[OWNER] ",
+          "color": "&c"
+        },
+        "b876ec32e396476ba1158438d83c67d4": {
+          "prefix": "&d[PIG&b+++&d] ",
+          "color": "&d"
+        },
+        "e80e8194323e414298515e1bcb8a3508": {
+          "prefix": "&d[INNIT] ",
+          "color": "&d"
+        },
+        "bcc52cc103a3486aa822cc0853d60b3e": {
+          "prefix": "&9[DEV] ",
+          "color": "&9"
+        },
+        "a4830d78d9214d958f335fe6b4cf9467": {
+          "prefix": "&9[CAS] ",
+          "color": "&9"
+        }
+      }
     }
   }
 }

@@ -2,13 +2,15 @@ from PIL import Image
 
 import statalib as lib
 from statalib import get_rank_info, to_thread
-from statalib.render import (
-    get_background,
-    get_rank_color,
-    render_mc_text,
-    image_to_bytes
-)
+from statalib.render import ImageRender, RenderBackground
 
+
+bg = RenderBackground(dir="hotbar")
+
+SLOT_POSITIONS = [
+    (40, 424), (130, 424), (220, 424), (310, 424),
+    (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)
+]
 
 @to_thread
 def render_hotbar(
@@ -16,48 +18,39 @@ def render_hotbar(
     uuid: str,
     hypixel_data: dict
 ) -> bytes:
-    slots = [(40, 424), (130, 424), (220, 424), (310, 424),
-             (400, 424), (490, 424), (580, 424), (670, 424), (760, 424)]
-
     try:
         hypixel_data = hypixel_data['player']
-        hotbar = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
+        hotbar_layout = hypixel_data['stats']['Bedwars']['favorite_slots'].split(',')
     except (KeyError, TypeError):
-        hotbar = ['null'] * 9  # Hotbar not configured, use empty hotbar
+        hotbar_layout = ['null'] * 9  # Hotbar not configured, use empty hotbar
 
     rank_info = get_rank_info(hypixel_data)
-    rank_color_code = get_rank_color(rank_info)
 
-    base_image = get_background(
-        bg_dir='hotbar', uuid=uuid, level=0, rank_info=rank_info
-    ).convert("RGBA")
+    im = ImageRender(bg.load_background_image(uuid, {
+        "level": 0, "rank_info": rank_info}))
 
-    composite_image = Image.new("RGBA", base_image.size)
+    # Create a seperate composite image to paste the items onto.
+    composite_image = Image.new("RGBA", im.size)
 
-    for i, item in enumerate(hotbar):
-        top_image = lib.ASSET_LOADER.load_image(f"bg/hotbar/{item.lower()}.png")
-        top_image = top_image.convert("RGBA")
+    for i, item in enumerate(hotbar_layout):
+        item_image = lib.ASSET_LOADER.load_image(f"bg/hotbar/{item.lower()}.png")
+        item_image = item_image.convert("RGBA")
 
-        composite_image.paste(top_image, slots[i], top_image)
-
-    # Paste overlay image
-    overlay_image = lib.ASSET_LOADER.load_image("bg/hotbar/overlay.png")
-    overlay_image = overlay_image.convert("RGBA")
-    composite_image.paste(overlay_image, (0, 0), overlay_image)
+        # Paste the item image onto the composite image.
+        composite_image.paste(item_image, SLOT_POSITIONS[i], item_image)
 
     # Merge images
-    base_image = Image.alpha_composite(base_image, composite_image)
+    im.overlay_image(composite_image)
+    im.overlay_image(lib.ASSET_LOADER.load_image("bg/hotbar/overlay.png"))
 
     # Render name
-    text = f"{rank_color_code}{name}&f's Hotbar"
+    text = f"{rank_info['color']}{name}&f's Hotbar"
 
-    render_mc_text(
-        text=text,
-        position=(440, 53),
-        font=lib.ASSET_LOADER.load_font("main.ttf", 36),
-        image=base_image,
-        shadow_offset=(4, 4),
-        align='center'
-    )
+    im.text.draw(text, {
+        "position": (440, 53),
+        "font_size": 36,
+        "shadow_offset": (4, 4),
+        "align": "center"
+    })
 
-    return image_to_bytes(base_image)
+    return im.to_bytes()

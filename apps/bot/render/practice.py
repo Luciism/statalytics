@@ -1,15 +1,10 @@
 from calc.practice import PracticeStats
 import statalib as lib
 from statalib import to_thread
-from statalib.render import (
-    render_display_name,
-    get_background,
-    paste_skin,
-    render_progress_bar,
-    render_mc_text,
-    image_to_bytes
-)
+from statalib.render import ImageRender, RenderBackground
 
+
+bg = RenderBackground(dir="practice")
 
 @to_thread
 def render_practice(
@@ -19,69 +14,55 @@ def render_practice(
     skin_model: bytes
 ) -> bytes:
     stats = PracticeStats(hypixel_data)
-    xp_bar_progress = stats.progress[2]
 
-    image = get_background(
-        bg_dir='practice', uuid=uuid, level=stats.level, rank_info=stats.rank_info
-    ).convert("RGBA")
+    im = ImageRender(bg.load_background_image(uuid, {
+        "level": stats.level, "rank_info": stats.rank_info}))
 
-    data = [
-        {'position': (87, 131), 'text': f'&a{stats.bridging_completed:,}'},
-        {'position': (241, 131), 'text': f'&c{stats.bridging_failed:,}'},
-        {'position': (378, 131), 'text': f'&6{stats.bridging_ratio:,}'},
-        {'position': (87, 190), 'text': f'&a{stats.tnt_completed:,}'},
-        {'position': (241, 190), 'text': f'&c{stats.tnt_failed:,}'},
-        {'position': (378, 190), 'text': f'&6{stats.tnt_ratio:,}'},
-        {'position': (87, 249), 'text': f'&a{stats.mlg_completed:,}'},
-        {'position': (241, 249), 'text': f'&c{stats.mlg_failed:,}'},
-        {'position': (378, 249), 'text': f'&6{stats.mlg_ratio:,}'},
-        {'position': (87, 308), 'text': f'&a{stats.pearl_completed:,}'},
-        {'position': (241, 308), 'text': f'&c{stats.pearl_failed:,}'},
-        {'position': (378, 308), 'text': f'&6{stats.pearl_ratio:,}'},
-        {'position': (88, 368), 'text': f'&d{stats.straight_short_record}'},
-        {'position': (242, 368), 'text': f'&d{stats.straight_medium_record}'},
-        {'position': (397, 368), 'text': f'&d{stats.straight_long_record}'},
-        {'position': (553, 368), 'text': f'&d{stats.straight_average_time}'},
-        {'position': (88, 426), 'text': f'&d{stats.diagonal_short_record}'},
-        {'position': (242, 426), 'text': f'&d{stats.diagonal_medium_record}'},
-        {'position': (397, 426), 'text': f'&d{stats.diagonal_long_record}'},
-        {'position': (553, 426), 'text': f'&d{stats.diagonal_average_time}'},
-        {'position': (537, 249), 'text': f'&d{stats.total_attempts:,}'},
-        {'position': (537, 308), 'text': f'&d{stats.blocks_placed:,}'},
-        {'position': (537, 46), 'text':'(Overall)'}
-    ]
+    im.text.draw_many([
+        (f'&a{stats.bridging_completed:,}', {'position': (87, 131)}),
+        (f'&c{stats.bridging_failed:,}', {'position': (241, 131)}),
+        (f'&6{stats.bridging_ratio:,}', {'position': (378, 131)}),
+        (f'&a{stats.tnt_completed:,}', {'position': (87, 190)}),
+        (f'&c{stats.tnt_failed:,}', {'position': (241, 190)}),
+        (f'&6{stats.tnt_ratio:,}', {'position': (378, 190)}),
+        (f'&a{stats.mlg_completed:,}', {'position': (87, 249)}),
+        (f'&c{stats.mlg_failed:,}', {'position': (241, 249)}),
+        (f'&6{stats.mlg_ratio:,}', {'position': (378, 249)}),
+        (f'&a{stats.pearl_completed:,}', {'position': (87, 308)}),
+        (f'&c{stats.pearl_failed:,}', {'position': (241, 308)}),
+        (f'&6{stats.pearl_ratio:,}', {'position': (378, 308)}),
+        (f'&d{stats.straight_short_record}', {'position': (88, 368)}),
+        (f'&d{stats.straight_medium_record}', {'position': (242, 368)}),
+        (f'&d{stats.straight_long_record}', {'position': (397, 368)}),
+        (f'&d{stats.straight_average_time}', {'position': (553, 368)}),
+        (f'&d{stats.diagonal_short_record}', {'position': (88, 426)}),
+        (f'&d{stats.diagonal_medium_record}', {'position': (242, 426)}),
+        (f'&d{stats.diagonal_long_record}', {'position': (397, 426)}),
+        (f'&d{stats.diagonal_average_time}', {'position': (553, 426)}),
+        (f'&d{stats.total_attempts:,}', {'position': (537, 249)}),
+        (f'&d{stats.blocks_placed:,}', {'position': (537, 308)}),
+        ('(Overall)', {'position': (537, 46)}),
+    ], default_text_options={
+        "shadow_offset": (2, 2), "align": "center", "font_size": 16
+    })
 
-    for values in data:
-        render_mc_text(
-            image=image,
-            shadow_offset=(2, 2),
-            font=lib.ASSET_LOADER.load_font("main.ttf", 16),
-            align='center',
-            **values
-        )
+    im.player.render_hypixel_username(
+        name, stats.rank_info, text_options={
+        "align": "center",
+        "font_size": 22,
+        "position": (226, 30)
+    })
 
-    render_display_name(
-        username=name,
-        rank_info=stats.rank_info,
-        image=image,
-        font_size=22,
-        position=(226, 30),
-        align='center'
-    )
-
-    render_progress_bar(
-        level=stats.level,
-        xp_bar_progress=xp_bar_progress,
+    im.progress.draw_progress_bar(
+        stats.level,
+        progress_percentage=stats.progress[2],
         position=(226, 61),
-        image=image,
-        align='center'
+        align="center"
     )
 
-    paste_skin(skin_model, image, positions=(466, 69))
+    im.player.paste_skin(skin_model, position=(466, 69))
 
     # Paste overlay
-    overlay_image = lib.ASSET_LOADER.load_image("bg/practice/overlay.png")
-    overlay_image = overlay_image.convert("RGBA")
-    image.paste(overlay_image, (0, 0), overlay_image)
+    im.overlay_image(lib.ASSET_LOADER.load_image("bg/practice/overlay.png"))
 
-    return image_to_bytes(image)
+    return im.to_bytes()

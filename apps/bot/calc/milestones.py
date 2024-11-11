@@ -1,6 +1,6 @@
 import math
 
-from statalib import SessionManager, BedwarsSession, PlayerUUID
+from statalib import BedwarsSession
 from statalib.calctools import BedwarsStats, get_rank_info, get_mode
 
 
@@ -21,7 +21,7 @@ class MilestonesStats(BedwarsStats):
 
 
     def _calc_general_stats(self, key_1, key_2, ratio):
-        # im genuinely disappointed in myself for writing this code
+        # FIXME: im genuinely disappointed in myself for writing this code
         val_1 = self._bedwars_data.get(key_1, 0)
         val_2 = self._bedwars_data.get(key_2, 0)
 
