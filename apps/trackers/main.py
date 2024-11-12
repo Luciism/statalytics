@@ -82,7 +82,7 @@ WHERE (
 """
 
 
-class Client(commands.Bot):
+class Client(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(intents=None, command_prefix='$')
 
