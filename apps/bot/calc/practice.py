@@ -1,4 +1,4 @@
-from statalib.calctools import BedwarsStats, get_rank_info, ratio
+from statalib.hypixel import BedwarsStats, get_rank_info, ratio
 
 
 class PracticeStats(BedwarsStats):

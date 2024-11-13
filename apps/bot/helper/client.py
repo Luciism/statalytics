@@ -32,7 +32,7 @@ class Client(commands.AutoShardedBot):
             except commands.errors.ExtensionNotFound:
                 logger.info(f"Cog doesn't exist: {ext}")
 
-        lib.add_info_view(self)
+        lib.shared_views.add_info_view(self)
         self.add_view(PremiumInfoView())
 
         await self.tree.sync()

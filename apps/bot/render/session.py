@@ -61,7 +61,7 @@ def render_session(
 
     im.progress.draw_progress_bar(
         stats.level,
-        progress_percentage=stats.progress[2],
+        progress_percentage=stats.leveling.progression.progress_percent,
         position=(226, 61),
         align="center"
     )

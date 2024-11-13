@@ -1,14 +1,14 @@
-from statalib import BedwarsStats, get_rank_info
+from statalib import hypixel
 
 
-class WinstreakStats(BedwarsStats):
+class WinstreakStats(hypixel.BedwarsStats):
     def __init__(
         self,
         hypixel_data: dict
     ) -> None:
         super().__init__(hypixel_data, strict_mode='overall')
 
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = hypixel.get_rank_info(self._hypixel_data)
         self.level = int(self.level)
 
         self.winstreak_overall: str = self.__format_ws('winstreak')

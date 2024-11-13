@@ -23,7 +23,6 @@ def render_difference(
     save_dir: str
 ) -> None:
     stats = DifferenceStats(uuid, method, hypixel_data, mode)
-    progress, target, lvl_progress_percent = stats.progress
 
     im = ImageRender(bg.load_background_image(
         uuid, {"level": stats.level, "rank_info": stats.rank_info}))
@@ -61,6 +60,8 @@ def render_difference(
         "position": (225, 26)
     })
 
+    lvl_progress, lvl_target, lvl_progress_percent = stats.leveling.progression
+
     im.progress.draw_progress_bar(
         stats.level,
         progress_percentage=lvl_progress_percent,
@@ -68,7 +69,7 @@ def render_difference(
         align="center"
     )
     im.progress.draw_progress_text(
-        progress, target, position=(225, 119), align="center")
+        lvl_progress, lvl_target, position=(225, 119), align="center")
 
     im.text.draw(f'{method.title()} Diffs', {
         "position": (536, 25),

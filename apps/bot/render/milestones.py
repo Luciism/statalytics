@@ -18,7 +18,6 @@ def render_milestones(
     stats = MilestonesStats(session_info, hypixel_data, mode)
 
     stars_until_value, stars_until_target = stats.get_stars()
-    progress, target, lvl_progress_percent = stats.progress
 
     wins_until_wlr, wins_at_wlr, target_wlr, wins_until_wins,\
         target_wins, losses_until_losses, target_losses = stats.get_wins()
@@ -83,6 +82,8 @@ def render_milestones(
         "align": "center"
     })
 
+    lvl_progress, lvl_target, lvl_progress_percent = stats.leveling.progression
+
     im.player.render_hypixel_username(
         name, stats.rank_info, text_options={
         "align": "center",
@@ -97,7 +98,7 @@ def render_milestones(
         align="center"
     )
     im.progress.draw_progress_text(
-        progress, target, position=(225, 120), align="center")
+        lvl_progress, lvl_target, position=(225, 120), align="center")
 
     im.text.draw("Milestones", text_options={
         "position": (536, 23),

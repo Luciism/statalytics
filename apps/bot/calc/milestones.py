@@ -1,7 +1,7 @@
 import math
 
 from statalib import BedwarsSession
-from statalib.calctools import BedwarsStats, get_rank_info, get_mode
+from statalib.hypixel import BedwarsStats, get_rank_info, get_mode
 
 
 class MilestonesStats(BedwarsStats):

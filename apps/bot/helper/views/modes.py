@@ -19,7 +19,7 @@ class SelectModes(discord.ui.Select):
             discord.SelectOption(label="4v4")
             ]
         super().__init__(
-            placeholder=lib.real_title_case(placeholder),
+            placeholder=lib.hypixel.real_title_case(placeholder),
             max_values=1,
             min_values=1,
             options=options,

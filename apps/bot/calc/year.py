@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 
-from statalib import BedwarsSession, calctools
+from statalib import BedwarsSession, hypixel
 
 
-class YearStats(calctools.ProjectedStats):
+class YearStats(hypixel.ProjectedStats):
     def __init__(
         self,
         uuid: str,
@@ -21,5 +21,5 @@ class YearStats(calctools.ProjectedStats):
             strict_mode=mode
         )
 
-        self.rank_info = calctools.get_rank_info(self._hypixel_data)
+        self.rank_info = hypixel.get_rank_info(self._hypixel_data)
         self.level = int(self.level)

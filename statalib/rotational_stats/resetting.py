@@ -14,7 +14,7 @@ from ._types import (
 from ._utils import get_bedwars_data
 from .managers import RotationalStatsManager
 from ..aliases import PlayerUUID
-from ..calctools.utils import get_level
+from ..hypixel.leveling import Leveling
 from ..cfg import config
 from ..functions import db_connect
 from ..linking import uuid_to_discord_id
@@ -120,7 +120,8 @@ class RotationalResetting:
 
         # Misc values
         snapshot_id = uuid4().hex
-        current_bedwars_level = get_level(current_rotational_data.data.Experience)
+        current_bedwars_level = Leveling(
+            xp=current_rotational_data.data.Experience).level
 
         with db_connect() as conn:
             cursor = conn.cursor()

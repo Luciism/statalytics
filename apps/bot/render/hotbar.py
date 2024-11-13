@@ -1,7 +1,7 @@
 from PIL import Image
 
 import statalib as lib
-from statalib import get_rank_info, to_thread
+from statalib import hypixel, to_thread
 from statalib.render import ImageRender, RenderBackground
 
 
@@ -24,7 +24,7 @@ def render_hotbar(
     except (KeyError, TypeError):
         hotbar_layout = ['null'] * 9  # Hotbar not configured, use empty hotbar
 
-    rank_info = get_rank_info(hypixel_data)
+    rank_info = hypixel.get_rank_info(hypixel_data)
 
     im = ImageRender(bg.load_background_image(uuid, {
         "level": 0, "rank_info": rank_info}))

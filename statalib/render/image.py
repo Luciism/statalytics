@@ -7,7 +7,7 @@ from . import text as imgtext
 from .text import render_mc_text
 from .prestige_colors import Prestige
 from ..assets import ASSET_LOADER
-from ..calctools import RankInfo, PROGRESS_BAR_MAX
+from ..hypixel import RankInfo, PROGRESS_BAR_MAX
 
 
 class TextOptions(TypedDict):

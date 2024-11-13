@@ -1,8 +1,8 @@
 from statalib.functions import format_seconds
-from statalib.calctools import (
+from statalib.hypixel import (
     BedwarsStats,
     get_rank_info,
-    get_level,
+    Leveling,
     rround
 )
 
@@ -29,7 +29,7 @@ class QuestStats(BedwarsStats):
 
         self.rank_info = get_rank_info(self._hypixel_data)
 
-        self.questless_level = get_level(self.questless_exp)
+        self.questless_level = Leveling(xp=self.questless_exp).level
         self.questless_star = int(self.questless_level)
 
         self.stars_from_quests = int(self.level - self.questless_level)

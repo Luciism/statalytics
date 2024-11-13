@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 
 from statalib import SessionManager
-from statalib.calctools import (
+from statalib.hypixel import (
     CumulativeStats,
     get_rank_info,
     get_mode,

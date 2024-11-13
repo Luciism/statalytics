@@ -1,8 +1,8 @@
 from calc.projection import PrestigeStats
 
 import statalib as lib
-from statalib import to_thread, add_suffixes, REL_PATH
-from statalib.sessions import BedwarsSession
+from statalib import to_thread, REL_PATH, BedwarsSession
+from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, RenderBackground, Prestige
 
 

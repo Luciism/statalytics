@@ -58,7 +58,7 @@ def render_quests(
         "position": (225, 28)
     })
 
-    progress, target, lvl_progress_percent = stats.progress
+    lvl_progress, lvl_target, lvl_progress_percent = stats.leveling.progression
 
     im.progress.draw_progress_bar(
         stats.level,
@@ -67,7 +67,7 @@ def render_quests(
         align="center"
     )
     im.progress.draw_progress_text(
-        progress, target, position=(225, 121), align="center")
+        lvl_progress, lvl_target, position=(225, 121), align="center")
 
     im.text.draw("Quests Stats", text_options={
         "position": (536, 33),

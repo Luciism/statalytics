@@ -1,6 +1,5 @@
 import statalib
-from statalib import calctools
-from statalib import rotational_stats as rotational
+from statalib import hypixel, rotational_stats as rotational
 
 
 HOUR_LIST = [
@@ -11,7 +10,7 @@ HOUR_LIST = [
 ]
 
 
-class RotationalStats(calctools.CumulativeStats):
+class RotationalStats(hypixel.CumulativeStats):
     def __init__(
         self,
         uuid: str,
@@ -25,12 +24,12 @@ class RotationalStats(calctools.CumulativeStats):
         super().__init__(hypixel_data, self.rotational_data.data, strict_mode=mode)
 
         self.uuid = uuid
-        self.mode = calctools.get_mode(mode)
+        self.mode = hypixel.get_mode(mode)
 
-        self.stars_gained = f'{calctools.rround(self.levels_cum, 2):,}'
+        self.stars_gained = f'{hypixel.rround(self.levels_cum, 2):,}'
         self.level = int(self.level)
 
-        self.rank_info = calctools.get_rank_info(self._hypixel_data)
+        self.rank_info = hypixel.get_rank_info(self._hypixel_data)
 
         self.timezone, self.reset_hour = self._get_time_info()
 
@@ -44,7 +43,7 @@ class RotationalStats(calctools.CumulativeStats):
         return timezone, reset_hour
 
 
-class HistoricalRotationalStats(calctools.BedwarsStats):
+class HistoricalRotationalStats(hypixel.BedwarsStats):
     def __init__(
         self,
         uuid: str,
@@ -58,19 +57,19 @@ class HistoricalRotationalStats(calctools.BedwarsStats):
             .get_historical_rotation_data(period_id.to_string())
 
         self.uuid = uuid
-        self.mode = calctools.get_mode(mode)
+        self.mode = hypixel.get_mode(mode)
 
-        self.rank_info = calctools.get_rank_info(self._hypixel_data)
+        self.rank_info = hypixel.get_rank_info(self._hypixel_data)
 
         level = self.historical_stats.level
 
         self.level = int(level)
 
-        xp_total = calctools.xp_from_level(level)
+        xp_total = hypixel.Leveling(level=level).xp
         xp_gained = self.historical_stats.data.Experience
-        stars_gained = level - calctools.get_level(xp_total - xp_gained)
+        stars_gained = level - hypixel.Leveling(xp=xp_total - xp_gained).level
 
-        self.stars_gained = f"{calctools.rround(stars_gained, 2):,}"
+        self.stars_gained = f"{hypixel.rround(stars_gained, 2):,}"
 
         self.items_purchased_cum = self._get_stat('items_purchased_bedwars')
 
@@ -80,19 +79,19 @@ class HistoricalRotationalStats(calctools.BedwarsStats):
 
         self.wins_cum = self._get_stat('wins_bedwars')
         self.losses_cum = self._get_stat('losses_bedwars')
-        self.wlr_cum = calctools.ratio(self.wins_cum, self.losses_cum)
+        self.wlr_cum = hypixel.ratio(self.wins_cum, self.losses_cum)
 
         self.final_kills_cum = self._get_stat('final_kills_bedwars')
         self.final_deaths_cum = self._get_stat('final_deaths_bedwars')
-        self.fkdr_cum = calctools.ratio(self.final_kills_cum, self.final_deaths_cum)
+        self.fkdr_cum = hypixel.ratio(self.final_kills_cum, self.final_deaths_cum)
 
         self.beds_broken_cum = self._get_stat('beds_broken_bedwars')
         self.beds_lost_cum = self._get_stat('beds_lost_bedwars')
-        self.bblr_cum = calctools.ratio(self.beds_broken_cum, self.beds_lost_cum)
+        self.bblr_cum = hypixel.ratio(self.beds_broken_cum, self.beds_lost_cum)
 
         self.kills_cum = self._get_stat('kills_bedwars')
         self.deaths_cum = self._get_stat('deaths_bedwars')
-        self.kdr_cum = calctools.ratio(self.kills_cum, self.deaths_cum)
+        self.kdr_cum = hypixel.ratio(self.kills_cum, self.deaths_cum)
 
 
     def _get_stat(self, key: str, default=0):
@@ -100,7 +99,7 @@ class HistoricalRotationalStats(calctools.BedwarsStats):
 
 
     def _get_most_played(self):
-        return calctools.get_most_mode(
+        return hypixel.get_most_mode(
             self.historical_stats.data.as_dict(), 'games_played_bedwars')
 
 

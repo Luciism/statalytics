@@ -1,7 +1,8 @@
 from calc.year import YearStats
 
 import statalib as lib
-from statalib import BedwarsSession, add_suffixes
+from statalib import BedwarsSession
+from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, RenderBackground, Prestige
 
 

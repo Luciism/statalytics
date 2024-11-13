@@ -1,5 +1,6 @@
 from .bedwars_stats import BedwarsStats
-from .utils import get_level, bedwars_modes_map
+from .utils import BEDWARS_MODES_MAP
+from .leveling import Leveling
 from ..stats_snapshot import BedwarsStatsSnapshot
 
 
@@ -51,10 +52,10 @@ class CumulativeStats(BedwarsStats):
         self.games_played_cum = self._calc_cum('games_played_bedwars')
 
         self.experience_local = self._bedwars_stats_snapshot.Experience
-        self.level_local = get_level(self.experience_local)
+        self.level_local = Leveling(xp=self.experience_local).level
 
         self.experience_cum = self.experience - self.experience_local
-        self.levels_cum = self.level - get_level(self.experience_local)
+        self.levels_cum = self.level - Leveling(xp=self.experience_local).level
 
         self.items_purchased_cum = self._calc_cum('items_purchased_bedwars')
 
@@ -67,7 +68,7 @@ class CumulativeStats(BedwarsStats):
         #             f'{prefix}{key}', default)
         #     return mode_stats
 
-        prefix = bedwars_modes_map.get(self._strict_mode.lower())
+        prefix = BEDWARS_MODES_MAP.get(self._strict_mode.lower())
         return self._bedwars_stats_snapshot.__dict__.get(f'{prefix}{key}', default)
 
 

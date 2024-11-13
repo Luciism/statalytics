@@ -1,8 +1,5 @@
-import sqlite3
-
-from statalib import REL_PATH
 from statalib.functions import prefix_int
-from statalib.calctools import CumulativeStats, get_rank_info, ratio
+from statalib.hypixel import CumulativeStats, get_rank_info, ratio
 from statalib import rotational_stats as rotational
 
 

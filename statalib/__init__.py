@@ -2,6 +2,7 @@ from . import rotational_stats as rotational_stats
 from . import mcfetch
 from . import loggers
 from . import shared_views
+from . import hypixel
 
 from .assets import ASSET_LOADER as ASSET_LOADER
 from .cfg import *
@@ -18,11 +19,6 @@ from .permissions import *
 from .aliases import *
 from .account_manager import *
 from .accounts import *
-
-from .calctools.bedwars_stats import *
-from .calctools.cumulative_stats import *
-from .calctools.projected_stats import *
-from .calctools.utils import *
 
 
 __all__ = [
@@ -41,4 +37,5 @@ __all__ = [
     'aliases',
     'loggers',
     'shared_views',
+    'hypixel'
 ]

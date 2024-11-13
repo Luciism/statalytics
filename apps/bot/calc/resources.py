@@ -1,9 +1,9 @@
-from statalib.calctools import (
+from statalib.hypixel import (
     BedwarsStats,
     rround,
     get_rank_info,
     real_title_case,
-    bedwars_modes_map
+    BEDWARS_MODES_MAP
 )
 
 
@@ -57,7 +57,7 @@ class ResourcesStats(BedwarsStats):
     def get_most_modes(self):
         resources = {'iron': {}, 'gold': {}, 'diamond': {}, 'emerald': {}}
         for resource in resources:
-            for mode, prefix in bedwars_modes_map.items():
+            for mode, prefix in BEDWARS_MODES_MAP.items():
                 if prefix:
                     resources[resource][real_title_case(mode)] = self._bedwars_data.get(
                         f'{prefix}{resource}_resources_collected_bedwars', 0)

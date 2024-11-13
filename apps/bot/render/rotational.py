@@ -24,15 +24,9 @@ def render_rotational(
     else:
         stats = HistoricalRotationalStats(uuid, period_id, hypixel_data, mode)
 
-    level = stats.level
-    rank_info = stats.rank_info
-
-    progress, target, xp_bar_progress = stats.progress
-
     bg = RenderBackground(dir=f'rotational/{tracker}')
     im = ImageRender(bg.load_background_image(uuid, {
         "level": stats.level, "rank_info": stats.rank_info}))
-
 
     # Render the stat values
     im.text.draw_many([
@@ -67,7 +61,7 @@ def render_rotational(
         "position": (226, 31)
     })
 
-    progress, target, lvl_progress_percent = stats.progress
+    lvl_progress, lvl_target, lvl_progress_percent = stats.leveling.progression
 
     im.progress.draw_progress_bar(
         stats.level,
@@ -76,7 +70,7 @@ def render_rotational(
         align="center"
     )
     im.progress.draw_progress_text(
-        progress, target, position=(226, 122), align="center")
+        lvl_progress, lvl_target, position=(226, 122), align="center")
 
     im.text.draw(title, text_options={
         "position": (537, 27),

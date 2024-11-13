@@ -1,4 +1,4 @@
-from statalib.calctools import (
+from statalib.hypixel import (
     BedwarsStats,
     get_rank_info,
     get_mode,

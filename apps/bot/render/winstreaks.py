@@ -40,7 +40,7 @@ def render_winstreaks(
         "position": (226, 31)
     })
 
-    progress, target, lvl_progress_percent = stats.progress
+    lvl_progress, lvl_target, lvl_progress_percent = stats.leveling.progression
 
     im.progress.draw_progress_bar(
         stats.level,
@@ -49,7 +49,7 @@ def render_winstreaks(
         align="center"
     )
     im.progress.draw_progress_text(
-        progress, target, position=(226, 122), align="center")
+        lvl_progress, lvl_target, position=(226, 122), align="center")
 
     im.player.paste_skin(skin_model, position=(466, 69))
 

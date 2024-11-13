@@ -1,4 +1,4 @@
-from statalib import render, get_rank_info, to_thread, get_player_dict
+from statalib import render, hypixel, to_thread
 
 
 @to_thread
@@ -6,10 +6,10 @@ def render_displayname(
     name: str,
     hypixel_data: dict
 ) -> bytes:
-    hypixel_data = get_player_dict(hypixel_data)
+    hypixel_data = hypixel.get_player_dict(hypixel_data)
 
     level = hypixel_data.get('achievements', {}).get('bedwars_level', 0)
-    rank_info = get_rank_info(hypixel_data)
+    rank_info = hypixel.get_rank_info(hypixel_data)
 
     image = render.usernames.render_display_name(
         username=name,

@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 
 import statalib as lib
-from statalib import get_rank_info, to_thread, get_player_dict
+from statalib import hypixel, to_thread
 from statalib.render import ImageRender, RenderBackground
 
 
@@ -16,7 +16,7 @@ def render_mostplayed(
     uuid: str,
     hypixel_data: dict
 ) -> bytes:
-    hypixel_data = get_player_dict(hypixel_data)
+    hypixel_data = hypixel.get_player_dict(hypixel_data)
     bedwars_data: dict = hypixel_data.get('stats', {}).get('Bedwars', {})
 
     solos = bedwars_data.get('eight_one_games_played_bedwars', 1)
@@ -24,7 +24,7 @@ def render_mostplayed(
     threes = bedwars_data.get('four_three_games_played_bedwars', 1)
     fours = bedwars_data.get('four_four_games_played_bedwars', 1)
 
-    rank_info = get_rank_info(hypixel_data)
+    rank_info = hypixel.get_rank_info(hypixel_data)
 
     # Get ratio
     numbers = [int(solos), int(doubles), int(threes), int(fours)]

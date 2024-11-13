@@ -2,13 +2,12 @@ from .utils import (
     get_player_dict,
     real_title_case,
     get_most_played,
-    get_progress,
-    get_level,
-    get_quests_data,
-    get_wins_xp,
+    calc_xp_from_wins,
     rround,
-    bedwars_modes_map
+    BEDWARS_MODES_MAP
 )
+from .leveling import Leveling
+from .quests import get_quests_data
 
 
 class BedwarsStats:
@@ -48,8 +47,9 @@ class BedwarsStats:
         self.most_played = get_most_played(self._bedwars_data)
 
         self.experience = self._bedwars_data.get('Experience', 0)
-        self.progress = get_progress(self.experience)
-        self.level = get_level(self.experience)
+
+        self.leveling = Leveling(xp=self.experience)
+        self.level = self.leveling.level
 
         self.items_purchased = self._get_mode_stats('items_purchased_bedwars')
         self.tools_purchased = self._get_mode_stats('permanent_items_purchased_bedwars')
@@ -97,7 +97,7 @@ class BedwarsStats:
     @property
     def wins_xp_data(self):
         if self._wins_xp_data is None:
-            self._wins_xp_data = get_wins_xp(self._bedwars_data)
+            self._wins_xp_data = calc_xp_from_wins(self._bedwars_data)
         return self._wins_xp_data
 
     @property
@@ -123,5 +123,5 @@ class BedwarsStats:
         #         mode_stats[mode] = self._bedwars_data.get(f'{prefix}{key}', default)
         #     return mode_stats
 
-        prefix = bedwars_modes_map.get(self._strict_mode.lower())
+        prefix = BEDWARS_MODES_MAP.get(self._strict_mode.lower())
         return self._bedwars_data.get(f'{prefix}{key}', default)

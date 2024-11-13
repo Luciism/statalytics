@@ -1,5 +1,5 @@
 from statalib.functions import prefix_int
-from statalib.calctools import (
+from statalib.hypixel import (
     BedwarsStats, get_rank_info, get_mode, rround, ratio)
 
 

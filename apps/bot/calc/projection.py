@@ -1,5 +1,4 @@
-from statalib import SessionManager
-from statalib.calctools import ProjectedStats, get_rank_info
+from statalib.hypixel import ProjectedStats, get_rank_info
 from statalib.sessions import BedwarsSession
 
 
