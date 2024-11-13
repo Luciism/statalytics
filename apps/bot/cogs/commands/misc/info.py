@@ -8,6 +8,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class Info(commands.Cog):
@@ -22,7 +23,7 @@ class Info(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         commands_ran = lib.get_commands_total()
         linked_accounts = lib.get_linked_total()

@@ -5,9 +5,9 @@ from datetime import datetime, UTC
 import discord
 from discord.ext import commands
 
-from ..cfg import config
-from ..views import add_info_view, PremiumInfoView
-from ..common import REL_PATH
+import statalib as lib
+from .views import PremiumInfoView
+
 
 logger = logging.getLogger('statalytics')
 
@@ -24,7 +24,7 @@ class Client(commands.AutoShardedBot):
         )
 
     async def setup_hook(self):
-        cogs = config('apps.bot.cogs.enabled')
+        cogs = lib.config('apps.bot.cogs.enabled')
         for ext in cogs:
             try:
                 await self.load_extension(f'cogs.{ext}')
@@ -32,11 +32,11 @@ class Client(commands.AutoShardedBot):
             except commands.errors.ExtensionNotFound:
                 logger.info(f"Cog doesn't exist: {ext}")
 
-        add_info_view(self)
+        lib.add_info_view(self)
         self.add_view(PremiumInfoView())
 
         await self.tree.sync()
-        with open(f'{REL_PATH}/database/uptime.json', 'w') as datafile:
+        with open(f'{lib.REL_PATH}/database/uptime.json', 'w') as datafile:
             json.dump({"start_time": datetime.now(UTC).timestamp()}, datafile, indent=4)
 
 

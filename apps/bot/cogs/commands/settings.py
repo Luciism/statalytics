@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 HOURS = [
@@ -27,7 +28,7 @@ class SettingsSelect(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
 
@@ -84,7 +85,7 @@ class LinkAccountModal(lib.CustomBaseModal, title='Link Account'):
     )
 
     async def on_submit(self, interaction: discord.Interaction):
-        await lib.linking_interaction(interaction, str(self.player))
+        await helper.interactions.linking_interaction(interaction, str(self.player))
 
 
 class SettingsButtons(lib.CustomBaseView):
@@ -109,7 +110,7 @@ class SettingsButtons(lib.CustomBaseView):
         row=1)
     async def active_theme(self, interaction: discord.Interaction,
                            button: discord.ui.Button):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('active_theme', color='primary')
 
@@ -144,7 +145,7 @@ class SettingsButtons(lib.CustomBaseView):
         custom_id="reset_time", row=1)
     async def reset_time(self, interaction: discord.Interaction,
                          button: discord.ui.Button):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('reset_time', color='primary')
 
@@ -181,7 +182,7 @@ class SettingsButtons(lib.CustomBaseView):
         custom_id="linked_account", row=1)
     async def linked_account(self, interaction: discord.Interaction,
                              button: discord.ui.Button):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
         await interaction.response.send_modal(LinkAccountModal())
 
 
@@ -197,7 +198,7 @@ class Settings(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def settings(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('settings', color='primary')
         await interaction.followup.send(

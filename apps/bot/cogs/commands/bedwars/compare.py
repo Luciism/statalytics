@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 from render.compare import render_compare
 
 
@@ -23,17 +24,17 @@ class Compare(commands.Cog):
     @app_commands.autocomplete(
         player_1=lib.username_autocompletion,
         player_2=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def compare(self, interaction: discord.Interaction,
                       player_1: str, player_2: str=None):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         name_1 = player_1 if player_2 else None
         name_2 = player_2 if player_2 else player_1
 
-        name_1, uuid_1 = await lib.fetch_player_info(name_1, interaction)
-        name_2, uuid_2 = await lib.fetch_player_info(name_2, interaction)
+        name_1, uuid_1 = await helper.interactions.fetch_player_info(name_1, interaction)
+        name_2, uuid_2 = await helper.interactions.fetch_player_info(name_2, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
         hypixel_data_1 = await lib.fetch_hypixel_data(uuid_1)
@@ -48,7 +49,7 @@ class Compare(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_compare, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_compare, kwargs)
         lib.update_command_stats(interaction.user.id, 'compare')
 
 

@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class Linking(commands.Cog):
@@ -14,9 +15,9 @@ class Linking(commands.Cog):
     @app_commands.describe(player='The player you want to link to')
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def link(self, interaction: discord.Interaction, player: str):
-        await lib.linking_interaction(interaction, player)
+        await helper.interactions.linking_interaction(interaction, player)
         lib.update_command_stats(interaction.user.id, 'link')
 
 
@@ -25,7 +26,7 @@ class Linking(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def unlink(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         previous_uuid = lib.delete_linked_data(interaction.user.id)
 

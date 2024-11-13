@@ -8,6 +8,7 @@ services:
     volumes:
       - logs:/app/logs
       - database:/app/database
+    restart: unless-stopped
 
   trackers:
     build:
@@ -18,6 +19,7 @@ services:
     volumes:
       - logs:/app/logs
       - database:/app/database
+    restart: unless-stopped
 
   utils:
     build:
@@ -28,6 +30,7 @@ services:
     volumes:
       - logs:/app/logs
       - database:/app/database
+    restart: unless-stopped
 
   website:
     build:
@@ -40,6 +43,7 @@ services:
       - database:/app/database
     ports:
       - "${WEBSITE_PORT}:443"
+    restart: unless-stopped
 
 
 volumes:

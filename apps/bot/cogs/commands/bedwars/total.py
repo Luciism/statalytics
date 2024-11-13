@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 from render.total import render_total
 from render.pointless import render_pointless
 
@@ -21,9 +22,9 @@ class Total(commands.Cog):
         player: str, method: str, render_func: Callable
     ):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -40,7 +41,7 @@ class Total(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_func, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_func, kwargs)
         lib.update_command_stats(interaction.user.id, method)
 
 
@@ -51,7 +52,7 @@ class Total(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def total(self, interaction: discord.Interaction, player: str=None):
         await self.total_command(
             interaction, player, method='generic', render_func=render_total)
@@ -64,7 +65,7 @@ class Total(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def pointless(self, interaction: discord.Interaction,
                         player: str=None):
         await self.total_command(

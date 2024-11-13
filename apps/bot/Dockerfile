@@ -8,6 +8,7 @@ RUN pip install -r bot/requirements.txt
 COPY ./statalib/requirements.txt statalib/requirements.txt
 RUN pip install -r statalib/requirements.txt
 
+COPY ./apps/bot/helper/ bot/helper/
 COPY ./apps/bot/calc/ bot/calc/
 COPY ./apps/bot/cogs/ bot/cogs/
 COPY ./apps/bot/render/ bot/render/

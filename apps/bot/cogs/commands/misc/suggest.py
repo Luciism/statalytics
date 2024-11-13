@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class SubmitSuggestion(lib.CustomBaseModal, title='Submit Suggestion'):
@@ -17,7 +18,7 @@ class SubmitSuggestion(lib.CustomBaseModal, title='Submit Suggestion'):
     )
 
     async def on_submit(self, interaction: discord.Interaction):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         format_values = {
             'title': {
@@ -50,7 +51,7 @@ class Suggest(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     async def suggest(self, interaction: discord.Interaction):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         channel_id = lib.config(
             'global.support_server.channels.suggestions_channel_id')

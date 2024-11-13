@@ -4,9 +4,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import helper
 import statalib as lib
-from render.milestones import render_milestones
 from statalib.sessions import SessionManager
+from render.milestones import render_milestones
 
 
 class Milestones(commands.Cog):
@@ -26,7 +27,7 @@ class Milestones(commands.Cog):
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def milestones(
         self,
         interaction: discord.Interaction,
@@ -34,9 +35,9 @@ class Milestones(commands.Cog):
         session: int=None
     ) -> None:
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         if session == 0:  # Use no session if `0` is specified.
             session_info = None
@@ -66,7 +67,7 @@ class Milestones(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_milestones, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_milestones, kwargs)
         lib.update_command_stats(interaction.user.id, 'milestones')
 
 

@@ -3,9 +3,7 @@ import shutil
 
 import discord
 
-from ..common import REL_PATH
-from ..calctools import real_title_case
-from .custom import CustomBaseView
+import statalib as lib
 
 
 class SelectModes(discord.ui.Select):
@@ -21,7 +19,7 @@ class SelectModes(discord.ui.Select):
             discord.SelectOption(label="4v4")
             ]
         super().__init__(
-            placeholder=real_title_case(placeholder),
+            placeholder=lib.real_title_case(placeholder),
             max_values=1,
             min_values=1,
             options=options,
@@ -35,7 +33,7 @@ class SelectModes(discord.ui.Select):
         selected_mode = self.values[0].lower()
 
         image = discord.File(
-            f'{REL_PATH}/database/rendered/{self.interaction_origin.id}/{selected_mode}.png')
+            f'{lib.REL_PATH}/database/rendered/{self.interaction_origin.id}/{selected_mode}.png')
 
         if interaction.user.id != self.user_id:
             # send seperate image for different user
@@ -50,7 +48,7 @@ class SelectModes(discord.ui.Select):
                 attachments=[image], view=view)
 
 
-class ModesView(CustomBaseView):
+class ModesView(lib.shared_views.CustomBaseView):
     def __init__(
         self,
         interaction_origin: discord.Interaction,
@@ -77,6 +75,6 @@ class ModesView(CustomBaseView):
             pass
 
         # delete renders
-        dir_path = f'{REL_PATH}/database/rendered/{self.interaction_origin.id}'
+        dir_path = f'{lib.REL_PATH}/database/rendered/{self.interaction_origin.id}'
         if os.path.isdir(dir_path):
             shutil.rmtree(dir_path)

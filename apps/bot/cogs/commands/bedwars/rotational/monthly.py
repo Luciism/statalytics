@@ -6,6 +6,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import helper
 import statalib as lib
 from statalib import rotational_stats as rotational
 from render.rotational import render_rotational
@@ -24,12 +25,12 @@ class Monthly(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -94,12 +95,12 @@ class Monthly(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(
+        await helper.interactions.handle_modes_renders(
             interaction=interaction,
             func=render_rotational,
             kwargs=kwargs,
             message=message,
-            custom_view=lib.tracker_view()
+            custom_view=helper.views.tracker_view()
         )
         lib.update_command_stats(interaction.user.id, 'monthly')
 
@@ -113,13 +114,13 @@ class Monthly(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def lastmonth(self, interaction: discord.Interaction,
                         player: str=None, months: int=1):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
         discord_id = lib.uuid_to_discord_id(uuid=uuid)
 
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
@@ -179,7 +180,7 @@ class Monthly(commands.Cog):
             "period_id": period_id
         }
 
-        await lib.handle_modes_renders(interaction, render_rotational, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
         lib.update_command_stats(interaction.user.id, 'lastmonth')
 
 

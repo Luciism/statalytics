@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 from render.average import render_average
 
 
@@ -21,12 +22,12 @@ class Average(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def average(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -43,7 +44,7 @@ class Average(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_average, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_average, kwargs)
         lib.update_command_stats(interaction.user.id, 'average')
 
 

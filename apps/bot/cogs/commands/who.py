@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class Who(commands.Cog):
@@ -19,9 +20,9 @@ class Who(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def who(self, interaction: discord.Interaction,
                   player: str=None):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction, eph=True)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction, eph=True)
 
         if player is None or len(player) <= 16:
             await interaction.response.send_message(

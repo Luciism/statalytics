@@ -13,6 +13,7 @@ from discord.ext import commands
 from requests import ReadTimeout, ConnectTimeout
 
 import statalib as lib
+import helper
 
 
 class Denick(commands.Cog):
@@ -60,11 +61,11 @@ class Denick(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(mode=number_autocomplete)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def numberdenick(self, interaction: discord.Interaction,
                            mode: str, count: int):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         mode = mode.lower()
         if mode not in ('finals', 'beds'):

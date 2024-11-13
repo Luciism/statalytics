@@ -1,15 +1,15 @@
 """Code that needs to be rewritten"""
 
 import asyncio
-import sqlite3
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+import helper
 import statalib as lib
-from render.session import render_session
 from statalib.sessions import SessionManager
+from render.session import render_session
 
 
 class ManageSession(lib.CustomBaseView):
@@ -36,7 +36,7 @@ class ManageSession(lib.CustomBaseView):
         self, interaction: discord.Interaction, button: discord.ui.Button
     ) -> None:
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         button.disabled = True
         await self.message.edit(view=self)
@@ -80,7 +80,7 @@ class Sessions(commands.Cog):
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def session(
         self,
         interaction: discord.Interaction,
@@ -88,9 +88,9 @@ class Sessions(commands.Cog):
         session: int=None
     ) -> None:
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -99,7 +99,7 @@ class Sessions(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        session_info = await lib.find_dynamic_session_interaction(
+        session_info = await helper.interactions.find_dynamic_session_interaction(
             interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
@@ -116,14 +116,14 @@ class Sessions(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_session, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_session, kwargs)
         lib.update_command_stats(interaction.user.id, 'session')
 
 
     @session_group.command(name="start", description="Starts a new session")
     async def session_start(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         uuid = lib.get_linked_player(interaction.user.id)
 
@@ -168,7 +168,7 @@ class Sessions(commands.Cog):
     @app_commands.autocomplete(session=lib.session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
     async def end_session(self, interaction: discord.Interaction, session: int=1):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         uuid = lib.get_linked_player(interaction.user.id)
         if not uuid:
@@ -202,7 +202,7 @@ class Sessions(commands.Cog):
         interaction: discord.Interaction,
         session: int=None
     ) -> None:
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         uuid = lib.get_linked_player(interaction.user.id)
         if not uuid:
@@ -228,7 +228,7 @@ class Sessions(commands.Cog):
     @session_group.command(name="active", description="View all active sessions")
     async def active_sessions(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         uuid = lib.get_linked_player(interaction.user.id)
 

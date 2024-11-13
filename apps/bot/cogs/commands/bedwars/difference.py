@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import helper
 import statalib as lib
 from statalib import rotational_stats as rotational
 from render.difference import render_difference
@@ -29,9 +30,9 @@ class Difference(commands.Cog):
         self, interaction: discord.Interaction, player: str, tracker: str
     ) -> None:
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -66,7 +67,7 @@ class Difference(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_difference, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_difference, kwargs)
         lib.update_command_stats(interaction.user.id, f'difference_{tracker}')
 
 
@@ -75,7 +76,7 @@ class Difference(commands.Cog):
             description="View the daily stas difference of a player")
     @app_commands.describe(player='The player you want to view')
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def daily(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'daily')
 
@@ -85,7 +86,7 @@ class Difference(commands.Cog):
         description="View the weekly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'weekly')
 
@@ -95,7 +96,7 @@ class Difference(commands.Cog):
         description="View the monthly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def monthly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'monthly')
 
@@ -105,7 +106,7 @@ class Difference(commands.Cog):
         description="View the yearly stat difference of a player")
     @app_commands.describe(player='The player you want to view')
     @app_commands.autocomplete(player=lib.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def yearly(self, interaction: discord.Interaction, player: str=None):
         await self.difference_command(interaction, player, 'yearly')
 

@@ -1,4 +1,5 @@
 from . import rotational_stats as rotational_stats
+from . import mcfetch
 
 from .assets import ASSET_LOADER as ASSET_LOADER
 from .cfg import *
@@ -26,17 +27,9 @@ from .render.prestige_colors import *
 from .render.splitting import *
 from .render.text import *
 
-from . import views as views
-from .views.modes import *
-from .views.info import *
-from .views.custom import *
-from .views.misc import *
-
-from .discord_utils.send_renders import *
-from .discord_utils.responses import *
-from .discord_utils.cooldowns import *
-from .discord_utils.interactions import *
-from .discord_utils.client import *
+from . import shared_views as shared_views
+from .shared_views.info import *
+from .shared_views.custom import *
 
 from .mcfetch.mcfetch import *
 from .mcfetch.tools import *

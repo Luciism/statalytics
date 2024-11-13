@@ -3,6 +3,7 @@ from datetime import datetime, UTC
 
 
 REL_PATH = os.path.abspath(f'{__file__}/../..')
+"The base path of the project."
 
 
 class _MissingSentinel:  # Thanks discord.py

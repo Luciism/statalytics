@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class Vote(commands.Cog):
@@ -15,7 +16,7 @@ class Vote(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def vote(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         vote_links = lib.config('global.links.voting')
 

@@ -9,6 +9,7 @@ from discord.ext import commands
 from aiohttp import ClientSession
 
 import statalib as lib
+import helper
 
 
 async def _fetch_server_status(api_key: str, ip: str):
@@ -65,10 +66,10 @@ class Status(commands.Cog):
 
 
     @status_group.command(name="hypixel", description="Hypixel's real-time status")
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def status_hypixel(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         res = await _fetch_server_status(self.key, self.ip)
 

@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
 class Usage(commands.Cog):
@@ -18,7 +19,7 @@ class Usage(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     async def usage_stats(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
 

@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 from render.year import render_year
 
 
@@ -31,7 +32,7 @@ class Year(commands.Cog):
         session: int,
         year: int
     ):
-        await lib.run_interaction_checks(interaction)
+        await helper.interactions.run_interaction_checks(interaction)
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
@@ -39,7 +40,7 @@ class Year(commands.Cog):
             lib.fetch_hypixel_data(uuid)
         )
 
-        session_info = await lib.find_dynamic_session_interaction(
+        session_info = await helper.interactions.find_dynamic_session_interaction(
             interaction_callback=interaction.edit_original_response,
             username=name,
             uuid=uuid,
@@ -57,7 +58,7 @@ class Year(commands.Cog):
             "save_dir": interaction.id
         }
 
-        await lib.handle_modes_renders(interaction, render_year, kwargs)
+        await helper.interactions.handle_modes_renders(interaction, render_year, kwargs)
         lib.update_command_stats(interaction.user.id, f'year_{year}')
 
 
@@ -70,11 +71,11 @@ class Year(commands.Cog):
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def year_2025(self, interaction: discord.Interaction,
                         player: str=None, session: int=None):
         await interaction.response.defer()
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
         await self.year_command(interaction, name, uuid, session, 2025)
 
 
@@ -87,11 +88,11 @@ class Year(commands.Cog):
     @app_commands.autocomplete(
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(lib.generic_command_cooldown)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def year_2026(self, interaction: discord.Interaction,
                         player: str=None, session: int=None):
         await interaction.response.defer()
-        name, uuid = await lib.fetch_player_info(player, interaction)
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         discord_id = lib.uuid_to_discord_id(uuid)
 

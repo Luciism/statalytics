@@ -1,39 +1,40 @@
+import asyncio
+import os
 import logging
 from typing import Callable
 
-from aiohttp import ContentTypeError, ClientConnectionError
+import discord
 from discord import Interaction, Embed
+from aiohttp import ContentTypeError, ClientConnectionError
 
-from .responses import interaction_send_object
-from ..account_manager import Account
-from ..aliases import PlayerName, PlayerUUID, PlayerDynamic
-from ..functions import fname, load_embeds
-from ..views.info import SessionInfoButton
-from ..network import fetch_hypixel_data, mojang_session
-from ..mcfetch import AsyncFetchPlayer2
-from ..sessions import SessionManager, BedwarsSession
-from ..errors import (
-    PlayerNotFoundError,
-    SessionNotFoundError,
-    MojangInvalidResponseError,
-    UserBlacklistedError,
-    MissingPermissionsError
-)
-from ..linking import (
-    link_account,
-    get_linked_player,
-    update_autofill
-)
+import statalib as lib
+from .tips import random_tip_message
+from .views import ModesView
 
 
 logger = logging.getLogger('statalytics')
 
 
+def interaction_send_object(interaction: Interaction) -> Callable:
+    """
+    Returns `followup.send` or `response.send_message`
+    depending on if the interation is done or not.
+
+    :param interaction: the interaction object to get the send object for
+    """
+    if interaction.response.is_done():
+        response_obj = interaction.followup.send
+    else:
+        response_obj = interaction.response.send_message
+    return response_obj
+
+
+
 async def fetch_player_info(
-    player: PlayerDynamic,
+    player: lib.aliases.PlayerDynamic,
     interaction: Interaction,
     eph=False
-) -> tuple[PlayerName, PlayerUUID]:
+) -> tuple[lib.aliases.PlayerName, lib.aliases.PlayerUUID]:
     """
     Get formatted username & uuid of a user from their minecraft ign / uuid
     :param player: Username, uuid, or linked discord id of the player
@@ -41,15 +42,16 @@ async def fetch_player_info(
     :param eph: whether or not to respond with an ephemeral message (default false)
     """
     if player is None:
-        uuid = get_linked_player(interaction.user.id)
+        uuid = lib.linking.get_linked_player(interaction.user.id)
 
         if uuid:
             try:
-                name = await AsyncFetchPlayer2(uuid, cache_backend=mojang_session).name
+                name = await lib.mcfetch.AsyncFetchPlayer2(
+                    uuid, cache_backend=lib.network.mojang_session).name
             except (ContentTypeError, ClientConnectionError) as exc:
-                raise MojangInvalidResponseError from exc
+                raise lib.errors.MojangInvalidResponseError from exc
 
-            update_autofill(interaction.user.id, uuid, name)
+            lib.linking.update_autofill(interaction.user.id, uuid, name)
         else:
             msg = ("You are not linked! Either specify "
                    "a player or link your account using `/link`!")
@@ -58,30 +60,31 @@ async def fetch_player_info(
                 await interaction.followup.send(msg)
             else:
                 await interaction.response.send_message(msg, ephemeral=eph)
-            raise PlayerNotFoundError
+            raise lib.errors.PlayerNotFoundError
     else:
         # allow for linked discord ids
         if player.isnumeric() and len(player) >= 16:
-            player = get_linked_player(int(player)) or ''
+            player = lib.linking.get_linked_player(int(player)) or ''
 
-        player_data = AsyncFetchPlayer2(player, cache_backend=mojang_session)
+        player_data = lib.mcfetch.AsyncFetchPlayer2(
+            player, cache_backend=lib.network.mojang_session)
 
         try:
             name = await player_data.name
             uuid = await player_data.uuid
         except (ContentTypeError, ClientConnectionError) as exc:
-            raise MojangInvalidResponseError from exc
+            raise lib.errors.MojangInvalidResponseError from exc
 
         if name is None:
             await interaction_send_object(interaction)(
                 "That player does not exist!", ephemeral=eph)
-            raise PlayerNotFoundError
+            raise lib.errors.PlayerNotFoundError
     return name, uuid
 
 
 async def linking_interaction(
     interaction: Interaction,
-    username: PlayerName
+    username: lib.aliases.PlayerName
 ):
     """
     discord.py interaction for account linking
@@ -93,36 +96,36 @@ async def linking_interaction(
 
     name, uuid = await fetch_player_info(username, interaction)
 
-    hypixel_data = await fetch_hypixel_data(uuid, cache=False)
+    hypixel_data = await lib.network.fetch_hypixel_data(uuid, cache=False)
 
     # Linking Logic
     discord_tag = str(interaction.user)
-    response = await link_account(
+    response = await lib.linking.link_account(
         discord_tag, interaction.user.id, hypixel_data, uuid, name)
 
     if response == 1:
-        await interaction.followup.send(f"Successfully linked to **{fname(name)}**")
+        await interaction.followup.send(f"Successfully linked to **{lib.fname(name)}**")
         return
 
     if response == 2:
         await interaction.followup.send(
-            f"Successfully linked to **{fname(name)}**\n"
+            f"Successfully linked to **{lib.fname(name)}**\n"
             "No sessions where found for this player so one was created.",
-            view=SessionInfoButton())
+            view=lib.shared_views.SessionInfoButton())
         return
 
     # Player not linked embed
-    embeds = load_embeds('linking', color='primary')
+    embeds = lib.load_embeds('linking', color='primary')
     await interaction.followup.send(embeds=embeds)
 
 
 async def find_dynamic_session_interaction(
     interaction_callback: Callable[[str], None],
-    username: PlayerName,
-    uuid: PlayerUUID,
+    username: lib.aliases.PlayerName,
+    uuid: lib.aliases.PlayerUUID,
     hypixel_data: dict,
     session: int | None=None
-) -> BedwarsSession:
+) -> lib.BedwarsSession:
     """
     Dynamically gets a session of a user\n
     If session is None, the first session to exist will be returned
@@ -134,7 +137,7 @@ async def find_dynamic_session_interaction(
     :param session: The session to attempt to be retrieved
     :param eph: whether or not to respond ephemerally
     """
-    session_manager = SessionManager(uuid)
+    session_manager = lib.SessionManager(uuid)
     session_info = session_manager.get_session(session)
 
     # no sessions exist because... i forgot to finish this comment now idk
@@ -145,15 +148,15 @@ async def find_dynamic_session_interaction(
             session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
 
             await interaction_callback(
-                content=f"**{fname(username)}** has no active sessions so one was created!"
+                content=f"**{lib.fname(username)}** has no active sessions so one was created!"
             )
-            raise SessionNotFoundError
+            raise lib.errors.SessionNotFoundError
 
         await interaction_callback(
             content=
-                f"**{fname(username)}** doesn't have an active session with ID: `{session}`!"
+                f"**{lib.fname(username)}** doesn't have an active session with ID: `{session}`!"
         )
-        raise SessionNotFoundError
+        raise lib.errors.SessionNotFoundError
 
     return session_info
 
@@ -188,26 +191,73 @@ async def run_interaction_checks(
     :param allow_star: whether or not to allow star permissions if certain\
         permissions are required
     """
-    account = Account(interaction.user.id)
+    account = lib.Account(interaction.user.id)
 
     if account.exists:
         if check_blacklisted and account.blacklisted:
-            embeds = load_embeds('blacklisted', color='danger')
+            embeds = lib.load_embeds('blacklisted', color='danger')
             await _send_interaction_check_response(interaction, embeds)
 
             logger.debug(
                 f'`Blacklisted User`: Denied {interaction.user} '
                 f'({interaction.user.id}) access to an interaction')
-            raise UserBlacklistedError
+            raise lib.errors.UserBlacklistedError
 
     if permissions:
         # User doesn't have at least one of the required permissions
         if not (allow_star and '*' in account.permissions):
             if not set(permissions) & set(account.permissions):
-                embeds = load_embeds('missing_permissions', color='danger')
+                embeds = lib.load_embeds('missing_permissions', color='danger')
                 await _send_interaction_check_response(interaction, embeds)
 
                 logger.debug(
                     f'`Missing permissions`: Denied {interaction.user} '
                     f'({interaction.user.id}) access to an interaction.')
-                raise MissingPermissionsError
+                raise lib.errors.MissingPermissionsError
+
+
+async def handle_modes_renders(
+    interaction: discord.Interaction,
+    func: object,
+    kwargs: dict,
+    message=None,
+    custom_view: discord.ui.View=None
+) -> None:
+    """
+    Renders and sends all modes to discord for the selected render
+    :param interaction: the relative discord interaction object
+    :param func: the function object to render with
+    :param kwargs: the keyword arguments needed to render the image
+    :param message: the message to send to discord with the image
+    :param view: a discord view to merge with the sent view
+    """
+    if not message:
+        message = random_tip_message(interaction.user.id)
+
+    os.makedirs(f'{lib.REL_PATH}/database/rendered/{interaction.id}')
+    await func(mode="Overall", **kwargs)
+    view = ModesView(
+        interaction_origin=interaction,
+        placeholder='Select a mode'
+    )
+
+    if custom_view is not None:
+        for child in custom_view.children:
+            view.add_item(child)
+
+    image = discord.File(
+        f"{lib.REL_PATH}/database/rendered/{interaction.id}/overall.png")
+    try:
+        await interaction.edit_original_response(
+            content=message, attachments=[image], view=view
+        )
+    except discord.errors.NotFound:
+        return
+
+    await asyncio.gather(
+        func(mode="Solos", **kwargs),
+        func(mode="Doubles", **kwargs),
+        func(mode="Threes", **kwargs),
+        func(mode="Fours", **kwargs),
+        func(mode="4v4", **kwargs),
+    )
