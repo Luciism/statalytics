@@ -5,11 +5,18 @@ from PIL import Image, ImageFont, ImageDraw
 from ..assets import ASSET_LOADER
 from .splitting import split_string
 from ..color import ColorMappings
-from .tools import mc_text_shadow
 
 
 dummy_img = Image.new('RGBA', (0, 0))
 dummy_draw = ImageDraw.Draw(dummy_img)
+
+
+def calc_shadow_color(rgb: tuple) -> tuple[int, int, int]:
+    """
+    Returns drop shadow RGB relative to passed RGB value
+    :param rgb: The RGB value to get a shadow color for
+    """
+    return tuple([int(c * 0.25) for c in rgb])
 
 
 def get_text_len(text: str, font: ImageFont.ImageFont):
@@ -117,7 +124,7 @@ def render_mc_text(
 
         if shadow_offset is not None:
             off_x, off_y = shadow_offset
-            shadow_color = mc_text_shadow(color)
+            shadow_color = calc_shadow_color(color)
             draw.text((x + off_x, y + off_y), text, fill=shadow_color, font=font)
 
         draw.text((x, y), text, fill=color, font=font)

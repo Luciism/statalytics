@@ -4,14 +4,6 @@ import numpy as np
 from PIL import Image
 
 
-def mc_text_shadow(rgb: tuple) -> tuple[int, int, int]:
-    """
-    Returns drop shadow RGB relative to passed RGB value
-    :param rgb: The RGB value to get a shadow color for
-    """
-    return tuple([int(c * 0.25) for c in rgb])
-
-
 def image_to_bytes(image: Image.Image) -> bytes:
     """
     Converts a PIL Image object to bytes

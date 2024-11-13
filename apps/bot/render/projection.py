@@ -3,7 +3,7 @@ from calc.projection import PrestigeStats
 import statalib as lib
 from statalib import to_thread, add_suffixes, REL_PATH
 from statalib.sessions import BedwarsSession
-from statalib.render import ImageRender, RenderBackground, get_formatted_level
+from statalib.render import ImageRender, RenderBackground, Prestige
 
 
 bg = RenderBackground(dir="projection")
@@ -65,8 +65,8 @@ def render_projection(
     })
 
     # Render progress to target
-    formatted_lvl = get_formatted_level(stats.level)
-    formatted_target = get_formatted_level(target)
+    formatted_lvl = Prestige(stats.level).formatted_level
+    formatted_target = Prestige(target).formatted_level
 
     im.text.draw(f'{formatted_lvl} &f/ {formatted_target}', {
         "position": (226, 84),

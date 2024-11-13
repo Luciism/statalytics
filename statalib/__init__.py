@@ -21,12 +21,6 @@ from .loggers.handlers import *
 from .loggers.formatters import *
 from .loggers.utils import *
 
-from .render.tools import *
-from .render.usernames import *
-from .render.prestige_colors import *
-from .render.splitting import *
-from .render.text import *
-
 from . import shared_views as shared_views
 from .shared_views.info import *
 from .shared_views.custom import *

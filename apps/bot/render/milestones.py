@@ -1,6 +1,6 @@
 from calc.milestones import MilestonesStats
 from statalib import BedwarsSession, to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground, get_formatted_level
+from statalib.render import ImageRender, RenderBackground, Prestige
 
 
 bg = RenderBackground(dir="milestones")
@@ -73,7 +73,7 @@ def render_milestones(
     })
 
     # Render stars until text
-    formatted_lvl = get_formatted_level(stars_until_target)
+    formatted_lvl = Prestige(stars_until_target).formatted_level
     stars_until_txt = f'&7{stars_until_value} &fStars Until {formatted_lvl}'
 
     im.text.draw(stars_until_txt, {

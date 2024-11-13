@@ -5,7 +5,7 @@ from PIL import Image, UnidentifiedImageError
 
 from . import text as imgtext
 from .text import render_mc_text
-from .prestige_colors import get_formatted_level
+from .prestige_colors import Prestige
 from ..assets import ASSET_LOADER
 from ..calctools import RankInfo, PROGRESS_BAR_MAX
 
@@ -58,7 +58,7 @@ class PlayerRender:
         full_string = f'{rank_info["formatted_prefix"]}{username}'
 
         if bedwars_level is not None:
-            formatted_lvl = get_formatted_level(bedwars_level)
+            formatted_lvl = Prestige.format_level(bedwars_level)
             full_string = f'{formatted_lvl} {full_string}'
 
         render_mc_text(
@@ -139,7 +139,7 @@ class ProgressRender:
     def _actual_text_len(self, text: str) -> int:
         """Find the text length while ignoring color coding characters."""
         return imgtext.get_text_len(
-            imgtext.get_actual_text(get_formatted_level(text)), font=self.font)
+            imgtext.get_actual_text(Prestige.format_level(text)), font=self.font)
 
     def draw_progress_bar(
         self,
@@ -163,8 +163,8 @@ class ProgressRender:
         gray_chars = self.progress_symbol * (PROGRESS_BAR_MAX - int(xp_bar_progress))
 
         chars_text = f'&b{colored_chars}&7{gray_chars}'
-        formatted_lvl_text = get_formatted_level(int(level))
-        formatted_target_text = get_formatted_level(int(level)+1)
+        formatted_lvl_text = Prestige.format_level(int(level))
+        formatted_target_text = Prestige.format_level(int(level)+1)
 
         self._text_render.draw(
             text=f'{formatted_lvl_text} {chars_text} {formatted_target_text}',

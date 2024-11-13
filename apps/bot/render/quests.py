@@ -1,7 +1,7 @@
 from calc.quests import QuestStats
 import statalib as lib
 from statalib import to_thread
-from statalib.render import ImageRender, RenderBackground, get_formatted_level
+from statalib.render import ImageRender, RenderBackground, Prestige
 
 
 bg = RenderBackground(dir="quests")
@@ -20,27 +20,27 @@ def render_quests(
 
     # Render the stat values
     im.text.draw_many([
-        (get_formatted_level(stats.questless_star), {'position': (118, 190)}),
-        (f'{get_formatted_level(stats.lvls_daily_win)} '
+        (Prestige.format_level(stats.questless_star), {'position': (118, 190)}),
+        (f'{Prestige.format_level(stats.lvls_daily_win)} '
          f'&f({stats.completions_daily_win:,} Done)', {'position': (118, 249)}),
-        (f'{get_formatted_level(stats.lvls_daily_one_more)} '
+        (f'{Prestige.format_level(stats.lvls_daily_one_more)} '
          f'&f({stats.completions_daily_one_more:,} Done)', {'position': (118, 308)}),
-        (f'{get_formatted_level(stats.lvls_daily_bed_breaker)} '
+        (f'{Prestige.format_level(stats.lvls_daily_bed_breaker)} '
          f'&f({stats.completions_daily_bed_breaker:,} Done)', {'position': (118, 367)}),
-        (f'{get_formatted_level(stats.lvls_daily_final_killer)} '
+        (f'{Prestige.format_level(stats.lvls_daily_final_killer)} '
          f'&f({stats.completions_daily_final_killer:,} Done)',
          {'position': (118, 426)}),
-        (get_formatted_level(stats.stars_from_quests), {'position': (332, 190)}),
-        (f'{get_formatted_level(stats.lvls_weekly_bed_elims)} '
+        (Prestige.format_level(stats.stars_from_quests), {'position': (332, 190)}),
+        (f'{Prestige.format_level(stats.lvls_weekly_bed_elims)} '
          f'&f({stats.completions_weekly_bed_elims:,} Done)',
          {'position': (332, 249)}),
-        (f'{get_formatted_level(stats.lvls_weekly_dream_win)} '
+        (f'{Prestige.format_level(stats.lvls_weekly_dream_win)} '
          f'&f({stats.completions_weekly_dream_win:,} Done)',
          {'position': (332, 308)}),
-        (f'{get_formatted_level(stats.lvls_weekly_challenges_win)} '
+        (f'{Prestige.format_level(stats.lvls_weekly_challenges_win)} '
          f'&f({stats.completions_weekly_challenges_win:,} Done)',
          {'position': (332, 367)}),
-        (f'{get_formatted_level(stats.lvls_weekly_final_killer)} '
+        (f'{Prestige.format_level(stats.lvls_weekly_final_killer)} '
          f'&f({stats.completions_weekly_final_killer:,} Done)',
          {'position': (332, 426)}),
         (f'&d{stats.quests_completed:,}', {'position': (536, 249)}),

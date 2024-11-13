@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal
 
 from ..color import ColorMappings
 
@@ -72,39 +71,6 @@ class PrestigeColorMaps:
         1000: (c['red'], c['gold'], c['yellow'], c['green'], c['aqua'], c['light_purple'], c['dark_purple']),
     }
 
-
-def get_prestige_colors(level: int) -> tuple:
-    """
-    Returns prestige colors based on level.
-    Any level below 1000 or above 10000 will be a single RGB set
-    Any level between 1000 and 9900 will have 7 color position values
-    :param level: the level of the desired prestige color
-    """
-    c = PrestigeColorMaps
-    prestige = (level // 100) * 100
-
-    if 1000 <= level < 10000:
-        return c.prestige_map_2.get(prestige, c.prestige_map_2.get(5000))
-
-    return c.prestige_map.get(prestige, c.prestige_map.get(10000))
-
-
-def get_prestige_primary_color(level: int) -> tuple[int, int, int]:
-    """
-    Returns primary rgb that represents a prestige
-    This is usually the first color in a prestige.
-
-    :param level: the level to get the primary color for
-    """
-    pres_color_code = get_prestige_colors(level)
-
-    if 1000 <= level < 10000:
-        pres_color_code = pres_color_code[0]
-
-    pres_color_rgb = ColorMappings.color_codes.get(pres_color_code)
-    return pres_color_rgb
-
-
 bedwars_star_symbol_map = {
     3100: '✥',
     2100: '⚝',
@@ -112,41 +78,9 @@ bedwars_star_symbol_map = {
     0: '✫'
 }
 
-
-def get_star_symbol(level: int) -> str:
-    """
-    Returns star symbol relative to provided level:
-    :param level: the level to get the star for
-    """
-    for key, value in bedwars_star_symbol_map.items():
-        if level >= key:
-            return value
-
-    return bedwars_star_symbol_map.get(0)
-
-
-def get_formatted_level(level: int) -> str:
-    """
-    Adds respective color codes and symbols to a bedwars level
-    :param level: the level to format
-    """
-    prestige_colors = get_prestige_colors(level)
-
-    star_symbol = get_star_symbol(level)
-    level_string = f'[{level}{star_symbol}]'
-
-    if 1000 <= level < 10000:
-        new_level_string = ''
-
-        for i, char in enumerate(level_string):
-            new_level_string += f'{prestige_colors[i]}{char}'
-        return new_level_string
-
-    return f'{prestige_colors}{level_string}'
-
 class PrestigeColorEnum(Enum):
-    single: 0
-    multi: 1
+    single = 0
+    multi = 1
 
 @dataclass
 class PrestigeColorType:
@@ -159,6 +93,7 @@ class PrestigeColors:
         self.__prestige_colors = None
         self.__prestige_primary_rgb = None
 
+
     @property
     def prestige_colors(self) -> PrestigeColorType:
         """
@@ -168,6 +103,7 @@ class PrestigeColors:
         """
         if self.__prestige_colors is None:
             c = PrestigeColorMaps
+
             if 1000 <= self._prestige < 10000:
                 color = c.prestige_map_2.get(self._prestige, c.prestige_map_2.get(5000))
                 self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.multi, color)
@@ -182,9 +118,9 @@ class PrestigeColors:
     def primary_prestige_color(self) -> tuple[int, int, int]:
         """The primary color of the prestige as RGB."""
         if self.__prestige_primary_rgb is None:
-            pres_color_code = self.get_prestige_colors()
+            pres_color_code = self.prestige_colors.color
 
-            if 1000 <= self._prestige < 10000:
+            if self.prestige_colors.type == PrestigeColorEnum.multi:
                 pres_color_code = pres_color_code[0]
 
             self.__prestige_primary_rgb = ColorMappings.color_codes.get(pres_color_code)
@@ -203,7 +139,7 @@ class Prestige:
         self._level = level
         self.colors = PrestigeColors(self.prestige)
         self.__star_symbol = None
-        self.__formatted_level_string = None
+        self.__formatted_level_str = None
 
     @property
     def prestige(self) -> int:
@@ -223,21 +159,23 @@ class Prestige:
         return self.__star_symbol
 
     @property
-    def formatted_level_string(self) -> str:
+    def formatted_level(self) -> str:
         """Formats the level with colors, brackets, and the star symbol."""
-        if self.__formatted_level_string is None:
+        if self.__formatted_level_str is None:
             prestige_colors = self.colors.prestige_colors
 
             star_symbol = self.star_symbol
             level_string = f'[{self._level}{star_symbol}]'
 
-            if 1000 <= self._level < 10000:
-                new_level_string = ''
-
-                for i, char in enumerate(level_string):
-                    new_level_string += f'{prestige_colors[i]}{char}'
-                self.__formatted_level_string = new_level_string
+            if prestige_colors.type == PrestigeColorEnum.multi:
+                self.__formatted_level_str = ''.join([
+                    f'{prestige_colors.color[i]}{char}' for i, char in enumerate(level_string)
+                ])
             else:
-                self.__formatted_level_string = f'{prestige_colors}{level_string}'
+                self.__formatted_level_str = f'{prestige_colors.color}{level_string}'
 
-        return self.__formatted_level_string
+        return self.__formatted_level_str
+
+    @staticmethod
+    def format_level(level: int) -> str:
+        return Prestige(level).formatted_level

@@ -3,7 +3,7 @@ from typing import Literal
 from PIL import Image
 
 from .text import render_mc_text, get_actual_text, get_text_len
-from .prestige_colors import get_formatted_level
+from .prestige_colors import Prestige
 from ..assets import ASSET_LOADER
 
 
@@ -25,7 +25,7 @@ def render_level(
     :param align: the alignment of the text relative to the x position
     :return: the final x position once the level has been rendered
     """
-    formatted_lvl_str = get_formatted_level(level)
+    formatted_lvl_str = Prestige.format_level(level)
     x_after = render_mc_text(
         text=formatted_lvl_str,
         position=position,
@@ -65,7 +65,7 @@ def render_display_name(
     full_string = f'{rank_info["formatted_prefix"]}{username}'
 
     if level is not None:
-        formatted_lvl = get_formatted_level(level)
+        formatted_lvl = Prestige.format_level(level)
         full_string = f'{formatted_lvl} {full_string}'
 
     if image is None:

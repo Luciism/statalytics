@@ -4,7 +4,7 @@ from typing import Any, NamedTuple
 
 from PIL import Image
 
-from .prestige_colors import get_prestige_primary_color
+from .prestige_colors import PrestigeColors
 from .tools import recolor_pixels
 from ..assets import ASSET_LOADER
 from ..cfg import config
@@ -73,7 +73,7 @@ class RenderBackgroundTheme:
         rank_info = self._render_params.get('rank_info')
         prestige = (self._render_params.get('level') // 100) * 100
 
-        star_color = get_prestige_primary_color(prestige)
+        star_color = PrestigeColors(prestige).primary_prestige_color
 
         image = self._load_theme_image().convert('RGBA')
 

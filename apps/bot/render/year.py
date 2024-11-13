@@ -2,8 +2,7 @@ from calc.year import YearStats
 
 import statalib as lib
 from statalib import BedwarsSession, add_suffixes
-from statalib import render
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, RenderBackground, Prestige
 
 
 bg = RenderBackground(dir="year")
@@ -65,8 +64,8 @@ def render_year(
     })
 
     # Render progress to target
-    formatted_lvl = render.get_formatted_level(stats.level)
-    formatted_target = render.get_formatted_level(int(stats.target_level))
+    formatted_lvl = Prestige.format_level(stats.level)
+    formatted_target = Prestige.format_level(int(stats.target_level))
 
     im.text.draw(f"{formatted_lvl} &f/ {formatted_target}", {
         "position": (226, 84),
