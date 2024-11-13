@@ -16,7 +16,7 @@ from statalib import rotational_stats as rotational
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
-root_logger.addHandler(statalib.CustomTimedRotatingFileHandler(
+root_logger.addHandler(statalib.loggers.CustomTimedRotatingFileHandler(
     logs_dir=f"{statalib.REL_PATH}/logs/bot"
 ))
 

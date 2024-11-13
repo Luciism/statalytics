@@ -6,7 +6,9 @@ import statalib as lib
 import helper
 
 
-class SubmitSuggestion(lib.CustomBaseModal, title='Submit Suggestion'):
+class SubmitSuggestion(
+    lib.shared_views.CustomBaseModal, title='Submit Suggestion'
+):
     def __init__(self, channel: discord.TextChannel, **kwargs):
         self.channel = channel
         super().__init__(**kwargs)

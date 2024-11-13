@@ -1,5 +1,7 @@
 from . import rotational_stats as rotational_stats
 from . import mcfetch
+from . import loggers
+from . import shared_views
 
 from .assets import ASSET_LOADER as ASSET_LOADER
 from .cfg import *
@@ -17,18 +19,6 @@ from .aliases import *
 from .account_manager import *
 from .accounts import *
 
-from .loggers.handlers import *
-from .loggers.formatters import *
-from .loggers.utils import *
-
-from . import shared_views as shared_views
-from .shared_views.info import *
-from .shared_views.custom import *
-
-from .mcfetch.mcfetch import *
-from .mcfetch.tools import *
-from .mcfetch.asyncmcfetch import *
-
 from .calctools.bedwars_stats import *
 from .calctools.cumulative_stats import *
 from .calctools.projected_stats import *
@@ -42,12 +32,13 @@ __all__ = [
     'historical',
     'linking',
     'themes',
-    'ui',
     'autocomplete',
     'sessions',
     'mcfetch',
     'subscriptions'
     'network',
     'permissions',
-    'aliases'
+    'aliases',
+    'loggers',
+    'shared_views',
 ]

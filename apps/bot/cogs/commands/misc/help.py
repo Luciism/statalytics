@@ -18,7 +18,7 @@ class Help(commands.Cog):
         await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('help', color='primary')
-        view = lib.HelpMenuButtons()
+        view = lib.shared_views.HelpMenuButtons()
         await interaction.response.send_message(embeds=embeds, view=view)
 
         lib.update_command_stats(interaction.user.id, 'help')

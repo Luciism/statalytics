@@ -55,7 +55,7 @@ class SettingsSelect(discord.ui.Select):
             return
 
 
-class SettingsSelectView(lib.CustomBaseView):
+class SettingsSelectView(lib.shared_views.CustomBaseView):
     def __init__(self, interaction: discord.Interaction,
                  view_data: list | tuple, *, timeout=300):
         super().__init__(timeout=timeout)
@@ -77,7 +77,7 @@ class SettingsSelectView(lib.CustomBaseView):
             pass
 
 
-class LinkAccountModal(lib.CustomBaseModal, title='Link Account'):
+class LinkAccountModal(lib.shared_views.CustomBaseModal, title='Link Account'):
     player = discord.ui.TextInput(
         label='Player',
         placeholder='Statalytics',
@@ -88,7 +88,7 @@ class LinkAccountModal(lib.CustomBaseModal, title='Link Account'):
         await helper.interactions.linking_interaction(interaction, str(self.player))
 
 
-class SettingsButtons(lib.CustomBaseView):
+class SettingsButtons(lib.shared_views.CustomBaseView):
     def __init__(self, interaction: discord.Interaction) -> None:
         super().__init__(timeout=300)
         self.interaction = interaction
