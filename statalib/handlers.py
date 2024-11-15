@@ -1,6 +1,5 @@
 import logging
 from io import StringIO
-from os import getenv
 from traceback import format_exception
 
 import discord
@@ -93,12 +92,15 @@ async def _handle_cooldown_error(
 async def handle_remaining_tree_errors(
     interaction: discord.Interaction,
     error: Exception
-):
-    support_url = config('global.links.support_server')
+) -> None:
     embed = discord.Embed(
-        title=f'An error occured running /{interaction.data["name"]}',
-        description=f'```{error}```\nIf the problem persists, '
-                    f'please [get in touch]({support_url})',
+        title=
+            f'An error occured running /{interaction.data["name"]}'
+            if interaction.type == 2 else
+            'An error occured while trying to complete your request.',
+        description=
+            f'```{error}```\nIf the problem persists, please '
+            f'[get in touch]({config("global.links.support_server")})',
         color=get_embed_color(embed_type='danger')
     )
     try:
@@ -120,7 +122,7 @@ async def handle_remaining_tree_errors(
 async def handle_interaction_errors(
     interaction: discord.Interaction,
     error: app_commands.AppCommandError
-):
+) -> None:
     """
     Handles all interaction related errors
     :param interaction: `discord.Interaction` object of the interaction

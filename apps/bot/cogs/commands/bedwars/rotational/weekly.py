@@ -57,7 +57,8 @@ class Weekly(commands.Cog):
 
         if lib.rotational_stats.has_auto_reset_access(uuid):
             next_occurrence = now.replace(
-                hour=reset_time.reset_hour, minute=0, second=0, microsecond=0)
+                hour=reset_time.reset_hour, minute=reset_time.reset_minute,
+                second=0, microsecond=0)
 
             while now >= next_occurrence or next_occurrence.weekday() != 6:
                 next_occurrence += timedelta(days=1)

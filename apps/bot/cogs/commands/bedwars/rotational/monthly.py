@@ -58,7 +58,8 @@ class Monthly(commands.Cog):
 
         if lib.rotational_stats.has_auto_reset_access(uuid):
             next_occurrence = now.replace(
-                hour=reset_time.reset_hour, minute=0, second=0, microsecond=0)
+                hour=reset_time.reset_hour, minute=reset_time.reset_minute,
+                second=0, microsecond=0)
 
             if now >= next_occurrence:
                 next_month = next_occurrence.month + 1

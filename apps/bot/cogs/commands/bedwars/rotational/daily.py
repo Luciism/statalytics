@@ -69,7 +69,8 @@ class Daily(commands.Cog):
             # i dont know why this works but it does so dont touch it
             # it doesnt do what i think it does
             next_occurrence = now.replace(
-                hour=reset_time.reset_hour, minute=0, second=0, microsecond=0)
+                hour=reset_time.reset_hour, minute=reset_time.reset_minute,
+                second=0, microsecond=0)
 
             if now >= next_occurrence:
                 next_occurrence += timedelta(days=1)

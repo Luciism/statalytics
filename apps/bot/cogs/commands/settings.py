@@ -1,8 +1,11 @@
+from abc import abstractmethod
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+from statalib import rotational_stats as rotational
 import helper
 
 
@@ -13,57 +16,88 @@ HOURS = [
     '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
 ]
 
+MINUTES = [0, 15, 30, 45]
 
-class SettingsSelect(discord.ui.Select):
-    def __init__(self, placeholder, options, min_values, max_values):
+def format_12hr_time(hour: int, minute: int):
+  """Format time as hr:min(AM/PM)"""
+  hour_12 = hour % 12
+  hour_12 = 12 if hour_12 == 0 else hour_12
+
+  period = "AM" if hour < 12 else "PM"
+  return f"{hour_12}:{minute:02d}{period}"
+
+
+class ActiveThemeSelect(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption]):
         super().__init__(
-            placeholder=placeholder,
-            max_values=max_values,
-            min_values=min_values,
-            options=options
-        )
-
-        self.placeholder = placeholder
-
+            placeholder='Select Theme', max_values=1, min_values=1, options=options)
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
+        selection = self.values[0]
 
-        value = self.values[0]
-        if self.placeholder == "Select Theme":
-            if value == 'none':
-                value = None
-            lib.set_active_theme(discord_id, value)
-            await interaction.followup.send('Successfully updated theme!', ephemeral=True)
-            return
+        if selection == 'none':
+            selection = None
 
-        if self.placeholder in ('Select your GMT offset', 'Select your reset hour'):
-            value = int(value)
-            manager = lib.rotational_stats.ConfiguredResetTimeManager(interaction.user.id)
+        lib.set_active_theme(discord_id, selection)
+        await interaction.followup.send('Theme updated successfully!', ephemeral=True)
 
-            if self.placeholder == 'Select your GMT offset':
-                manager.update(lib.rotational_stats.ResetTime(utc_offset=value))
-                message = f'Successfully updated timezone to `GMT{lib.prefix_int(value)}:00`'
-            else:
-                manager.update(lib.rotational_stats.ResetTime(reset_hour=value))
-                message = f'Successfully updated reset hour to `{HOURS[value]}`'
 
-            await interaction.followup.send(message, ephemeral=True)
-            return
+class _ResetTimeSelectBase(discord.ui.Select):
+    def __init__(self, options: list[discord.SelectOption], placeholder: str):
+        super().__init__(
+            placeholder=placeholder,
+            max_values=1, min_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        await helper.interactions.run_interaction_checks(interaction)
+
+        manager = lib.rotational_stats.ConfiguredResetTimeManager(interaction.user.id)
+        message = self.make_updates(manager, int(self.values[0]))
+
+        await interaction.followup.send(message, ephemeral=True)
+
+    @abstractmethod
+    def make_updates(
+        self, manager: rotational.ConfiguredResetTimeManager, selection: int
+    ) -> str: ...
+
+class UTCOffsetSelect(_ResetTimeSelectBase):
+    def make_updates(
+        self, manager: rotational.ConfiguredResetTimeManager, selection: int
+    ) -> str:
+        manager.update(lib.rotational_stats.ResetTime(utc_offset=selection))
+        return f'Timezone updated to **GMT{lib.prefix_int(selection)}:00**'
+
+class ResetHourSelect(_ResetTimeSelectBase):
+    def make_updates(
+        self, manager: rotational.ConfiguredResetTimeManager, selection: int
+    ) -> str:
+        manager.update(lib.rotational_stats.ResetTime(reset_hour=selection))
+        fmted_time = format_12hr_time(selection, manager.get().reset_minute)
+        return f'Reset time updated to **{fmted_time}**.'
+
+class ResetMinuteSelect(_ResetTimeSelectBase):
+    def make_updates(
+        self, manager: rotational.ConfiguredResetTimeManager, selection: int
+    ) -> str:
+        manager.update(lib.rotational_stats.ResetTime(reset_minute=selection))
+        fmted_time = format_12hr_time(manager.get().reset_hour, selection)
+        return f'Reset time updated to **{fmted_time}**.'
 
 
 class SettingsSelectView(lib.shared_views.CustomBaseView):
-    def __init__(self, interaction: discord.Interaction,
-                 view_data: list | tuple, *, timeout=300):
+    def __init__(
+        self,
+        interaction: discord.Interaction,
+        *,
+        timeout=300
+    ) -> None:
         super().__init__(timeout=timeout)
-        for view in view_data:
-            self.add_item(
-                SettingsSelect(view['placeholder'], view['options'],
-                       view['min_values'], view['max_values']))
-
         self.interaction = interaction
 
 
@@ -104,12 +138,11 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
 
 
     @discord.ui.button(
-        label="Active Theme",
-        style=discord.ButtonStyle.gray,
-        custom_id="active_theme",
-        row=1)
-    async def active_theme(self, interaction: discord.Interaction,
-                           button: discord.ui.Button):
+        label="Active Theme", style=discord.ButtonStyle.gray,
+        custom_id="active_theme", row=1)
+    async def active_theme(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('active_theme', color='primary')
@@ -124,67 +157,59 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
         for owned_theme in owned_themes:
             available_themes[owned_theme] = theme_packs['exclusive_themes'][owned_theme]
 
-        options = [discord.SelectOption(label=properties.get('display_name'), value=name)
-                   for name, properties in available_themes.items()]
+        options = [
+            discord.SelectOption(label=properties.get('display_name'), value=name)
+            for name, properties in available_themes.items()
+        ]
 
-        view_data = [{
-            'placeholder': 'Select Theme',
-            'options': options,
-            'min_values': 1,
-            'max_values': 1
-        }]
+        view = SettingsSelectView(interaction=interaction)
+        view.add_item(ActiveThemeSelect(options))
 
-        view = SettingsSelectView(interaction=interaction, view_data=view_data)
         await interaction.response.send_message(
             embeds=embeds, view=view, ephemeral=True)
 
 
     @discord.ui.button(
-        label="Reset Time",
-        style=discord.ButtonStyle.gray,
+        label="Reset Time", style=discord.ButtonStyle.gray,
         custom_id="reset_time", row=1)
-    async def reset_time(self, interaction: discord.Interaction,
-                         button: discord.ui.Button):
+    async def reset_time(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
         embeds = lib.load_embeds('reset_time', color='primary')
 
-        options_1 = [discord.SelectOption(
-            label=f'GMT{lib.prefix_int(i-12)}', value=i-12)
-            for i in reversed(range(25))]
+        timezone_options = [
+            discord.SelectOption(label=f'GMT{lib.prefix_int(i-12)}', value=i-12)
+            for i in reversed(range(25))
+        ]
+        reset_hour_options = [
+            discord.SelectOption(label=hour, value=i) for i, hour in enumerate(HOURS)
+        ]
+        reset_minute_options = [
+            discord.SelectOption(label=f"{min:02d}", value=min) for min in MINUTES
+        ]
 
-        options_2 = [discord.SelectOption(label=hour, value=i)
-                     for i, hour in zip(range(24), HOURS)]
-
-        view_data = [{
-            'placeholder': 'Select your GMT offset',
-            'options': options_1,
-            'min_values': 1,
-            'max_values': 1
-        },
-        {
-            'placeholder': 'Select your reset hour',
-            'options': options_2,
-            'min_values': 1,
-            'max_values': 1
-        }]
+        view = SettingsSelectView(interaction=interaction)
+        view.add_item(UTCOffsetSelect(timezone_options, "Select a GMT offset"))
+        view.add_item(ResetHourSelect(reset_hour_options, "Select a reset hour"))
+        view.add_item(ResetMinuteSelect(reset_minute_options, "Select a reset minute"))
 
         await interaction.response.send_message(
             embeds=embeds,
-            view=SettingsSelectView(interaction=interaction, view_data=view_data),
+            view=view,
             ephemeral=True
         )
-
 
     @discord.ui.button(
         label="Linked Account",
         style=discord.ButtonStyle.gray,
         custom_id="linked_account", row=1)
-    async def linked_account(self, interaction: discord.Interaction,
-                             button: discord.ui.Button):
+    async def linked_account(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
         await interaction.response.send_modal(LinkAccountModal())
-
 
 
 class Settings(commands.Cog):

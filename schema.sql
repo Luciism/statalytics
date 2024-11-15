@@ -30,13 +30,15 @@ CREATE TABLE IF NOT EXISTS command_usage (
 CREATE TABLE IF NOT EXISTS configured_reset_times (
     discord_id INTEGER PRIMARY KEY,
     timezone INTEGER,
-    reset_hour INTEGER
+    reset_hour INTEGER,
+    reset_minute INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS default_reset_times (
     uuid TEXT PRIMARY KEY,
     timezone INTEGER,
-    reset_hour INTEGER
+    reset_hour INTEGER,
+    reset_minute INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS permissions (

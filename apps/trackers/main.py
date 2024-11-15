@@ -25,60 +25,59 @@ logger.setLevel(logging.DEBUG)
 
 
 """
-This query is designed to find data from the `rotational_info` table that
-needs to be reset based on the reset times configured in the
-`configured_reset_times` and `default_reset_times` tables. The query
-uses `LEFT JOIN` to combine data from the `rotational_info`,
-`linked_accounts`, `configured_reset_times`, and `default_reset_times`
-tables.
+This query is designed to find data from the `rotational_info` table that needs
+to be reset based on the reset times configured in the `configured_reset_times`
+and `default_reset_times` tables. The query uses `LEFT JOIN` to combine data
+from the `rotational_info`, `linked_accounts`, `configured_reset_times`, and
+`default_reset_times` tables.
 
-The `configured_reset_times` table stores reset times configured by
-discord id, while the `default_reset_times` table stores default reset
-times by player uuid.
+The `configured_reset_times` table stores reset times configured by Discord ID,
+while the `default_reset_times` table stores default reset times by player UUID.
 
 The query uses data from the `configured_reset_times` table if it is
-available for the respective discord id, otherwise it uses data from
+available for the respective Discord ID; otherwise, it uses data from
 the `default_reset_times` table.
 
-The query checks if the combined `reset_hour - timezone` value from
-either the `configured_reset_times` or `default_reset_times` tables
-equals x, where x is a parameter passed to the query. The query also
-wraps, so 23 would be 23, but 24 would be 0, etc. If neither the
-`configured_reset_times` nor the `default_reset_times` tables have
-data for the respective discord id or player uuid, then the query
-returns a value of 0.
+The formula `reset_hour - timezone + (reset_minute / 60)` calculates the hour
+of day as a decimal, so it would be 13.5 for 1:30pm UTC 0. The query checks if
+the formula result value from either the `configured_reset_times` or
+`default_reset_times` tables, equals x, where x is a parameter passed to the
+query. The query also accounts for the 24-hour wrap-around, ensuring that
+values like 24 are treated as 0. If neither the `configured_reset_times` nor
+the `default_reset_times` tables have data for the respective Discord ID or
+player UUID, then the query returns a value of 0.
 
-The result of the query is a set of rows from the `rotational_info` table
-that meet the specified conditions. You can use this result set to
-find and process data from the `rotational_info` table that needs to be
-reset based on the configured reset times.
-
-Please note that if a negative value is obtained from subtracting
-timezone from reset_hour, it will be adjusted by adding 24 before
-performing modulus operation. This ensures that negative numbers are
-handled appropriately.
+The result of the query is a set of player uuids that meet the criteria.
+You can use this result set to find and process data from the `rotational_info`
+table that needs to be reset based on the configured reset times.
 """
 
+
 query = """
-SELECT DISTINCT rotational_info.uuid
-FROM rotational_info
-LEFT JOIN linked_accounts
-  ON rotational_info.uuid = linked_accounts.uuid
-LEFT JOIN configured_reset_times
-  ON linked_accounts.discord_id = configured_reset_times.discord_id
-LEFT JOIN default_reset_times
-  ON rotational_info.uuid = default_reset_times.uuid
-WHERE (
-  COALESCE(
-    CASE WHEN configured_reset_times.reset_hour - configured_reset_times.timezone < 0
-      THEN configured_reset_times.reset_hour - configured_reset_times.timezone + 24
-      ELSE configured_reset_times.reset_hour - configured_reset_times.timezone END,
-    CASE WHEN default_reset_times.reset_hour - default_reset_times.timezone < 0
-      THEN default_reset_times.reset_hour - default_reset_times.timezone + 24
-      ELSE default_reset_times.reset_hour - default_reset_times.timezone END,
-    0
-  ) % 24
-) = ?;
+WITH ResetTimes AS (
+  SELECT
+    rotational_info.uuid,
+    COALESCE(
+      configured_reset_times.reset_hour
+        - configured_reset_times.timezone
+            + configured_reset_times.reset_minute / 60.0,
+      default_reset_times.reset_hour
+        - default_reset_times.timezone
+        + default_reset_times.reset_minute / 60.0,
+      0
+    ) + 24 AS reset_time
+  FROM
+    rotational_info
+  LEFT JOIN linked_accounts
+    ON rotational_info.uuid = linked_accounts.uuid
+  LEFT JOIN configured_reset_times
+    ON linked_accounts.discord_id = configured_reset_times.discord_id
+  LEFT JOIN default_reset_times
+    ON rotational_info.uuid = default_reset_times.uuid
+)
+SELECT DISTINCT uuid
+FROM ResetTimes
+WHERE ROUND(reset_time - 24 * CAST(reset_time / 24 AS INTEGER), 3) = ?;
 """
 
 
@@ -112,7 +111,12 @@ async def reset_trackers():
     with statalib.db_connect() as conn:
         cursor = conn.cursor()
 
-        cursor.execute(query, (utc_now.hour,))
+        # Calculate the time using sqlite for mathmatical consistency
+        calculated_time = cursor.execute(
+            f"SELECT ROUND({utc_now.hour} + {utc_now.minute} / 60.0, 3)"
+        ).fetchone()[0]
+
+        cursor.execute(query, (calculated_time,))
         players_to_reset = cursor.fetchall()
 
     logger.info(f'Total trackers to reset: {len(players_to_reset) // 4}')
@@ -128,8 +132,7 @@ async def reset_trackers():
             start_time = time.time()
 
             # Ensure user has access
-            if not statalib.rotational_stats.has_auto_reset_access(
-                    uuid, auto_reset_config):
+            if not rotational.has_auto_reset_access(uuid, auto_reset_config):
                 continue
 
             logger.info(f'Resetting trackers for: {uuid}')
@@ -163,7 +166,7 @@ async def reset_trackers():
         await asyncio.sleep(2 - time_elapsed)
 
 
-@tasks.loop(hours=1)
+@tasks.loop(minutes=1)
 async def reset_trackers_loop():
     logger.info('Scheduled tracker reset event starting...')
     await reset_trackers()
@@ -193,7 +196,7 @@ async def on_tracker_reset(
             resetting.refresh_rotational_data(
                 rotation_type=rotation_type, current_hypixel_data=hypixel_data)
         except sqlite3.IntegrityError:
-            return logger.debug(
+            return logger.warning(
                 f'Auto reset for {rotation_type.value} tracker failed. '
                 f'UUID: {uuid} / Reason: historical data exists')
 
@@ -213,9 +216,10 @@ async def on_tracker_reset(
         reset_rotational(rotational.RotationType.YEARLY)  # Reset yearly
 
 
-# @reset_trackers_loop.before_loop
-# async def before_reset_trackers_loop():
-#     await statalib.align_to_hour()
+@reset_trackers_loop.before_loop
+async def before_reset_trackers_loop():
+    # Wait for next minute to start
+    await asyncio.sleep(60 - datetime.now().second)
 
 
 @reset_trackers_loop.error

@@ -21,18 +21,19 @@ class BaseTestResetTime:
 
         assert reset_time.utc_offset == 0
         assert reset_time.reset_hour in range(0, 24)
+        assert reset_time.reset_minute in range(0, 60)
 
     def test_update_reset_time_override(self):
         self.manager.update(ResetTime())  # Initial value
-        self.manager.update(ResetTime(1, 2))  # Final value
+        self.manager.update(ResetTime(1, 2, 3))  # Final value
 
-        assert self.manager.get() == ResetTime(1, 2)
+        assert self.manager.get() == ResetTime(1, 2, 3)
 
     def test_update_reset_time_one_value(self):
-        self.manager.update(ResetTime(2, 0))  # Initial
+        self.manager.update(ResetTime(2, 0, 0))  # Initial
         self.manager.update(ResetTime(reset_hour=4))  # Final
 
-        assert self.manager.get() == ResetTime(2, 4)
+        assert self.manager.get() == ResetTime(2, 4, 0)
 
     def test_get_reset_time_no_existing(self):
         assert self.manager.get() == None
@@ -64,20 +65,20 @@ class TestGetDynamicResetTime(unittest.TestCase):
         # Link account
         link_mock_data()
 
-        self.manager_default.update(ResetTime(0, 0))
+        self.manager_default.update(ResetTime(0, 0, 0))
         reset_time = get_dynamic_reset_time(MockData.uuid)
 
-        assert reset_time == ResetTime(0, 0)
+        assert reset_time == ResetTime(0, 0, 0)
 
     def test_configured_but_no_default(self):
         """A configured reset time is set but not a default reset time"""
         # Link account
         link_mock_data()
 
-        self.manager_configured.update(ResetTime(0, 0))
+        self.manager_configured.update(ResetTime(0, 0, 0))
         reset_time = get_dynamic_reset_time(MockData.uuid)
 
-        assert reset_time == ResetTime(0, 0)
+        assert reset_time == ResetTime(0, 0, 0)
 
 
     def test_configured_and_default(self):
@@ -85,11 +86,11 @@ class TestGetDynamicResetTime(unittest.TestCase):
         # Link account
         link_mock_data()
 
-        self.manager_default.update(ResetTime(0, 0))
-        self.manager_configured.update(ResetTime(1, 1))
+        self.manager_default.update(ResetTime(0, 0, 0))
+        self.manager_configured.update(ResetTime(1, 1, 1))
 
         reset_time = get_dynamic_reset_time(MockData.uuid)
-        assert reset_time == ResetTime(1, 1)  # Should use configured
+        assert reset_time == ResetTime(1, 1, 1)  # Should use configured
 
 
     def test_neither_configured_nor_default(self):
@@ -98,4 +99,4 @@ class TestGetDynamicResetTime(unittest.TestCase):
         link_mock_data()
 
         reset_time = get_dynamic_reset_time(MockData.uuid)
-        assert reset_time == ResetTime(0, 0)
+        assert reset_time == ResetTime(0, 0, 0)
