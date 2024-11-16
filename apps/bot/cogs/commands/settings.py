@@ -18,14 +18,6 @@ HOURS = [
 
 MINUTES = [0, 15, 30, 45]
 
-def format_12hr_time(hour: int, minute: int):
-  """Format time as hr:min(AM/PM)"""
-  hour_12 = hour % 12
-  hour_12 = 12 if hour_12 == 0 else hour_12
-
-  period = "AM" if hour < 12 else "PM"
-  return f"{hour_12}:{minute:02d}{period}"
-
 
 class ActiveThemeSelect(discord.ui.Select):
     def __init__(self, options: list[discord.SelectOption]):
@@ -78,7 +70,7 @@ class ResetHourSelect(_ResetTimeSelectBase):
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
         manager.update(lib.rotational_stats.ResetTime(reset_hour=selection))
-        fmted_time = format_12hr_time(selection, manager.get().reset_minute)
+        fmted_time = lib.format_12hr_time(selection, manager.get().reset_minute)
         return f'Reset time updated to **{fmted_time}**.'
 
 class ResetMinuteSelect(_ResetTimeSelectBase):
@@ -86,7 +78,7 @@ class ResetMinuteSelect(_ResetTimeSelectBase):
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
         manager.update(lib.rotational_stats.ResetTime(reset_minute=selection))
-        fmted_time = format_12hr_time(manager.get().reset_hour, selection)
+        fmted_time = lib.format_12hr_time(manager.get().reset_hour, selection)
         return f'Reset time updated to **{fmted_time}**.'
 
 

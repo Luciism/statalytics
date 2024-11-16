@@ -407,3 +407,12 @@ def setup_database_schema(schema_fp=f"{REL_PATH}/schema.sql", db_fp=config.DB_FI
     with sqlite3.connect(db_fp) as conn:
         cursor = conn.cursor()
         cursor.executescript(db_schema_setup)
+
+
+def format_12hr_time(hour: int, minute: int) -> str:
+  """Format time as hr:min(AM/PM)"""
+  hour_12 = hour % 12
+  hour_12 = 12 if hour_12 == 0 else hour_12
+
+  period = "AM" if hour < 12 else "PM"
+  return f"{hour_12}:{minute:02d}{period}"
