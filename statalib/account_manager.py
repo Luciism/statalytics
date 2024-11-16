@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from .mcfetch import FetchPlayer2
 from .accounts import get_account, set_account_blacklist, create_account
@@ -122,6 +122,7 @@ class Account:
             permissions=permissions,
             blacklisted=blacklisted
         )
+        self._exists = True
 
 
     def delete(self) -> AccountDeleteConfirm:
@@ -184,8 +185,8 @@ class Account:
     def creation_date(self) -> str | None:
         """The date when the account was created in format `%d/%m/%Y` (UTC time)"""
         if self._creation_date is self.__default:
-            if self.creation_timestamp:
-                creation = datetime.utcfromtimestamp(self.creation_timestamp)
+            if self.creation_timestamp is not self.__default:
+                creation = datetime.fromtimestamp(self.creation_timestamp, UTC)
                 self._creation_date = creation.strftime('%d/%m/%Y')
             else:
                 self._creation_date = None
