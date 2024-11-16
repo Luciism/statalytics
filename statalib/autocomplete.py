@@ -15,19 +15,19 @@ async def session_autocompletion(
 ) -> typing.List[app_commands.Choice[str]]:
     """
     Interaction session autocomplete\n
-    Dynamic to username field
+    Dynamic to player field
     """
     username = None
     for option in interaction.data.get('options', []):
-        # Check if the current option is the top-level 'username' option
-        if option.get('name') == 'username':
+        # Check if the current option is the top-level 'player' option
+        if option.get('name') == 'player':
             username = option.get('value')
             break
         # If the current option has nested options
         if option.get('options'):
             for option2 in option['options']:
-                # Check if any of the nested options is the 'username' option
-                if option2.get('name') == 'username':
+                # Check if any of the nested options is the 'player' option
+                if option2.get('name') == 'player':
                     username = option2.get('value')
                     break
             if username:
