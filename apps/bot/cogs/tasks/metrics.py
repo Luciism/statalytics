@@ -23,8 +23,9 @@ class Metrics(commands.Cog):
         return channel
 
 
-    async def update_channel_name(self, channel_name: str,
-                                  channel_id: int):
+    async def update_channel_name(
+        self, channel_name: str, channel_id: int
+    ) -> None:
         channel = await self.get_channel(channel_id)
         await channel.edit(name=channel_name)
 
@@ -40,7 +41,8 @@ class Metrics(commands.Cog):
             'servers': len(self.client.guilds)
         }
 
-        channels_config: dict = lib.config('global.support_server.channels.metrics_channels')
+        channels_config: dict = lib.config(
+            'global.support_server.channels.metrics_channels')
 
         for key, value in metrics.items():
             channel_name = channels_config[key]['name']
@@ -48,7 +50,6 @@ class Metrics(commands.Cog):
 
             # Allow for escaped unicode emojis
             channel_name = bytes(channel_name, 'utf-8').decode('unicode-escape')
-
             channel_id = channels_config[key]['id']
 
             await self.update_channel_name(channel_name, channel_id)
@@ -57,6 +58,7 @@ class Metrics(commands.Cog):
     @update_metrics_loop.error
     async def on_update_metrics_error(self, error):
         await lib.log_error_msg(self.client, error)
+        self.update_metrics_loop.restart()
 
 
     async def cog_load(self):
