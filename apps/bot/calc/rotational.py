@@ -70,7 +70,7 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
 
         self.games_played_cum = self._get_stat('games_played_bedwars')
         self.most_played_cum = self._get_most_played()
-        self.timezone, self.reset_hour = _get_reset_time_info(self.uuid)
+        self.timezone, self.reset_time = _get_reset_time_info(self.uuid)
 
         self.wins_cum = self._get_stat('wins_bedwars')
         self.losses_cum = self._get_stat('losses_bedwars')
