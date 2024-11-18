@@ -2,12 +2,15 @@ import statalib
 from statalib import hypixel, rotational_stats as rotational
 
 
-HOUR_LIST = [
-    '12:00am', '1:00am', '2:00am', '3:00am', '4:00am', '5:00am', '6:00am',
-    '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
-    '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm',
-    '8:00pm', '9:00pm', '10:00pm', '11:00pm'
-]
+def _get_reset_time_info(uuid: str) -> tuple[str, str]:
+    reset_time = rotational.get_dynamic_reset_time(uuid)
+
+    timezone = f'GMT{statalib.prefix_int(reset_time.utc_offset)}:00'
+
+    reset_time = statalib.format_12hr_time(
+        reset_time.reset_hour, reset_time.reset_minute)
+
+    return timezone, reset_time
 
 
 class RotationalStats(hypixel.CumulativeStats):
@@ -31,16 +34,8 @@ class RotationalStats(hypixel.CumulativeStats):
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_data)
 
-        self.timezone, self.reset_hour = self._get_time_info()
+        self.timezone, self.reset_time = _get_reset_time_info(self.uuid)
 
-
-    def _get_time_info(self):
-        reset_time = rotational.get_dynamic_reset_time(self.uuid)
-
-        timezone = f'GMT{statalib.prefix_int(reset_time.utc_offset)}:00'
-        reset_hour = HOUR_LIST[reset_time.reset_hour]
-
-        return timezone, reset_hour
 
 
 class HistoricalRotationalStats(hypixel.BedwarsStats):
@@ -75,7 +70,7 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
 
         self.games_played_cum = self._get_stat('games_played_bedwars')
         self.most_played_cum = self._get_most_played()
-        self.timezone, self.reset_hour = self._get_time_info()
+        self.timezone, self.reset_hour = _get_reset_time_info(self.uuid)
 
         self.wins_cum = self._get_stat('wins_bedwars')
         self.losses_cum = self._get_stat('losses_bedwars')
@@ -101,12 +96,3 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
     def _get_most_played(self):
         return hypixel.get_most_mode(
             self.historical_stats.data.as_dict(), 'games_played_bedwars')
-
-
-    def _get_time_info(self):
-        reset_time = rotational.get_dynamic_reset_time(self.uuid)
-
-        timezone = f'GMT{statalib.prefix_int(reset_time.utc_offset)}:00'
-        reset_hour = HOUR_LIST[reset_time.reset_hour]
-
-        return timezone, reset_hour

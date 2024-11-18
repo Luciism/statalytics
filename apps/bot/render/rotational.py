@@ -44,7 +44,7 @@ def render_rotational(
         (f'&6{stats.kdr_cum:,}', {'position': (378, 367)}),
         (f'&d{stats.stars_gained}', {'position': (82, 427)}),
         (f'&d{stats.timezone}', {'position': (226, 427)}),
-        (f'&d{stats.reset_hour}', {'position': (370, 427)}),
+        (f'&d{stats.reset_time}', {'position': (370, 427)}),
         (f'&d{stats.games_played_cum:,}', {'position': (537, 249)}),
         (f'&d{stats.most_played_cum}', {'position': (537, 308)}),
         (f'&d{relative_date}', {'position': (537, 367)}),
