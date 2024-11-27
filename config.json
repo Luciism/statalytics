@@ -89,6 +89,7 @@
           "commands.reaction_roles",
           "commands.echo",
           "commands.embed",
+          "commands.remindme",
           "commands.management.themes",
           "commands.management.subscriptions",
           "commands.management.permissions",
@@ -211,7 +212,8 @@
         "view_command_usage",
         "view_rawdata",
         "change_presence",
-        "automatic_tracker_reset"
+        "automatic_tracker_reset",
+        "set_reminders"
       ]
     },
     "voting": {

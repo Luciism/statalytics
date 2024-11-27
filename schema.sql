@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS default_reset_times (
 );
 
 CREATE TABLE IF NOT EXISTS permissions (
-    discord_id INTEGER PRIMRAY KEY,
+    discord_id INTEGER PRIMARY KEY,
     permissions TEXT
 );
 
@@ -199,4 +199,11 @@ CREATE TABLE IF NOT EXISTS rotational_info (
     last_reset_timestamp REAL DEFAULT (strftime('%s', 'now', 'utc')),
     snapshot_id TEXT NOT NULL UNIQUE,
     PRIMARY KEY (uuid, rotation)
+);
+
+CREATE TABLE IF NOT EXISTS reminders (
+    discord_id INTEGER,
+    message TEXT,
+    reminder_timestamp REAL NOT NULL,
+    channel_id INTEGER
 );
