@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
+from ..aliases import HypixelData
 from ..sessions import BedwarsSession
 from .cumulative_stats import CumulativeStats
 from .utils import ratio, rround
@@ -11,7 +12,7 @@ class ProjectedStats(CumulativeStats):
     """Wrapper for projected hypixel bedwars stats."""
     def __init__(
         self,
-        hypixel_data: dict,
+        hypixel_data: HypixelData,
         session_info: BedwarsSession,
         target_level: float=None,
         target_date: datetime=None,

@@ -18,4 +18,4 @@ class PrestigeStats(ProjectedStats):
         )
 
         self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)

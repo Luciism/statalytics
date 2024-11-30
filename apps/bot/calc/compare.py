@@ -18,8 +18,8 @@ class CompareStats:
         self.level_1 = int(self._bw_1.level)
         self.level_2 = int(self._bw_2.level)
 
-        self.rank_info_1 = get_rank_info(self._bw_1._hypixel_data)
-        self.rank_info_2 = get_rank_info(self._bw_2._hypixel_data)
+        self.rank_info_1 = get_rank_info(self._bw_1._hypixel_player_data)
+        self.rank_info_2 = get_rank_info(self._bw_2._hypixel_player_data)
 
         self.wins_comp = f'{self._bw_1.wins:,} / {self._bw_2.wins:,}'
         self.wins_diff = prefix_int(self._bw_1.wins - self._bw_2.wins)

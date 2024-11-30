@@ -1,5 +1,6 @@
 """Wrapper for cumulative hypixel bedwars stats."""
 
+from ..aliases import HypixelData
 from .bedwars_stats import BedwarsStats
 from .utils import BEDWARS_MODES_MAP
 from .leveling import Leveling
@@ -10,7 +11,7 @@ class CumulativeStats(BedwarsStats):
     """Cumulative hypixel bedwars stats."""
     def __init__(
         self,
-        hypixel_data: dict,
+        hypixel_data: HypixelData,
         bedwars_stats_snapshot: BedwarsStatsSnapshot,
         gamemode: str='overall'
     ) -> None:

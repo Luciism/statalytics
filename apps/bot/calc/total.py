@@ -16,7 +16,7 @@ class TotalStats(BedwarsStats):
 
         self.mode = mode_name_to_id(mode)
         self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.falling_kills = self._get_mode_stats('fall_kills_bedwars')
         self.falling_deaths = self._get_mode_stats('fall_deaths_bedwars')

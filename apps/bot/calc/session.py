@@ -27,7 +27,7 @@ class SessionStats(CumulativeStats):
 
         self.mode = mode_name_to_id(mode)
 
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.level = int(self.level)
         self.stars_gained = f'{rround(self.levels_cum, 2):,}'

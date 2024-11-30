@@ -11,3 +11,12 @@ PlayerUUID = NewType('PlayerUUID', str)
 
 PlayerDynamic = NewType('PlayerDynamic', str)
 "Dynamic identifier of a player (username, UUID, or linked Discord ID)."
+
+HypixelData = NewType('HypixelData', dict)
+"Raw data fetched from the Hypixel API."
+
+HypixelPlayerData = NewType('HypixelPlayerData', dict)
+"'player' key of raw data fetched from the Hypixel API."
+
+BedwarsData = NewType('BedwarsData', dict)
+"'player'>'stats'>'Bedwars' key of raw data fetched from the Hypixel API."

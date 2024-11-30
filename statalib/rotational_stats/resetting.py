@@ -15,7 +15,7 @@ from ._types import (
 )
 from ._utils import get_bedwars_data
 from .managers import RotationalStatsManager
-from ..aliases import PlayerUUID
+from ..aliases import PlayerUUID, HypixelData
 from ..hypixel.leveling import Leveling
 from ..cfg import config
 from ..functions import db_connect
@@ -80,7 +80,7 @@ class RotationalResetting:
     def __calculate_data_difference(
         self,
         current_rotational_data: BedwarsRotation,
-        current_hypixel_data: dict
+        current_hypixel_data: HypixelData
     ) -> tuple:
         """Calculate the cumulative difference between current and old data."""
         # Get player bedwars data
@@ -107,7 +107,7 @@ class RotationalResetting:
     def archive_rotational_data(
         self,
         period_id: HistoricalRotationPeriodID,
-        current_hypixel_data: dict,
+        current_hypixel_data: HypixelData,
     ) -> str:
         """
         Save currently active rotational data as a historical data snapshot.
@@ -160,7 +160,7 @@ class RotationalResetting:
     def refresh_rotational_data(
         self,
         rotation_type: RotationType,
-        current_hypixel_data: dict
+        current_hypixel_data: HypixelData
     ) -> None:
         """
         Refresh rotational data by updating the data to the player's current stats.
@@ -215,7 +215,7 @@ class RotationalResetting:
 
 def reset_rotational_stats_if_whitelisted(
     uuid: PlayerUUID,
-    hypixel_data: dict
+    hypixel_data: HypixelData
 ) -> None:
     """
     Reset a player's rotational stats if the time since the last
@@ -311,7 +311,7 @@ def reset_rotational_stats_if_whitelisted(
 # What the fuck?
 async def async_reset_rotational_stats_if_whitelisted(
     uuid: PlayerUUID,
-    hypixel_data: dict
+    hypixel_data: HypixelData
 ) -> None:
     """Async wrapper for `~reset_rotational_stats_if_whitelisted()`."""
     reset_rotational_stats_if_whitelisted(uuid, hypixel_data)

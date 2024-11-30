@@ -33,7 +33,7 @@ def render_shop(
     uuid: str,
     hypixel_data: dict
 ) -> bytes:
-    rank_info = hypixel.get_rank_info(hypixel_data=hypixel.get_player_dict(hypixel_data))
+    rank_info = hypixel.get_rank_info(hypixel_player_data=hypixel.get_player_dict(hypixel_data))
 
     im = ImageRender(bg.load_background_image(uuid, {
         "level": 0, "rank_info": rank_info}))

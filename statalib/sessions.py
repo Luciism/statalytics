@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, UTC
 from uuid import uuid4
 
-from .aliases import PlayerUUID
+from .aliases import PlayerUUID, HypixelData, BedwarsData
 from .errors import DataNotFoundError
 from .functions import db_connect
 from .stats_snapshot import BedwarsStatsSnapshot
@@ -71,19 +71,20 @@ class SessionManager:
             return BedwarsSession(session_info_dict, session_data=session_snapshot_data)
 
 
-    def create_session(self, session_id: int, hypixel_data: dict) -> None:
+    def create_session(self, session_id: int, hypixel_data: HypixelData) -> None:
         """
         Create a new bedwars session using the provided hypixel data.
 
         :param session_id: The ID of the session to be created.
         :param hypixel_data: The hypixel data to create the session with.
         """
-        hypixel_data = hypixel_data.get('player') or {}
-        bedwars_stats_data: dict = hypixel_data.get("stats", {}).get("Bedwars", {})
+        hypixel_bedwars_data: BedwarsData = (hypixel_data.get('player') or {}) \
+            .get("stats", {}) \
+            .get("Bedwars", {})
 
         # Create dictionary of session data
         session_data = {
-            k:bedwars_stats_data.get(k, 0)
+            k:hypixel_bedwars_data.get(k, 0)
             for k in BedwarsStatsSnapshot.keys()
         }
 

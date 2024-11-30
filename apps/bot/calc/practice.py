@@ -10,7 +10,7 @@ class PracticeStats(BedwarsStats):
         self.practice_stats: dict = self._bedwars_data.get('practice', {})
 
         self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.bridging_completed = self._get_successes('bridging')
         self.bridging_failed = self._get_fails('bridging')

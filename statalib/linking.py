@@ -3,7 +3,7 @@
 from .mcfetch import AsyncFetchPlayer
 from .sessions import SessionManager
 from .permissions import has_access
-from .aliases import PlayerName, PlayerUUID
+from .aliases import PlayerName, PlayerUUID, HypixelData
 from .functions import insert_growth_data, db_connect
 
 
@@ -134,7 +134,7 @@ def update_autofill(
 async def link_account(
     discord_tag: str,
     discord_id: int,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     uuid: PlayerUUID=None,
     name: PlayerName=None
 ) -> bool | None:
@@ -158,7 +158,7 @@ async def link_account(
     if not hypixel_data.get('player'):
         return -1
 
-    hypixel_discord_tag: str = hypixel_data.get('player', {}).get(
+    hypixel_discord_tag: str = (hypixel_data.get('player') or {}).get(
         'socialMedia', {}).get('links', {}).get('DISCORD', None)
 
     # Linking Logic
@@ -233,7 +233,7 @@ class LinkingManager:
     async def link_account(
         self,
         discord_tag: str,
-        hypixel_data: dict,
+        hypixel_data: HypixelData,
         name: PlayerName=None,
         uuid: PlayerUUID=None
     ):

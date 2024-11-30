@@ -27,7 +27,7 @@ class QuestStats(BedwarsStats):
     ) -> None:
         super().__init__(hypixel_data, ganemode='overall')
 
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.questless_level = Leveling(xp=self.questless_exp).level
         self.questless_star = int(self.questless_level)

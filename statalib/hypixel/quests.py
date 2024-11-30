@@ -1,7 +1,7 @@
 """Bedwars quests related functionality."""
 
 from typing import TypedDict
-
+from ..aliases import HypixelPlayerData
 
 QUESTS_XP_MAP: dict[str, int | dict[int, int]] = {
     "bedwars_daily_win": 250,
@@ -48,14 +48,14 @@ class QuestsDataDict(TypedDict):
     total_quests_exp: int
 
 
-def get_quests_data(hypixel_data: dict) -> QuestsDataDict:
+def get_quests_data(hypixel_player_data: HypixelPlayerData) -> QuestsDataDict:
     """
     Get the total completions and XP gained for each quest.
 
-    :param hypixel_data: The raw Hypixel API JSON response.
+    :param hypixel_player_data: The Hypixel response player data.
     """
     # Some comments would be nice.
-    total_experience = hypixel_data.get(
+    total_experience = hypixel_player_data.get(
         'stats', {}).get('Bedwars', {}).get('Experience', 0)
 
     quest_data = {'quests_exp': {}, 'completions': 0}
@@ -63,7 +63,7 @@ def get_quests_data(hypixel_data: dict) -> QuestsDataDict:
 
     for quest, exp in QUESTS_XP_MAP.items():
         if isinstance(exp, dict):
-            quest_completions: list[dict] = hypixel_data.get(
+            quest_completions: list[dict] = hypixel_player_data.get(
                 'quests', {}).get(quest, {}).get('completions', {})
 
             quest_data['completions'] += len(quest_completions)
@@ -82,7 +82,7 @@ def get_quests_data(hypixel_data: dict) -> QuestsDataDict:
             quest_data['quests_exp'][quest]['experience'] = quest_exp
 
         else:
-            completions = len(hypixel_data.get(
+            completions = len(hypixel_player_data.get(
                 'quests', {}).get(quest, {}).get('completions', {}))
 
             quest_exp = completions * exp

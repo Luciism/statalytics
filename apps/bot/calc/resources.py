@@ -15,7 +15,7 @@ class ResourcesStats(BedwarsStats):
     ) -> None:
         super().__init__(hypixel_data, ganemode=mode)
 
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)
 
 

@@ -1,5 +1,6 @@
 """Wrapper for generic hypixel bedwars stats."""
 
+from ..aliases import HypixelData, BedwarsData
 from .utils import (
     get_player_dict,
     real_title_case,
@@ -14,7 +15,7 @@ from .quests import get_quests_data
 
 class BedwarsStats:
     """Wrapper for generic hypixel bedwars stats."""
-    def __init__(self, hypixel_data: dict, ganemode: str='overall'):
+    def __init__(self, hypixel_data: HypixelData, ganemode: str='overall'):
         """
         Initialize the class.
 
@@ -22,10 +23,10 @@ class BedwarsStats:
         :param gamemode: The mode to calculate stats for (overall, solos, etc).
         """
         self._gamemode = ganemode
-        self._hypixel_data = get_player_dict(hypixel_data)
+        self._hypixel_player_data = get_player_dict(hypixel_data)
 
-        self._bedwars_data: dict = \
-            self._hypixel_data.get('stats', {}).get('Bedwars', {})
+        self._bedwars_data: BedwarsData = \
+            self._hypixel_player_data.get('stats', {}).get('Bedwars', {})
 
         self.title_mode = real_title_case(ganemode)
 
@@ -89,7 +90,7 @@ class BedwarsStats:
     @property
     def quests_data(self):
         if self._quests_data is None:
-            self._quests_data = get_quests_data(self._hypixel_data)
+            self._quests_data = get_quests_data(self._hypixel_player_data)
         return self._quests_data
 
     @property

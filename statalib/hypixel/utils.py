@@ -3,6 +3,8 @@
 
 from typing import Literal
 
+from ..aliases import HypixelData, HypixelPlayerData, BedwarsData
+
 
 PROGRESS_BAR_MAX = 30
 "Maximum progress bar length."
@@ -61,25 +63,23 @@ def real_title_case(text: str) -> str:
     return ' '.join(title_words)
 
 
-def get_player_dict(hypixel_data: dict) -> dict:
+def get_player_dict(hypixel_data: HypixelData) -> HypixelPlayerData:
     """
     Check if player key exists and returns data or empty dict.
 
     :param hypixel_data: The raw Hypixel API JSON response.
     """
-    if hypixel_data.get('player'):
-        return hypixel_data['player']
-    return {}
+    return hypixel_data.get('player') or {}
 
 
 def get_most_mode(
-    bedwars_data: dict,
+    bedwars_data: BedwarsData,
     stat_key: str
 ) -> Literal["Solos", "Doubles", "Threes", "Fours", "4v4", "N/A"]:
     """
     Return the mode with the most amount of a certain statistic.
 
-    :param bedwars_data: Hypixel bedwars data from player > stats > Bedwars
+    :param bedwars_data: Hypixel bedwars data from 'player'>'stats'>'Bedwars'.
     :param stat_key: The bedwars stat key, for example `games_played_bedwars`.
     """
     modes_dict: dict = {
@@ -94,11 +94,11 @@ def get_most_mode(
     return str(max(modes_dict, key=modes_dict.get))
 
 
-def get_most_played_mode(bedwars_data: dict):
+def get_most_played_mode(bedwars_data: BedwarsData):
     """
     Gets most played bedwars modes (solos, doubles, etc).
 
-    :param bedwars_data: The Hypixel player data of the player.
+    :param bedwars_data: The Hypixel bedwars data of the player.
     """
     return get_most_mode(bedwars_data, 'games_played_bedwars')
 
@@ -114,12 +114,12 @@ def mode_name_to_id(mode: str) -> str:
     return BEDWARS_MODES_MAP.get(mode.lower(), "")
 
 
-def calc_xp_from_wins(bedwars_data: dict) -> dict[str, int]:
+def calc_xp_from_wins(bedwars_data: BedwarsData) -> dict[str, int]:
     """
     Calculate the total amount of xp a player has been awarded for
     winning bedwars games. Accounts for xp differences between modes.
 
-    :param bedwars_data: The bedwars stats data of the player.
+    :param bedwars_data: The Hypixel bedwars data of the player.
     :return dict[str, int]: A dictionary of modes and their xp, as well \
         as the total xp.
     """

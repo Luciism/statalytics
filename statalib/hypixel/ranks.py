@@ -2,24 +2,25 @@
 
 from typing import TypedDict
 
+from ..aliases import HypixelPlayerData
 from ..cfg import config
 from ..color import ColorMappings
 
 
-def _get_default_rank(hypixel_data: dict) -> str:
+def _get_default_rank(hypixel_player_data: HypixelPlayerData) -> str:
     """Determine the default rank a player should
     have based off of their Hypixel data."""
-    if hypixel_data.get("rank"):
-        return hypixel_data["rank"]
+    if hypixel_player_data.get("rank"):
+        return hypixel_player_data["rank"]
 
-    if hypixel_data.get("monthlyPackageRank") == "SUPERSTAR":
+    if hypixel_player_data.get("monthlyPackageRank") == "SUPERSTAR":
         return "MVP_PLUS_PLUS"
 
-    if hypixel_data.get("packageRank") or hypixel_data.get("newPackageRank"):
+    if hypixel_player_data.get("packageRank") or hypixel_player_data.get("newPackageRank"):
         rank_hierarchy = ["MVP_PLUS", "MVP", "VIP_PLUS", "VIP", "NONE"]
 
-        old_package_rank = hypixel_data.get("packageRank", "NONE")
-        new_package_rank = hypixel_data.get("newPackageRank", "NONE")
+        old_package_rank = hypixel_player_data.get("packageRank", "NONE")
+        new_package_rank = hypixel_player_data.get("newPackageRank", "NONE")
 
         # Get highest tier out of old and new package ranks
         return rank_hierarchy[min([
@@ -45,14 +46,14 @@ class RankInfo(TypedDict):
     """The plus color code of the rank."""
 
 
-def get_rank_info(hypixel_data: dict) -> RankInfo:
+def get_rank_info(hypixel_player_data: HypixelPlayerData) -> RankInfo:
     """
     Get a player's rank information including plus color.
 
-    :param hypixel_data: The Hypixel player data of the player.
+    :param hypixel_player_data: The player data of the Hypixel response.
     """
-    player_uuid: str | None = hypixel_data.get('uuid')
-    plus_color: str = hypixel_data.get("rankPlusColor", "RED")
+    player_uuid: str | None = hypixel_player_data.get('uuid')
+    plus_color: str = hypixel_player_data.get("rankPlusColor", "RED")
 
     rank_configs = config("global.ranks")
 
@@ -60,7 +61,7 @@ def get_rank_info(hypixel_data: dict) -> RankInfo:
         rank = "CUSTOM"
         rank_config = rank_configs["custom"][player_uuid]
     else:
-        rank = _get_default_rank(hypixel_data)
+        rank = _get_default_rank(hypixel_player_data)
         rank_config = rank_configs["default"]\
             .get(rank, rank_configs["default"]["NONE"])
 

@@ -17,7 +17,7 @@ class MilestonesStats(BedwarsStats):
         self.session = session_info
 
         self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
 
     def _calc_general_stats(self, key_1, key_2, ratio):

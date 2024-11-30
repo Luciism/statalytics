@@ -21,5 +21,5 @@ class YearStats(hypixel.ProjectedStats):
             gamemode=mode
         )
 
-        self.rank_info = hypixel.get_rank_info(self._hypixel_data)
+        self.rank_info = hypixel.get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)

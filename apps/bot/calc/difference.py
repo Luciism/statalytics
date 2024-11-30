@@ -18,7 +18,7 @@ class DifferenceStats(CumulativeStats):
         super().__init__(hypixel_data, bedwars_stats_snapshot.data, gamemode=mode)
 
         self.level = int(self.level)
-        self.rank_info = get_rank_info(self._hypixel_data)
+        self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.wlr_old = ratio(self.wins_local, self.losses_local)
         self.wlr_new = ratio(self.wins, self.losses)
