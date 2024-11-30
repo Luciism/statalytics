@@ -1,3 +1,5 @@
+"""Reset time related functionality."""
+
 import random
 import sqlite3
 from abc import abstractmethod, ABC
@@ -11,6 +13,7 @@ from ..linking import uuid_to_discord_id
 
 @dataclass
 class ResetTime:
+    """Reset time dataclass."""
     utc_offset: int=MISSING
     """The UTC offset to base the reset time off of."""
     reset_hour: int=MISSING
@@ -24,6 +27,7 @@ class ResetTime:
 
 
 class _ResetTimeManagerBase(ABC):
+    """Base class for reset time managers."""
     @staticmethod
     def __random_default_hour() -> int:
         """Default randomly generated reset time value."""
@@ -53,7 +57,8 @@ class _ResetTimeManagerBase(ABC):
 
     def update(self, new_value: ResetTime) -> None:
         """
-        Update a users reset time to the given spec
+        Update a users reset time to the given spec.
+
         :param new_value: The new reset time info to set for the user.
         """
         # Add each to dictionary of values to update
@@ -95,7 +100,7 @@ class _ResetTimeManagerBase(ABC):
 
 
     def get(self) -> ResetTime | None:
-        """Return the reset time info of the user."""
+        """Get the reset time info of the user."""
         with db_connect() as conn:
             cursor = conn.cursor()
 
@@ -110,13 +115,19 @@ class _ResetTimeManagerBase(ABC):
 
 
     def remove(self) -> None:
-        """Remove the users reset time data."""
+        """Remove the user's reset time data."""
         with db_connect() as conn:
             self._delete_reset_time_data(conn.cursor())
 
 
 class ConfiguredResetTimeManager(_ResetTimeManagerBase):
+    """Reset time manager for configured reset times."""
     def __init__(self, discord_id: int) -> None:
+        """
+        Initialize the class.
+
+        :param discord_id: The Discord user ID of the respective user.
+        """
         self._discord_id = discord_id
 
     def _select_reset_time_data(
@@ -149,7 +160,13 @@ class ConfiguredResetTimeManager(_ResetTimeManagerBase):
 
 
 class DefaultResetTimeManager(_ResetTimeManagerBase):
+    """Reset time manager for default reset times."""
     def __init__(self, uuid: PlayerUUID) -> None:
+        """
+        Initialize the class.
+
+        :param uuid: The UUID of the respective player.
+        """
         self._player_uuid = uuid
 
     def _select_reset_time_data(
@@ -182,13 +199,14 @@ class DefaultResetTimeManager(_ResetTimeManagerBase):
 
 def get_dynamic_reset_time(uuid: PlayerUUID) -> ResetTime:
     """
-    Return a reset time based on the configured reset time of the linked
+    Get a reset time based on the configured reset time of the linked
     player and the default reset time of the player. If a player is linked
     and has a reset time configured, that will be used. Otherwise the player's
     default reset time will be used. If neither is found, it will default to
-    `ResetTime(utc_offset=0, reset_hour=0, reset_minute=0)`
+    `ResetTime(utc_offset=0, reset_hour=0, reset_minute=0)`.
 
-    :param uuid: The uuid of the respective player.
+    :param uuid: The UUID of the respective player.
+    :return ResetTime: The reset time of the player.
     """
     reset_time = None
 

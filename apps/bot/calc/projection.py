@@ -14,7 +14,7 @@ class PrestigeStats(ProjectedStats):
             hypixel_data=hypixel_data,
             session_info=session_info,
             target_level=target,
-            strict_mode=mode
+            gamemode=mode
         )
 
         self.level = int(self.level)

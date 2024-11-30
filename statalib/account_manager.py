@@ -1,3 +1,5 @@
+"""Provides an all-in-one `Account` class for managing accounts."""
+
 from datetime import UTC, datetime
 
 from .mcfetch import FetchPlayer2
@@ -11,15 +13,19 @@ from .themes import (
 
 
 class AccountDeleteConfirm:
+    """Class for confirming account deletion."""
     def confirm(self):
+        """Confirm account deletion"""
         raise NotImplementedError('Deletion system not implemented!')
 
 
 class Account:
+    """All-in-one class for managing accounts."""
     def __init__(self, discord_id: int) -> None:
         """
-        Internal account system management class
-        :param discord_id: the discord id associated with the account
+        Initialize the class.
+
+        :param discord_id: The Discord user ID associated with the account.
         """
         self.discord_id = discord_id
 
@@ -37,7 +43,7 @@ class Account:
 
 
     def refresh(self):
-        """Refresh the class data"""
+        """Refresh the class data."""
         # distiguishable default object
         self.__default = object()
 
@@ -71,6 +77,8 @@ class Account:
 
 
     def _load_account_table(self):
+        """Attempt to load account data from the database."""
+        # Loading has already been attempted and account didn't exist.
         if self._exists is False:
             return
 
@@ -90,6 +98,7 @@ class Account:
 
 
     def _load_voting_data(self):
+        """Load voting related data from the database."""
         voting_data = get_voting_data(self.discord_id)
 
         if voting_data:
@@ -109,11 +118,13 @@ class Account:
         blacklisted: bool=False
     ) -> None:
         """
-        Creates a new account for a user if ones doesn't already exist
-        :param account_id: override the autoincrement account id
-        :param creation_timestamp: override the creation timestamp of the account
-        :param permissions: set the permissions for the user
-        :param blacklisted: set whether the accounts is blacklisted
+        Create a new user account if one doesn't already exist.
+
+        :param account_id: Overrides the default autoincrement account ID.
+        :param creation_timestamp: Overrides the default creation timestamp \
+            of the account.
+        :param permissions: Set the user's initial permissions.
+        :param blacklisted: Set whether the account is initially blacklisted.
         """
         create_account(
             discord_id=self.discord_id,
@@ -126,12 +137,12 @@ class Account:
 
 
     def delete(self) -> AccountDeleteConfirm:
-        """Delete the account (NOT IMPLEMENTED)"""
+        """Delete the account. (NOT IMPLEMENTED)"""
         return AccountDeleteConfirm()
 
 
     def set_blacklisted(self, blacklisted: bool=True):
-        """Blacklists or unblacklists the account"""
+        """Blacklist or unblacklist the account."""
         set_account_blacklist(self.discord_id, blacklisted)
 
 
@@ -141,13 +152,13 @@ class Account:
         allow_star: bool=True
     ) -> bool:
         """
-        Similar to `has_permission` but accounts for subscription based permissions
+        Check if a user's account has access to one or more of the
+        specified permission(s), accounting for permissions derived
+        from subscriptions.
 
-        Returns bool `True` or `False` if a user has a permission
-        :param permissions: the permission(s) to check for. if multiple permissions
-            are provided, `True` will be returned if the user has
-            at least one of the given permissions.
-        :param allow_star: returns `True` if the user has the `*` permission
+        :param permissions: The permission(s) to check that the user has one more of.
+        :param allow_star: Allow star (*) permission to overrule permission checks.
+        :return bool: Whether the user has derived access to the specified permissions.
         """
         return has_access(self.discord_id, permissions, allow_star)
 
@@ -158,32 +169,33 @@ class Account:
         allow_star: bool=True
     ) -> bool:
         """
-        Returns bool `True` or `False` if a user has a permission
-        :param permissions: the permission(s) to check for. if multiple permissions
-            are provided, `True` will be returned if the user has
-            at least one of the given permissions.
-        :param allow_star: returns `True` if the user has the `*` permission
+        Check if the user's account explicitly has one more of the specified
+        permissions.
+
+        :param permissions: The permission(s) to check for.
+        :param allow_star: Allow star (*) permission to overrule permission checks.
+        :return bool: Whether the user has the specified permission(s).
         """
         return has_permission(self.discord_id, permissions, allow_star)
 
 
     @property
     def account_id(self) -> float:
-        """The internal account system assigned account ID of the account"""
+        """The account's locally assigned ID (not Discord ID)."""
         if self._account_id is self.__default:
             self._load_account_table()
         return self._account_id
 
     @property
     def creation_timestamp(self) -> float:
-        """The timestamp when the account was created (UTC time)"""
+        """The account's creation timestamp (UTC time)."""
         if self._creation_timestamp is self.__default:
             self._load_account_table()
         return self._creation_timestamp
 
     @property
     def creation_date(self) -> str | None:
-        """The date when the account was created in format `%d/%m/%Y` (UTC time)"""
+        """The creating date of the user account (formatted as `%d/%m/%Y`, UTC time)"""
         if self._creation_date is self.__default:
             if self.creation_timestamp is not self.__default:
                 creation = datetime.fromtimestamp(self.creation_timestamp, UTC)
@@ -194,28 +206,28 @@ class Account:
 
     @property
     def permissions(self) -> list:
-        """A list of custom permissions that the user has"""
+        """A list of custom permissions that the user has."""
         if self._permissions is self.__default:
             self._load_account_table()
         return self._permissions
 
     @property
     def blacklisted(self) -> bool:
-        """`True` or `False` whether the user is blacklisted"""
+        """Whether the user is blacklisted."""
         if self._blacklisted is self.__default:
             self._load_account_table()
         return self._blacklisted
 
     @property
     def exists(self) -> bool:
-        """`True` or `False` whether the account exists"""
+        """Whether the account exists."""
         if self._exists is self.__default:
             self._load_account_table()
         return self._exists
 
     @property
     def player_name(self) -> str | None:
-        """The corresponding username for the linked player uuid"""
+        """The username corresponding to the linked player UUID."""
         if self._player_name is self.__default:
             if self.player_uuid is not None:
                 self._player_name = FetchPlayer2(self.player_uuid).name
@@ -225,42 +237,42 @@ class Account:
 
     @property
     def player_uuid(self) -> str | None:
-        """The uuid of the linked player"""
+        """The UUID of the linked player."""
         if self._player_uuid is self.__default:
             self._player_uuid = get_linked_player(self.discord_id)
         return self._player_uuid
 
     @property
     def subscription(self) ->  Subscription:
-        """The subscription tier of the user"""
+        """The subscription tier of the user account."""
         if self._subscription is self.__default:
             self._subscription = self.subscription_manager.get_subscription()
         return self._subscription
 
     @property
     def owned_themes(self) -> list:
-        """A list of owned themes that the user has"""
+        """A list of owned themes that the user account has."""
         if self._owned_themes is self.__default:
             self._owned_themes = get_owned_themes(self.discord_id)
         return self._owned_themes
 
     @property
     def available_themes(self) -> list:
-        """A list of available themes that the user can select"""
+        """A list of available themes that the user can select."""
         if self._available_themes is self.__default:
             self._available_themes = get_voter_themes() + self.owned_themes
         return self._available_themes
 
     @property
     def active_theme(self) -> str:
-        """The active theme that the user has selected for use"""
+        """The active theme that the user has selected for use."""
         if self._active_theme is self.__default:
             self._active_theme = get_active_theme(self.discord_id)
         return self._active_theme
 
     @property
     def votes(self) -> int:
-        """The total number of times the user has voted for the bot"""
+        """The total number of times the user has voted for the bot."""
         if self._votes is self.__default:
             self._load_voting_data()
         return self._votes
@@ -277,17 +289,17 @@ class Account:
 
     @property
     def last_vote_timestamp(self) -> float | None:
-        """The timestamp of the last time the user upvoted the bot"""
+        """The timestamp of the last time the user upvoted the bot."""
         if self._last_vote_timestamp is self.__default:
             self._load_voting_data()
         return self._last_vote_timestamp
 
     @property
     def last_vote_date(self) -> float | None:
-        """The date when the user last voted in format `%d/%m/%Y` (UTC time)"""
+        """The date when the user last voted (formatted as `%d/%m/%Y`, UTC time)."""
         if self._last_vote_date is self.__default:
             if self.last_vote_timestamp:
-                last_vote = datetime.utcfromtimestamp(self.last_vote_timestamp)
+                last_vote = datetime.fromtimestamp(self.last_vote_timestamp, UTC)
                 self._last_vote_date = last_vote.strftime('%d/%m/%Y')
             else:
                 self._last_vote_date = None
@@ -302,28 +314,28 @@ class Account:
 
     @property
     def linking_manager(self) -> LinkingManager:
-        """A linking manager for the user"""
+        """A linking manager for the account."""
         if self._linking_manager is self.__default:
             self._linking_manager = LinkingManager(self.discord_id)
         return self._linking_manager
 
     @property
     def permission_manager(self) -> PermissionManager:
-        """A permissions manager for the user"""
+        """A permissions manager for the account."""
         if self._permission_manager is self.__default:
             self._permission_manager = PermissionManager(self.discord_id)
         return self._permission_manager
 
     @property
     def subscription_manager(self) -> SubscriptionManager:
-        """A subscription manager for the user"""
+        """A subscription manager for the account."""
         if self._subscription_manager is self.__default:
             self._subscription_manager = SubscriptionManager(self.discord_id)
         return self._subscription_manager
 
     @property
     def theme_manager(self) -> ThemeManager:
-        """A themes manager for the user"""
+        """A themes manager for the account."""
         if self._theme_manager is self.__default:
             self._theme_manager = ThemeManager(self.discord_id)
         return self._theme_manager

@@ -1,3 +1,5 @@
+"""Functionality responsible for loading background images."""
+
 import os
 from datetime import datetime, UTC
 from typing import Any, NamedTuple
@@ -27,6 +29,7 @@ class ThemeData(NamedTuple):
     selected_theme: str | None
 
 
+# TODO: seperate this into multiple functions
 def get_voting_and_theme_data(
     discord_user_id: int
 ) -> tuple[VotingData, ThemeData]:
@@ -44,7 +47,9 @@ def get_voting_and_theme_data(
         ThemeData(*(themes_data or (discord_user_id, '', None))),
     )
 
+
 def user_has_voter_perks(voting_data: VotingData) -> bool:
+    """Check if a user has access to voter perks based on their voting history."""
     timestamp_now = datetime.now(UTC).timestamp()
     voter_rewards_duration = config('global.voting.reward_duration_hours')
 
@@ -52,13 +57,21 @@ def user_has_voter_perks(voting_data: VotingData) -> bool:
     return hours_since_voted < voter_rewards_duration
 
 
-class RenderBackgroundTheme:
+class ThemeImageLoader:
+    """Class responsible for loading theme images."""
     def __init__(
         self,
         theme: str,
         dir: str,
         render_params: dict[str, Any]
     ) -> None:
+        """
+        Initialize the class with the theme name and directory.
+
+        :param theme: The name of the theme to load.
+        :param dir: The asset directory where the theme background is stored.
+        :param render_params: Any custom parameters that the theme may require.
+        """
         self.theme = theme
         self._asset_dir = dir
         self._render_params = render_params
@@ -82,18 +95,25 @@ class RenderBackgroundTheme:
         return recolor_pixels(image, rgb_from=rgb_from, rgb_to=rgb_to)
 
     def load_theme_background(self) -> Image.Image:
+        """Load the theme image."""
         if self.theme_properties.get('dynamic_color'):
             return self._load_dynamically_colored_theme()
 
         return self._load_theme_image()
 
 
-class RenderBackground:
+class BackgroundImageLoader:
     def __init__(
         self,
         dir: str,
         default_filename: str="base.png"
     ) -> None:
+        """
+        Initialize the class with the background directory and default filename.
+
+        :param dir: The asset directory where the background images are stored.
+        :param default_filename: The filename of the default background image.
+        """
         self._asset_dir = dir
         self._default_filename = default_filename
 
@@ -110,6 +130,7 @@ class RenderBackground:
         return user_has_access and os.path.exists(custom_path)
 
     def load_default_background(self) -> Image.Image:
+        """Load the default background image."""
         return ASSET_LOADER.load_image(self._default_img_path)
 
     def _load_user_themed_background(
@@ -138,7 +159,7 @@ class RenderBackground:
             or (is_theme_exclusive and selected_theme in owned_themes)  # Owns exclusive theme
         ):
             try:
-                return RenderBackgroundTheme(
+                return ThemeImageLoader(
                     selected_theme, self._asset_dir, render_params
                 ).load_theme_background()
             except FileNotFoundError:
@@ -147,11 +168,20 @@ class RenderBackground:
         return self.load_default_background()
 
 
+    # TODO: Just use discord_id.
     def load_background_image(
         self,
         player_uuid: str | None=None,
         render_params: dict[str, Any]=None
     ) -> Image.Image:
+        """
+        Dynamically load the background image
+        in accordance with the player's settings.
+
+        :param player_uuid: The UUID of the linked player to load the background for.
+        :param render_params: Any custom parameters that the theme may require.
+        :return Image.Image: The loaded background image.
+        """
         discord_id = uuid_to_discord_id(player_uuid)
 
         # Return default background if user is not linked.

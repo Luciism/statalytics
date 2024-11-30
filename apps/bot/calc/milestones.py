@@ -1,7 +1,7 @@
 import math
 
 from statalib import BedwarsSession
-from statalib.hypixel import BedwarsStats, get_rank_info, get_mode
+from statalib.hypixel import BedwarsStats, get_rank_info, mode_name_to_id
 
 
 class MilestonesStats(BedwarsStats):
@@ -11,9 +11,9 @@ class MilestonesStats(BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode)
+        super().__init__(hypixel_data, ganemode=mode)
 
-        self.mode = get_mode(mode)
+        self.mode = mode_name_to_id(mode)
         self.session = session_info
 
         self.level = int(self.level)

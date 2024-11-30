@@ -1,3 +1,5 @@
+"""Subscriptions related functionality."""
+
 import json
 import socket
 import sqlite3
@@ -19,13 +21,17 @@ class PackageTierConflictError(Exception):
 class Subscription:
     """Subscription data class"""
     package: str
+    "The subscription package"
     expiry_timestamp: float | int | None
+    """The expiry timestamp of the subscription,
+    or `None` if the subscription is permanent"""
 
 
     def expires_in(self) -> float | None:
         """
-        The duration remaining of the subscription in seconds.
-        :return: remaining time, otherwise `None` if the subscription is permanent
+        The subscription duration remaining in seconds.
+
+        :return: The duration remaining, otherwise `None` if the subscription is permanent.
         """
         if self.expiry_timestamp is None:
             return None
@@ -36,10 +42,12 @@ class Subscription:
     def get_package_tier(package: str) -> int:
         """
         Static method that returns the numeric tier of a certain package.
-        If using an instantiated instance of `Subscription`, use the `.tier`
-        property instead.
+
+        *If using an instantiated instance of `Subscription`, use the `.tier`
+        property instead.*
+
         :param package: The package to return the tier of.
-        :raises: `statalib.subscriptions.UnregisteredPackageError` - The package \
+        :raises statalib.subscriptions.UnregisteredPackageError: The package \
             is not registered in the config file.
         """
         try:
@@ -70,9 +78,15 @@ class Subscription:
     def get_package_permissions(package: str) -> list[str]:
         """
         Static method that returns a list of the configured permissions
-        for a given package. If using an instantiated instance of `Subscription`,
-        use the `.package_permissions` property instead.
+        for a given package.
+
+        *If using an instantiated instance of `Subscription`,
+        use the `.package_permissions` property instead.*
+
         :param package: The package to get the permissions for.
+        :return: A list of the package's configured permissions.
+        :raises statalib.subscriptions.UnregisteredPackageError: The package \
+            is not registered in the config file.
         """
         package_data = Subscription.__get_package_data(package)
         package_perms = package_data.get('permissions', [])
@@ -81,7 +95,7 @@ class Subscription:
 
     @property
     def package_permissions(self) -> list[str]:
-        """The permissions that the package tier includes"""
+        """The permissions that the package tier includes."""
         return self.get_package_permissions(self.package)
 
 
@@ -93,12 +107,15 @@ class Subscription:
     ) -> list[str]:
         """
         Static method that returns a property value configured
-        for the respective package. If using an instantiated
-        instance of `Subscription`, use the `.package_property()`
-        method instead.
+        for the respective package.
+
+        *If using an instantiated instance of `Subscription`,
+        use the `.package_property()` method instead.*
+
         :param package: The package to get the property for.
         :param property: The property name to get the value for.
         :param default: The default value to return if no value is found.
+        :return: The property value, or the default value if no value is found.
         """
         package_data = Subscription.__get_package_data(package)
         properties: dict = package_data.get('properties', {})
@@ -108,8 +125,10 @@ class Subscription:
     def package_property(self, property: str, default: Any=None) -> list[str]:
         """
         Returns the configured property value for the given property.
+
         :param property: The property name to get the value for.
         :param default: The default value to return if no value is found.
+        :return: The property value, or the default value if no value is found.
         """
         return self.get_package_property(self.package, property, default)
 
@@ -119,7 +138,8 @@ class SubscriptionManager:
     def __init__(self, discord_id: int) -> None:
         """
         Class to manage user subscriptions.
-        :param discord_id: the discord id of the respective user
+
+        :param discord_id: The Discord user ID of the respective user.
         """
         self._discord_id = discord_id
 
@@ -173,9 +193,9 @@ class SubscriptionManager:
         cursor: sqlite3.Cursor
     ) -> Subscription:
         """
-        Updates active subscription based on paused subscriptions.
-        :param cursor: A database cursor to operate on
-        :return: The new active subscription of the user.
+        Update the active subscription based on the paused subscriptions.
+        :param cursor: A database cursor to operate on.
+        :return: The updated active subscription of the user.
         """
         # Select all paused package data
         cursor.execute(
@@ -229,8 +249,11 @@ class SubscriptionManager:
     ) -> Subscription:
         """
         Get the user's current subscription.
+
         :param update_roles: Whether or not to update the user's subscription \
-            discord roles if their subscription state is updated.
+            Discord roles if their subscription state is updated.
+        :param cursor: A custom `sqlite3.cursor` object to operate on.
+        :return Subscription: The user's current subscription.
         """
         def __get_subscription(cursor: sqlite3.Cursor) -> Subscription:
             cursor.execute(
@@ -317,8 +340,9 @@ class SubscriptionManager:
 
     def has_package_conflicts(self, package: str) -> bool:
         """
-        Checks whether a certain adding a certain package to a user's
+        Check whether a certain adding a certain package to a user's
         subscription will have conflicts with their existing subscription.
+
         :param package: The package to check for conflicts against.
         :return bool: Whether (or not) there are conflicts.
         """
@@ -403,9 +427,12 @@ class SubscriptionManager:
     ) -> None:
         """
         Adds a subscription to the user's account.
+
         :param package: The subscription package to add.
         :param duration: The duration (in seconds) of the subscription. Can be \
             left as `None` for an infinite duration.
+        :param update_roles: Whether or not to update the user's subscription \
+            Discord roles if their subscription state is updated.
         """
         with sqlite3.connect(config.DB_FILE_PATH) as conn:
             cursor = conn.cursor()

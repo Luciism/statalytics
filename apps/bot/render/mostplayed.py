@@ -2,10 +2,10 @@ from PIL import Image, ImageDraw
 
 import statalib as lib
 from statalib import hypixel, to_thread
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="mostplayed")
+bg = BackgroundImageLoader(dir="mostplayed")
 
 BAR_COLOR = (45, 45, 255, 127)
 BAR_POSITIONS = [(97, 354), (220, 354), (343, 354), (466, 354)]

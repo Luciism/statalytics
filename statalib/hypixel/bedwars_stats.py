@@ -1,7 +1,9 @@
+"""Wrapper for generic hypixel bedwars stats."""
+
 from .utils import (
     get_player_dict,
     real_title_case,
-    get_most_played,
+    get_most_played_mode,
     calc_xp_from_wins,
     rround,
     BEDWARS_MODES_MAP
@@ -11,21 +13,21 @@ from .quests import get_quests_data
 
 
 class BedwarsStats:
-    """Wrapper for generic hypixel bedwars stats"""
-    def __init__(self, hypixel_data: dict, strict_mode: str='overall'):
+    """Wrapper for generic hypixel bedwars stats."""
+    def __init__(self, hypixel_data: dict, ganemode: str='overall'):
         """
-        :param hypixel_data: the raw hypixel response json
-        :param strict_mode: the mode to fetch stats for (solos, doubles, etc)
-        if left as `None`, a dictionary of stats for every mode will be returned,
-        otherwise just the stats for the specified mode will be returned
+        Initialize the class.
+
+        :param hypixel_data: The raw Hypixel API JSON response.
+        :param gamemode: The mode to calculate stats for (overall, solos, etc).
         """
-        self._strict_mode = strict_mode
+        self._gamemode = ganemode
         self._hypixel_data = get_player_dict(hypixel_data)
 
         self._bedwars_data: dict = \
             self._hypixel_data.get('stats', {}).get('Bedwars', {})
 
-        self.title_mode = real_title_case(strict_mode or 'overall')
+        self.title_mode = real_title_case(ganemode)
 
         self.wins = self._get_mode_stats('wins_bedwars')
         self.losses = self._get_mode_stats('losses_bedwars')
@@ -44,7 +46,7 @@ class BedwarsStats:
         self.kdr = self._get_ratio(self.kills, self.deaths)
 
         self.games_played = self._get_mode_stats('games_played_bedwars')
-        self.most_played = get_most_played(self._bedwars_data)
+        self.most_played = get_most_played_mode(self._bedwars_data)
 
         self.experience = self._bedwars_data.get('Experience', 0)
 
@@ -92,6 +94,7 @@ class BedwarsStats:
 
     @property
     def questless_exp(self):
+        """Player's exp without exp by quests."""
         return self.quests_data.get('real_exp', 0)
 
     @property
@@ -102,26 +105,14 @@ class BedwarsStats:
 
     @property
     def wins_xp(self):
+        """XP obtained from wins."""
         return self.wins_xp_data.get('experience', 0)
 
 
     def _get_ratio(self, val_1: int, val_2: int):
-        # if isinstance(val_1, dict):
-        #     ratios = {}
-
-        #     for key, value in val_1.items():
-        #         ratios[key] = rround(value / (val_2[key] or 1), 2)
-        #     return ratios
-
         return rround(val_1 / (val_2 or 1), 2)
 
 
     def _get_mode_stats(self, key: str, default=0) -> int:
-        # if self._strict_mode is None:
-        #     mode_stats = {}
-        #     for mode, prefix in bedwars_modes_map.items():
-        #         mode_stats[mode] = self._bedwars_data.get(f'{prefix}{key}', default)
-        #     return mode_stats
-
-        prefix = BEDWARS_MODES_MAP.get(self._strict_mode.lower())
+        prefix = BEDWARS_MODES_MAP.get(self._gamemode.lower())
         return self._bedwars_data.get(f'{prefix}{key}', default)

@@ -1,3 +1,5 @@
+"""Functionality for managing rotational stats."""
+
 import sqlite3
 from datetime import datetime, UTC
 from typing import Callable
@@ -12,11 +14,13 @@ from ..stats_snapshot import BedwarsStatsSnapshot, get_snapshot_data
 
 
 class RotationalStatsManager:
+    """Manager for rotational / historical stats."""
     def __init__(self, uuid: PlayerUUID):
         """
-        Manager for rotational / historical stats.
-        :param discord_id: The discord ID of the respective user
-        :param uuid: Override the default player uuid linked to the discord user
+        Initialize the rotational stats manager.
+
+        :param discord_id: The Discord user ID of the respective user.
+        :param uuid: Override the default player UUID linked to the Discord user.
         """
         self._uuid = uuid
 
@@ -25,7 +29,7 @@ class RotationalStatsManager:
         self,
         exec_select_query: Callable[[sqlite3.Cursor], None]
     ) -> tuple[dict, BedwarsStatsSnapshot] | None:
-
+        """Execute rotational data select query."""
         with db_connect() as conn:
             cursor = conn.cursor()
 
@@ -45,7 +49,9 @@ class RotationalStatsManager:
         """
         Get the current rotational data for a player using the specified rotation type.
 
-        :param rotation_type: The type of rotation; daily, weekly, monthly, etc
+        :param rotation_type: The type of rotation; daily, weekly, monthly, etc.
+        :return BedwarsRotation | None: The rotational data if it exists, \
+            otherwise None.
         """
         exec_select_query = lambda cursor: cursor.execute(
             "SELECT * FROM rotational_info WHERE uuid = ? AND rotation = ?",
@@ -64,9 +70,11 @@ class RotationalStatsManager:
         period_id: str
     ) -> BedwarsHistoricalRotation | None:
         """
-        Get past rotational data for a player using the specified period_id id type.
+        Get past rotational data for a player using the specified period_id ID type.
 
         :param period_id: A string that identifies the rotation period.
+        :return BedwarsHistoricalRotation | None: The historical rotational data \
+            if it exists, otherwise None.
         """
         exec_select_query = lambda cursor: cursor.execute(
             "SELECT * FROM historical_info WHERE uuid = ? AND period_id = ?",
@@ -87,7 +95,7 @@ class RotationalStatsManager:
         """
         Initialize rotational stats tracking for a player.
 
-        :param current_hypixel_data: The current hypixel data of the player.
+        :param current_hypixel_data: The current Hypixel data of the player.
         """
         # Ensure default reset time for the player is set
         DefaultResetTimeManager(self._uuid).update(ResetTime())

@@ -1,3 +1,5 @@
+"""Username rendering functionality."""
+
 from typing import Literal
 
 from PIL import Image
@@ -5,43 +7,12 @@ from PIL import Image
 from .text import render_mc_text, get_actual_text, get_text_len
 from .prestige_colors import Prestige
 from ..assets import ASSET_LOADER
-
-
-def render_level(
-    level: int,
-    font_size: int,
-    image: Image.Image,
-    position: tuple[int, int],
-    shadow_offset=(2, 2),
-    align: Literal['left', 'center', 'right']='left',
-) -> int:
-    """
-    Render the star for any given level (10000+ will be red)
-    :param level: The level to render
-    :param font_size: The size of the font
-    :param image: The image to render on
-    :param position: X & Y positions to render the text at
-    :param shadow_offset: X & Y positions to offset the drop shadow
-    :param align: the alignment of the text relative to the x position
-    :return: the final x position once the level has been rendered
-    """
-    formatted_lvl_str = Prestige.format_level(level)
-    x_after = render_mc_text(
-        text=formatted_lvl_str,
-        position=position,
-        font=ASSET_LOADER.load_font("main.ttf", font_size),
-        image=image,
-        shadow_offset=shadow_offset,
-        align=align,
-        return_x=True
-    )[1]
-
-    return x_after
+from ..hypixel.ranks import RankInfo
 
 
 def render_display_name(
     username: str,
-    rank_info: dict,
+    rank_info: RankInfo,
     image: Image.Image,
     font_size: int,
     position: tuple[int, int],
@@ -50,15 +21,17 @@ def render_display_name(
     align: Literal['left', 'center', 'right']='left',
 ) -> Image.Image:
     """
-    Render prefixed rank for a specified player
-    :param username: the username of the respective player
-    :param rank_info: dictionary containing the players rank info
-    :param image: The image to render on
-    :param font_size: The size of the font to render with
-    :param position: X & Y positions to render the text at
-    :param level: if `None`, no level is rendered
-    :param shadow_offset: X & Y positions to offset the drop shadow
-    :param align: the alignment of the text relative to the x position
+    Render the rank, username, and optionally the level of a player.
+
+    :param username: The username of the respective player.
+    :param rank_info: The Hypixel rank info dict of the respective player.
+    :param image: The image to render the text onto.
+    :param font_size: The font size to render the text with.
+    :param position: The (x, y) position of the text on the image.
+    :param level: The level of the respective player, or `None` in order \
+        to not render the level.
+    :param shadow_offset: The (x, y) offset of the text shadow relative to the text.
+    :param align: Whether to align the text left, right, or center.
     """
     font = ASSET_LOADER.load_font("main.ttf", font_size)
 

@@ -1,10 +1,10 @@
 from calc.resources import ResourcesStats
 import statalib as lib
 from statalib import to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="resources")
+bg = BackgroundImageLoader(dir="resources")
 
 @to_thread
 def render_resources(

@@ -1,11 +1,15 @@
+"""Bedwars leveling related functionality."""
+
 from typing import NamedTuple
 
 
-def decimal_of(number: float):
+def decimal_of(number: float) -> int:
     """
-    Returns the decimal on the right side of the . for a float
-    for example `1.521` would return `521`
-    :param number: the floating point number to get the decimal of
+    Returns the decimal on the right side of the . for a floating point number,
+    for example `1.521` would return `521`.
+
+    :param number: The floating point number to find the decimal of.
+    :return int: The decimal on the right side of the `.` as an integer.
     """
     return int(str(number).split(".")[-1])
 
@@ -20,11 +24,20 @@ class LevelProgressionTuple(NamedTuple):
 
 
 class Leveling:
+    """Leveling calculation class."""
     def __init__(
         self,
         xp: int | None=None,
         level: int | None=None
     ) -> None:
+        """
+        Initialize the class.
+
+        *__Either__ `xp` or `level` must be provided, but not both.*
+
+        :param xp: The xp to calculate the level from.
+        :param level: The level to calculate the xp from.
+        """
         assert (xp, level).count(None) == 1, "Either level or xp must be provided."
 
         self.__xp = xp

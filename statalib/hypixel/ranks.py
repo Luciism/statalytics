@@ -1,3 +1,5 @@
+"""Hypixel rank related functionality."""
+
 from typing import TypedDict
 
 from ..cfg import config
@@ -5,6 +7,8 @@ from ..color import ColorMappings
 
 
 def _get_default_rank(hypixel_data: dict) -> str:
+    """Determine the default rank a player should
+    have based off of their Hypixel data."""
     if hypixel_data.get("rank"):
         return hypixel_data["rank"]
 
@@ -25,19 +29,27 @@ def _get_default_rank(hypixel_data: dict) -> str:
 
     return "NONE"
 
+
 class RankInfo(TypedDict):
     rank: str
+    "The ID of the rank."
     prefix: str
+    """The rank prefix of the rank."""
     formatted_prefix: str
+    """The color coded rank prefix of the rank."""
     color: str
+    """The primary color code of the rank."""
     color_rgb: tuple[int, int, int]
+    """The primary RGB color value of the rank."""
     plus_color: str
+    """The plus color code of the rank."""
 
 
 def get_rank_info(hypixel_data: dict) -> RankInfo:
     """
-    Returns player's rank information including plus color
-    :param hypixel_data: Hypixel data stemming from player key
+    Get a player's rank information including plus color.
+
+    :param hypixel_data: The Hypixel player data of the player.
     """
     player_uuid: str | None = hypixel_data.get('uuid')
     plus_color: str = hypixel_data.get("rankPlusColor", "RED")

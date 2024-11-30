@@ -1,5 +1,6 @@
-from datetime import UTC, datetime, timedelta
+"""Wrapper for projected hypixel bedwars stats."""
 
+from datetime import UTC, datetime, timedelta
 
 from ..sessions import BedwarsSession
 from .cumulative_stats import CumulativeStats
@@ -7,26 +8,30 @@ from .utils import ratio, rround
 
 
 class ProjectedStats(CumulativeStats):
+    """Wrapper for projected hypixel bedwars stats."""
     def __init__(
         self,
         hypixel_data: dict,
         session_info: BedwarsSession,
         target_level: float=None,
         target_date: datetime=None,
-        strict_mode: str='overall'
-    ):
+        gamemode: str='overall'
+    ) -> None:
         """
-        #### Either `target_level` or `target_date` must be provided but only one
-        :param hypixel_data: the raw hypixel response json
-        :param session_info: locally stored snapshot of a player's stats
-        :param target_level: the level to predict stats for
-        :param target_date: the date to predict the stats for
-        :param strict_mode: the mode to fetch stats for (overall, solos, doubles, etc)
+        Initialize the class.
+
+        *__Either__ `target_level` or `target_date` must be provided, but not both.*
+
+        :param hypixel_data: The raw Hypixel API JSON response.
+        :param session_info: A local bedwars stats session of a player.
+        :param target_level: The target level to project the stats for.
+        :param target_date: The target date to project the stats for.
+        :param gamemode: The mode to calculate stats for (overall, solos, etc).
         """
         # Ensure either target_level or target_date was provided
         assert (target_level, target_date).count(None) == 1
 
-        super().__init__(hypixel_data, session_info.data, strict_mode)
+        super().__init__(hypixel_data, session_info.data, gamemode)
 
         now = datetime.now(UTC)
 
@@ -130,6 +135,7 @@ class ProjectedStats(CumulativeStats):
 
 
     def _calc_projection(self, current_value: int, cum_value: int, increase=True):
+        # TODO: redo this chatgpt ahh math
         value_per_day = cum_value / (self.session_duration_days or 1)
         added_value = value_per_day * self.days_to_go
 

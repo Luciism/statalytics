@@ -1,7 +1,11 @@
-from typing import TypedDict, NamedTuple
+"""Utility functions for calculating bedwars stats."""
+
+
+from typing import Literal
 
 
 PROGRESS_BAR_MAX = 30
+"Maximum progress bar length."
 
 BEDWARS_MODES_MAP = {
     "overall": "",
@@ -11,6 +15,7 @@ BEDWARS_MODES_MAP = {
     "fours": "four_four_",
     "4v4": "two_four_"
 }
+"Mode name to key prefix mapping."
 
 WINS_XP_MAP = {
     "eight_one_wins_bedwars": 100,
@@ -34,6 +39,7 @@ WINS_XP_MAP = {
     "four_four_underworld_wins_bedwars": 25,
     "castle_wins_bedwars": 50,
 }
+"Mode name to win xp amount mapping."
 
 # Suffixes used to approximate large numbers
 NUM_SUFFIXES_MAP = {
@@ -46,8 +52,9 @@ NUM_SUFFIXES_MAP = {
 
 def real_title_case(text: str) -> str:
     """
-    Like calling .title() except it wont capitalize words like `4v4`
-    :param text: the text to turn title case
+    Like calling .title() except it wont capitalize words like `4v4`.
+
+    :param text: The text to operate on.
     """
     words = text.split()
     title_words = [word.title() if word[0].isalpha() else word for word in words]
@@ -56,57 +63,65 @@ def real_title_case(text: str) -> str:
 
 def get_player_dict(hypixel_data: dict) -> dict:
     """
-    Checks if player key exists and returns data or empty dict
-    :param hypixel_data: The hypixel data to the player of
+    Check if player key exists and returns data or empty dict.
+
+    :param hypixel_data: The raw Hypixel API JSON response.
     """
     if hypixel_data.get('player'):
         return hypixel_data['player']
     return {}
 
 
-def get_most_mode(bedwars_data: dict, key_ending: str):
+def get_most_mode(
+    bedwars_data: dict,
+    stat_key: str
+) -> Literal["Solos", "Doubles", "Threes", "Fours", "4v4", "N/A"]:
     """
-    Get the top mode for a certain bedwars stat
+    Return the mode with the most amount of a certain statistic.
+
     :param bedwars_data: Hypixel bedwars data from player > stats > Bedwars
-    :param key_ending: the ending of the key for the stat for example
-    `games_played_bedwars`, the mode will be automatically be used for
-    example `eight_one_{key_ending}`
+    :param stat_key: The bedwars stat key, for example `games_played_bedwars`.
     """
     modes_dict: dict = {
-        'Solos': bedwars_data.get(f'eight_one_{key_ending}', 0),
-        'Doubles': bedwars_data.get(f'eight_two_{key_ending}', 0),
-        'Threes':  bedwars_data.get(f'four_three_{key_ending}', 0),
-        'Fours': bedwars_data.get(f'four_four_{key_ending}', 0),
-        '4v4': bedwars_data.get(f'two_four_{key_ending}', 0)
+        'Solos': bedwars_data.get(f'eight_one_{stat_key}', 0),
+        'Doubles': bedwars_data.get(f'eight_two_{stat_key}', 0),
+        'Threes':  bedwars_data.get(f'four_three_{stat_key}', 0),
+        'Fours': bedwars_data.get(f'four_four_{stat_key}', 0),
+        '4v4': bedwars_data.get(f'two_four_{stat_key}', 0)
     }
     if max(modes_dict.values()) == 0:
         return "N/A"
     return str(max(modes_dict, key=modes_dict.get))
 
 
-def get_most_played(bedwars_data: dict) -> str:
+def get_most_played_mode(bedwars_data: dict):
     """
-    Gets most played bedwars modes (solos, doubles, etc)
-    :param bedwars_data: Hypixel bedwars data from `player > stats > Bedwars`
+    Gets most played bedwars modes (solos, doubles, etc).
+
+    :param bedwars_data: The Hypixel player data of the player.
     """
     return get_most_mode(bedwars_data, 'games_played_bedwars')
 
 
-def get_mode(mode: str) -> str:
+def mode_name_to_id(mode: str) -> str:
     """
-    Convert a mode (Solos, Doubles, etc) into hypixel format (eight_one_, eight_two_)
-    If the mode doesnt exist, returns an empty string. Used to prefix stats
-    eg: f'{mode}final_kills_bedwars'
-    :param mode: The mode to convert
+    Convert a mode name (Solos, Doubles, etc) into hypixel
+    format (eight_one_, eight_two_, etc). If the mode doesnt exist or is 'overall'
+    returns an empty string. Can be to prefix stats, eg: f'{mode}wins_bedwars'.
+
+    :param mode: The mode name to convert.
     """
     return BEDWARS_MODES_MAP.get(mode.lower(), "")
 
 
-def calc_xp_from_wins(bedwars_data: dict):
+def calc_xp_from_wins(bedwars_data: dict) -> dict[str, int]:
     """
-    Finds the total amount of xp a player has been awarded
-    by winning bedwars games accounting for different modes
-    :param bedwars_data: the bedwars data json of the player
+    Calculate the total amount of xp a player has been awarded for
+    winning bedwars games. Accounts for xp differences between modes.
+
+    :param bedwars_data: The bedwars stats data of the player.
+    :return dict[str, int]: A dictionary of modes and their xp, as well \
+        as the total xp.
     """
     exp_data = {'experience': 0}
 
@@ -123,19 +138,25 @@ def calc_xp_from_wins(bedwars_data: dict):
 
 def rround(number: float | int, ndigits: int=0) -> float | int:
     """
-    Rounds a number. If the number is a whole number, it will be converted to an int
-    :param number: Number to be round
-    :param ndigits: Decimal place to round to
+    Round a number to a specified number of decimal places. If the number is a
+    whole number, it will be converted to an int.
+
+    :param number: The number to be rounded.
+    :param ndigits: The number of decimal places to round to.
+    :return float | int: The rounded number.
     """
-    rounded: float = float(round(number, ndigits))
+    rounded = float(round(number, ndigits))
     if rounded.is_integer():
         rounded = int(rounded)
     return rounded
 
+
 def add_suffixes(*args) -> list[str] | str:
     """
-    Add suffixes to the end of large numbers to approximate them
-    :param *args: A list of numbers to approximate
+    Add suffixes to the end of large numbers to approximate them.
+
+    :param *args: The number(s) to approximate.
+    :return list[str] | str: The approximated number(s).
     """
     formatted_values: list = []
     for value in args:
@@ -146,16 +167,17 @@ def add_suffixes(*args) -> list[str] | str:
         else:
             value: str = f"{rround(value, 2):,}"
         formatted_values.append(value)
-    if len(formatted_values) == 1:
-        return formatted_values[0]
-    return formatted_values
+
+    return formatted_values[0] if len(formatted_values) == 1 else formatted_values
 
 
 def ratio(dividend: int, divisor: int) -> int | float:
     """
     Safely gets the ratio of 2 numbers nicely rounded to
-    2 decimal places.
-    :param dividend: the dividend in the division
-    :param divisor: the divisor in the division
+    2 decimal places without dividing by 0.
+
+    :param dividend: The dividend value in the division.
+    :param divisor: The divisor value in the division.
+    :return int | float: The ratio of the 2 numbers.
     """
     return rround(dividend / (divisor or 1), 2)

@@ -13,7 +13,7 @@ class ResourcesStats(BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode)
+        super().__init__(hypixel_data, ganemode=mode)
 
         self.rank_info = get_rank_info(self._hypixel_data)
         self.level = int(self.level)

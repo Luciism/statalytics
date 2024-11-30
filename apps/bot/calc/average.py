@@ -13,7 +13,7 @@ class AverageStats(BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode.lower())
+        super().__init__(hypixel_data, ganemode=mode.lower())
 
         self._level_real = self.questless_exp / 5000
         self.level = int(self.level)

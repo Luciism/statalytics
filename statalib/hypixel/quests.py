@@ -1,7 +1,9 @@
+"""Bedwars quests related functionality."""
+
 from typing import TypedDict
 
 
-QUESTS_XP_MAP = {
+QUESTS_XP_MAP: dict[str, int | dict[int, int]] = {
     "bedwars_daily_win": 250,
     "bedwars_daily_one_more": {
         1683085688000: 250,
@@ -18,6 +20,8 @@ QUESTS_XP_MAP = {
     "bedwars_weekly_challenges_win": 5000,
     "bedwars_weekly_final_killer": 5000
 }
+"""Mappings of all quests to xp. If the quest gave different amounts of xp
+at different times, it will be a dictionary mapped to a unix timestamp."""
 
 
 class QuestDataDict(TypedDict):
@@ -46,8 +50,9 @@ class QuestsDataDict(TypedDict):
 
 def get_quests_data(hypixel_data: dict) -> QuestsDataDict:
     """
-    Returns the completions and xp gained for each quest
-    :param hypixel_data: the hypixel data for the player
+    Get the total completions and XP gained for each quest.
+
+    :param hypixel_data: The raw Hypixel API JSON response.
     """
     # Some comments would be nice.
     total_experience = hypixel_data.get(

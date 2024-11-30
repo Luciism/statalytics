@@ -1,3 +1,6 @@
+"""Bot error handling functionality."""
+# TODO: Move this shit to bot helper
+
 import logging
 from io import StringIO
 from traceback import format_exception
@@ -24,20 +27,24 @@ async def log_error_msg(
     client: discord.Client,
     error: Exception,
     metadata: dict=None
-):
+) -> None:
     """
-    Prints and sends an error message to discord error logs channel
-    :param client: The discord.py client object
-    :param error: The exception object for the error
-    :param metadata: Metadata to include in the error message
+    Logs and sends an error message to the Discord error logs channel.
+
+    :param client: The discord.py client object.
+    :param error: The exception object for the error.
+    :param metadata: Metadata mappings to include in the error message.
     """
+    # Format and log the traceback.
     traceback_str = ''.join(
         format_exception(type(error), error, error.__traceback__))
     logger.error(traceback_str)
 
+    # Don't send error messages if the client is not passed.
     if client is None:
         return
 
+    # Wait until the client is ready before attempting to send.
     await client.wait_until_ready()
     channel = client.get_channel(
         config('global.support_server.channels.error_logs_channel_id'))
@@ -53,7 +60,8 @@ async def log_error_msg(
         file=tb_file
     )
 
-async def handle_hypixel_error(interaction: discord.Interaction):
+async def handle_hypixel_error(interaction: discord.Interaction) -> None:
+    """Attempt to respond to a Hypixel API error."""
     try:
         embeds = load_embeds('hypixel_connection_error', color='danger')
         button = discord.ui.Button(
@@ -79,7 +87,7 @@ async def _handle_mojang_error(interaction: discord.Interaction):
 async def _handle_cooldown_error(
     interaction: discord.Interaction,
     error: discord.app_commands.CommandOnCooldown
-):
+) -> None:
     format_values = {
         'description': {
             'retry_after': round(error.retry_after, 2)
@@ -124,11 +132,11 @@ async def handle_interaction_errors(
     error: app_commands.AppCommandError
 ) -> None:
     """
-    Handles all interaction related errors
-    :param interaction: `discord.Interaction` object of the interaction
-    :param error: the error that occured
-    """
+    Handles all interaction related errors.
 
+    :param interaction: The `discord.Interaction` object of the interaction.
+    :param error: The exception object for the error that occured.
+    """
     if isinstance(error, PlayerNotFoundError):
         return
 

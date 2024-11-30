@@ -1,5 +1,7 @@
+"""Application command autocompletion functions."""
+# TODO: move this shit to bot helper
+
 import sqlite3
-import typing
 
 from discord import app_commands, Interaction
 
@@ -12,11 +14,8 @@ from .sessions import SessionManager
 async def session_autocompletion(
     interaction: Interaction,
     current: str
-) -> typing.List[app_commands.Choice[str]]:
-    """
-    Interaction session autocomplete\n
-    Dynamic to player field
-    """
+) -> list[app_commands.Choice[str]]:
+    """Session autocomplete that is dynamic to the player field."""
     username = None
     for option in interaction.data.get('options', []):
         # Check if the current option is the top-level 'player' option
@@ -50,10 +49,8 @@ async def session_autocompletion(
 async def username_autocompletion(
     interaction: Interaction,
     current: str
-) -> typing.List[app_commands.Choice[str]]:
-    """
-    Interaction username autocomplete
-    """
+) -> list[app_commands.Choice[str]]:
+    """Username autocomplete."""
     with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
         cursor = conn.cursor()
         result = cursor.execute(

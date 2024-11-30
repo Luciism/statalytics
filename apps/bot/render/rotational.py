@@ -2,7 +2,7 @@ from calc.rotational import RotationalStats, HistoricalRotationalStats
 
 import statalib as lib
 from statalib import rotational_stats as rotational, to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
 @to_thread
@@ -24,7 +24,7 @@ def render_rotational(
     else:
         stats = HistoricalRotationalStats(uuid, period_id, hypixel_data, mode)
 
-    bg = RenderBackground(dir=f'rotational/{tracker}')
+    bg = BackgroundImageLoader(dir=f'rotational/{tracker}')
     im = ImageRender(bg.load_background_image(uuid, {
         "level": stats.level, "rank_info": stats.rank_info}))
 

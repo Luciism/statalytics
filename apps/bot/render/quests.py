@@ -1,10 +1,10 @@
 from calc.quests import QuestStats
 import statalib as lib
 from statalib import to_thread
-from statalib.render import ImageRender, RenderBackground, Prestige
+from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
-bg = RenderBackground(dir="quests")
+bg = BackgroundImageLoader(dir="quests")
 
 @to_thread
 def render_quests(

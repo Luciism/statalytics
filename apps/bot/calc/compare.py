@@ -1,6 +1,6 @@
 from statalib.functions import prefix_int
 from statalib.hypixel import (
-    BedwarsStats, get_rank_info, get_mode, rround, ratio)
+    BedwarsStats, get_rank_info, mode_name_to_id, rround, ratio)
 
 
 class CompareStats:
@@ -10,10 +10,10 @@ class CompareStats:
         hypixel_data_2: dict,
         mode: str='overall'
     ) -> None:
-        self._bw_1 = BedwarsStats(hypixel_data_1, strict_mode=mode)
-        self._bw_2 = BedwarsStats(hypixel_data_2, strict_mode=mode)
+        self._bw_1 = BedwarsStats(hypixel_data_1, ganemode=mode)
+        self._bw_2 = BedwarsStats(hypixel_data_2, ganemode=mode)
 
-        self.mode = get_mode(mode)
+        self.mode = mode_name_to_id(mode)
 
         self.level_1 = int(self._bw_1.level)
         self.level_2 = int(self._bw_2.level)

@@ -1,9 +1,12 @@
+"""Rotational stats lookback functionality."""
+
 from ..cfg import config
 from ..subscriptions import SubscriptionManager
 from ..functions import load_embeds
 
 
 FALLBACK_MAX_LOOKBACK = 30  # Days
+"""Fallback value for maximum lookback duration (in days)."""
 
 
 def get_max_lookback(discord_ids: list[int]) -> int | None:
@@ -12,7 +15,7 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
     value for a range of Discord user IDs.
 
     :param discord_ids: A list of Discord user IDs to find the max lookback for.
-    :return: Number of days (int) or infinite lookback (None).
+    :return int | None: The number of days (int) or infinite lookback (None).
     """
     if not discord_ids:
         try:
@@ -41,8 +44,10 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
 
 def build_invalid_lookback_embeds(max_lookback: int | None) -> list:
     """
-    Responds to a interaction with an max lookback exceeded message
-    :param max_lookback: The maximum lookback the user had availiable
+    Build an embed to notify users of an invalid lookback value.
+
+    :param max_lookback: The maximum lookback available to the user.
+    :return list: A list of embeds.
     """
     format_values = {
         'description': {

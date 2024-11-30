@@ -2,10 +2,10 @@ from calc.total import TotalStats
 
 import statalib as lib
 from statalib import to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="total")
+bg = BackgroundImageLoader(dir="total")
 
 @to_thread
 def render_pointless(

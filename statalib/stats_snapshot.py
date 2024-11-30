@@ -1,9 +1,12 @@
+"""Bedwars stats snapshot dataclass and related functionality."""
+
 from dataclasses import dataclass
 import sqlite3
 
 
 @dataclass
 class BedwarsStatsSnapshot:
+    """Bedwars stats snapshot dataclass."""
     snapshot_id: str
     Experience: int
     wins_bedwars: int
@@ -97,6 +100,13 @@ def get_snapshot_data(
     cursor: sqlite3.Cursor,
     snapshot_info: tuple
 ) -> tuple[dict, BedwarsStatsSnapshot]:
+    """
+    Retrieve the snapshot data for a specific snapshot ID.
+
+    :param cursor: A custom `sqlite3.Cursor` object to operate on.
+    :param snapshot_info: A tuple containing the raw snapshot info.
+    :return tuple: A tuple containing the snapshot info and snapshot data.
+    """
     column_names = [col[0] for col in cursor.description]
     snapshot_info_dict = dict(zip(column_names, snapshot_info))
 

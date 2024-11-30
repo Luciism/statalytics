@@ -1,10 +1,10 @@
 from calc.cosmetics import ActiveCosmetics
 import statalib as lib
 from statalib import to_thread
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="cosmetics")
+bg = BackgroundImageLoader(dir="cosmetics")
 
 @to_thread
 def render_cosmetics(

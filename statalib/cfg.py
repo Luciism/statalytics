@@ -1,3 +1,5 @@
+"""Application configuration related functionality."""
+
 import json
 import os
 from typing import Any
@@ -5,10 +7,14 @@ from typing import Any
 from .common import REL_PATH
 
 
-def merge_dicts(original_dict: dict, update_dict: dict):
+def merge_dicts(original_dict: dict, update_dict: dict) -> dict:
     """
     Merges two dictionaries together, updating existing
     keys with nested dictionaries merged recursively.
+
+    :param original_dict: The original dictionary.
+    :param update_dict: The dictionary to update the original with.
+    :return dict: The merged dictionary.
     """
     result = original_dict.copy()
 
@@ -27,10 +33,12 @@ def merge_dicts(original_dict: dict, update_dict: dict):
 
 
 class _Config:
+    """Config class."""
     SHOULD_UPDATE_SUBSCRIPTION_ROLES = True
     DB_FILE_PATH = f'{REL_PATH}/database/core.db'
 
     def __init__(self) -> None:
+        """Initialize the config class."""
         self._config_data: dict = None
 
     def __call__(self, path: str=None) -> dict | Any:
@@ -68,3 +76,4 @@ class _Config:
 
 
 config = _Config()  # Globally used instance
+"Global config instance."

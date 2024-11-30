@@ -3,10 +3,10 @@ from calc.year import YearStats
 import statalib as lib
 from statalib import BedwarsSession
 from statalib.hypixel import add_suffixes
-from statalib.render import ImageRender, RenderBackground, Prestige
+from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
-bg = RenderBackground(dir="year")
+bg = BackgroundImageLoader(dir="year")
 
 @lib.to_thread
 def render_year(

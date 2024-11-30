@@ -3,10 +3,10 @@ from calc.projection import PrestigeStats
 import statalib as lib
 from statalib import to_thread, REL_PATH, BedwarsSession
 from statalib.hypixel import add_suffixes
-from statalib.render import ImageRender, RenderBackground, Prestige
+from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
-bg = RenderBackground(dir="projection")
+bg = BackgroundImageLoader(dir="projection")
 
 @to_thread
 def render_projection(

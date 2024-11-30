@@ -2,10 +2,10 @@ from calc.compare import CompareStats
 import statalib as lib
 from statalib import to_thread, REL_PATH
 
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="compare")
+bg = BackgroundImageLoader(dir="compare")
 
 def color(value, method):
     """method `g` for good `b` for bad"""

@@ -1,3 +1,5 @@
+"""Text rendering utilty functions."""
+
 from typing import Literal
 
 from PIL import Image, ImageFont, ImageDraw
@@ -13,25 +15,29 @@ dummy_draw = ImageDraw.Draw(dummy_img)
 
 def calc_shadow_color(rgb: tuple) -> tuple[int, int, int]:
     """
-    Returns drop shadow RGB relative to passed RGB value
-    :param rgb: The RGB value to get a shadow color for
+    Calculate the drop shadow RGB value for a given RGB value.
+
+    :param rgb: The RGB value to calculate a shadow color for.
     """
     return tuple([int(c * 0.25) for c in rgb])
 
 
 def get_text_len(text: str, font: ImageFont.ImageFont):
     """
-    Get the length of a string accounting for symbols
-    :param text: the text to find the length of
-    :param font: the primary font for the text to be in
+    Get the length of a string (accounting for symbols).
+
+    :param text: The text to find the length of.
+    :param font: The font to use in the calculation.
     """
     return dummy_draw.textlength(text, font=font)
 
 
 def get_actual_text(text: str) -> str:
     """
-    Returns text with color codes removed
-    :param text: the text to clean
+    Remove color codes from text.
+
+    :param text: The text to remove color codes from.
+    :return str: The text without color codes.
     """
     split_chars = tuple(ColorMappings.color_codes)
     bits = tuple(split_string(text, split_chars))
@@ -44,28 +50,29 @@ def get_start_point(
     text: str=None,
     font: ImageFont.ImageFont=None,
     align: Literal['left', 'center', 'right']='left',
-    pos: int=None,
+    pos: int=0,
     text_len: int=None
 ) -> int:
     """
-    Returns the x position to render text with desired settings
+    Calculate the starting X position for rendering
+    text with the specified settings.
 
-    A pre-determined text length can be provided otherwise one will
-    be calculated with the provided font. Either `font` and `text`
-    or `text_len` must be provided.
-    :param text: The text to find the start point of
-    :param font: The font of the text
-    :param align: The relative text alignment. Defaults to 'left'.
-    :param pos: The x position of the text. Defaults to None.
-    :param text_len: pre-determined custom text length
+    A pre-calculated text length can be provided, otherwise one will
+    be calculated using the provided font.
+
+    *__Either__ `font` and `text`, or `text_len` must be provided.*
+
+    :param text: The text to calculate the starting X position for.
+    :param font: The font that the text will be rendered in.
+    :param align: The text alignment / anchor. Defaults to 'left'.
+    :param pos: The relative X position. Defaults to 0.
+    :param text_len: A pre-calculated custom text length.
+    :return int: The calculated starting X position for the text.
     """
     assert (text, font, text_len).count(None) > 0
 
     if text_len is None:
         text_len = get_text_len(text, font)
-
-    if pos is None:
-        return 0
 
     if align in ('default', 'left'):
         return pos
@@ -86,18 +93,20 @@ def render_mc_text(
     font: ImageFont.ImageFont=None,
     font_size: int=None,
     shadow_offset: tuple[int, int]=None,
-    align: Literal['left', 'center', 'right']='left',
-    return_x: bool=False
-) -> Image.Image | tuple[Image.Image, int]:
+    align: Literal['left', 'center', 'right']='left'
+) -> int:
     """
-    :param text: Text to render on the image
-    :param position: X & Y positions to render the text at
-    :param image: PIL image object to render text on
-    :param font: Font used to render text
-    :param font_size: The fontsize to use if no font object is passed
-    :param shadow_offset: X & Y positions to offset the drop shadow
-    :param align: the alignment of the text relative to the x position
-    :param return_x: whether or not to return the new x position
+    Renders text on an image.
+
+    :param text: The text to draw / render.
+    :param position: The (x, y) position of the text on the image.
+    :param image: The image to render the text onto.
+    :param font: The font to use when rendering the text.
+    :param font_size: The font size to use if no font is provided.
+    :param shadow_offset: The (x, y) offset of the text shadow \
+        relative to the text.
+    :param align: Whether to anchor the text left, right, or center.
+    :return int: The final x position of the rendered text.
     """
     assert (font, font_size).count(None) > 0
 
@@ -130,7 +139,4 @@ def render_mc_text(
         draw.text((x, y), text, fill=color, font=font)
         x += int(draw.textlength(text, font=font))
 
-    if return_x:
-        return image, x
-
-    return image
+    return x

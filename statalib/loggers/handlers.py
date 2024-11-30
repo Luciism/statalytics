@@ -1,3 +1,5 @@
+"""Logging handlers."""
+
 import os
 import time
 from logging.handlers import TimedRotatingFileHandler
@@ -6,6 +8,7 @@ from .formatters import UncoloredFormatter
 
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+    """Custom file handler that uses a custom backup format."""
     def __init__(
         self,
         filename='latest.log',
@@ -20,7 +23,23 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         atTime=None,
         errors=None,
         formatter=UncoloredFormatter
-    ):
+    ) -> None:
+        """
+        Initialize the handler.
+
+        :param filename: The name of the latest log file.
+        :param backup_format: The date format to use for the backup files.
+        :param logs_dir: The directory to store the logs in.
+        :param when: The frequency to rotate the logs.
+        :param interval: The interval to rotate the logs.
+        :param backupCount: The number of backup files to keep.
+        :param encoding: The encoding to use for the log file.
+        :param delay: Whether to delay the creation of the file.
+        :param utc: Whether to use UTC time.
+        :param atTime: The time to rotate the logs.
+        :param errors: The error level to log to the file.
+        :param formatter: The formatter to use for the log file.
+        """
         self.backup_format = backup_format
         self.logs_dir = logs_dir
 
@@ -36,7 +55,8 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         self.setFormatter(formatter)
 
 
-    def rotation_filename(self, default_name):
+    def rotation_filename(self, default_name) -> str:
+        """Modify the filename of a log file when rotating."""
         backup_format = time.strftime(self.backup_format)
         backup_format = backup_format.removesuffix('.log')
 

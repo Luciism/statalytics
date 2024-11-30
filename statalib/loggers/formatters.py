@@ -1,3 +1,5 @@
+"""Logging formatters."""
+
 import logging
 
 import colorlog
@@ -7,6 +9,7 @@ UncoloredFormatter = logging.Formatter(
     fmt='%(asctime)s %(levelname)-8s %(name)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+"Default uncolored formatter."
 
 ColoredStreamFormatter = colorlog.ColoredFormatter(
     fmt='%(bold_light_black)s%(asctime)s '                  # timestamp
@@ -31,3 +34,4 @@ ColoredStreamFormatter = colorlog.ColoredFormatter(
         },
     }
 )
+"Colored formatter with colorlog."

@@ -1,10 +1,10 @@
 from calc.practice import PracticeStats
 import statalib as lib
 from statalib import to_thread
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="practice")
+bg = BackgroundImageLoader(dir="practice")
 
 @to_thread
 def render_practice(

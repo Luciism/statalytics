@@ -1,3 +1,7 @@
+"""
+Module for handling API requests to Hypixel as well as skin model fetching.
+"""
+
 import asyncio
 import logging
 from typing import Literal
@@ -65,13 +69,15 @@ async def fetch_hypixel_data(
     retry_delay: int = 5
 ) -> dict:
     """
-    Fetch a user's Hypixel data from Hypixel's
-    API with retries and delay between retries.
-    :param uuid: The UUID of the user's data to fetch.
-    :param cache: Whether to use caching or not.
+    Fetch a player's Hypixel data from Hypixel's API.
+    Supports caching and request retry system.
+
+    :param uuid: The player UUID of the respective player.
+    :param cache: Whether or not to use the cache.
     :param cached_session: Use a custom cache instead of the default stats cache.
-    :param retries: Number of retries in case of a failed request.
-    :param retry_delay: Delay (in seconds) between retries.
+    :param retries: The number of retries in before terminating the request.
+    :param retry_delay: The delay (in seconds) between request retries.
+    :return dict: The Hypixel API player data response.
     """
     for attempt in range(retries + 1):
         try:
@@ -103,18 +109,16 @@ async def fetch_hypixel_data_rate_limit_safe(
     attempt_delay=20
 ) -> dict:
     """
-    Wrapper around `fetch_hypixel_data` that is rate limit safe.
-    5 attempts will be made with a 20 second delay if rate limited
+    Rate limit safe version of `~fetch_hypixel_data()`.
 
-    Fetch a user's Hypixel data from Hypixel's API
-    with retries and delay between retries.
-    :param uuid: The UUID of the user's data to fetch.
-    :param cache: Whether to use caching or not.
+    :param uuid: The player UUID of the respective player.
+    :param cache: Whether or not to use the cache.
     :param cached_session: Use a custom cache instead of the default stats cache.
-    :param retries: Number of retries in case of a failed network request.
+    :param retries: The number of retries in the case of failed network requests.
     :param retry_delay: Delay (in seconds) between failed network request retries.
     :param attempts: The amount of attempts to make if you are rate limited.
     :param attempt_delay: Delay (in seconds) between attempts made if rate limited.
+    :return dict: The Hypixel API player data response.
     """
     for attempt in range(attempts + 1):
         hypixel_data = await fetch_hypixel_data(
@@ -135,8 +139,7 @@ async def fetch_hypixel_data_rate_limit_safe(
 
 
 def skin_from_file(skin_type: str='bust') -> bytes:
-    """Loads a steve skin from file"""
-    print('loading from file')
+    """Load a steve skin player model from file."""
     with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
         return skin.read()
 
@@ -147,10 +150,13 @@ async def fetch_skin_model(
     style: SkinStyle='bust'
 ) -> bytes:
     """
-    Fetches a 3d skin model visage.surgeplay.com
-    If something goes wrong, a steve skin will returned
-    :param uuid: The uuid of the relative player
-    :param size: The skin render size in pixels
+    Attempt to fetch a 3D skin model from Visage.
+    If something goes wrong, a steve skin will returned.
+
+    :param uuid: The player UUID of the respective player.
+    :param size: The image size in pixels.
+    :param style: The skin style to use.
+    :return bytes: The skin model as bytes.
     """
     options = {
         'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',

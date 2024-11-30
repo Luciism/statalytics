@@ -1,9 +1,9 @@
 from calc.milestones import MilestonesStats
 from statalib import BedwarsSession, to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground, Prestige
+from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
-bg = RenderBackground(dir="milestones")
+bg = BackgroundImageLoader(dir="milestones")
 
 @to_thread
 def render_milestones(

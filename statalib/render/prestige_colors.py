@@ -1,3 +1,5 @@
+"""Functionality for formatting prestige colors."""
+
 from dataclasses import dataclass
 from enum import Enum
 
@@ -5,12 +7,7 @@ from ..color import ColorMappings
 
 
 class PrestigeColorMaps:
-    """
-    Bedwars prestige color maps
-    prestige_map: level 0-900 & 10000+
-    prestige_map_2: 1000 - 9900
-
-    """
+    """Bedwars prestige color maps."""
     c = ColorMappings.str_to_color_code
 
     prestige_map = {
@@ -26,6 +23,7 @@ class PrestigeColorMaps:
         100: c['white'],
         0: c['gray'],
     }
+    "Prestige colors for levels 0-900 & 10000+."
 
     prestige_map_2 = {
         5000: (c['dark_red'], c['dark_red'], c['dark_purple'], c['blue'], c['blue'], c['dark_blue'], c['black']),
@@ -70,25 +68,31 @@ class PrestigeColorMaps:
         1100: (c['gray'], c['white'], c['white'], c['white'], c['white'], c['gray'], c['gray']),
         1000: (c['red'], c['gold'], c['yellow'], c['green'], c['aqua'], c['light_purple'], c['dark_purple']),
     }
+    "Prestige colors for levels 1000 - 9900 (unique coloring stops at level 5000)."
 
-bedwars_star_symbol_map = {
-    3100: '✥',
-    2100: '⚝',
-    1100: '✪',
-    0: '✫'
-}
 
 class PrestigeColorEnum(Enum):
     single = 0
+    "A single RGB color."
     multi = 1
+    "Multiple RGB colors."
 
 @dataclass
 class PrestigeColorType:
+    "A prestige color type."
     type: PrestigeColorEnum
+    "Whether the prestige is a single color or multiple."
     color: tuple[int, int, int] | tuple[tuple[int, int, int]]
+    "The color(s) of the prestige."
 
 class PrestigeColors:
+    """Class for determining prestige colors."""
     def __init__(self, prestige: int) -> None:
+        """
+        Initialize the class.
+
+        :param prestige: The prestige to determine the colors for.
+        """
         self._prestige = prestige
         self.__prestige_colors = None
         self.__prestige_primary_rgb = None
@@ -98,8 +102,9 @@ class PrestigeColors:
     def prestige_colors(self) -> PrestigeColorType:
         """
         The prestige colors for a given prestige.
-        Any prestige below 1000 (or above 10000) will be a single RGB and anything
-        from 1000 to 9900 will assign a color to each character in the formatted level.
+        Any prestige below 1000 (or above 10000) will be a single RGB, and anything
+        from 1000 to 9900 will have an assigned color for each character in the
+        formatted level.
         """
         if self.__prestige_colors is None:
             c = PrestigeColorMaps
@@ -128,14 +133,21 @@ class PrestigeColors:
 
 
 class Prestige:
+    """Class for determining and formatting prestige levels."""
     bedwars_star_symbol_map = {
         3100: '✥',
         2100: '⚝',
         1100: '✪',
         0: '✫'
     }
+    "Maps the prestige to their respective star symbol."
 
     def __init__(self, level: int) -> None:
+        """
+        Initialize the class.
+
+        :param level: The level to operate on.
+        """
         self._level = level
         self.colors = PrestigeColors(self.prestige)
         self.__star_symbol = None
@@ -143,6 +155,7 @@ class Prestige:
 
     @property
     def prestige(self) -> int:
+        """The rounded prestige number of the level."""
         return self._level // 100 * 100
 
     @property
@@ -160,7 +173,7 @@ class Prestige:
 
     @property
     def formatted_level(self) -> str:
-        """Formats the level with colors, brackets, and the star symbol."""
+        """Format the level with colors, brackets, and the star symbol."""
         if self.__formatted_level_str is None:
             prestige_colors = self.colors.prestige_colors
 
@@ -178,4 +191,5 @@ class Prestige:
 
     @staticmethod
     def format_level(level: int) -> str:
+        """Standalone method for formatting a level."""
         return Prestige(level).formatted_level

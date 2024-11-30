@@ -3,10 +3,10 @@ from calc.session import SessionStats
 import statalib as lib
 from statalib import to_thread, REL_PATH
 from statalib.sessions import BedwarsSession
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="session")
+bg = BackgroundImageLoader(dir="session")
 
 @to_thread
 def render_session(

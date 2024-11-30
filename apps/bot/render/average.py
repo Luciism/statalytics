@@ -1,10 +1,10 @@
 from calc.average import AverageStats
 import statalib as lib
 from statalib import to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="average")
+bg = BackgroundImageLoader(dir="average")
 
 @to_thread
 def render_average(

@@ -1,7 +1,7 @@
 from statalib.hypixel import (
     BedwarsStats,
     get_rank_info,
-    get_mode,
+    mode_name_to_id,
     rround,
 )
 
@@ -12,9 +12,9 @@ class TotalStats(BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode)
+        super().__init__(hypixel_data, ganemode=mode)
 
-        self.mode = get_mode(mode)
+        self.mode = mode_name_to_id(mode)
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_data)
 

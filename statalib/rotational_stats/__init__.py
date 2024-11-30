@@ -1,3 +1,5 @@
+"""Daily, weekly, monthly, and yearly rotational stats functionality."""
+
 from ._types import (
     BedwarsHistoricalRotation as BedwarsHistoricalRotation,
     BedwarsRotation as BedwarsRotation,

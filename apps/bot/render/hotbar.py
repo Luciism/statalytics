@@ -2,10 +2,10 @@ from PIL import Image
 
 import statalib as lib
 from statalib import hypixel, to_thread
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="hotbar")
+bg = BackgroundImageLoader(dir="hotbar")
 
 SLOT_POSITIONS = [
     (40, 424), (130, 424), (220, 424), (310, 424),

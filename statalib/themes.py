@@ -1,15 +1,16 @@
-import sqlite3
+"""Functions for handling themes."""
 
 from .errors import ThemeNotFoundError
 from .cfg import config
-from .common import REL_PATH
 from .functions import db_connect
 
 
-def get_owned_themes(discord_id: int) -> list:
+def get_owned_themes(discord_id: int) -> list[str]:
     """
-    Returns list of themes owned by a discord user
-    :param discord_id: the discord id of the respective user
+    Retrieve a list of themes owned by an account.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :return: The list of owned themes.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -24,22 +25,23 @@ def get_owned_themes(discord_id: int) -> list:
 
 
 def get_voter_themes() -> list:
-    """Returns a list of voter themes"""
+    """Return a list of available voter themes from the config file."""
     themes: dict = config('global.theme_packs.voter_themes')
     return list(themes.keys())
 
 
 def get_exclusive_themes() -> list:
-    """Returns a list of exclusive themes"""
+    """Return a list of available exclusive themes from the config file."""
     themes: dict = config('global.theme_packs.exclusive_themes')
     return list(themes.keys())
 
 
 def get_theme_properties(theme_name: str) -> dict:
     """
-    Returns properties for specified theme.
+    Get the properties of a specified theme.
     Works for both voter and exclusive themes.
-    :param theme_name: the name of the theme to get the properties of
+
+    :param theme_name: The name of the theme to get the properties of.
     """
     theme_packs: dict = config('global.theme_packs')
 
@@ -52,11 +54,12 @@ def get_theme_properties(theme_name: str) -> dict:
     return theme_properties
 
 
-def add_owned_theme(discord_id: int, theme_name: str):
+def add_owned_theme(discord_id: int, theme_name: str) -> None:
     """
-    Gives the user a theme by the given name
-    :param discord_id: the discord id of the respective user
-    :param theme_name: the name of the theme to be given to the user
+    Gives the user a theme by the given name.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param theme_name: The name of the theme to be given to the user.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -82,11 +85,12 @@ def add_owned_theme(discord_id: int, theme_name: str):
             )
 
 
-def remove_owned_theme(discord_id: int, theme_name: str):
+def remove_owned_theme(discord_id: int, theme_name: str) -> None:
     """
-    Removes a theme from a user with a specified discord id
-    :param discord_id: the discord id of the respective user
-    :param theme_name: the name of the theme to be taken from the user
+    Remove an owned theme from a user account.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param theme_name: The name of the theme to remove from the user.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -106,11 +110,13 @@ def remove_owned_theme(discord_id: int, theme_name: str):
                 )
 
 
-def set_owned_themes(discord_id: int, themes: list | tuple):
+def set_owned_themes(discord_id: int, themes: list | tuple) -> None:
     """
-    Sets a user's owned themes to a list of given themes
-    :param discord_id: the discord id of the respective user
-    :param themes: a list of themes to set for a user
+    Sets a user's owned themes to a list of given themes.
+    This will overwrite any existing owned themes.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param themes: The list of themes to set for a user.
     """
     if not themes:
         return
@@ -135,9 +141,10 @@ def set_owned_themes(discord_id: int, themes: list | tuple):
 
 def get_active_theme(discord_id: int, default='none') -> str:
     """
-    Get a user's current active theme pack
-    :param discord_id: the discord id of the respective user
-    :param default: the default value to return if the user has no active theme
+    Get a user's current active theme pack.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param default: The default value to return if the user has no active theme.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -151,11 +158,12 @@ def get_active_theme(discord_id: int, default='none') -> str:
     return default
 
 
-def set_active_theme(discord_id: int, theme_name: str):
+def set_active_theme(discord_id: int, theme_name: str) -> None:
     """
-    Sets a user's active theme to the given theme
-    :param discord_id: the discord id of the respective user
-    :param theme_name: the name of the theme to set as active
+    Sets a user's active theme to the given theme.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param theme_name: The name of the theme to set as active.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -195,23 +203,20 @@ class ThemeManager:
 
 
     def get_owned_themes(self):
-        """
-        Returns a list of owned themes
-        """
+        """Retrieve a list of themes owned by an account."""
         return get_owned_themes(self.discord_id)
 
 
     def get_available_themes(self):
-        """
-        Returns all themes available to a user
-        """
+        """Retrieve all themes available to the user."""
         return get_owned_themes(self.discord_id) + get_voter_themes()
 
 
     def add_owned_theme(self, theme_name: str):
         """
-        Gives the user a theme by the given name
-        :param theme_name: the name of the theme to be given to the user
+        Gives the user a theme by the given name.
+
+        :param theme_name: The name of the theme to be given to the user.
         """
         self._check_exclusive_exists(theme_name)
         add_owned_theme(self.discord_id, theme_name)
@@ -219,8 +224,9 @@ class ThemeManager:
 
     def remove_owned_theme(self, theme_name: str):
         """
-        Removes a theme from the user
-        :param theme_name: the name of the theme to be taken from the user
+        Remove an owned theme from the user's account.
+
+        :param theme_name: The name of the theme to remove from the user.
         """
         self._check_exclusive_exists(theme_name)
         remove_owned_theme(self.discord_id, theme_name)
@@ -228,8 +234,10 @@ class ThemeManager:
 
     def set_owned_themes(self, themes: list):
         """
-        Sets the user's owned themes to a list of given themes
-        :param themes: a list of themes to set for a user
+        Sets the user's owned themes to a list of given themes.
+        This will overwrite any existing owned themes.
+
+        :param themes: The list of themes to set for a user.
         """
         exclusive_themes = get_exclusive_themes()
         if isinstance(themes, str):
@@ -242,16 +250,18 @@ class ThemeManager:
 
     def get_active_theme(self, default=None):
         """
-        Get the user's current active theme pack
-        :param default: the default value to return if the user has no active theme
+        Get the user's current active theme pack.
+
+        :param default: The default value to return if the user has no active theme.
         """
         return get_active_theme(self.discord_id, default)
 
 
     def set_active_theme(self, theme_name: str):
         """
-        Sets the user's active theme to the given theme
-        :param theme_name: the name of the theme to set as active
+        Sets the user's active theme to the given theme.
+
+        :param theme_name: The name of the theme to set as active.
         """
         self._check_theme_availability(theme_name)
         set_active_theme(self.discord_id, theme_name)

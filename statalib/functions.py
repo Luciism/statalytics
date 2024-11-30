@@ -1,4 +1,4 @@
-"""A set of useful functions used throughout the bot"""
+"""A handful of useful loose functions."""
 
 import json
 import time
@@ -8,37 +8,37 @@ import sqlite3
 import asyncio
 import functools
 from typing import Literal, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import discord
 
-from .assets import ASSET_LOADER
 from .cfg import config
 from .common import REL_PATH
 
 
 db_connect = lambda: sqlite3.connect(config.DB_FILE_PATH)
+"Open a database connection."
 
 
 def to_thread(func: typing.Callable) -> typing.Coroutine:
+    """Converts a function to run on a separate thread."""
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         return await asyncio.to_thread(func, *args, **kwargs)
     return wrapper
 
 
-def get_embed_color(embed_type: str) -> int:
+def get_embed_color(embed_type: Literal["primary", "warning", "danger"]) -> int:
     """
-    Returns a base 16 integer from a hex code.
-    :param embed_type: the embed color type (primary, warning, danger)
+    Get a base 16 integer for a specfied embed color.
+
+    :param embed_type: The embed color type (primary, warning, or danger).
     """
     return int(config(f'apps.bot.embeds.{embed_type}_color'), base=16)
 
 
 def loading_message() -> str:
-    """
-    Returns loading message from the `config.json` file
-    """
+    """Get the currently configured loading message."""
     return config('apps.bot.loading_message')
 
 
@@ -49,9 +49,11 @@ def _get_voting_data(discord_id: int, cursor: sqlite3.Cursor) -> tuple:
 
 def get_voting_data(discord_id: int, cursor: sqlite3.Cursor=None) -> tuple:
     """
-    Returns a users voting data
-    :param discord_id: The discord id of the user's voting data to be fetched
-    :param cursor: custom `sqlite3.Cursor` object to execute queries with
+    Returns a users voting data.
+
+    :param discord_id: The Discord user ID of the user.
+    :param cursor: A custom `sqlite3.Cursor` object to operate on.
+    :return tuple: A tuple containing the users voting data.
     """
     if cursor:
         return _get_voting_data(discord_id, cursor)
@@ -66,13 +68,14 @@ def insert_growth_data(
     action: Literal['add', 'remove'],
     growth: Literal['guild', 'user', 'linked'],
     timestamp: float=None
-):
+) -> None:
     """
-    Inserts a row of growth data into database
-    :param discord_id: the respective discord id of the event (guild, user, etc)
-    :param action: the action that caused growth (add, remove, etc)
-    :param growth: what impacted the growth (guild, user, etc)
-    :param timestamp: the timestamp of the action (defaults to now)
+    Inserts a row of growth data into database.
+
+    :param discord_id: The respective Discord ID of the event (guild, user, etc).
+    :param action: The action that affected the growth (add, remove, etc).
+    :param growth: The growth metric that was impacted (guild, user, etc).
+    :param timestamp: The timestamp of the growth (defaults to now).
     """
     if timestamp is None:
         timestamp = time.time()
@@ -126,24 +129,24 @@ def _update_usage(command, discord_id):
 def update_command_stats(discord_id: int, command: str) -> None:
     """
     Updates command usage stats for respective command.
-    :param discord_id: the user that ran he command
-    :param command: the command run by the user to increment
+
+    :param discord_id: The Discord ID of the user that ran the command.
+    :param command: The ID of the command run by the user to be incremented.
     """
     _update_usage(command, discord_id)
     _update_usage(command, 0)  # Global commands
 
 
 def fname(username: str):
-    """
-    Returns an escaped version of a username to avoid discord markdown
-    """
+    """Escapes underscore characters to bypass Discord's markdown."""
     return username.replace("_", "\_")
 
 
 def ordinal(n: int) -> str:
     """
-    Formats a day for example `21` would be `21st`
-    :param n: The number to format
+    Formats a day of the month, for example `21` would be `21st`.
+
+    :param n: The number to format.
     """
     if 4 <= n % 100 <= 20:
         return "th"
@@ -151,7 +154,7 @@ def ordinal(n: int) -> str:
 
 
 def get_user_total() -> int:
-    """Returns total amount of users to have run a command"""
+    """Get total amount of account that exist."""
     with db_connect() as conn:
         cursor = conn.cursor()
 
@@ -179,11 +182,11 @@ def commands_ran(
     cursor: sqlite3.Cursor=None
 ) -> int | Any:
     """
-    Returns the total commands ran for a certain user
-    :param discord_id: the discord id of the respective user
-    :param default: the default value to return if the user has\
-        never run any commands
-    :param cursor: custom `sqlite3.Cursor` object to execute queries with
+    Get the total amount of commands that a user has ran.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param default: The default return value if the user has never run a command.
+    :param cursor: A custom `sqlite3.Cursor` object to operate on.
     """
     if cursor:
         return _commands_ran(discord_id, default, cursor)
@@ -194,9 +197,7 @@ def commands_ran(
 
 
 def get_commands_total() -> int:
-    """
-    Returns total amount of commands run by all users
-    """
+    """Get the total amount of commands run by all users, ever."""
     with db_connect() as conn:
         cursor = conn.cursor()
 
@@ -217,7 +218,7 @@ def _set_embed_color(embed: discord.Embed, color: str | int):
 def __format_embed_fields(
     embed_json: dict,
     prop_values: dict[int, dict[str, dict[str, str]]]
-):
+) -> None:
     # loop over each field to format
     for field_index, field in prop_values.items():
         # get the embed field currently being targeted
@@ -232,7 +233,7 @@ def __format_embed_fields(
 def load_embeds(
     filename: str,
     format_values: dict[str, dict[str, str] | list[dict[str, dict[str, str]]]]=None,
-    color: int | str=None
+    color: int | Literal['primary', 'warning', 'danger']=None
 ) -> list[discord.Embed]:
     """
     Loads a list of embeds from a json file.
@@ -264,11 +265,11 @@ def load_embeds(
         }
     )
     ```
-    :param filename: the name of the file containing the embed json data\
-        (.json ext optional)
-    :param format_values: a list of format values respective to their properties
-    :param color: override embed color, can be integer directly or 'primary',\
-        'warning', 'danger'
+    :param filename: The name of the file containing the embed json data\
+        (.json ext optional).
+    :param format_values: A list of format values respective to their properties.
+    :param color: Override embed color, can be integer directly or 'primary',\
+        'warning', 'danger'.
     """
     if not filename.endswith('.json'):
         filename += '.json'
@@ -298,13 +299,15 @@ def load_embeds(
     return embeds
 
 
+# Why does this exist?
 def get_timestamp(blacklist: tuple[float]=None) -> int:
     """
-    Returns a unique timestamp that is not in a list of timestamps
-    :param blacklist: blacklisted list of timestamps
-    :param timestamp_type: the type to return the timestamp as
+    Return the the first current timestamp that is not
+    in a list of blacklisted timestamps.
+
+    :param blacklist: A blacklisted list of timestamps.
     """
-    timestamp = datetime.utcnow().timestamp()
+    timestamp = datetime.now(UTC).timestamp()
 
     if blacklist:
         i = 0
@@ -317,7 +320,7 @@ def get_timestamp(blacklist: tuple[float]=None) -> int:
 
 
 async def align_to_hour():
-    """Sleeps until the next hour"""
+    """Sleep until the next hour."""
     now = datetime.now()
     sleep_seconds = (60 - now.minute) * 60 - now.second
     await asyncio.sleep(sleep_seconds)
@@ -325,30 +328,32 @@ async def align_to_hour():
 
 def int_prefix(integer: int | float) -> str:
     """
-    Returns prefix (+, -) for a provided integer
-    if the provided integer is a negative number
-    an empty string will be returned as a `-` is
-    already present
-    :param integer: the integer to return the prefix of
+    Returns a prefix (+, -) for an integer depending on whether it is
+    positive or negative respectively. If the number is a negative number,
+    an empty string will be returned as a `-` is already present.
+
+    :param integer: The integer to determine the prefix of.
     """
     if integer >= 0:
         return "+"
     return ""
 
 
-def prefix_int(integer: int | float):
+def prefix_int(integer: int | float) -> str:
     """
-    Prefixes given number with `+` or `-` and returns it as a string
-    :param integer: the integer to be prefixed
+    Prefixes a given number with `+` or `-` and returns it as a string.
+
+    :param integer: The integer to be prefixed.
     """
     return f'{int_prefix(integer)}{integer:,}'
 
 
 def format_seconds(seconds):
     """
-    Formats an amount of seconds into a string for example
-    `36 Mins`, `48 Hours`, or `12 Days`
-    :param seconds: the amount of seconds to format
+    Format a duration of seconds into a string such as `36 Mins`,
+    `48 Hours`, or `12 Days`.
+
+    :param seconds: The duration in seconds to format.
     """
     delta = timedelta(seconds=round(seconds))
     days = delta.days
@@ -364,25 +369,29 @@ def format_seconds(seconds):
     return f"{minutes} Min{'s' if minutes > 1 else ''}"
 
 
-def pluralize(number: int, word: str) -> str:
+def pluralize(number: int, word: str, suffix: str='s') -> str:
     """
-    If the provided number is not `1`, an `s` will be
-    appended to the provided word
-    :param number: the number to run pluralisation against
-    :param word: the word to pluralize
+    Pluralizes a word based on a given number.
+
+    :param number: The number to determine whether to pluralize.
+    :param word: The word to pluralize.
+    :param suffix: The plural suffix to add to the word.
     """
     if number != 1:
-        return f'{word}s'
+        return f'{word}{suffix}'
     return word
 
 
+# I don't have a fucking clue mate.
 def timezone_relative_timestamp(timestamp: int | float):
     """
-    Adds local time difference to a UTC timestamp
-    :param timestamp: the timestamp to modify
+    Adds local time difference to a UTC timestamp.
+
+    :param timestamp: The timestamp to modify.
     """
     now_timestamp = datetime.now().timestamp()
-    utcnow_timestamp = datetime.utcnow().timestamp()
+    utcnow_timestamp = datetime.now(UTC).timestamp()
+
     timezone_difference = now_timestamp - utcnow_timestamp
 
     return timestamp + timezone_difference
@@ -390,17 +399,26 @@ def timezone_relative_timestamp(timestamp: int | float):
 
 def comma_separated_to_list(comma_seperated_list: str) -> list:
     """
-    Converts a comma seperated list (string) to a list of strings
+    Converts a comma seperated list (string) to a list of strings.
+    Example `"foo,bar"` -> `["foo", "bar"]`.
 
-    Example `"foo,bar"` -> `["foo", "bar"]`
-    :param comma_seperated_list: the comma seperated list of items
+    :param comma_seperated_list: The comma seperated list of items.
     """
     if comma_seperated_list:
         return comma_seperated_list.split(',')
     return []
 
 
-def setup_database_schema(schema_fp=f"{REL_PATH}/schema.sql", db_fp=config.DB_FILE_PATH) -> None:
+def setup_database_schema(
+    schema_fp=f"{REL_PATH}/schema.sql",
+    db_fp=config.DB_FILE_PATH
+) -> None:
+    """
+    Run the database schema setup script.
+
+    :param schema_fp: The path to the database schema setup script.
+    :param db_fp: The path to the database file.
+    """
     with open(schema_fp) as db_schema_file:
         db_schema_setup = db_schema_file.read()
 

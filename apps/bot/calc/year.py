@@ -18,7 +18,7 @@ class YearStats(hypixel.ProjectedStats):
             hypixel_data=hypixel_data,
             session_info=session_info,
             target_date=target_date,
-            strict_mode=mode
+            gamemode=mode
         )
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_data)

@@ -1,3 +1,10 @@
+"""
+Statalib is the shared library used by all services.
+
+It contains utilities for managing accounts, making requests,
+loading assets, calculating statistics, session stats, themes, and more.
+"""
+
 from . import rotational_stats as rotational_stats
 from . import mcfetch
 from . import loggers

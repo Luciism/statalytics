@@ -1,3 +1,5 @@
+"""Custom base discord.py UI components."""
+
 from typing import Any
 import discord
 
@@ -5,6 +7,7 @@ from ..handlers import handle_interaction_errors
 
 
 class CustomBaseView(discord.ui.View):
+    """Base class with error handling for custom discord.py views."""
     async def on_error(
         self,
         interaction: discord.Interaction,
@@ -15,6 +18,7 @@ class CustomBaseView(discord.ui.View):
 
 
 class CustomBaseModal(discord.ui.Modal):
+    """Base class with error handling for custom discord.py modals."""
     async def on_error(
         self,
         interaction: discord.Interaction,

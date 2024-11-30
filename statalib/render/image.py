@@ -1,3 +1,5 @@
+"""Main image rendering functionality."""
+
 from io import BytesIO
 from typing import Literal, TypedDict
 
@@ -25,6 +27,7 @@ class TextOptions(TypedDict):
 
     @staticmethod
     def default() -> 'TextOptions':
+        """A dictionary of default text options."""
         return {
             "font_size": 16,
             "position": (0, 0),
@@ -34,7 +37,13 @@ class TextOptions(TypedDict):
 
 
 class PlayerRender:
+    """Class for rendering player information."""
     def __init__(self, image: Image.Image) -> None:
+        """
+        Initialize the player render class.
+
+        :param image: The image to render the player information onto.
+        """
         self._image = image
 
     def render_hypixel_username(
@@ -72,7 +81,7 @@ class PlayerRender:
 
     def paste_skin(self, skin_model: bytes, position: tuple[int, int]) -> None:
         """
-        Paste a skin model on to the image
+        Paste a skin model on to the image.
 
         :param skin_model: The skin model image as bytes.
         :param position: The (X, Y) position to paste the skin.
@@ -88,7 +97,13 @@ class PlayerRender:
 
 
 class TextRender:
+    """Class for rendering text."""
     def __init__(self, image: Image.Image) -> None:
+        """
+        Initialize the text render class.
+
+        :param image: The image to render the text onto.
+        """
         self._image = image
 
     def draw(
@@ -129,10 +144,17 @@ class TextRender:
 
 
 class ProgressRender:
+    """Class for rendering progress bars."""
     font = ASSET_LOADER.load_font("main.ttf", 20)
     progress_symbol="|"
 
     def __init__(self, image: Image.Image, text_render: TextRender) -> None:
+        """
+        Initialize the progress render class.
+
+        :param image: The image to render the progress bar onto.
+        :param text_render: The text render class object to use for rendering text.
+        """
         self._image = image
         self._text_render = text_render
 
@@ -184,7 +206,8 @@ class ProgressRender:
         align: Literal['left', 'center', 'right'] = 'center'
     ) -> Image.Image:
         """
-        Render progress text: `Progress: {progress} / {target}`
+        Render progress text: `Progress: {progress} / {target}`.
+
         :param progress: The xp progress made on the current level.
         :param target: The xp needed to reach the next level.
         :param position: The (x, y) position of the progress text.
@@ -202,6 +225,7 @@ class ProgressRender:
 
 
 class ImageRender:
+    """Main image rendering class."""
     def __init__(self, base_image: Image.Image):
         self._image: Image.Image = base_image.convert("RGBA")
         self.text = TextRender(self._image)
@@ -237,5 +261,5 @@ class ImageRender:
 
     @property
     def size(self) -> tuple[int, int]:
-        """The size of the image."""
+        """The width and height of the image."""
         return self._image.size

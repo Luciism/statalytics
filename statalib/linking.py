@@ -1,3 +1,5 @@
+"""Functionality for linking Discord accounts to Hypixel accounts."""
+
 from .mcfetch import AsyncFetchPlayer
 from .sessions import SessionManager
 from .permissions import has_access
@@ -6,7 +8,7 @@ from .functions import insert_growth_data, db_connect
 
 
 def get_linked_total() -> int:
-    """Returns total linked accounts"""
+    """Return the total linked accounts count."""
     with db_connect() as conn:
         cursor = conn.cursor()
 
@@ -19,8 +21,11 @@ def get_linked_total() -> int:
 
 def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
     """
-    Attempts to fetch discord id from linked database
-    :param uuid: The uuid of the player to find linked data for
+    Attempt to retrieve the linked Discord ID that corresponds
+    to a player UUID if there is one.
+
+    :param uuid: The UUID of the player to find linked Discord ID for.
+    :return int | None: The linked Discord ID if found, otherwise None.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -34,8 +39,10 @@ def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
 
 def get_linked_player(discord_id: int) -> PlayerUUID | None:
     """
-    Returns a users linked player uuid from database
-    :param discord_id: The discord id of user's linked data to be retrieved
+    Retrieve the player UUID linked to a user if there is one.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :return PlayerUUID | None: The player UUID if found, otherwise None.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -50,9 +57,10 @@ def get_linked_player(discord_id: int) -> PlayerUUID | None:
 
 def set_linked_data(discord_id: int, uuid: PlayerUUID) -> None:
     """
-    Inserts linked account data into database
-    :param discord_id: the discord id of the respective user
-    :param uuid: the minecraft uuid of the relvative user
+    Insert linked account data into the database.
+
+    :param discord_id: The Discord user ID of the respective user
+    :param uuid: The Minecraft player UUID of the respective player.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -72,12 +80,13 @@ def set_linked_data(discord_id: int, uuid: PlayerUUID) -> None:
         insert_growth_data(discord_id, 'add', 'linked')
 
 
-def delete_linked_data(discord_id: int) -> bool:
+def delete_linked_data(discord_id: int) -> str | None:
     """
-    Unlinks a discord user from a player
-    :param discord_id: the discord id of the respective user
-    :returns: former linked uuid of the discord user if the user
-    was already linked and able to be unlinked otherwise `None`
+    Unlink a user from a player.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :return str | None: The formerly linked player UUID if there was one, \
+        otherwise `None`.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -102,10 +111,11 @@ def update_autofill(
     username: PlayerName
 ) -> None:
     """
-    Updates autofill for a user, this will be helpful if a user has changed their ign
-    :param discord_id: The discord id of the target linked user
-    :param uuid: The uuid of the target linked user
-    :param username: The updated username of the target linked user
+    Updates the username autocompletion option for a certain player.
+
+    :param discord_id: The Discord user ID of the target linked user.
+    :param uuid: The linked player UUID of the target linked user.
+    :param username: The updated linked player username of the target linked user.
     """
     if has_access(discord_id, 'autofill'):
         with db_connect() as conn:
@@ -129,20 +139,18 @@ async def link_account(
     name: PlayerName=None
 ) -> bool | None:
     """
-    Attempt to link an discord account to a hypixel account
-    :param discord_tag: The discord user's full tag eg: Example#1234
-    :param discord_id: The discord user's id
-    :param hypixel_data: the hypixel data of the player
-    :param uuid: The uuid of the hypixel account being linked
-    :param name: The username of the hypixel account being linked
+    Attempt to link a Discord account to a Hypixel account.
+    Either `uuid`, `name`, or both must be passed.
 
-    Either uuid, name, or both must be passed
-
-    #### Returns:
-        2 - linking was a success and session was created\n
-        1 - linking was a success\n
-        0 - discord tags don't match\n
-        -1 - discord tag isn't set\n
+    :param discord_tag: The Discord user's tag (with or without a discriminator).
+    :param discord_id: The Discord user ID of the respective user.
+    :param hypixel_data: The Hypixel data of the respective player.
+    :param uuid: The player UUID of the Hypixel account to be linked.
+    :param name: The player username of the Hypixel account to be linked.
+    :return int: 2 - Linking was a success AND a session was created, \
+        1 - Linking was a success, \
+        0 - Discord tags don't match, \
+        -1 - Discord tag isn't set
     """
     if discord_tag.endswith('#0'):
         discord_tag = discord_tag[:-2]
@@ -172,47 +180,52 @@ async def link_account(
 
 
 class LinkingManager:
+    """A linking manager for the account."""
     def __init__(self, discord_id: int):
         self._discord_id = discord_id
 
 
     def get_linked_player(self):
-        """
-        Returns a users linked data from linked database
-        """
+        """Retrieve the player UUID linked to a user if there is one."""
         return get_linked_player(self._discord_id)
 
 
     def set_linked_data(self, uuid: PlayerUUID):
         """
-        Inserts linked account data into database
-        :param uuid: the minecraft uuid of the relvative user
+        Insert linked account data into the database.
+
+        :param uuid: The Minecraft player UUID of the respective player.
         """
         set_linked_data(self._discord_id, uuid)
 
 
     def delete_linked_data(self) -> bool:
         """
-        Unlinks the discord user from a player
-        :returns: former linked uuid of the discord user if the user
-        was already linked and able to be unlinked otherwise `None`
+        Unlink a user from a player.
+
+        :return str | None: The formerly linked player UUID if there was one, \
+            otherwise None.
         """
         delete_linked_data(self._discord_id)
 
 
     def uuid_to_discord_id(self, uuid: PlayerUUID):
         """
-        Attempts to fetch discord id from linked database
-        :param uuid: The uuid of the player to find linked data for
+        Attempt to retrieve the linked Discord ID that corresponds
+        to a player UUID if there is one.
+
+        :param uuid: The UUID of the player to find linked Discord ID for.
+        :return int | None: The linked Discord ID if found, otherwise None.
         """
         return uuid_to_discord_id(uuid)
 
 
     def update_autofill(self, uuid: PlayerUUID, username: PlayerName):
         """
-        Updates autofill for a user, this will be helpful if a user has changed their ign
-        :param uuid: The uuid of the target linked user
-        :param username: The updated username of the target linked user
+        Updates the username autocompletion option for a certain player.
+
+        :param uuid: The linked player UUID of the target linked user.
+        :param username: The updated linked player username of the target linked user.
         """
         update_autofill(self._discord_id, uuid, username)
 
@@ -225,19 +238,17 @@ class LinkingManager:
         uuid: PlayerUUID=None
     ):
         """
-        Attempt to link an discord account to a hypixel account
-        :param discord_tag: The discord user's full tag eg: Example#1234
-        :param hypixel_data: the hypixel data of the player
-        :param uuid: The uuid of the hypixel account being linked
-        :param name: The username of the hypixel account being linked
+        Attempt to link a Discord account to a Hypixel account.
+        Either `uuid`, `name`, or both must be passed.
 
-        Either uuid, name, or both must be passed
-
-        #### Returns:
-            2 - linking was a success and session was created\n
-            1 - linking was a success\n
-            0 - discord tags don't match\n
-            -1 - discord tag isn't set\n
+        :param discord_tag: The Discord user's tag (with or without a discriminator).
+        :param hypixel_data: The Hypixel data of the respective player.
+        :param uuid: The player UUID of the Hypixel account to be linked.
+        :param name: The player username of the Hypixel account to be linked.
+        :return int: 2 - Linking was a success AND a session was created, \
+            1 - Linking was a success, \
+            0 - Discord tags don't match, \
+            -1 - Discord tag isn't set
         """
         response = await link_account(
             discord_tag, self._discord_id, hypixel_data, uuid, name)

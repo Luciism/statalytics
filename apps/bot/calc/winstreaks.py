@@ -6,7 +6,7 @@ class WinstreakStats(hypixel.BedwarsStats):
         self,
         hypixel_data: dict
     ) -> None:
-        super().__init__(hypixel_data, strict_mode='overall')
+        super().__init__(hypixel_data, ganemode='overall')
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_data)
         self.level = int(self.level)

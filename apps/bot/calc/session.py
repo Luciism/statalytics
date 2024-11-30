@@ -4,7 +4,7 @@ from statalib import SessionManager
 from statalib.hypixel import (
     CumulativeStats,
     get_rank_info,
-    get_mode,
+    mode_name_to_id,
     rround
 )
 from statalib.sessions import BedwarsSession
@@ -19,13 +19,13 @@ class SessionStats(CumulativeStats):
         mode: str='overall'
     ) -> None:
 
-        super().__init__(hypixel_data, session_info.data, strict_mode=mode)
+        super().__init__(hypixel_data, session_info.data, gamemode=mode)
 
         self.session = session_info
         session_manager = SessionManager(uuid)
         self.total_sessions = session_manager.session_count()
 
-        self.mode = get_mode(mode)
+        self.mode = mode_name_to_id(mode)
 
         self.rank_info = get_rank_info(self._hypixel_data)
 

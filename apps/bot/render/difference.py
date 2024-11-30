@@ -1,7 +1,7 @@
 from calc.difference import DifferenceStats
 import statalib as lib
 from statalib import to_thread, REL_PATH
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
 def color(diff: str) -> tuple:
@@ -9,7 +9,7 @@ def color(diff: str) -> tuple:
         return f'&a{diff}'
     return f'&c{diff}'
 
-bg = RenderBackground(dir="difference")
+bg = BackgroundImageLoader(dir="difference")
 
 @to_thread
 def render_difference(

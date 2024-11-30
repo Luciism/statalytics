@@ -1,15 +1,16 @@
-import sqlite3
+"""Functions for handling permissions."""
 
 from .accounts import create_account
-from .common import REL_PATH
 from .functions import comma_separated_to_list, db_connect
 from .subscriptions import SubscriptionManager
 
 
 def get_permissions(discord_id: int) -> list:
     """
-    Returns list of permissions for a discord user
-    :param discord_id: the discord id of the respective user
+    Returns list of permissions for a Discord user.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :return: A list of the user's permissions.
     """
     with db_connect() as conn:
         cursor = conn.cursor()
@@ -31,12 +32,12 @@ def has_permission(
     allow_star: bool=True
 ) -> bool:
     """
-    Returns bool `True` or `False` if a user has a permission
-    :param discord_id: the discord id of the respective user
-    :param permissions: the permission(s) to check for. if multiple permissions
-        are provided, `True` will be returned if the user has
-        at least one of the given permissions.
-    :param allow_star: returns `True` if the user has the `*` permission
+    Check if a user has one or more of the specified permissions.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param permissions: The permission(s) to check that the user has one more of.
+    :param allow_star: Allow star (*) permission to overrule permission checks.
+    :return bool: Whether the user has derived access to the specified permissions.
     """
     user_permissions = get_permissions(discord_id)
 
@@ -53,13 +54,13 @@ def has_permission(
     return False
 
 
-def set_permissions(discord_id: int, permissions: list | str):
+def set_permissions(discord_id: int, permissions: list | str) -> None:
     """
-    Sets a users permissions to the given permissions\n
-    Permissions can either be a list of permissions as a list
-    or as a string with commas `,` as seperators
-    :param discord_id: the discord id of the respective user
-    :param permissions: the permissions to set for the user
+    Sets the user's permissions to the given set of permissions.
+    This will completely override any existing permissions.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param permissions: The permissions either as a list, or comma seperated list.
     """
     if isinstance(permissions, list):
         permissions = ','.join(permissions)
@@ -79,11 +80,12 @@ def set_permissions(discord_id: int, permissions: list | str):
             create_account(discord_id, permissions=permissions, cursor=cursor)
 
 
-def add_permission(discord_id: int, permission: str):
+def add_permission(discord_id: int, permission: str) -> None:
     """
-    Adds a permission to a user if they don't already have it
-    :param discord_id: the discord id of the respective user
-    :param permission: the permission to add to the user
+    Adds a permission to a user if they don't already have it.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param permission: The permission to add to the user.
     """
     permissions = get_permissions(discord_id)
 
@@ -92,11 +94,12 @@ def add_permission(discord_id: int, permission: str):
         set_permissions(discord_id, permissions)
 
 
-def remove_permission(discord_id: int, permission: str):
+def remove_permission(discord_id: int, permission: str) -> None:
     """
-    Removes a permission for a user if they have it
-    :param discord_id: the discord id of the respective user
-    :param permission: the permission to remove from the user
+    Removes a permission from a user if they have it.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param permission: The permission to remove from the user.
     """
     permissions = get_permissions(discord_id)
 
@@ -107,18 +110,19 @@ def remove_permission(discord_id: int, permission: str):
 
 
 def has_access(
-    discord_id: int,
-    permissions: str | list[str],
-    allow_star=True
-):
+    discord_id: int, permissions: str | list[str], allow_star=True
+) -> bool:
     """
+    Check if a user's account has access to one or more of the
+    specified permission(s), accounting for permissions derived
+    from subscriptions.
+
     Similar to `has_permission` but accounts for subscription based permissions
     Returns bool `True` or `False` if a user has a permission
-    :param discord_id: the discord id of the respective user
-    :param permissions: the permission(s) to check for. if multiple permissions
-        are provided, `True` will be returned if the user has
-        at least one of the given permissions.
-    :param allow_star: returns `True` if the user has the `*` permission
+    :param discord_id: The Discord user ID of the respective user.
+    :param permissions: The permission(s) to check that the user has one more of.
+    :param allow_star: Allow star (*) permission to overrule permission checks.
+    :return bool: Whether the user has derived access to the specified permissions.
     """
     if not discord_id:
         return False
@@ -139,7 +143,7 @@ def has_access(
     if isinstance(permissions, str):
         permissions = [permissions]
 
-    # user has at least one of the following permissions
+    # User has at least one of the following permissions.
     if set(permissions) & package_perms:
         return True
 
@@ -147,57 +151,67 @@ def has_access(
 
 
 class PermissionManager:
+    """A permissions manager for the account."""
     def __init__(self, discord_id: int):
         self.discord_id = discord_id
 
 
     def add_permission(self, permission: str):
         """
-        Adds a permission to a user if they don't already have it
-        :param permission: the permission to add to the user
+        Adds a permission to a user if they don't already have it.
+
+        :param permission: The permission to add to the user.
         """
         add_permission(self.discord_id, permission)
 
 
     def remove_permission(self, permission: str):
         """
-        Removes a permission for a user if they have it
-        :param permission: the permission to remove from the user
+        Removes a permission from a user if they have it.
+
+        :param permission: The permission to remove from the user.
         """
         remove_permission(self.discord_id, permission)
 
 
     def set_permissions(self, permissions: list | str):
         """
-        Sets a users permissions to the given permissions\n
-        Permissions can either be a list of permissions as a list
-        or as a string with commas `,` as seperators
-        :param permissions: the permissions to set for the user
+        Sets the user's permissions to the given set of permissions.
+        This will completely override any existing permissions.
+
+        :param permissions: The permissions either as a list, or comma seperated list.
         """
         set_permissions(self.discord_id, permissions)
 
 
     def get_permissions(self):
-        """Returns list of permissions for a discord user"""
+        """
+        Returns a list of the user's permissions.
+
+        :return list: A list of the user's permissions
+        """
         return get_permissions(self.discord_id)
 
 
     def has_permission(self, permissions: str | list[str], allow_star: bool=True):
         """
-        Returns bool `True` or `False` if a user has a permission
-        :param permission: the permission to check for
-        :param allow_star: returns `True` if the user has the `*` permission
+        Check if a user has one or more of the specified permissions.
+
+        :param permissions: The permission(s) to check that the user has one more of.
+        :param allow_star: Allow star (*) permission to overrule permission checks.
+        :return bool: Whether the user has derived access to the specified permissions.
         """
         return has_permission(self.discord_id, permissions, allow_star)
 
 
     def has_access(self, permissions: str | list[str], allow_star: bool=True):
         """
-        Similar to `has_permission` but accounts for subscription based permissions
-        Returns bool `True` or `False` if a user has a permission
-        :param permissions: the permission(s) to check for. if multiple permissions
-            are provided, `True` will be returned if the user has
-            at least one of the given permissions.
-        :param allow_star: returns `True` if the user has the `*` permission
+        Check if a user's account has access to one or more of the
+        specified permission(s), accounting for permissions derived
+        from subscriptions.
+
+        :param permissions: The permission(s) to check that the user has one more of.
+        :param allow_star: Allow star (*) permission to overrule permission checks.
+        :return bool: Whether the user has derived access to the specified permissions.
         """
         return has_access(self.discord_id, permissions, allow_star)

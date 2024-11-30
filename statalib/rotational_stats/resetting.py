@@ -1,3 +1,5 @@
+"""Rotational resetting related functionality."""
+
 import logging
 import calendar
 from datetime import UTC, datetime, timedelta
@@ -29,10 +31,12 @@ def has_auto_reset_access(
     auto_reset_config: dict | None=None
 ) -> bool:
     """
-    Checks if a player has tracker auto reset permissions
-    :param uuid: the player to check for auto reset perms
-    :param auto_reset_config: an optional auto reset configuration
-    that can be injected, otherwise the one `config.json` will be used
+    Check if a player has access to rotational auto resetting.
+
+    :param uuid: The UUID of the respective player.
+    :param auto_reset_config: A custom auto reset configuration that should be \
+        respected, otherwise the configured one will be used.
+    :return bool: Whether the player has access to rotational auto resetting.
     """
     # Use config from config file
     if auto_reset_config is None:
@@ -63,7 +67,13 @@ def has_auto_reset_access(
 
 
 class RotationalResetting:
+    """Class to manage rotational resetting."""
     def __init__(self, uuid: str) -> None:
+        """
+        Initialize the rotational resetting class.
+
+        :param uuid: The UUID of the respective player.
+        """
         self._player_uuid = uuid
 
 
@@ -72,6 +82,7 @@ class RotationalResetting:
         current_rotational_data: BedwarsRotation,
         current_hypixel_data: dict
     ) -> tuple:
+        """Calculate the cumulative difference between current and old data."""
         # Get player bedwars data
         current_bedwars_data = get_bedwars_data(current_hypixel_data)
 
@@ -101,9 +112,9 @@ class RotationalResetting:
         """
         Save currently active rotational data as a historical data snapshot.
 
-        :param period_id: The period ID information for the reset
-        :param current_hypixel_data: The current hypixel data of the player.
-        :return: The snapshot ID to identify the data.
+        :param period_id: The period ID information for the reset.
+        :param current_hypixel_data: The current Hypixel data of the player.
+        :return str: A snapshot ID that can be used to identify the data.
         """
         manager = RotationalStatsManager(self._player_uuid)
         current_rotational_data = manager.get_rotational_data(period_id.rotation_type)
@@ -152,10 +163,10 @@ class RotationalResetting:
         current_hypixel_data: dict
     ) -> None:
         """
-        Refresh rotational data by updating the data to the current player stats.
+        Refresh rotational data by updating the data to the player's current stats.
 
         :param rotation_type: The type of rotation; daily, weekly, monthly, etc.
-        :param current_hypixel_data: The current hypixel data of the player.
+        :param current_hypixel_data: The current Hypixel data of the player.
         """
         timestamp = datetime.now(UTC).timestamp()
 
@@ -207,13 +218,13 @@ def reset_rotational_stats_if_whitelisted(
     hypixel_data: dict
 ) -> None:
     """
-    Resets a player's rotational stats if the time since the last
-    reset justifies a reset. Should be used every time a requests is
-    made to hypixel so that rotational resetting is considered
+    Reset a player's rotational stats if the time since the last
+    reset justifies a reset. Should be used every time a request is
+    made to hypixel, to ensure that rotational resetting is considered
     manual instead of automatic polling.
 
-    :param uuid: The uuid of the player to reset the rotational stats of.
-    :param hypixel_data: The current hypixel data of the player.
+    :param uuid: The UUID of the respective player.
+    :param hypixel_data: The current Hypixel data of the player.
     """
     # Dont reset players that are auto reset whitelisted
     if has_auto_reset_access(uuid):
@@ -297,9 +308,10 @@ def reset_rotational_stats_if_whitelisted(
             logger.info(f'(Manual) Reset yearly tracker for: {uuid}')
 
 
+# What the fuck?
 async def async_reset_rotational_stats_if_whitelisted(
     uuid: PlayerUUID,
     hypixel_data: dict
 ) -> None:
-    """Async wrapper for ~reset_rotational_stats_if_whitelisted()"""
+    """Async wrapper for `~reset_rotational_stats_if_whitelisted()`."""
     reset_rotational_stats_if_whitelisted(uuid, hypixel_data)

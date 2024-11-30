@@ -1,3 +1,5 @@
+"""Session stats related functionality."""
+
 import sqlite3
 from datetime import datetime, UTC
 from uuid import uuid4
@@ -9,6 +11,7 @@ from .stats_snapshot import BedwarsStatsSnapshot
 
 
 class BedwarsSession:
+    """Represents a Bedwars session."""
     def __init__(self, session_info: dict, session_data: BedwarsStatsSnapshot) -> None:
         self.data = session_data
 
@@ -18,6 +21,7 @@ class BedwarsSession:
 
 
 class SessionManager:
+    """Bedwars session manager class."""
     def __init__(self, uuid: PlayerUUID) -> None:
         self._uuid = uuid
 
@@ -25,6 +29,7 @@ class SessionManager:
     def get_session(self, session_id: int | None=1) -> BedwarsSession | None:
         """
         Get a session with a specific ID.
+
         :param session_id: The ID of the session to retrieve. If left as `None`, \
             an existing session with the lowest ID will be returned.
         """
@@ -69,6 +74,7 @@ class SessionManager:
     def create_session(self, session_id: int, hypixel_data: dict) -> None:
         """
         Create a new bedwars session using the provided hypixel data.
+
         :param session_id: The ID of the session to be created.
         :param hypixel_data: The hypixel data to create the session with.
         """
@@ -107,6 +113,7 @@ class SessionManager:
     def delete_session(self, session_id: int) -> None:
         """
         Delete a session with a specific ID.
+
         :param session_id: The ID of the user's session to be deleted.
         """
         with db_connect() as conn:
@@ -134,7 +141,8 @@ class SessionManager:
     def session_count(self, cursor: sqlite3.Cursor | None=None) -> int:
         """
         Return the total amount of sessions the user has active.
-        :param cursor: Optional `sqlite3.Cursor` object to execute on.
+
+        :param cursor: A custom `sqlite3.Cursor` object to operate on.
         """
         def __session_count(cursor: sqlite3.Cursor) -> int:
             # Get snapshot ID
@@ -156,7 +164,8 @@ class SessionManager:
     def active_sessions(self, cursor: sqlite3.Cursor | None=None) -> list[int]:
         """
         Return a list of session IDs of the user's active sessions.
-        :param cursor: Optional `sqlite3.Cursor` object to execute on.
+
+        :param cursor: A custom `sqlite3.Cursor` object to operate on.
         """
         def __active_sessions(cursor: sqlite3.Cursor) -> list[int]:
             cursor.execute(

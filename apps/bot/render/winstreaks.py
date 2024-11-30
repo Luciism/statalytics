@@ -2,10 +2,10 @@ from calc.winstreaks import WinstreakStats
 
 import statalib as lib
 from statalib import to_thread
-from statalib.render import ImageRender, RenderBackground
+from statalib.render import ImageRender, BackgroundImageLoader
 
 
-bg = RenderBackground(dir="winstreaks")
+bg = BackgroundImageLoader(dir="winstreaks")
 
 @to_thread
 def render_winstreaks(

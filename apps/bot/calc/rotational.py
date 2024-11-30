@@ -24,10 +24,10 @@ class RotationalStats(hypixel.CumulativeStats):
         self.rotational_data = rotational.RotationalStatsManager(uuid) \
             .get_rotational_data(rotation_type)
 
-        super().__init__(hypixel_data, self.rotational_data.data, strict_mode=mode)
+        super().__init__(hypixel_data, self.rotational_data.data, gamemode=mode)
 
         self.uuid = uuid
-        self.mode = hypixel.get_mode(mode)
+        self.mode = hypixel.mode_name_to_id(mode)
 
         self.stars_gained = f'{hypixel.rround(self.levels_cum, 2):,}'
         self.level = int(self.level)
@@ -46,13 +46,13 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
         hypixel_data: dict,
         mode: str='overall'
     ) -> None:
-        super().__init__(hypixel_data, strict_mode=mode)
+        super().__init__(hypixel_data, ganemode=mode)
 
         self.historical_stats = rotational.RotationalStatsManager(uuid) \
             .get_historical_rotation_data(period_id.to_string())
 
         self.uuid = uuid
-        self.mode = hypixel.get_mode(mode)
+        self.mode = hypixel.mode_name_to_id(mode)
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_data)
 

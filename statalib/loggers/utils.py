@@ -1,3 +1,5 @@
+"""Logging utilities for setting up logging."""
+
 import logging
 
 from .handlers import CustomTimedRotatingFileHandler

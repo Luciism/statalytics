@@ -1,3 +1,5 @@
+"""Common constants and functions."""
+
 import os
 from datetime import datetime, UTC
 
@@ -5,8 +7,8 @@ from datetime import datetime, UTC
 REL_PATH = os.path.abspath(f'{__file__}/../..')
 "The base path of the project."
 
-
 class _MissingSentinel:  # Thanks discord.py
+    """A sentinel object to represent the absence of a value."""
     __slots__ = ()
     def __eq__(self, other) -> bool:
         return False
@@ -18,5 +20,7 @@ class _MissingSentinel:  # Thanks discord.py
         return '...'
 
 MISSING = _MissingSentinel()
+"Global missing sentinel instance."
 
 utc_now = lambda: datetime.now(UTC)
+"Returns the current UTC datetime."

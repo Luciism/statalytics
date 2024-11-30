@@ -1,3 +1,5 @@
+"""Wrapper for cumulative hypixel bedwars stats."""
+
 from .bedwars_stats import BedwarsStats
 from .utils import BEDWARS_MODES_MAP
 from .leveling import Leveling
@@ -5,18 +7,21 @@ from ..stats_snapshot import BedwarsStatsSnapshot
 
 
 class CumulativeStats(BedwarsStats):
+    """Cumulative hypixel bedwars stats."""
     def __init__(
         self,
         hypixel_data: dict,
         bedwars_stats_snapshot: BedwarsStatsSnapshot,
-        strict_mode: str='overall'
+        gamemode: str='overall'
     ) -> None:
         """
-        :param hypixel_data: the raw hypixel response json
-        :param bedwars_stats_snapshot: locally stored snapshot of a player's stats
-        :param strict_mode: the mode to fetch stats for (overall, solos, doubles, etc)
+        Initialize the class.
+
+        :param hypixel_data: The raw Hypixel API JSON response.
+        :param bedwars_stats_snapshot: A local bedwars stats snapshot of a player.
+        :param gamemode: The mode to calculate stats for (overall, solos, etc).
         """
-        super().__init__(hypixel_data, strict_mode)
+        super().__init__(hypixel_data, gamemode)
 
         self._bedwars_stats_snapshot = bedwars_stats_snapshot
 
@@ -61,14 +66,7 @@ class CumulativeStats(BedwarsStats):
 
 
     def _get_mode_stats_local(self, key: str, default=0) -> dict | int:
-        # if self._strict_mode is None:
-        #     mode_stats = {}
-        #     for mode, prefix in bedwars_modes_map.items():
-        #         mode_stats[mode] = self._bedwars_stats_snapshot.__dict__.get(
-        #             f'{prefix}{key}', default)
-        #     return mode_stats
-
-        prefix = BEDWARS_MODES_MAP.get(self._strict_mode.lower())
+        prefix = BEDWARS_MODES_MAP.get(self._gamemode.lower())
         return self._bedwars_stats_snapshot.__dict__.get(f'{prefix}{key}', default)
 
 

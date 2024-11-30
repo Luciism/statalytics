@@ -1,12 +1,19 @@
+"""String splitting utilities."""
+
 import re
 
 
-def split_string(input_string: str, split_chars: tuple | list):
+def split_string(
+    input_string: str,
+    split_chars: tuple | list
+) -> list[tuple[str, str]]:
     """
-    Splits string at all specified values and returns both
-    split list and values the string was split at
-    :param input_string: the string to split
-    :param split_chars: the characters to split the string at
+    Split a string at all specified substrings and returns both
+    split list with their respective substrings.
+
+    :param input_string: The string to split.
+    :param split_chars: The characters to split the string at.
+    :return: A list of tuples containing the split substrings.
 
     Example usage:
     ```python

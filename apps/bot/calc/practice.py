@@ -6,7 +6,7 @@ class PracticeStats(BedwarsStats):
         self,
         hypixel_data: dict
     ) -> None:
-        super().__init__(hypixel_data, strict_mode='overall')
+        super().__init__(hypixel_data, ganemode='overall')
         self.practice_stats: dict = self._bedwars_data.get('practice', {})
 
         self.level = int(self.level)

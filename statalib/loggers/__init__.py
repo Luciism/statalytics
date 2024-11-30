@@ -1,3 +1,5 @@
+"""Logging utilities and related functionality."""
+
 from .handlers import CustomTimedRotatingFileHandler
 from .formatters import UncoloredFormatter, ColoredStreamFormatter
 from .utils import setup_logging
