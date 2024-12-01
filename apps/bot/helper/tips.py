@@ -2,6 +2,7 @@ import json
 import random
 
 import statalib as lib
+from statalib.accounts import Account
 
 
 def random_tip_message(discord_id: int):
@@ -9,7 +10,7 @@ def random_tip_message(discord_id: int):
     Chooses a random message to send if the user doesnt have tip bypass perms
     :param discord_id: the discord id of the respective user
     """
-    if lib.permissions.has_access(discord_id, 'no_tips'):
+    if Account(discord_id).permissions.has_access('no_tips'):
         return None
 
     if random.choice(([False]*5) + ([True]*2)):  # 2 in 7 chance

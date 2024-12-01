@@ -8,6 +8,7 @@ from discord import Interaction, Embed
 from aiohttp import ContentTypeError, ClientConnectionError
 
 import statalib as lib
+from statalib.accounts import Account
 from .tips import random_tip_message
 from .views import ModesView
 
@@ -42,7 +43,7 @@ async def fetch_player_info(
     :param eph: whether or not to respond with an ephemeral message (default false)
     """
     if player is None:
-        uuid = lib.linking.get_linked_player(interaction.user.id)
+        uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
 
         if uuid:
             try:
@@ -51,7 +52,7 @@ async def fetch_player_info(
             except (ContentTypeError, ClientConnectionError) as exc:
                 raise lib.errors.MojangInvalidResponseError from exc
 
-            lib.linking.update_autofill(interaction.user.id, uuid, name)
+            Account(interaction.user.id).linking.update_autofill(uuid, name)
         else:
             msg = ("You are not linked! Either specify "
                    "a player or link your account using `/link`!")
@@ -64,7 +65,7 @@ async def fetch_player_info(
     else:
         # allow for linked discord ids
         if player.isnumeric() and len(player) >= 16:
-            player = lib.linking.get_linked_player(int(player)) or ''
+            player = Account(int(player)).linking.get_linked_player_uuid() or ''
 
         player_data = lib.mcfetch.AsyncFetchPlayer2(
             player, cache_backend=lib.network.mojang_session)
@@ -99,9 +100,8 @@ async def linking_interaction(
     hypixel_data = await lib.network.fetch_hypixel_data(uuid, cache=False)
 
     # Linking Logic
-    discord_tag = str(interaction.user)
-    response = await lib.linking.link_account(
-        discord_tag, interaction.user.id, hypixel_data, uuid, name)
+    response = await Account(interaction.user.id).linking.link_account(
+        str(interaction.user), hypixel_data, name, uuid)
 
     if response == 1:
         await interaction.followup.send(f"Successfully linked to **{lib.fname(name)}**")
@@ -191,22 +191,22 @@ async def run_interaction_checks(
     :param allow_star: whether or not to allow star permissions if certain\
         permissions are required
     """
-    account = lib.Account(interaction.user.id)
+    account_data = lib.accounts.Account(interaction.user.id).load(create=True)
 
-    if account.exists:
-        if check_blacklisted and account.blacklisted:
-            embeds = lib.load_embeds('blacklisted', color='danger')
-            await _send_interaction_check_response(interaction, embeds)
+    # User is blacklisted
+    if check_blacklisted and account_data.blacklisted:
+        embeds = lib.load_embeds('blacklisted', color='danger')
+        await _send_interaction_check_response(interaction, embeds)
 
-            logger.debug(
-                f'`Blacklisted User`: Denied {interaction.user} '
-                f'({interaction.user.id}) access to an interaction')
-            raise lib.errors.UserBlacklistedError
+        logger.debug(
+            f'`Blacklisted User`: Denied {interaction.user} '
+            f'({interaction.user.id}) access to an interaction')
+        raise lib.errors.UserBlacklistedError
 
     if permissions:
         # User doesn't have at least one of the required permissions
-        if not (allow_star and '*' in account.permissions):
-            if not set(permissions) & set(account.permissions):
+        if not (allow_star and '*' in account_data.permissions):
+            if not set(permissions) & set(account_data.permissions):
                 embeds = lib.load_embeds('missing_permissions', color='danger')
                 await _send_interaction_check_response(interaction, embeds)
 

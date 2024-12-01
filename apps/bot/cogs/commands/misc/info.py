@@ -26,7 +26,7 @@ class Info(commands.Cog):
         await helper.interactions.run_interaction_checks(interaction)
 
         commands_ran = lib.get_commands_total()
-        linked_accounts = lib.get_linked_total()
+        linked_accounts = lib.accounts.get_total_linked_accounts()
 
         total_guilds = len(self.client.guilds)
         total_users = lib.get_user_total()

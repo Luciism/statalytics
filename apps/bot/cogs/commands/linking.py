@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+from statalib.accounts import Account
 import helper
 
 
@@ -28,7 +29,7 @@ class Linking(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        previous_uuid = lib.delete_linked_data(interaction.user.id)
+        previous_uuid = Account(interaction.user.id).linking.unlink_account()
 
         if previous_uuid is None:
             message = "You don't have an account linked! In order to link use `/link`!"

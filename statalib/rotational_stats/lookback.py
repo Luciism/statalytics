@@ -1,7 +1,7 @@
 """Rotational stats lookback functionality."""
 
 from ..cfg import config
-from ..subscriptions import SubscriptionManager
+from ..accounts.subscriptions import AccountSubscriptions
 from ..functions import load_embeds
 
 
@@ -27,7 +27,7 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
             return FALLBACK_MAX_LOOKBACK  # Fallback
 
     max_lookbacks: list[int | None] = [
-        SubscriptionManager(discord_id) \
+        AccountSubscriptions(discord_id) \
             .get_subscription() \
             .package_property("max_lookback", FALLBACK_MAX_LOOKBACK)
         for discord_id in discord_ids

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from ..aliases import PlayerUUID
 from ..common import MISSING
 from ..functions import db_connect
-from ..linking import uuid_to_discord_id
+from ..accounts.linking import uuid_to_discord_id
 
 
 @dataclass

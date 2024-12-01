@@ -19,8 +19,8 @@ from ..aliases import PlayerUUID, HypixelData
 from ..hypixel.leveling import Leveling
 from ..cfg import config
 from ..functions import db_connect
-from ..linking import uuid_to_discord_id
-from ..permissions import has_access
+from ..accounts.linking import uuid_to_discord_id
+from ..accounts.permissions import AccountPermissions
 
 
 logger = logging.getLogger(__name__)
@@ -56,8 +56,8 @@ def has_auto_reset_access(
             return False
 
         # uuid is whitelisted or linked discord account has perms
-        user_has_access = has_access(
-            linked_discord_id, perm_whitelist, allow_star_perm)
+        user_has_access = AccountPermissions(linked_discord_id).has_access(
+            perm_whitelist, allow_star_perm)
         if not user_has_access and not uuid in uuid_whitelist:
             # User has no access and linked player is not whitelisted
             return False

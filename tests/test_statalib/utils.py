@@ -4,7 +4,7 @@ import sqlite3
 from dotenv import load_dotenv
 
 import statalib
-from statalib import config
+from statalib.accounts import Account
 from statalib import config, REL_PATH
 
 
@@ -35,6 +35,5 @@ def clean_database() -> None:
             cursor.execute(f"DELETE FROM {table}")
 
 
-link_mock_data = lambda: statalib \
-    .LinkingManager(MockData.discord_id) \
-    .set_linked_data(MockData.uuid)
+link_mock_data = lambda: Account(MockData.discord_id).linking \
+    .set_linked_player(MockData.uuid)

@@ -122,7 +122,7 @@ class Monthly(commands.Cog):
         await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
-        discord_id = lib.uuid_to_discord_id(uuid=uuid)
+        discord_id = lib.accounts.uuid_to_discord_id(uuid=uuid)
 
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
 

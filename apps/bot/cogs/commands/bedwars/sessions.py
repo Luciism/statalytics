@@ -8,6 +8,7 @@ from discord.ext import commands
 
 import helper
 import statalib as lib
+from statalib.accounts import Account
 from statalib.sessions import SessionManager
 from render.session import render_session
 
@@ -125,7 +126,7 @@ class Sessions(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        uuid = lib.get_linked_player(interaction.user.id)
+        uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
 
         if not uuid:
             await interaction.followup.send(
@@ -137,7 +138,7 @@ class Sessions(commands.Cog):
         active_sessions = session_manager.active_sessions()
         active_sessions_count = len(active_sessions)
 
-        max_user_sessions = lib.SubscriptionManager(interaction.user.id)\
+        max_user_sessions = Account(interaction.user.id).subscriptions\
             .get_subscription()\
             .package_property("max_sessions", 2)
 
@@ -170,7 +171,7 @@ class Sessions(commands.Cog):
     async def end_session(self, interaction: discord.Interaction, session: int=1):
         await helper.interactions.run_interaction_checks(interaction)
 
-        uuid = lib.get_linked_player(interaction.user.id)
+        uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
         if not uuid:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
@@ -204,7 +205,7 @@ class Sessions(commands.Cog):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        uuid = lib.get_linked_player(interaction.user.id)
+        uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
         if not uuid:
             await interaction.response.send_message(
                 "You don't have an account linked! In order to link use `/link`!")
@@ -230,7 +231,7 @@ class Sessions(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        uuid = lib.get_linked_player(interaction.user.id)
+        uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
 
         if not uuid:
             await interaction.followup.send(

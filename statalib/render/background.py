@@ -12,11 +12,12 @@ from ..assets import ASSET_LOADER
 from ..cfg import config
 from ..common import REL_PATH
 from ..functions import db_connect
-from ..linking import uuid_to_discord_id
-from ..themes import get_theme_properties
-from ..permissions import has_access
+from ..accounts.linking import uuid_to_discord_id
+from ..accounts.themes import get_theme_properties
+from ..accounts.permissions import AccountPermissions
 
 
+# TODO: update.
 class VotingData(NamedTuple):
     discord_id: int
     total_votes: int
@@ -124,7 +125,9 @@ class BackgroundImageLoader:
         return f"{self._custom_img_dir}/{discord_user_id}.png"
 
     def _user_has_custom_background(self, discord_user_id: int) -> bool:
-        user_has_access = has_access(discord_user_id, 'custom_backgrounds')
+        account_permissions = AccountPermissions(discord_user_id)
+        user_has_access = account_permissions.has_access('custom_backgrounds')
+
         custom_path = self._custom_image_path(discord_user_id)
 
         return user_has_access and os.path.exists(custom_path)
@@ -152,11 +155,13 @@ class BackgroundImageLoader:
         is_theme_voter = selected_theme in voter_themes_available
         is_theme_exclusive = not is_theme_voter
 
+        account_permissions = AccountPermissions(discord_id)
+
         if (
             is_theme_voter and (
                 has_voter_perks  # Has voter perks
-                or has_access(discord_id, 'voter_themes'))  # Has access to all voter themes
-            or (is_theme_exclusive and selected_theme in owned_themes)  # Owns exclusive theme
+                or account_permissions.has_access('voter_themes') # Has access to all voter themes
+            ) or (is_theme_exclusive and selected_theme in owned_themes)  # Owns exclusive theme
         ):
             try:
                 return ThemeImageLoader(

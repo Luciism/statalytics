@@ -20,13 +20,11 @@ class Vote(commands.Cog):
 
         vote_links = lib.config('global.links.voting')
 
-        voting_data = lib.get_voting_data(interaction.user.id)
-        if voting_data:
-            total_votes = voting_data[1]
-            last_vote = voting_data[3]
-            last_vote_timestamp = f'<t:{int(last_vote)}:R>'
+        voting_data = lib.accounts.Account(interaction.user.id).voting.load()
+
+        if voting_data.last_vote:
+            last_vote_timestamp = f'<t:{int(voting_data.last_vote)}:R>'
         else:
-            total_votes = 0
             last_vote_timestamp = 'N/A'
 
         format_values = {
@@ -41,7 +39,7 @@ class Vote(commands.Cog):
                 2: {
                     'value': {
                         'last_vote': last_vote_timestamp,
-                        'total_votes': total_votes
+                        'total_votes': voting_data.total_votes
                     }
                 }
             }

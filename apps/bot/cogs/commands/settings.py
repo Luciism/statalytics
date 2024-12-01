@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+from statalib.accounts import Account
 from statalib import rotational_stats as rotational
 import helper
 
@@ -34,7 +35,7 @@ class ActiveThemeSelect(discord.ui.Select):
         if selection == 'none':
             selection = None
 
-        lib.set_active_theme(discord_id, selection)
+        Account(discord_id).themes.set_active_theme(selection)
         await interaction.followup.send('Theme updated successfully!', ephemeral=True)
 
 
@@ -139,7 +140,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
 
         embeds = lib.load_embeds('active_theme', color='primary')
 
-        owned_themes = lib.get_owned_themes(interaction.user.id)
+        owned_themes = Account(interaction.user.id).themes.get_owned_themes()
         theme_packs: dict = lib.config('global.theme_packs')
 
         # themes available to anyone through voting

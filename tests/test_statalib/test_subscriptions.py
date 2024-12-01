@@ -3,8 +3,8 @@ import sqlite3
 from datetime import datetime, UTC
 
 from statalib.cfg import config
-from statalib.subscriptions import (
-    SubscriptionManager,
+from statalib.accounts.subscriptions import (
+    AccountSubscriptions,
     PackageTierConflictError
 )
 
@@ -45,24 +45,24 @@ class TestGetSubscription(unittest.TestCase):
         clean_database()
 
     def test_subscription(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         set_active_subscription("pro", now_plus(5000))
         assert s.get_subscription(False).package == "pro"
 
     def test_no_subscription(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         assert s.get_subscription(False).package == "free"
 
     def test_subscription_expiry(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         set_active_subscription("pro", now_plus(-1))
         assert s.get_subscription(False).package == "free"
 
     def test_subscription_expiry_use_paused(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         set_active_subscription("pro", now_plus(-1))
         s._add_paused_subscription("basic", 5000)
@@ -70,7 +70,7 @@ class TestGetSubscription(unittest.TestCase):
         assert s.get_subscription(False).package == "basic"
 
     def test_subscription_expiry_use_highest_tier_paused(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         set_active_subscription("pro", now_plus(-1))
         s._add_paused_subscription("pro", 5000)
@@ -84,14 +84,14 @@ class TestAddSubscription(unittest.TestCase):
         clean_database()
 
     def test_add_subscription_none_existing(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", 5000, update_roles=False)
 
         assert s.get_subscription(False).package == "pro"
 
     def test_add_subscription_lower_tier_existing(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("basic", 5000, update_roles=False)
         s.add_subscription("pro", 5000, update_roles=False)
@@ -100,7 +100,7 @@ class TestAddSubscription(unittest.TestCase):
         assert len(s._get_paused_subscriptions("basic")) == 1
 
     def test_add_subscription_higher_tier_existing(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", 5000, update_roles=False)
         s.add_subscription("basic", 5000, update_roles=False)
@@ -109,7 +109,7 @@ class TestAddSubscription(unittest.TestCase):
         assert len(s._get_paused_subscriptions("basic")) == 1
 
     def test_add_subscription_same_tier_existing_not_expired(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", 5000, update_roles=False)
         s.add_subscription("pro", 5000, update_roles=False)
@@ -119,7 +119,7 @@ class TestAddSubscription(unittest.TestCase):
 
 
     def test_add_subscription_same_tier_existing_expired(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", -1, update_roles=False)
         s.add_subscription("pro", 5000, update_roles=False)
@@ -129,7 +129,7 @@ class TestAddSubscription(unittest.TestCase):
 
 
     def test_add_subscription_higher_tier_existing_lifetime(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("basic", None, update_roles=False)
         s.add_subscription("pro", 5000, update_roles=False)
@@ -145,7 +145,7 @@ class TestAddSubscription(unittest.TestCase):
 
 
     def test_add_subscription_same_tier_existing_lifetime(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", None, update_roles=False)
 
@@ -154,7 +154,7 @@ class TestAddSubscription(unittest.TestCase):
 
 
     def test_add_subscription_lower_tier_existing_lifetime(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", None, update_roles=False)
 
@@ -163,7 +163,7 @@ class TestAddSubscription(unittest.TestCase):
 
 
     def test_add_subscription_higher_tier_existing_lifetime_expiry(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("basic", None, update_roles=False)
         s.add_subscription("pro", -1, update_roles=False)
@@ -172,7 +172,7 @@ class TestAddSubscription(unittest.TestCase):
         assert s.get_subscription(False).expiry_timestamp == None
 
     def test_add_subscription_lifetime_same_tier_existing(self):
-        s = SubscriptionManager(MockData.discord_id)
+        s = AccountSubscriptions(MockData.discord_id)
 
         s.add_subscription("pro", 5000, update_roles=False)
         s.add_subscription("pro", None, update_roles=False)

@@ -1,4 +1,4 @@
-"""Subscriptions related functionality."""
+"""Account subscriptions related functionality."""
 
 import json
 import socket
@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 from typing import Any
 
-from .cfg import config
+from ..cfg import config
 
 
 class UnregisteredPackageError(Exception):
@@ -133,7 +133,7 @@ class Subscription:
         return self.get_package_property(self.package, property, default)
 
 
-class SubscriptionManager:
+class AccountSubscriptions:
     """Class to manage user subscriptions."""
     def __init__(self, discord_id: int) -> None:
         """

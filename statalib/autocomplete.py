@@ -6,7 +6,7 @@ import sqlite3
 from discord import app_commands, Interaction
 
 from .common import REL_PATH
-from .linking import get_linked_player
+from .accounts.linking import AccountLinking
 from .mcfetch import AsyncFetchPlayer
 from .sessions import SessionManager
 
@@ -35,7 +35,7 @@ async def session_autocompletion(
     if username:
         uuid = await AsyncFetchPlayer(name=username).uuid
     else:
-        uuid = get_linked_player(interaction.user.id)
+        uuid = AccountLinking(interaction.user.id).get_linked_player_uuid()
 
     if uuid is None:
         return []

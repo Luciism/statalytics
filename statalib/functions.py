@@ -20,6 +20,28 @@ db_connect = lambda: sqlite3.connect(config.DB_FILE_PATH)
 "Open a database connection."
 
 
+def ensure_cursor(func):
+    """
+    Decorator to ensure a database cursor is resolved.
+
+    If the `cursor` argument is `None`, a new db connection and cursor
+    will be acquired, otherwise the passed `cursor` argument will be used.
+    """
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        cursor = kwargs.get('cursor')
+        if cursor:  # Use provided cursor.
+            return func(*args, **kwargs)
+
+        # Create a new db connection and cursor object.
+        with db_connect() as conn:
+            cursor = conn.cursor()
+            kwargs['cursor'] = cursor
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def to_thread(func: typing.Callable) -> typing.Coroutine:
     """Converts a function to run on a separate thread."""
     @functools.wraps(func)
@@ -40,27 +62,6 @@ def get_embed_color(embed_type: Literal["primary", "warning", "danger"]) -> int:
 def loading_message() -> str:
     """Get the currently configured loading message."""
     return config('apps.bot.loading_message')
-
-
-def _get_voting_data(discord_id: int, cursor: sqlite3.Cursor) -> tuple:
-    cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_id}')
-    return cursor.fetchone()
-
-
-def get_voting_data(discord_id: int, cursor: sqlite3.Cursor=None) -> tuple:
-    """
-    Returns a users voting data.
-
-    :param discord_id: The Discord user ID of the user.
-    :param cursor: A custom `sqlite3.Cursor` object to operate on.
-    :return tuple: A tuple containing the users voting data.
-    """
-    if cursor:
-        return _get_voting_data(discord_id, cursor)
-
-    with db_connect() as conn:
-        cursor = conn.cursor()
-        return _get_voting_data(discord_id, cursor)
 
 
 def insert_growth_data(

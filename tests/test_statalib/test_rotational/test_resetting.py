@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, UTC
 
-from statalib import PermissionManager
+from statalib.accounts import Account
 from statalib.rotational_stats import (
     has_auto_reset_access,
     RotationalStatsManager,
@@ -55,7 +55,7 @@ class TestAutoResetAccess(unittest.TestCase):
         """The player is linked to a user and the user has auto reset perms."""
         link_mock_data()
 
-        PermissionManager(MockData.discord_id) \
+        Account(MockData.discord_id).permissions \
             .add_permission("automatic_tracker_reset")
 
         assert has_auto_reset_access(MockData.uuid, auto_reset_config) is True

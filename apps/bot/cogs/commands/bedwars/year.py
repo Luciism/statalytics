@@ -4,8 +4,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import statalib as lib
 import helper
+import statalib as lib
+from statalib.accounts import Account
 from render.year import render_year
 
 
@@ -31,7 +32,7 @@ class Year(commands.Cog):
         uuid: str,
         session: int,
         year: int
-    ):
+    ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
         await interaction.followup.send(self.LOADING_MSG)
 
@@ -72,8 +73,9 @@ class Year(commands.Cog):
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def year_2025(self, interaction: discord.Interaction,
-                        player: str=None, session: int=None):
+    async def year_2025(
+        self, interaction: discord.Interaction, player: str=None, session: int=None
+    ) -> None:
         await interaction.response.defer()
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
         await self.year_command(interaction, name, uuid, session, 2025)
@@ -89,16 +91,17 @@ class Year(commands.Cog):
         player=lib.username_autocompletion,
         session=lib.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def year_2026(self, interaction: discord.Interaction,
-                        player: str=None, session: int=None):
+    async def year_2026(
+        self, interaction: discord.Interaction, player: str=None, session: int=None
+    ) -> None:
         await interaction.response.defer()
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        discord_id = lib.uuid_to_discord_id(uuid)
+        discord_id = lib.accounts.uuid_to_discord_id(uuid)
 
         # Either command user or checked player has access
-        condition_1 = lib.has_access(discord_id, 'year_2026')
-        condition_2 = lib.has_access(interaction.user.id, 'year_2026')
+        condition_1 = Account(discord_id).permissions.has_access('year_2026')
+        condition_2 = Account(interaction.user.id).permissions.has_access('year_2026')
 
         if not condition_1 and not condition_2:
             embeds = lib.load_embeds('2026', color='primary')

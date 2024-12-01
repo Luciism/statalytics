@@ -35,7 +35,7 @@ class Metrics(commands.Cog):
         await self.client.wait_until_ready()
 
         metrics = {
-            'linked': lib.get_linked_total(),
+            'linked': lib.accounts.get_total_linked_accounts(),
             'users': lib.get_user_total(),
             'commands': lib.get_commands_total(),
             'servers': len(self.client.guilds)
