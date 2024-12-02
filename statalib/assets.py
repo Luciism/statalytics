@@ -1,8 +1,9 @@
 """Functionality to lazy load assets into memory as needed."""
-# TODO: Use LRU cache approach
 
 import json
 import os
+import functools
+from copy import deepcopy
 
 from PIL import Image, ImageFont
 
@@ -14,10 +15,6 @@ class _AssetLoader:
 
     def __init__(self) -> None:
         self.__command_map = None
-        self.__loaded_images: dict[str, Image.Image] = {}
-        self.__loaded_fonts: dict[tuple[str, int], ImageFont.FreeTypeFont] = {}
-        self.__loaded_embeds: dict[str, dict] = {}
-
 
     @property
     def command_map(self) -> dict[str, str]:
@@ -36,6 +33,9 @@ class _AssetLoader:
         """
         return os.path.exists(f"{REL_PATH}/assets/{image_path}")
 
+    @functools.lru_cache(maxsize=32)
+    def __load_image(self, image_path: str) -> Image.Image:
+        return Image.open(f"{REL_PATH}/assets/{image_path}")
 
     def load_image(self, image_path: str) -> Image.Image:
         """
@@ -43,12 +43,9 @@ class _AssetLoader:
 
         :param image_path: The path to the image file relative to the assets directory.
         """
-        if image_path not in self.__loaded_images:
-            self.__loaded_images[image_path] = \
-                Image.open(f"{REL_PATH}/assets/{image_path}")
-        return self.__loaded_images[image_path]
+        return self.__load_image(image_path).copy()
 
-
+    @functools.lru_cache(maxsize=32)
     def load_font(self, font_file: str, font_size: int) -> ImageFont.FreeTypeFont:
         """
         Load a font object by file name.
@@ -56,12 +53,13 @@ class _AssetLoader:
         :param font_file: The name of the font file located in `assets/fonts/`.
         :param font_size: The font size to load the font in.
         """
-        if (font_file, font_size) not in self.__loaded_fonts:
-            self.__loaded_fonts[(font_file, font_size)] = \
-                ImageFont.truetype(f"{REL_PATH}/assets/fonts/{font_file}", font_size)
+        return ImageFont.truetype(f"{REL_PATH}/assets/fonts/{font_file}", font_size)
 
-        return self.__loaded_fonts[(font_file, font_size)]
 
+    @functools.lru_cache(maxsize=32)
+    def __load_embed(self, embed_file: str) -> dict:
+        with open(f"{REL_PATH}/assets/embeds/{embed_file}") as df:
+            return json.load(df)
 
     def load_embed(self, embed_file: str) -> dict:
         """
@@ -69,10 +67,8 @@ class _AssetLoader:
 
         :param embed_file: The path to the embed file relative to `assets/embeds/`.
         """
-        if embed_file not in self.__loaded_embeds:
-            with open(f"{REL_PATH}/assets/embeds/{embed_file}") as df:
-                self.__loaded_embeds[embed_file] = json.load(df)
-        return self.__loaded_embeds[embed_file]
+        deepcopy(self.__load_embed(embed_file))
+
 
 ASSET_LOADER = _AssetLoader()
 "Global asset loader instance."
