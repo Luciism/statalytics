@@ -1,7 +1,7 @@
 from calc.year import YearStats
 
 import statalib as lib
-from statalib import BedwarsSession
+from statalib import sessions
 from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
@@ -12,7 +12,7 @@ bg = BackgroundImageLoader(dir="year")
 def render_year(
     name: str,
     uuid: str,
-    session_info: BedwarsSession,
+    session_info: sessions.BedwarsSession,
     year: int,
     mode: str,
     hypixel_data: dict,

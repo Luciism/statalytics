@@ -125,7 +125,7 @@ async def find_dynamic_session_interaction(
     uuid: lib.aliases.PlayerUUID,
     hypixel_data: dict,
     session: int | None=None
-) -> lib.BedwarsSession:
+) -> lib.sessions.BedwarsSession:
     """
     Dynamically gets a session of a user\n
     If session is None, the first session to exist will be returned
@@ -137,7 +137,7 @@ async def find_dynamic_session_interaction(
     :param session: The session to attempt to be retrieved
     :param eph: whether or not to respond ephemerally
     """
-    session_manager = lib.SessionManager(uuid)
+    session_manager = lib.sessions.SessionManager(uuid)
     session_info = session_manager.get_session(session)
 
     # no sessions exist because... i forgot to finish this comment now idk

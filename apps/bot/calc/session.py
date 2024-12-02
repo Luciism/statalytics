@@ -1,13 +1,12 @@
 from datetime import datetime, UTC
 
-from statalib import SessionManager
 from statalib.hypixel import (
     CumulativeStats,
     get_rank_info,
     mode_name_to_id,
     rround
 )
-from statalib.sessions import BedwarsSession
+from statalib.sessions import BedwarsSession, SessionManager
 
 
 class SessionStats(CumulativeStats):

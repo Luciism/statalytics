@@ -1,13 +1,13 @@
 from datetime import UTC, datetime
 
-from statalib import BedwarsSession, hypixel
+from statalib import hypixel, sessions
 
 
 class YearStats(hypixel.ProjectedStats):
     def __init__(
         self,
         uuid: str,
-        session_info: BedwarsSession,
+        session_info: sessions.BedwarsSession,
         year: int,
         hypixel_data: dict,
         mode: str='overall'

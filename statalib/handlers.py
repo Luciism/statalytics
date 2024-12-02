@@ -1,5 +1,4 @@
 """Bot error handling functionality."""
-# TODO: Move this shit to bot helper
 
 import logging
 from io import StringIO

@@ -19,7 +19,7 @@ class Cosmetics(commands.Cog):
     @app_commands.describe(player='The player you want to view')
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.autocomplete(player=helper.username_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def active_cosmetics(self, interaction: discord.Interaction,
                                player: str=None):
@@ -30,7 +30,7 @@ class Cosmetics(commands.Cog):
 
         await interaction.followup.send(self.LOADING_MSG)
 
-        hypixel_data = await lib.fetch_hypixel_data(uuid)
+        hypixel_data = await lib.network.fetch_hypixel_data(uuid)
         rendered = await render_cosmetics(name, uuid, hypixel_data)
 
         await interaction.edit_original_response(

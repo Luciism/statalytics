@@ -1,14 +1,9 @@
 """Application command autocompletion functions."""
-# TODO: move this shit to bot helper
-
-import sqlite3
 
 from discord import app_commands, Interaction
 
-from .common import REL_PATH
-from .accounts.linking import AccountLinking
-from .mcfetch import AsyncFetchPlayer
-from .sessions import SessionManager
+import statalib as lib
+from statalib.accounts import AccountLinking
 
 
 async def session_autocompletion(
@@ -33,14 +28,14 @@ async def session_autocompletion(
                 break
 
     if username:
-        uuid = await AsyncFetchPlayer(name=username).uuid
+        uuid = await lib.mcfetch.AsyncFetchPlayer(name=username).uuid
     else:
         uuid = AccountLinking(interaction.user.id).get_linked_player_uuid()
 
     if uuid is None:
         return []
 
-    active_sessions = SessionManager(uuid).active_sessions()
+    active_sessions = lib.sessions.SessionManager(uuid).active_sessions()
 
     data = [app_commands.Choice(name=ses, value=ses) for ses in active_sessions]
     return data
@@ -51,7 +46,7 @@ async def username_autocompletion(
     current: str
 ) -> list[app_commands.Choice[str]]:
     """Username autocomplete."""
-    with sqlite3.connect(f'{REL_PATH}/database/core.db') as conn:
+    with lib.db_connect() as conn:
         cursor = conn.cursor()
         result = cursor.execute(
             "SELECT * FROM autofill WHERE LOWER(username) LIKE ? LIMIT 25",

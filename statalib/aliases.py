@@ -20,3 +20,13 @@ HypixelPlayerData = NewType('HypixelPlayerData', dict)
 
 BedwarsData = NewType('BedwarsData', dict)
 "'player'>'stats'>'Bedwars' key of raw data fetched from the Hypixel API."
+
+
+__all__ = [
+    'PlayerName',
+    'PlayerUUID',
+    'PlayerDynamic',
+    'HypixelData',
+    'HypixelPlayerData',
+    'BedwarsData'
+]

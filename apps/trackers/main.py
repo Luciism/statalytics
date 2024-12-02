@@ -144,7 +144,7 @@ async def reset_trackers():
 
             fetched_players.append(uuid)  # Prevent duplicate fetching
 
-            hypixel_data = await statalib.fetch_hypixel_data_rate_limit_safe(
+            hypixel_data = await statalib.network.fetch_hypixel_data_rate_limit_safe(
                 uuid, attempts=15)  # Mildly important that it succeeds
 
             if not hypixel_data.get('success'):
@@ -159,7 +159,7 @@ async def reset_trackers():
             )
 
         except Exception as error:
-            await statalib.log_error_msg(client, error)
+            await statalib.handlers.log_error_msg(client, error)
 
         # limit requests to 1 per 2 seconds
         time_elapsed = time.time() - start_time
@@ -225,7 +225,7 @@ async def before_reset_trackers_loop():
 @reset_trackers_loop.error
 async def on_reset_trackers_loop_error(error):
     reset_trackers_loop.restart()
-    await statalib.log_error_msg(client, error)
+    await statalib.handlers.log_error_msg(client, error)
 
 
 if __name__ == '__main__':

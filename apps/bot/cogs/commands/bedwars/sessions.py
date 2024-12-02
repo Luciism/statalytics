@@ -20,6 +20,7 @@ class ManageSession(lib.shared_views.CustomBaseView):
         self.session = session
         self.uuid = uuid
 
+        self.message: discord.InteractionMessage = None
 
     async def on_timeout(self) -> None:
         for item in self.children:
@@ -46,7 +47,7 @@ class ManageSession(lib.shared_views.CustomBaseView):
         session_manager.delete_session(self.session)
 
         if self.action == "reset":
-            hypixel_data = await lib.fetch_hypixel_data(self.uuid)
+            hypixel_data = await lib.network.fetch_hypixel_data(self.uuid)
             session_manager.create_session(self.session, hypixel_data)
 
             await interaction.followup.send(
@@ -79,8 +80,8 @@ class Sessions(commands.Cog):
         player='The player you want to view',
         session='The session you want to view')
     @app_commands.autocomplete(
-        player=lib.username_autocompletion,
-        session=lib.session_autocompletion)
+        player=helper.username_autocompletion,
+        session=helper.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def session(
         self,
@@ -96,8 +97,8 @@ class Sessions(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            lib.fetch_skin_model(uuid, 144),
-            lib.fetch_hypixel_data(uuid)
+            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_hypixel_data(uuid)
         )
 
         session_info = await helper.interactions.find_dynamic_session_interaction(
@@ -156,7 +157,7 @@ class Sessions(commands.Cog):
         else:
             session_id = active_sessions_count + 1
 
-        hypixel_data = await lib.fetch_hypixel_data(uuid)
+        hypixel_data = await lib.network.fetch_hypixel_data(uuid)
         session_manager.create_session(session_id, hypixel_data)
 
         await interaction.followup.send(
@@ -166,7 +167,7 @@ class Sessions(commands.Cog):
 
 
     @session_group.command(name="end", description="Ends an active session")
-    @app_commands.autocomplete(session=lib.session_autocompletion)
+    @app_commands.autocomplete(session=helper.session_autocompletion)
     @app_commands.describe(session='The session you want to delete')
     async def end_session(self, interaction: discord.Interaction, session: int=1):
         await helper.interactions.run_interaction_checks(interaction)
@@ -197,7 +198,7 @@ class Sessions(commands.Cog):
 
     @session_group.command(name="reset", description="Resets an active session")
     @app_commands.describe(session='The session you want to reset')
-    @app_commands.autocomplete(session=lib.session_autocompletion)
+    @app_commands.autocomplete(session=helper.session_autocompletion)
     async def reset_session(
         self,
         interaction: discord.Interaction,

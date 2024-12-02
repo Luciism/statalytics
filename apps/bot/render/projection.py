@@ -1,7 +1,7 @@
 from calc.projection import PrestigeStats
 
 import statalib as lib
-from statalib import to_thread, REL_PATH, BedwarsSession
+from statalib import to_thread, REL_PATH, sessions
 from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
@@ -12,7 +12,7 @@ bg = BackgroundImageLoader(dir="projection")
 def render_projection(
     name: str,
     uuid: str,
-    session_info: BedwarsSession,
+    session_info: sessions.BedwarsSession,
     mode: str,
     target: int,
     hypixel_data: dict,

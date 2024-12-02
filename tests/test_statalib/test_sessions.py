@@ -48,7 +48,7 @@ class TestDeleteSessions(unittest.TestCase):
 
     def test_delete_non_existing_session(self):
         with self.assertRaisesRegex(
-            statalib.DataNotFoundError, "not found for player"
+            statalib.errors.DataNotFoundError, "not found for player"
         ):
             self.manager.delete_session(1)
 

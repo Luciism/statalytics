@@ -23,7 +23,7 @@ class Weekly(commands.Cog):
     @app_commands.describe(player='The player you want to view')
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.autocomplete(player=helper.username_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def weekly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
@@ -34,8 +34,8 @@ class Weekly(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            lib.fetch_skin_model(uuid, 144),
-            lib.fetch_hypixel_data(uuid)
+            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_hypixel_data(uuid)
         )
 
         manager = rotational.RotationalStatsManager(uuid)
@@ -102,7 +102,7 @@ class Weekly(commands.Cog):
         weeks='The lookback amount in weeks')
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.autocomplete(player=helper.username_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def lastweek(self, interaction: discord.Interaction,
                        player: str=None, weeks: int=1):
@@ -153,8 +153,8 @@ class Weekly(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            lib.fetch_skin_model(uuid, 144),
-            lib.fetch_hypixel_data(uuid)
+            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_hypixel_data(uuid)
         )
 
         kwargs = {

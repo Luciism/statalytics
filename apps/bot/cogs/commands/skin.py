@@ -14,7 +14,7 @@ class Skin(commands.Cog):
 
 
     @app_commands.command(name="skin", description="View the skin of a player")
-    @app_commands.autocomplete(player=lib.username_autocompletion)
+    @app_commands.autocomplete(player=helper.username_autocompletion)
     @app_commands.describe(player='The player you want to view')
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -25,7 +25,7 @@ class Skin(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        image_bytes = await lib.fetch_skin_model(uuid, size=256, style='full')
+        image_bytes = await lib.network.fetch_skin_model(uuid, size=256, style='full')
 
         embed = discord.Embed(
             title=f"{lib.fname(name)}'s skin",

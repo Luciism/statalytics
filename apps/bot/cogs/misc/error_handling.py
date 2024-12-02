@@ -14,7 +14,7 @@ class ErrorHandling(commands.Cog):
             interaction: discord.Interaction,
             error: app_commands.AppCommandError
         ):
-            await lib.handle_interaction_errors(interaction, error)
+            await lib.handlers.handle_interaction_errors(interaction, error)
 
 
     @commands.Cog.listener()

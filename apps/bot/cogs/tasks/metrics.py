@@ -57,7 +57,7 @@ class Metrics(commands.Cog):
 
     @update_metrics_loop.error
     async def on_update_metrics_error(self, error):
-        await lib.log_error_msg(self.client, error)
+        await lib.handlers.log_error_msg(self.client, error)
         self.update_metrics_loop.restart()
 
 

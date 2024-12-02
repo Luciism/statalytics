@@ -37,8 +37,8 @@ class Year(commands.Cog):
         await interaction.followup.send(self.LOADING_MSG)
 
         skin_model, hypixel_data = await asyncio.gather(
-            lib.fetch_skin_model(uuid, 144),
-            lib.fetch_hypixel_data(uuid)
+            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_hypixel_data(uuid)
         )
 
         session_info = await helper.interactions.find_dynamic_session_interaction(
@@ -70,8 +70,8 @@ class Year(commands.Cog):
         player='The player you want to view',
         session='The session you want to use')
     @app_commands.autocomplete(
-        player=lib.username_autocompletion,
-        session=lib.session_autocompletion)
+        player=helper.username_autocompletion,
+        session=helper.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def year_2025(
         self, interaction: discord.Interaction, player: str=None, session: int=None
@@ -88,8 +88,8 @@ class Year(commands.Cog):
         player='The player you want to view',
         session='The session you want to use')
     @app_commands.autocomplete(
-        player=lib.username_autocompletion,
-        session=lib.session_autocompletion)
+        player=helper.username_autocompletion,
+        session=helper.session_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def year_2026(
         self, interaction: discord.Interaction, player: str=None, session: int=None

@@ -5,40 +5,34 @@ It contains utilities for managing accounts, making requests,
 loading assets, calculating statistics, session stats, themes, and more.
 """
 
-from . import rotational_stats as rotational_stats
-from . import mcfetch
-from . import loggers
-from . import shared_views
-from . import hypixel
 from . import accounts
+from . import errors
+from . import handlers
+from . import hypixel
+from . import loggers
+from . import mcfetch
+from . import network
+from . import rotational_stats as rotational_stats
+from . import sessions
+from . import shared_views
 
-from .assets import ASSET_LOADER as ASSET_LOADER
-from .cfg import *
-from .errors import *
-from .functions import *
-from .sessions import *
-from .autocomplete import *
-from .handlers import *
-from .network import *
 from .aliases import *
+from .assets import ASSET_LOADER
+from .cfg import config
+from .functions import *
 
 
 __all__ = [
     'accounts',
-    'calctools',
+    'ASSET_LOADER',
+    'config',
     'errors',
-    'functions',
-    'historical',
-    'linking',
-    'themes',
-    'autocomplete',
-    'sessions',
-    'mcfetch',
-    'subscriptions'
-    'network',
-    'permissions',
-    'aliases',
+    'handlers',
+    'hypixel',
     'loggers',
+    'mcfetch',
+    'network',
+    'rotational_stats',
+    'sessions',
     'shared_views',
-    'hypixel'
 ]

@@ -60,7 +60,7 @@ class Listings(commands.Cog):
 
     @update_listings_loop.error
     async def on_update_listings_error(self, error):
-        await lib.log_error_msg(self.client, error)
+        await lib.handlers.log_error_msg(self.client, error)
         self.update_listings_loop.restart()
 
 

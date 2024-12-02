@@ -1,6 +1,6 @@
 import math
 
-from statalib import BedwarsSession
+from statalib.sessions import BedwarsSession
 from statalib.hypixel import BedwarsStats, get_rank_info, mode_name_to_id
 
 

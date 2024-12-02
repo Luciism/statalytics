@@ -1,5 +1,5 @@
 from calc.milestones import MilestonesStats
-from statalib import BedwarsSession, to_thread, REL_PATH
+from statalib import sessions, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
@@ -10,7 +10,7 @@ def render_milestones(
     name: str,
     uuid: str,
     mode: str,
-    session_info: BedwarsSession,
+    session_info: sessions.BedwarsSession,
     hypixel_data: dict,
     skin_model: bytes,
     save_dir: str

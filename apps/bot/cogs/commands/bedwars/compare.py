@@ -22,8 +22,8 @@ class Compare(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.autocomplete(
-        player_1=lib.username_autocompletion,
-        player_2=lib.username_autocompletion)
+        player_1=helper.username_autocompletion,
+        player_2=helper.username_autocompletion)
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def compare(self, interaction: discord.Interaction,
                       player_1: str, player_2: str=None):
@@ -37,8 +37,8 @@ class Compare(commands.Cog):
         name_2, uuid_2 = await helper.interactions.fetch_player_info(name_2, interaction)
 
         await interaction.followup.send(self.LOADING_MSG)
-        hypixel_data_1 = await lib.fetch_hypixel_data(uuid_1)
-        hypixel_data_2 = await lib.fetch_hypixel_data(uuid_2)
+        hypixel_data_1 = await lib.network.fetch_hypixel_data(uuid_1)
+        hypixel_data_2 = await lib.network.fetch_hypixel_data(uuid_2)
 
         kwargs = {
             "name_1": name_1,
