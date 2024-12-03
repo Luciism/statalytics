@@ -19,8 +19,11 @@ class VotingData:
     "The timestamp of the last vote."
 
     @property
-    def formatted_last_vote_date(self) -> str:
+    def formatted_last_vote_date(self) -> str | None:
         """The formatted date of the last vote (%d/%m/%Y)."""
+        if self.last_vote is None:
+            return None
+
         last_vote_dt = datetime.fromtimestamp(self.last_vote, UTC)
         return last_vote_dt.strftime('%d/%m/%Y')
 
@@ -39,9 +42,13 @@ class AccountVoting:
                 f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
             ).fetchone()
 
-        return VotingData(*(voting_data or (self._discord_user_id, 0, 0, 0)))
+        return VotingData(*(voting_data or (self._discord_user_id, 0, 0, None)))
 
-    def add_vote(self, is_weekend: bool, timestamp: float | None=None) -> None:
+    def add_vote(
+        self,
+        is_weekend: bool=False,
+        timestamp: float | None=None
+    ) -> None:
         """
         Add a vote to the account's voting data.
 

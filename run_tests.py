@@ -3,17 +3,18 @@ import unittest
 
 loader = unittest.TestLoader()
 
-failures = {"count": 0}
+failures = 0
 
-def run_test_suite(start_dir: str) -> None:
+def run_test_suite(start_dir: str) -> int:
     suite = loader.discover(start_dir)
     print(f"Running: {start_dir}")
     test_result = unittest.TextTestRunner().run(suite)
 
-    failures["count"] += len(test_result.failures)
+    return len(test_result.failures)
 
-run_test_suite("tests/test_statalib")
-run_test_suite("tests/test_statalib/test_rotational")
+failures += run_test_suite("tests/test_statalib")
+# failures += run_test_suite("tests/test_statalib/test_rotational")
+# failures += run_test_suite("tests/test_statalib/test_accounts")
 
-if failures["count"] > 0:
+if failures > 0:
     exit(1)

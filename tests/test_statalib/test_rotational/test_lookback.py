@@ -13,19 +13,27 @@ def set_package_max_lookback(package: str, lookback: int | None):
         .setdefault(package, {}) \
         .setdefault("properties", {})["max_lookback"] = lookback
 
-config._load_config_data()
-config._config_data \
-    .setdefault("global", {}) \
-    .setdefault("subscription", {}) \
-    .setdefault("packages, {}")
+def setup_config():
+    config._load_config_data()
+    config._config_data \
+        .setdefault("global", {}) \
+        .setdefault("subscription", {}) \
+        .setdefault("packages, {}")
 
-set_package_max_lookback("free", 30)
-set_package_max_lookback("basic", 60)
-set_package_max_lookback("pro", None)
-
+    set_package_max_lookback("free", 30)
+    set_package_max_lookback("basic", 60)
+    set_package_max_lookback("pro", None)
 
 
 class TestGetMaxLookback(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        setup_config()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        config.refresh()
+
     def setUp(self) -> None:
         clean_database()
 

@@ -54,7 +54,7 @@ def user_has_voter_perks(voting_data: VotingData) -> bool:
     timestamp_now = datetime.now(UTC).timestamp()
     voter_rewards_duration = config('global.voting.reward_duration_hours')
 
-    hours_since_voted = (timestamp_now - (voting_data.last_vote)) / 3600
+    hours_since_voted = (timestamp_now - (voting_data.last_vote or 0)) / 3600
     return hours_since_voted < voter_rewards_duration
 
 

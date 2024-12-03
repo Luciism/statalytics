@@ -28,8 +28,10 @@ def get_theme_properties(theme_name: str) -> dict:
     theme_properties = theme_packs.get('voter_themes', {}).get(theme_name)
 
     if theme_properties is None:
-        theme_properties = theme_packs.get(
-            'exclusive_themes', {}).get(theme_name, {})
+        theme_properties = theme_packs.get('exclusive_themes', {}).get(theme_name)
+
+        if theme_properties is None:
+            raise ThemeNotFoundError("The specified theme does not exist!")
 
     return theme_properties
 
@@ -107,8 +109,6 @@ class AccountThemes:
 
         :param theme_name: The name of the theme to remove from the user.
         """
-        self._raise_if_exclusive_not_found(theme_name)
-
         with db_connect() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -117,8 +117,8 @@ class AccountThemes:
 
             owned_themes = cursor.fetchone()
 
-            if owned_themes and (owned_str := owned_themes[0]):
-                owned_themes: list = owned_str.split(',')
+            if owned_themes and (owned_themes[0]):
+                owned_themes: list = owned_themes[0].split(',')
 
                 if theme_name in owned_themes:
                     owned_themes.remove(theme_name)
@@ -155,7 +155,7 @@ class AccountThemes:
                 )
             else:
                 cursor.execute(
-                    'INSERT INTO owned_themes (discord_id, owned_themes) VALUES (?, ?)',
+                    'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
                     (self._discord_user_id, ','.join(themes))
                 )
 

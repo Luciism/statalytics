@@ -42,6 +42,7 @@ class AccountPermissions:
 
         :param permissions: A list of permissions to set for the user.
         """
+        permissions = list(set(permissions))  # Remove duplicates.
         permissions_str = ','.join(permissions)
 
         with db_connect() as conn:

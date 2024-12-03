@@ -19,7 +19,8 @@ statalib.setup_database_schema(db_fp=config.DB_FILE_PATH)
 class MockData:
     discord_id = 123
     discord_id_2 = 456
-    uuid = "abc"
+    uuid = "5513729a-18b1-4486-b623-db7a60a24653"
+    uuid_2 = "5d9b02e2-df30-417e-9d12-0e988d5dd7a1"
 
 
 def clean_database() -> None:
