@@ -64,18 +64,13 @@ class ProjectedStats(CumulativeStats):
         self.complete_percent = f"{round((self.level / (target_level or 1)) * 100, 2)}%"
 
 
-        self.wins_projected = self._calc_projection(
-            self.wins, self.wins_cum, increase=True)
-
-        self.losses_projected = self._calc_projection(
-            self.losses, self.losses_cum)
-
-        self.wlr_projected = ratio(
-            self.wins_projected, self.losses_projected)
+        self.wins_projected = self._calc_projection(self.wins, self.wins_cum)
+        self.losses_projected = self._calc_projection(self.losses, self.losses_cum)
+        self.wlr_projected = ratio(self.wins_projected, self.losses_projected)
 
 
         self.final_kills_projected = self._calc_projection(
-            self.final_kills, self.final_kills_cum, increase=True)
+            self.final_kills, self.final_kills_cum)
 
         self.final_deaths_projected = self._calc_projection(
             self.final_deaths, self.final_deaths_cum)
@@ -85,7 +80,7 @@ class ProjectedStats(CumulativeStats):
 
 
         self.beds_broken_projected = self._calc_projection(
-            self.beds_broken, self.beds_broken_cum, increase=True)
+            self.beds_broken, self.beds_broken_cum)
 
         self.beds_lost_projected = self._calc_projection(
             self.beds_lost, self.beds_lost_cum)
@@ -94,18 +89,13 @@ class ProjectedStats(CumulativeStats):
             self.beds_broken_projected, self.beds_lost_projected)
 
 
-        self.kills_projected = self._calc_projection(
-            self.kills, self.kills_cum, increase=True)
-
-        self.deaths_projected = self._calc_projection(
-            self.deaths, self.deaths_cum)
-
-        self.kdr_projected = ratio(
-            self.kills_projected, self.deaths_projected)
+        self.kills_projected = self._calc_projection(self.kills, self.kills_cum)
+        self.deaths_projected = self._calc_projection(self.deaths, self.deaths_cum)
+        self.kdr_projected = ratio(self.kills_projected, self.deaths_projected)
 
 
         self.items_purchased_projected = self._calc_projection(
-                self.items_purchased, self.items_purchased_cum)
+            self.items_purchased, self.items_purchased_cum)
 
         self.wins_per_star = self._per_star(self.wins_projected, self.wins)
         self.kills_per_star = self._per_star(self.kills_projected, self.kills)
@@ -136,7 +126,6 @@ class ProjectedStats(CumulativeStats):
 
 
     def _calc_projection(self, current_value: int, cum_value: int, increase=True):
-        # TODO: redo this chatgpt ahh math
         value_per_day = cum_value / (self.session_duration_days or 1)
         added_value = value_per_day * self.days_to_go
 

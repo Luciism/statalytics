@@ -2,7 +2,7 @@
 
 import os
 from datetime import datetime, UTC
-from typing import Any, NamedTuple
+from typing import Any
 
 from PIL import Image
 
@@ -11,45 +11,10 @@ from .tools import recolor_pixels
 from ..assets import ASSET_LOADER
 from ..cfg import config
 from ..common import REL_PATH
-from ..functions import db_connect
-from ..accounts.linking import uuid_to_discord_id
-from ..accounts.themes import get_theme_properties
-from ..accounts.permissions import AccountPermissions
+from ..accounts import uuid_to_discord_id, AccountPermissions, themes, voting
 
 
-# TODO: update.
-class VotingData(NamedTuple):
-    discord_id: int
-    total_votes: int
-    weekend_votes: int
-    last_vote: float
-
-class ThemeData(NamedTuple):
-    discord_id: int
-    owned_themes: str | None
-    selected_theme: str | None
-
-
-# TODO: seperate this into multiple functions
-def get_voting_and_theme_data(
-    discord_user_id: int
-) -> tuple[VotingData, ThemeData]:
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(f'SELECT * FROM voting_data WHERE discord_id = {discord_user_id}')
-        voting_data = cursor.fetchone()
-
-        cursor.execute(f'SELECT * FROM themes_data WHERE discord_id = {discord_user_id}')
-        themes_data = cursor.fetchone()
-
-    return (
-        VotingData(*(voting_data or (discord_user_id, 0, 0, 0))),
-        ThemeData(*(themes_data or (discord_user_id, '', None))),
-    )
-
-
-def user_has_voter_perks(voting_data: VotingData) -> bool:
+def user_has_voter_perks(voting_data: voting.VotingData) -> bool:
     """Check if a user has access to voter perks based on their voting history."""
     timestamp_now = datetime.now(UTC).timestamp()
     voter_rewards_duration = config('global.voting.reward_duration_hours')
@@ -77,7 +42,7 @@ class ThemeImageLoader:
         self._asset_dir = dir
         self._render_params = render_params
 
-        self.theme_properties = get_theme_properties(theme)
+        self.theme_properties = themes.get_theme_properties(theme)
         self._theme_img_path = f"bg/{dir}/themes/{self.theme}.png"
 
     def _load_theme_image(self) -> Image.Image:
@@ -139,19 +104,15 @@ class BackgroundImageLoader:
     def _load_user_themed_background(
         self,
         discord_id: int,
-        voting_data: VotingData,
-        theme_data: ThemeData,
+        voting_data: voting.VotingData,
+        theme_data: themes.ThemesData,
         render_params: dict[str, Any]
     ) -> Image.Image:
         voter_themes_available = config('global.theme_packs.voter_themes').keys()
 
         has_voter_perks = user_has_voter_perks(voting_data)
 
-        owned_themes = []
-        if theme_data.owned_themes is not None:
-            owned_themes.extend(theme_data.owned_themes.split(","))
-
-        selected_theme = theme_data.selected_theme
+        selected_theme = theme_data.active_theme
         is_theme_voter = selected_theme in voter_themes_available
         is_theme_exclusive = not is_theme_voter
 
@@ -161,7 +122,7 @@ class BackgroundImageLoader:
             is_theme_voter and (
                 has_voter_perks  # Has voter perks
                 or account_permissions.has_access('voter_themes') # Has access to all voter themes
-            ) or (is_theme_exclusive and selected_theme in owned_themes)  # Owns exclusive theme
+            ) or (is_theme_exclusive and selected_theme in theme_data.owned_themes)  # Owns exclusive theme
         ):
             try:
                 return ThemeImageLoader(
@@ -173,7 +134,6 @@ class BackgroundImageLoader:
         return self.load_default_background()
 
 
-    # TODO: Just use discord_id.
     def load_background_image(
         self,
         player_uuid: str | None=None,
@@ -198,9 +158,10 @@ class BackgroundImageLoader:
             return Image.open(self._custom_image_path(discord_id)).convert("RGBA")
 
         # Return the user's configured themed background
-        voting_data, theme_data = get_voting_and_theme_data(discord_id)
+        voting_data = voting.AccountVoting(discord_id).load()
+        theme_data = themes.AccountThemes(discord_id).load()
 
-        if theme_data.selected_theme:
+        if theme_data.active_theme:
             return self._load_user_themed_background(
                 discord_id, voting_data, theme_data, render_params or {}
             ).convert("RGBA")

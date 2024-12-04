@@ -1,6 +1,8 @@
 """Account themes related functionality."""
 
+from dataclasses import dataclass
 from typing import TypeVar
+
 from ..errors import ThemeNotFoundError
 from ..cfg import config
 from ..functions import db_connect
@@ -36,6 +38,17 @@ def get_theme_properties(theme_name: str) -> dict:
     return theme_properties
 
 
+@dataclass
+class ThemesData:
+    """Represents the themes data for a user."""
+    discord_id: int
+    "The user's Discord ID."
+    owned_themes: list[str]
+    "A list of the user's owned themes."
+    active_theme: str | None
+    "The user's active theme."
+
+
 class AccountThemes:
     """Manager for account themes."""
     def __init__(self, discord_id: int) -> None:
@@ -51,23 +64,33 @@ class AccountThemes:
         if not theme_name in self.get_available_themes():
             raise ThemeNotFoundError('The respective theme is not an available theme!')
 
+    def load(self) -> ThemesData:
+        """Load the user's themes from the database."""
+        with db_connect() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                'SELECT * FROM themes_data WHERE discord_id = ?',
+                (self._discord_user_id,))
+
+            themes_data = cursor.fetchone()
+
+        if themes_data:
+            return ThemesData(
+                self._discord_user_id,
+                themes_data[2].split(','),
+                themes_data[3]
+            )
+
+        return ThemesData(self._discord_user_id, [], None)
+
     def get_owned_themes(self) -> list[str]:
         """
         Retrieve a list of themes owned by the user.
 
         :return list: A list of the user's owned themes.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(
-                'SELECT owned_themes FROM themes_data WHERE discord_id = ?',
-                (self._discord_user_id,))
-            owned_themes: tuple = cursor.fetchone()
-
-        if owned_themes and owned_themes[0]:
-            return owned_themes[0].split(',')
-        return []
+        return self.load().owned_themes
 
     def get_available_themes(self) -> list[str]:
         """Retrieve all themes available to the user."""
@@ -167,17 +190,7 @@ class AccountThemes:
 
         :param default: The default value to return if the user has no active theme.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(
-                f'SELECT selected_theme FROM themes_data WHERE discord_id = ?',
-                (self._discord_user_id,))
-            selected = cursor.fetchone()
-
-        if selected and (active := selected[0]):
-            return active
-        return default
+        return self.load().active_theme or default
 
     def set_active_theme(self, theme_name: str) -> None:
         """
