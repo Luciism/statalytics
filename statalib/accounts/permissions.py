@@ -1,7 +1,8 @@
 """Account permissions related functionality."""
 
 from ._create import create_account
-from ..functions import comma_separated_to_list, db_connect
+from ..db import db_connect
+from ..functions import comma_separated_to_list
 from .subscriptions import AccountSubscriptions
 
 

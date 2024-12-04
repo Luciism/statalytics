@@ -46,7 +46,7 @@ async def username_autocompletion(
     current: str
 ) -> list[app_commands.Choice[str]]:
     """Username autocomplete."""
-    with lib.db_connect() as conn:
+    with lib.db.db_connect() as conn:
         cursor = conn.cursor()
         result = cursor.execute(
             "SELECT * FROM autofill WHERE LOWER(username) LIKE ? LIMIT 25",

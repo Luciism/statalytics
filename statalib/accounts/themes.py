@@ -5,7 +5,7 @@ from typing import TypeVar
 
 from ..errors import ThemeNotFoundError
 from ..cfg import config
-from ..functions import db_connect
+from ..db import db_connect
 
 
 def get_voter_themes() -> list:

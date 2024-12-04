@@ -108,7 +108,7 @@ async def reset_trackers():
 
     utc_now = datetime.now(UTC)
 
-    with statalib.db_connect() as conn:
+    with statalib.db.db_connect() as conn:
         cursor = conn.cursor()
 
         # Calculate the time using sqlite for mathmatical consistency

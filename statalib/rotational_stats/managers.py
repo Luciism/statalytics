@@ -9,7 +9,7 @@ from ._types import RotationType, BedwarsRotation, BedwarsHistoricalRotation
 from ._utils import get_bedwars_data
 from .reset_time import DefaultResetTimeManager, ResetTime
 from ..aliases import PlayerUUID, HypixelData
-from ..functions import db_connect
+from ..db import db_connect
 from ..stats_snapshot import BedwarsStatsSnapshot, get_snapshot_data
 
 

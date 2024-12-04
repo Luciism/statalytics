@@ -1,6 +1,6 @@
 """Account usage related functionality."""
 
-from ..functions import db_connect
+from ..db import db_connect
 
 
 class AccountUsage:

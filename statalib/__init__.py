@@ -6,6 +6,7 @@ loading assets, calculating statistics, session stats, themes, and more.
 """
 
 from . import accounts
+from . import db
 from . import errors
 from . import handlers
 from . import hypixel
@@ -24,6 +25,7 @@ from .functions import *
 
 __all__ = [
     'accounts',
+    'db',
     'ASSET_LOADER',
     'config',
     'errors',

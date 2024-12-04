@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime, UTC
 
-from ..functions import db_connect
+from ..db import db_connect
 
 
 @dataclass

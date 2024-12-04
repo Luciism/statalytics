@@ -11,7 +11,7 @@ from .subscriptions import AccountSubscriptions
 from .linking import AccountLinking
 from .voting import AccountVoting
 from .usage import AccountUsage
-from ..functions import db_connect
+from ..db import db_connect
 
 
 @dataclass

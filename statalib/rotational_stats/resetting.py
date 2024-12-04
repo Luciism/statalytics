@@ -18,7 +18,7 @@ from .managers import RotationalStatsManager
 from ..aliases import PlayerUUID, HypixelData
 from ..hypixel.leveling import Leveling
 from ..cfg import config
-from ..functions import db_connect
+from ..db import db_connect
 from ..accounts.linking import uuid_to_discord_id
 from ..accounts.permissions import AccountPermissions
 

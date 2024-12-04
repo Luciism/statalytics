@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from .aliases import PlayerUUID, HypixelData, BedwarsData
 from .errors import DataNotFoundError
-from .functions import db_connect
+from .db import db_connect
 from .stats_snapshot import BedwarsStatsSnapshot
 
 

@@ -4,7 +4,8 @@ from .permissions import AccountPermissions
 from ..mcfetch import AsyncFetchPlayer, FetchPlayer2
 from ..sessions import SessionManager
 from ..aliases import PlayerName, PlayerUUID, HypixelData
-from ..functions import insert_growth_data, db_connect
+from ..functions import insert_growth_data
+from ..db import db_connect
 
 
 def get_total_linked_accounts() -> int:
