@@ -78,8 +78,8 @@ class AccountThemes:
         if themes_data:
             return ThemesData(
                 self._discord_user_id,
-                themes_data[2].split(','),
-                themes_data[3]
+                themes_data[1].split(','),
+                themes_data[2]
             )
 
         return ThemesData(self._discord_user_id, [], None)
