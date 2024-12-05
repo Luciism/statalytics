@@ -36,7 +36,7 @@ class RotationalStatsManager:
         if rotational_info is None:
             return None
 
-        return get_snapshot_data(cursor, rotational_info)
+        return get_snapshot_data(rotational_info, cursor=cursor)
 
 
     @ensure_cursor

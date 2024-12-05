@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 import sqlite3
 
+from .db import ensure_cursor
+
 
 @dataclass
 class BedwarsStatsSnapshot:
@@ -96,9 +98,10 @@ class BedwarsStatsSnapshot:
         return keys
 
 
+@ensure_cursor
 def get_snapshot_data(
-    cursor: sqlite3.Cursor,
-    snapshot_info: tuple
+    snapshot_info: tuple,
+    *, cursor: sqlite3.Cursor=None
 ) -> tuple[dict, BedwarsStatsSnapshot]:
     """
     Retrieve the snapshot data for a specific snapshot ID.
