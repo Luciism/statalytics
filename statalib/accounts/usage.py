@@ -1,6 +1,6 @@
 """Account usage related functionality."""
 
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 
 
 class AccountUsage:
@@ -8,7 +8,12 @@ class AccountUsage:
     def __init__(self, discord_user_id: int) -> None:
         self._discord_user_id = discord_user_id
 
-    def get_commands_ran(self, command_id: str | None=None) -> int:
+    @ensure_cursor
+    def get_commands_ran(
+        self,
+        command_id: str | None=None,
+        *, cursor: Cursor=None
+    ) -> int:
         """
         Get the total or command specific number of commands ran by the user.
 
@@ -19,13 +24,10 @@ class AccountUsage:
         if command_id is None:
             command_id = 'overall'
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            result = cursor.execute(
-                f'SELECT {command_id} FROM command_usage WHERE discord_id = ?',
-                (self._discord_user_id,),
-            ).fetchone()
+        result = cursor.execute(
+            f'SELECT {command_id} FROM command_usage WHERE discord_id = ?',
+            (self._discord_user_id,),
+        ).fetchone()
 
         if result:
             return result[0]

@@ -5,22 +5,24 @@ from ..mcfetch import AsyncFetchPlayer, FetchPlayer2
 from ..sessions import SessionManager
 from ..aliases import PlayerName, PlayerUUID, HypixelData
 from ..functions import insert_growth_data
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 
 
-def get_total_linked_accounts() -> int:
+@ensure_cursor
+def get_total_linked_accounts(*, cursor: Cursor=None) -> int:
     """Return the total linked accounts count."""
-    with db_connect() as conn:
-        cursor = conn.cursor()
+    cursor.execute(f"SELECT COUNT(discord_id) FROM linked_accounts")
+    total = cursor.fetchone()
 
-        cursor.execute(f"SELECT COUNT(discord_id) FROM linked_accounts")
-        total = cursor.fetchone()
     if total:
         return total[0]
     return 0
 
 
-def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
+@ensure_cursor
+def uuid_to_discord_id(
+    uuid: PlayerUUID, *, cursor: Cursor=None
+) -> int | None:
     """
     Attempt to retrieve the linked Discord ID that corresponds
     to a player UUID if there is one.
@@ -28,12 +30,9 @@ def uuid_to_discord_id(uuid: PlayerUUID) -> int | None:
     :param uuid: The UUID of the player to find linked Discord ID for.
     :return int | None: The linked Discord ID if found, otherwise None.
     """
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            f"SELECT discord_id FROM linked_accounts WHERE uuid = '{uuid}'")
-        discord_id = cursor.fetchone()
+    discord_id = cursor.execute(
+        f"SELECT discord_id FROM linked_accounts WHERE uuid = ?", (uuid,)
+    ).fetchone()
 
     return None if not discord_id else discord_id[0]
 
@@ -44,70 +43,69 @@ class AccountLinking:
     def __init__(self, discord_user_id: int) -> None:
         self._discord_user_id = discord_user_id
 
-    def get_linked_player_uuid(self) -> PlayerUUID | None:
+    @ensure_cursor
+    def get_linked_player_uuid(self, *, cursor: Cursor=None) -> PlayerUUID | None:
         """Retrieve the player UUID linked to a user if there is one."""
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                f"SELECT * FROM linked_accounts WHERE discord_id = ?",
-                (self._discord_user_id,))
-            linked_data = cursor.fetchone()
+        linked_data = cursor.execute(
+            f"SELECT * FROM linked_accounts WHERE discord_id = ?", (self._discord_user_id,)
+        ).fetchone()
 
         if linked_data and linked_data[1]:
             return linked_data[1]
         return None
 
-    def set_linked_player(self, uuid: PlayerUUID) -> None:
+    @ensure_cursor
+    def set_linked_player(self, uuid: PlayerUUID, *, cursor: Cursor=None) -> None:
         """
         Set the player linked to the user.
 
         :param uuid: The Minecraft player UUID of the respective player.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                f"SELECT * FROM linked_accounts WHERE discord_id = ?",
-                (self._discord_user_id,))
-            linked_data = cursor.fetchone()
-
-            if not linked_data:
-                cursor.execute(
-                    "INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)",
-                    (self._discord_user_id, uuid))
-            else:
-                cursor.execute(
-                    "UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?",
-                    (uuid, self._discord_user_id))
+        cursor.execute(
+            f"SELECT * FROM linked_accounts WHERE discord_id = ?",
+            (self._discord_user_id,))
+        linked_data = cursor.fetchone()
 
         if not linked_data:
-            insert_growth_data(self._discord_user_id, 'add', 'linked')
+            cursor.execute(
+                "INSERT INTO linked_accounts (discord_id, uuid) VALUES (?, ?)",
+                (self._discord_user_id, uuid))
+        else:
+            cursor.execute(
+                "UPDATE linked_accounts SET uuid = ? WHERE discord_id = ?",
+                (uuid, self._discord_user_id))
 
-    def unlink_account(self) -> str | None:
+        if not linked_data:
+            insert_growth_data(self._discord_user_id, 'add', 'linked', cursor=cursor)
+
+
+    @ensure_cursor
+    def unlink_account(self, *, cursor: Cursor=None) -> str | None:
         """
         Unlink a user from a player.
 
         :return str | None: The formerly linked player UUID if there was one, \
             otherwise None.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(
-                "SELECT uuid FROM linked_accounts WHERE discord_id = ?",
-                (self._discord_user_id,))
-            current_data = cursor.fetchone()
-
-            if current_data:
-                cursor.execute(
-                    "DELETE FROM linked_accounts WHERE discord_id = ?", (self._discord_user_id,))
+        cursor.execute(
+            "SELECT uuid FROM linked_accounts WHERE discord_id = ?",
+            (self._discord_user_id,))
+        current_data = cursor.fetchone()
 
         if current_data:
-            insert_growth_data(self._discord_user_id, 'remove', 'linked')
+            cursor.execute(
+                "DELETE FROM linked_accounts WHERE discord_id = ?", (self._discord_user_id,))
+
+        if current_data:
+            insert_growth_data(self._discord_user_id, 'remove', 'linked', cursor=cursor)
             return current_data[0]
         return None
 
 
-    def update_autofill(self, uuid: PlayerUUID, username: PlayerName) -> None:
+    @ensure_cursor
+    def update_autofill(
+        self, uuid: PlayerUUID, username: PlayerName, *, cursor: Cursor=None
+    ) -> None:
         """
         Updates the username autocompletion option for a certain player.
 
@@ -115,25 +113,25 @@ class AccountLinking:
         :param username: The updated linked player username of the target linked user.
         """
         if AccountPermissions(self._discord_user_id).has_access('autofill'):
-            with db_connect() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    f"SELECT * FROM autofill WHERE discord_id = ?", (self._discord_user_id,))
-                autofill_data: tuple = cursor.fetchone()
+            autofill_data: tuple = cursor.execute(
+                f"SELECT * FROM autofill WHERE discord_id = ?", (self._discord_user_id,)
+            ).fetchone()
 
-                if not autofill_data:
-                    query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
-                    cursor.execute(query, (self._discord_user_id, uuid, username))
-                elif autofill_data[2] != username:
-                    query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
-                    cursor.execute(query, (uuid, username, self._discord_user_id))
+            if not autofill_data:
+                query = "INSERT INTO autofill (discord_id, uuid, username) VALUES (?, ?, ?)"
+                cursor.execute(query, (self._discord_user_id, uuid, username))
+            elif autofill_data[2] != username:
+                query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
+                cursor.execute(query, (uuid, username, self._discord_user_id))
 
+    @ensure_cursor
     async def link_account(
         self,
         discord_tag: str,
         hypixel_data: HypixelData,
         name: PlayerName=None,
-        uuid: PlayerUUID=None
+        uuid: PlayerUUID=None,
+        *, cursor: Cursor=None
     ) -> int:
         """
         Attempt to link a Discord account to a Hypixel account.
@@ -163,21 +161,23 @@ class AccountLinking:
                 if not name:
                     name = await AsyncFetchPlayer(uuid=uuid).name
 
-                self.set_linked_player(uuid)
-                self.update_autofill(uuid, name)
+                self.set_linked_player(uuid, cursor=cursor)
+                self.update_autofill(uuid, name, cursor=cursor)
 
                 session_manager = SessionManager(uuid)
-                if session_manager.session_count() == 0:
-                    session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
+                if session_manager.session_count(cursor=cursor) == 0:
+                    session_manager.create_session(
+                        session_id=1, hypixel_data=hypixel_data, cursor=cursor)
                     return 2
                 return 1
             return 0
         return -1
 
 
-    def fetch_linked_player_name(self) -> str | None:
+    @ensure_cursor
+    def fetch_linked_player_name(self, *, cursor: Cursor=None) -> str | None:
         """Fetch the player username that corresponding with the linked player UUID."""
-        linked_player_uuid = self.get_linked_player_uuid()
+        linked_player_uuid = self.get_linked_player_uuid(cursor=cursor)
 
         if linked_player_uuid is not None:
             return FetchPlayer2(linked_player_uuid).name

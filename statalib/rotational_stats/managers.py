@@ -1,6 +1,5 @@
 """Functionality for managing rotational stats."""
 
-import sqlite3
 from datetime import datetime, UTC
 from typing import Callable
 from uuid import uuid4
@@ -9,7 +8,7 @@ from ._types import RotationType, BedwarsRotation, BedwarsHistoricalRotation
 from ._utils import get_bedwars_data
 from .reset_time import DefaultResetTimeManager, ResetTime
 from ..aliases import PlayerUUID, HypixelData
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 from ..stats_snapshot import BedwarsStatsSnapshot, get_snapshot_data
 
 
@@ -27,24 +26,24 @@ class RotationalStatsManager:
 
     def __get_rotation_data(
         self,
-        exec_select_query: Callable[[sqlite3.Cursor], None]
+        exec_select_query: Callable[[Cursor], Cursor],
+        cursor: Cursor
     ) -> tuple[dict, BedwarsStatsSnapshot] | None:
         """Execute rotational data select query."""
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        # Select rotational info
+        rotational_info = exec_select_query().fetchone()
 
-            exec_select_query(cursor)  # Select query
+        if rotational_info is None:
+            return None
 
-            rotational_info = cursor.fetchone()
-            if rotational_info is None:
-                return None
-
-            return get_snapshot_data(cursor, rotational_info)
+        return get_snapshot_data(cursor, rotational_info)
 
 
+    @ensure_cursor
     def get_rotational_data(
         self,
-        rotation_type: RotationType
+        rotation_type: RotationType,
+        *, cursor: Cursor=None
     ) -> BedwarsRotation | None:
         """
         Get the current rotational data for a player using the specified rotation type.
@@ -53,21 +52,23 @@ class RotationalStatsManager:
         :return BedwarsRotation | None: The rotational data if it exists, \
             otherwise None.
         """
-        exec_select_query = lambda cursor: cursor.execute(
+        exec_select_query = lambda: cursor.execute(
             "SELECT * FROM rotational_info WHERE uuid = ? AND rotation = ?",
             (self._uuid, rotation_type.value)
         )
 
-        result = self.__get_rotation_data(exec_select_query)
+        result = self.__get_rotation_data(exec_select_query, cursor)
         if result is None:
             return None  # No data
 
         return BedwarsRotation(*result)
 
 
+    @ensure_cursor
     def get_historical_rotation_data(
         self,
-        period_id: str
+        period_id: str,
+        *, cursor: Cursor=None
     ) -> BedwarsHistoricalRotation | None:
         """
         Get past rotational data for a player using the specified period_id ID type.
@@ -76,21 +77,23 @@ class RotationalStatsManager:
         :return BedwarsHistoricalRotation | None: The historical rotational data \
             if it exists, otherwise None.
         """
-        exec_select_query = lambda cursor: cursor.execute(
+        exec_select_query = lambda: cursor.execute(
             "SELECT * FROM historical_info WHERE uuid = ? AND period_id = ?",
             (self._uuid, period_id)
         )
 
-        result = self.__get_rotation_data(exec_select_query)
+        result = self.__get_rotation_data(exec_select_query, cursor)
         if result is None:
             return None  # No data
 
         return BedwarsHistoricalRotation(*result)
 
 
+    @ensure_cursor
     def initialize_rotational_tracking(
         self,
-        current_hypixel_data: HypixelData
+        current_hypixel_data: HypixelData,
+        *, cursor: Cursor=None
     ) -> None:
         """
         Initialize rotational stats tracking for a player.
@@ -98,7 +101,7 @@ class RotationalStatsManager:
         :param current_hypixel_data: The current Hypixel data of the player.
         """
         # Ensure default reset time for the player is set
-        DefaultResetTimeManager(self._uuid).update(ResetTime())
+        DefaultResetTimeManager(self._uuid).update(ResetTime(), cursor=cursor)
 
         current_bedwars_data = get_bedwars_data(current_hypixel_data)
 
@@ -116,21 +119,18 @@ class RotationalStatsManager:
 
         timestamp = datetime.now(UTC).timestamp()
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        for rotation in RotationType:
+            # Insert rotational info data
+            snapshot_id = uuid4().hex
 
-            for rotation in RotationType:
-                # Insert rotational info data
-                snapshot_id = uuid4().hex
+            cursor.execute(
+                "INSERT INTO rotational_info (uuid, rotation, last_reset_timestamp, "
+                "snapshot_id) VALUES (?, ?, ?, ?)",
+                (self._uuid, rotation.value, timestamp, snapshot_id)
+            )
 
-                cursor.execute(
-                    "INSERT INTO rotational_info (uuid, rotation, last_reset_timestamp, "
-                    "snapshot_id) VALUES (?, ?, ?, ?)",
-                    (self._uuid, rotation.value, timestamp, snapshot_id)
-                )
-
-                # Insert snapshot data
-                cursor.execute(
-                    f"INSERT INTO bedwars_stats_snapshots (snapshot_id, {set_clause}) VALUES (?, {question_marks})",
-                    (snapshot_id, *bedwars_data_list)
-                )
+            # Insert snapshot data
+            cursor.execute(
+                f"INSERT INTO bedwars_stats_snapshots (snapshot_id, {set_clause}) VALUES (?, {question_marks})",
+                (snapshot_id, *bedwars_data_list)
+            )

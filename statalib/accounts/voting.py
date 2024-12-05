@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime, UTC
 
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 
 
 @dataclass
@@ -33,21 +33,21 @@ class AccountVoting:
     def __init__(self, discord_user_id: int) -> None:
         self._discord_user_id = discord_user_id
 
-    def load(self) -> VotingData:
+    @ensure_cursor
+    def load(self, *, cursor: Cursor=None) -> VotingData:
         """Load the account's voting data from the database."""
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            voting_data = cursor.execute(
-                f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
-            ).fetchone()
+        voting_data = cursor.execute(
+            f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
+        ).fetchone()
 
         return VotingData(*(voting_data or (self._discord_user_id, 0, 0, None)))
 
+    @ensure_cursor
     def add_vote(
         self,
         is_weekend: bool=False,
-        timestamp: float | None=None
+        timestamp: float | None=None,
+        *, cursor: Cursor=None
     ) -> None:
         """
         Add a vote to the account's voting data.
@@ -58,24 +58,21 @@ class AccountVoting:
         if timestamp is None:
             timestamp = datetime.now(UTC).timestamp()
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        current_voting_data = cursor.execute(
+            f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
+        ).fetchone()
 
-            current_voting_data = cursor.execute(
-                f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
-            ).fetchone()
-
-            if current_voting_data:
-                cursor.execute(f"""
-                    UPDATE voting_data
-                    SET
-                        total_votes = total_votes + 1,
-                        {'weekend_votes = weekend_votes + 1,' if is_weekend else ''}
-                        last_vote = ?
-                    WHERE discord_id = ?
-                """, (timestamp, self._discord_user_id,))
-            else:
-                cursor.execute(
-                    'INSERT INTO voting_data (discord_id, total_votes, '
-                    'weekend_votes, last_vote) VALUES (?, ?, ?, ?)',
-                    (self._discord_user_id, 1, int(is_weekend), timestamp))
+        if current_voting_data:
+            cursor.execute(f"""
+                UPDATE voting_data
+                SET
+                    total_votes = total_votes + 1,
+                    {'weekend_votes = weekend_votes + 1,' if is_weekend else ''}
+                    last_vote = ?
+                WHERE discord_id = ?
+            """, (timestamp, self._discord_user_id,))
+        else:
+            cursor.execute(
+                'INSERT INTO voting_data (discord_id, total_votes, '
+                'weekend_votes, last_vote) VALUES (?, ?, ?, ?)',
+                (self._discord_user_id, 1, int(is_weekend), timestamp))

@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, UTC
 
 import discord
 
-from .db import db_connect
+from .db import ensure_cursor, Cursor
 from .cfg import config
 from .common import REL_PATH
 
@@ -39,11 +39,13 @@ def loading_message() -> str:
     return config('apps.bot.loading_message')
 
 
+@ensure_cursor
 def insert_growth_data(
     discord_id: int,
     action: Literal['add', 'remove'],
     growth: Literal['guild', 'user', 'linked'],
-    timestamp: float=None
+    timestamp: float=None,
+    *, cursor: Cursor=None
 ) -> None:
     """
     Inserts a row of growth data into database.
@@ -56,61 +58,58 @@ def insert_growth_data(
     if timestamp is None:
         timestamp = time.time()
 
-    with db_connect() as conn:
-        cursor = conn.cursor()
+    cursor.execute(
+        'INSERT INTO growth_data '
+        '(timestamp, discord_id, action, growth) '
+        'VALUES (?, ?, ?, ?)',
+        (timestamp, discord_id, action, growth)
+    )
 
+
+def _update_usage(command, discord_id, cursor: Cursor) -> None:
+    # Check if command column exists
+    cursor.execute('SELECT * FROM command_usage WHERE discord_id = 0')
+    column_names = [desc[0] for desc in cursor.description]
+
+    # Add column if it doesnt exist
+    if not command in column_names:
+        cursor.execute(f'ALTER TABLE command_usage ADD COLUMN {command} INTEGER')
+
+    # Update users command usage stats
+    cursor.execute(
+        f"SELECT overall, {command} FROM command_usage WHERE discord_id = ?",
+        (discord_id,))
+    result = cursor.fetchone()
+
+    if result and result[0]:
+        cursor.execute(f"""
+            UPDATE command_usage
+            SET overall = overall + 1,
+            {command} = {f'{command} + 1' if result[1] else 1}
+            WHERE discord_id = {discord_id}
+        """)  # if command current is null, it will be set to 1
+    else:
         cursor.execute(
-            'INSERT INTO growth_data '
-            '(timestamp, discord_id, action, growth) '
-            'VALUES (?, ?, ?, ?)',
-            (timestamp, discord_id, action, growth)
-        )
-
-
-def _update_usage(command, discord_id):
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        # Check if command column exists
-        cursor.execute('SELECT * FROM command_usage WHERE discord_id = 0')
-        column_names = [desc[0] for desc in cursor.description]
-
-        # Add column if it doesnt exist
-        if not command in column_names:
-            cursor.execute(f'ALTER TABLE command_usage ADD COLUMN {command} INTEGER')
-
-        # Update users command usage stats
-        cursor.execute(
-            f"SELECT overall, {command} FROM command_usage WHERE discord_id = ?",
-            (discord_id,))
-        result = cursor.fetchone()
-
-        if result and result[0]:
-            cursor.execute(f"""
-                UPDATE command_usage
-                SET overall = overall + 1,
-                {command} = {f'{command} + 1' if result[1] else 1}
-                WHERE discord_id = {discord_id}
-            """)  # if command current is null, it will be set to 1
-        else:
-            cursor.execute(
-                "INSERT INTO command_usage "
-                f"(discord_id, overall, {command}) VALUES (?, ?, ?)",
-                (discord_id, 1, 1))
+            "INSERT INTO command_usage "
+            f"(discord_id, overall, {command}) VALUES (?, ?, ?)",
+            (discord_id, 1, 1))
 
     if not result:
-        insert_growth_data(discord_id, action='add', growth='user')
+        insert_growth_data(discord_id, action='add', growth='user', cursor=cursor)
 
 
-def update_command_stats(discord_id: int, command: str) -> None:
+@ensure_cursor
+def update_command_stats(
+    discord_id: int, command: str, *, cursor: Cursor=None
+) -> None:
     """
     Updates command usage stats for respective command.
 
     :param discord_id: The Discord ID of the user that ran the command.
     :param command: The ID of the command run by the user to be incremented.
     """
-    _update_usage(command, discord_id)
-    _update_usage(command, 0)  # Global commands
+    _update_usage(command, discord_id, cursor)
+    _update_usage(command, 0, cursor)  # Global commands
 
 
 def fname(username: str):
@@ -129,20 +128,29 @@ def ordinal(n: int) -> str:
     return {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
 
 
-def get_user_total() -> int:
+@ensure_cursor
+def get_user_total(*, cursor: Cursor=None) -> int:
     """Get total amount of account that exist."""
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute('SELECT COUNT(account_id) FROM accounts')
-        result = cursor.fetchone()
+    result = cursor.execute('SELECT COUNT(account_id) FROM accounts').fetchone()
 
     if result:
         return result[0]
     return 0
 
 
-def _commands_ran(discord_id: int, default: Any, cursor: sqlite3.Cursor):
+@ensure_cursor
+def commands_ran(
+    discord_id: int,
+    default: Any=0,
+    cursor: Cursor=None
+) -> int | Any:
+    """
+    Get the total amount of commands that a user has ran.
+
+    :param discord_id: The Discord user ID of the respective user.
+    :param default: The default return value if the user has never run a command.
+    :param cursor: A custom `sqlite3.Cursor` object to operate on.
+    """
     cursor.execute(
         'SELECT overall FROM command_usage WHERE discord_id = ?', (discord_id,))
     result = cursor.fetchone()
@@ -152,33 +160,11 @@ def _commands_ran(discord_id: int, default: Any, cursor: sqlite3.Cursor):
     return default
 
 
-def commands_ran(
-    discord_id: int,
-    default: Any=0,
-    cursor: sqlite3.Cursor=None
-) -> int | Any:
-    """
-    Get the total amount of commands that a user has ran.
-
-    :param discord_id: The Discord user ID of the respective user.
-    :param default: The default return value if the user has never run a command.
-    :param cursor: A custom `sqlite3.Cursor` object to operate on.
-    """
-    if cursor:
-        return _commands_ran(discord_id, default, cursor)
-
-    with db_connect() as conn:
-        cursor = conn.cursor()
-        return _commands_ran(discord_id, default, cursor)
-
-
-def get_commands_total() -> int:
+@ensure_cursor
+def get_commands_total(*, cursor: Cursor=None) -> int:
     """Get the total amount of commands run by all users, ever."""
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
-        result = cursor.fetchone()
+    cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
+    result = cursor.fetchone()
 
     if result:
         return result[0]

@@ -1,16 +1,19 @@
 """Private shared utility for creating accounts."""
 
+import sqlite3
 from datetime import datetime, UTC
 
-from ..db import db_connect
+from ..db import ensure_cursor
 
 
+@ensure_cursor
 def create_account(
     discord_user_id: int,
     creation_timestamp: float | None=None,
     permissions: list[str] | None=None,
     blacklisted: bool=False,
     account_id: int | None=None,
+    *, cursor: sqlite3.Cursor=None
 ) -> None:
     """Create an account in the database if it doesn't exist."""
     if creation_timestamp is None:
@@ -30,10 +33,7 @@ def create_account(
     column_names = ', '.join(account_data.keys())
     question_marks = ', '.join('?'*len(account_data.keys()))
 
-    with db_connect() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            f'INSERT OR IGNORE INTO accounts ({column_names}) VALUES ({question_marks})',
-            tuple(account_data.values())
-        )
-
+    cursor.execute(
+        f'INSERT OR IGNORE INTO accounts ({column_names}) VALUES ({question_marks})',
+        tuple(account_data.values())
+    )

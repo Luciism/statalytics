@@ -18,7 +18,7 @@ from .managers import RotationalStatsManager
 from ..aliases import PlayerUUID, HypixelData
 from ..hypixel.leveling import Leveling
 from ..cfg import config
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 from ..accounts.linking import uuid_to_discord_id
 from ..accounts.permissions import AccountPermissions
 
@@ -26,9 +26,11 @@ from ..accounts.permissions import AccountPermissions
 logger = logging.getLogger(__name__)
 
 
+@ensure_cursor
 def has_auto_reset_access(
     uuid: PlayerUUID,
-    auto_reset_config: dict | None=None
+    auto_reset_config: dict | None=None,
+    *, cursor: Cursor=None
 ) -> bool:
     """
     Check if a player has access to rotational auto resetting.
@@ -50,14 +52,15 @@ def has_auto_reset_access(
         perm_whitelist = auto_reset_config.get('permission_whitelist', [])
         allow_star_perm = auto_reset_config.get('allow_star_permission', True)
 
-        linked_discord_id = uuid_to_discord_id(uuid)
+        linked_discord_id = uuid_to_discord_id(uuid, cursor=cursor)
         if linked_discord_id is None and not uuid in uuid_whitelist:
             # Player is linked to any user
             return False
 
         # uuid is whitelisted or linked discord account has perms
-        user_has_access = AccountPermissions(linked_discord_id).has_access(
-            perm_whitelist, allow_star_perm)
+        user_has_access = AccountPermissions(linked_discord_id) \
+            .has_access(perm_whitelist, allow_star_perm, cursor=cursor)
+
         if not user_has_access and not uuid in uuid_whitelist:
             # User has no access and linked player is not whitelisted
             return False
@@ -104,10 +107,12 @@ class RotationalResetting:
         return calculated_values
 
 
+    @ensure_cursor
     def archive_rotational_data(
         self,
         period_id: HistoricalRotationPeriodID,
         current_hypixel_data: HypixelData,
+        *, cursor: Cursor=None
     ) -> str:
         """
         Save currently active rotational data as a historical data snapshot.
@@ -117,7 +122,8 @@ class RotationalResetting:
         :return str: A snapshot ID that can be used to identify the data.
         """
         manager = RotationalStatsManager(self._player_uuid)
-        current_rotational_data = manager.get_rotational_data(period_id.rotation_type)
+        current_rotational_data = manager.get_rotational_data(
+            period_id.rotation_type, cursor=cursor)
 
         # Data was expected
         if current_rotational_data is None:
@@ -131,36 +137,36 @@ class RotationalResetting:
 
         # Misc values
         snapshot_id = uuid4().hex
-        current_bedwars_level = Leveling(
-            xp=current_rotational_data.data.Experience).level
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        current_xp = current_rotational_data.data.Experience
+        current_bedwars_level = Leveling(xp=current_xp).level
 
-            # Insert info
-            cursor.execute(
-                "INSERT INTO historical_info (uuid, period_id, level, snapshot_id) "
-                "VALUES (?, ?, ?, ?)",
-                (self._player_uuid, period_id.to_string(), current_bedwars_level, snapshot_id)
-            )
+        # Insert info
+        cursor.execute(
+            "INSERT INTO historical_info (uuid, period_id, level, snapshot_id) "
+            "VALUES (?, ?, ?, ?)",
+            (self._player_uuid, period_id.to_string(), current_bedwars_level, snapshot_id)
+        )
 
-            # Insert data
-            keys = BedwarsStatsSnapshot.keys(include_snapshot_id=False)
-            column_names = ", ".join(keys)
-            question_marks = ", ".join("?"*len(keys))
+        # Insert data
+        keys = BedwarsStatsSnapshot.keys(include_snapshot_id=False)
+        column_names = ", ".join(keys)
+        question_marks = ", ".join("?"*len(keys))
 
-            cursor.execute(f"""
-                INSERT INTO bedwars_stats_snapshots
-                (snapshot_id, {column_names}) VALUES (?, {question_marks})
-            """, (snapshot_id, *calculated_values))
+        cursor.execute(f"""
+            INSERT INTO bedwars_stats_snapshots
+            (snapshot_id, {column_names}) VALUES (?, {question_marks})
+        """, (snapshot_id, *calculated_values))
 
         return snapshot_id
 
 
+    @ensure_cursor
     def refresh_rotational_data(
         self,
         rotation_type: RotationType,
-        current_hypixel_data: HypixelData
+        current_hypixel_data: HypixelData,
+        *, cursor: Cursor=None
     ) -> None:
         """
         Refresh rotational data by updating the data to the player's current stats.
@@ -170,52 +176,51 @@ class RotationalResetting:
         """
         timestamp = datetime.now(UTC).timestamp()
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        # Get snapshot ID
+        result = cursor.execute(
+            "SELECT snapshot_id FROM rotational_info WHERE uuid = ? "
+            "AND rotation = ?", (self._player_uuid, rotation_type.value)
+        ).fetchone()
 
-            # Get snapshot ID
-            cursor.execute(
-                "SELECT snapshot_id FROM rotational_info WHERE uuid = ? "
-                "AND rotation = ?", (self._player_uuid, rotation_type.value))
-            result = cursor.fetchone()
+        if result is None:
+            return None  # Probably raise an exception instead
 
-            if result is None:
-                return None  # Probably raise an exception instead
+        # Update last reset timestamp
+        cursor.execute(
+            "UPDATE rotational_info SET last_reset_timestamp = ? "
+            "WHERE uuid = ? AND rotation = ?",
+            (timestamp, self._player_uuid, rotation_type.value)
+        )
 
-            # Update last reset timestamp
-            cursor.execute(
-                "UPDATE rotational_info SET last_reset_timestamp = ? "
-                "WHERE uuid = ? AND rotation = ?",
-                (timestamp, self._player_uuid, rotation_type.value)
-            )
+        snapshot_id = result[0]
 
-            snapshot_id = result[0]
+        # Convert bedwars data to list of tracked values
+        current_bedwars_data = get_bedwars_data(current_hypixel_data)
 
-            # Convert bedwars data to list of tracked values
-            current_bedwars_data = get_bedwars_data(current_hypixel_data)
+        bedwars_data_list = [
+            current_bedwars_data.get(key, 0)
+            for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
+        ]
 
-            bedwars_data_list = [
-                current_bedwars_data.get(key, 0)
-                for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
-            ]
+        # Format set query
+        set_keys = [
+            f"{key} = ?"
+            for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
+        ]
+        set_clause = ", ".join(set_keys)
 
-            # Format set query
-            set_keys = [
-                f"{key} = ?"
-                for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
-            ]
-            set_clause = ", ".join(set_keys)
-
-            # Update snapshot data
-            cursor.execute(
-                f"UPDATE bedwars_stats_snapshots SET {set_clause} WHERE snapshot_id = ?",
-                (*bedwars_data_list, snapshot_id)
-            )
+        # Update snapshot data
+        cursor.execute(
+            f"UPDATE bedwars_stats_snapshots SET {set_clause} WHERE snapshot_id = ?",
+            (*bedwars_data_list, snapshot_id)
+        )
 
 
+@ensure_cursor
 def reset_rotational_stats_if_whitelisted(
     uuid: PlayerUUID,
-    hypixel_data: HypixelData
+    hypixel_data: HypixelData,
+    *, cursor: Cursor=None
 ) -> None:
     """
     Reset a player's rotational stats if the time since the last
@@ -227,22 +232,29 @@ def reset_rotational_stats_if_whitelisted(
     :param hypixel_data: The current Hypixel data of the player.
     """
     # Dont reset players that are auto reset whitelisted
-    if has_auto_reset_access(uuid):
+    if has_auto_reset_access(uuid, cursor=cursor):
         return
 
     now = datetime.now(UTC)
     now_timestamp = now.timestamp()
 
-    with db_connect() as conn:
-        cursor = conn.cursor()
-
-        # Get last reset timestamp for all rotations
-        cursor.execute(
-            "SELECT rotation, last_reset_timestamp FROM rotational_info "
-            "WHERE uuid = ?", (uuid,))
-        last_resets: dict[str, int] = {k: v for k, v in cursor.fetchall()}
+    # Get last reset timestamp for all rotations
+    cursor.execute(
+        "SELECT rotation, last_reset_timestamp FROM rotational_info "
+        "WHERE uuid = ?", (uuid,))
+    last_resets: dict[str, int] = {k: v for k, v in cursor.fetchall()}
 
     reset_manager = RotationalResetting(uuid)
+
+    def _archive_and_refresh(
+        rotation_type: RotationType, dt: datetime, cursor: Cursor
+    ) -> None:
+        period = HistoricalRotationPeriodID(rotation_type, last_day_dt)
+        reset_manager.archive_rotational_data(period, hypixel_data, cursor=cursor)
+        reset_manager.refresh_rotational_data(
+            rotation_type, hypixel_data, cursor=cursor)
+
+        logger.info(f'(Manual) Reset {rotation_type.value} tracker for: {uuid}')
 
     if last_resets.get('daily'):
         last_reset = last_resets['daily']
@@ -251,11 +263,7 @@ def reset_rotational_stats_if_whitelisted(
         if now_timestamp - last_reset > 86400:
             last_day_dt = now - timedelta(days=1)
 
-            period = HistoricalRotationPeriodID(RotationType.DAILY, last_day_dt)
-            reset_manager.archive_rotational_data(period, hypixel_data)
-            reset_manager.refresh_rotational_data(RotationType.DAILY, hypixel_data)
-
-            logger.info(f'(Manual) Reset daily tracker for: {uuid}')
+            _archive_and_refresh(RotationType.DAILY, last_day_dt, cursor)
 
     if last_resets.get('weekly'):
         last_reset = last_resets['weekly']
@@ -264,11 +272,7 @@ def reset_rotational_stats_if_whitelisted(
         if now_timestamp - last_reset > (86400 * 7):
             last_week_dt = now - relativedelta(weeks=1)
 
-            period = HistoricalRotationPeriodID(RotationType.WEEKLY, last_week_dt)
-            reset_manager.archive_rotational_data(period, hypixel_data)
-            reset_manager.refresh_rotational_data(RotationType.WEEKLY, hypixel_data)
-
-            logger.info(f'(Manual) Reset weekly tracker for: {uuid}')
+            _archive_and_refresh(RotationType.WEEKLY, last_week_dt, cursor)
 
     if last_resets.get('monthly'):
         last_reset = last_resets['monthly']
@@ -282,11 +286,7 @@ def reset_rotational_stats_if_whitelisted(
         if now_timestamp - last_reset > monthly_seconds:
             last_month_dt = now - relativedelta(months=1)
 
-            period = HistoricalRotationPeriodID(RotationType.MONTHLY, last_month_dt)
-            reset_manager.archive_rotational_data(period, hypixel_data)
-            reset_manager.refresh_rotational_data(RotationType.MONTHLY, hypixel_data)
-
-            logger.info(f'(Manual) Reset monthly tracker for: {uuid}')
+            _archive_and_refresh(RotationType.MONTHLY, last_month_dt, cursor)
 
     if last_resets.get('yearly'):
         last_reset = last_resets['yearly']
@@ -301,11 +301,7 @@ def reset_rotational_stats_if_whitelisted(
         if now_timestamp - last_reset > yearly_seconds:
             last_year_dt = now - relativedelta(years=1)
 
-            period = HistoricalRotationPeriodID(RotationType.YEARLY, last_year_dt)
-            reset_manager.archive_rotational_data(period, hypixel_data)
-            reset_manager.refresh_rotational_data(RotationType.YEARLY, hypixel_data)
-
-            logger.info(f'(Manual) Reset yearly tracker for: {uuid}')
+            _archive_and_refresh(RotationType.YEARLY, last_year_dt, cursor)
 
 
 # What the fuck?

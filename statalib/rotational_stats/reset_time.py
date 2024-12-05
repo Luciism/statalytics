@@ -1,13 +1,12 @@
 """Reset time related functionality."""
 
 import random
-import sqlite3
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 
 from ..aliases import PlayerUUID
 from ..common import MISSING
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 from ..accounts.linking import uuid_to_discord_id
 
 
@@ -40,22 +39,23 @@ class _ResetTimeManagerBase(ABC):
 
     @abstractmethod
     def _select_reset_time_data(
-        self, cursor: sqlite3.Cursor, selector: str="*") -> None: ...
+        self, cursor: Cursor, selector: str="*") -> None: ...
 
     @abstractmethod
     def _update_reset_time_data(
-        self, cursor: sqlite3.Cursor, set_clause: str, values: list[int]) -> None: ...
+        self, cursor: Cursor, set_clause: str, values: list[int]) -> None: ...
 
     @abstractmethod
     def _insert_reset_time_data(
-        self, cursor: sqlite3.Cursor, timezone: int, reset_hour: int, reset_minute: int
+        self, cursor: Cursor, timezone: int, reset_hour: int, reset_minute: int
     ) -> None: ...
 
     @abstractmethod
-    def _delete_reset_time_data(self, cursor: sqlite3.Cursor) -> None: ...
+    def _delete_reset_time_data(self, cursor: Cursor) -> None: ...
 
 
-    def update(self, new_value: ResetTime) -> None:
+    @ensure_cursor
+    def update(self, new_value: ResetTime, *, cursor: Cursor=None) -> None:
         """
         Update a users reset time to the given spec.
 
@@ -74,50 +74,46 @@ class _ResetTimeManagerBase(ABC):
         if new_value.reset_minute is not MISSING:
             values_to_update["reset_minute"] = new_value.reset_minute
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
 
-            # Check if data exists
-            self._select_reset_time_data(cursor)
+        # Check if data exists
+        self._select_reset_time_data(cursor)
 
-            if cursor.fetchone():
-                # Empty ResetTime object was passed
-                if len(values_to_update) == 0:
-                    return
+        if cursor.fetchone():
+            # Empty ResetTime object was passed
+            if len(values_to_update) == 0:
+                return
 
-                # Update provided values
-                set_clause = ", ".join([f"{k} = ?" for k in values_to_update])
-                self._update_reset_time_data(
-                    cursor, set_clause, list(values_to_update.values()))
-            else:
-                # Insert provided values with default values where data is missing
-                self._insert_reset_time_data(
-                    cursor,
-                    values_to_update.get("timezone", 0),
-                    values_to_update.get("reset_hour", self.__random_default_hour()),
-                    values_to_update.get("reset_minute", self.__random_default_minute())
-                )
+            # Update provided values
+            set_clause = ", ".join([f"{k} = ?" for k in values_to_update])
+            self._update_reset_time_data(
+                cursor, set_clause, list(values_to_update.values()))
+        else:
+            # Insert provided values with default values where data is missing
+            self._insert_reset_time_data(
+                cursor,
+                values_to_update.get("timezone", 0),
+                values_to_update.get("reset_hour", self.__random_default_hour()),
+                values_to_update.get("reset_minute", self.__random_default_minute())
+            )
 
 
-    def get(self) -> ResetTime | None:
+    @ensure_cursor
+    def get(self, *, cursor: Cursor=None) -> ResetTime | None:
         """Get the reset time info of the user."""
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        self._select_reset_time_data(
+            cursor, selector="timezone, reset_hour, reset_minute")
 
-            self._select_reset_time_data(
-                cursor, selector="timezone, reset_hour, reset_minute")
+        result = cursor.fetchone()
+        if result is None:
+            return None
 
-            result = cursor.fetchone()
-            if result is None:
-                return None
-
-            return ResetTime(*result)
+        return ResetTime(*result)
 
 
-    def remove(self) -> None:
+    @ensure_cursor
+    def remove(self, *, cursor: Cursor=None) -> None:
         """Remove the user's reset time data."""
-        with db_connect() as conn:
-            self._delete_reset_time_data(conn.cursor())
+        self._delete_reset_time_data(cursor)
 
 
 class ConfiguredResetTimeManager(_ResetTimeManagerBase):
@@ -131,21 +127,21 @@ class ConfiguredResetTimeManager(_ResetTimeManagerBase):
         self._discord_id = discord_id
 
     def _select_reset_time_data(
-        self, cursor: sqlite3.Cursor, selector: str = "*"
+        self, cursor: Cursor, selector: str = "*"
     ) -> None:
         cursor.execute(
             f"SELECT {selector} FROM configured_reset_times WHERE discord_id = ?",
             (self._discord_id,))
 
     def _update_reset_time_data(
-        self, cursor: sqlite3.Cursor, set_clause: str, values: list[int]
+        self, cursor: Cursor, set_clause: str, values: list[int]
     ) -> None:
         cursor.execute(
             f"UPDATE configured_reset_times SET {set_clause} WHERE discord_id = ?",
             (*values, self._discord_id))
 
     def _insert_reset_time_data(
-        self, cursor: sqlite3.Cursor, timezone: int, reset_hour: int, reset_minute: int
+        self, cursor: Cursor, timezone: int, reset_hour: int, reset_minute: int
     ) -> None:
         cursor.execute(
             "INSERT INTO configured_reset_times "
@@ -153,7 +149,7 @@ class ConfiguredResetTimeManager(_ResetTimeManagerBase):
             (self._discord_id, timezone, reset_hour, reset_minute)
         )
 
-    def _delete_reset_time_data(self, cursor: sqlite3.Cursor) -> None:
+    def _delete_reset_time_data(self, cursor: Cursor) -> None:
         cursor.execute(
             "DELETE FROM configured_reset_times WHERE discord_id = ?",
             (self._discord_id,))
@@ -170,21 +166,21 @@ class DefaultResetTimeManager(_ResetTimeManagerBase):
         self._player_uuid = uuid
 
     def _select_reset_time_data(
-        self, cursor: sqlite3.Cursor, selector: str = "*"
+        self, cursor: Cursor, selector: str = "*"
     ) -> None:
         cursor.execute(
             f"SELECT {selector} FROM default_reset_times WHERE uuid = ?",
             (self._player_uuid,))
 
     def _update_reset_time_data(
-        self, cursor: sqlite3.Cursor, set_clause: str, values: list[int]
+        self, cursor: Cursor, set_clause: str, values: list[int]
     ) -> None:
         cursor.execute(
             f"UPDATE default_reset_times SET {set_clause} WHERE uuid = ?",
             (*values, self._player_uuid))
 
     def _insert_reset_time_data(
-        self, cursor: sqlite3.Cursor, timezone: int, reset_hour: int, reset_minute: int
+        self, cursor: Cursor, timezone: int, reset_hour: int, reset_minute: int
     ) -> None:
         cursor.execute(
             "INSERT INTO default_reset_times "
@@ -192,12 +188,16 @@ class DefaultResetTimeManager(_ResetTimeManagerBase):
             (self._player_uuid, timezone, reset_hour, reset_minute)
         )
 
-    def _delete_reset_time_data(self, cursor: sqlite3.Cursor) -> None:
+    def _delete_reset_time_data(self, cursor: Cursor) -> None:
         cursor.execute(
             "DELETE FROM default_reset_times WHERE uuid = ?", (self._player_uuid,))
 
 
-def get_dynamic_reset_time(uuid: PlayerUUID) -> ResetTime:
+@ensure_cursor
+def get_dynamic_reset_time(
+    uuid: PlayerUUID,
+    *, cursor: Cursor=None
+) -> ResetTime:
     """
     Get a reset time based on the configured reset time of the linked
     player and the default reset time of the player. If a player is linked
@@ -215,11 +215,11 @@ def get_dynamic_reset_time(uuid: PlayerUUID) -> ResetTime:
 
     # Use the linked users configured reset time if it exists
     if linked_discord_id:
-        reset_time = ConfiguredResetTimeManager(linked_discord_id).get()
+        reset_time = ConfiguredResetTimeManager(linked_discord_id).get(cursor=cursor)
 
     # Otherwise use the player's default reset time
     if reset_time is None:
-        reset_time = DefaultResetTimeManager(uuid).get()
+        reset_time = DefaultResetTimeManager(uuid).get(cursor=cursor)
 
     # Return reset time with a default of zero values if it doesn't exist
     return reset_time or ResetTime(0, 0, 0)

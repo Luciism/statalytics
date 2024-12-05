@@ -1,7 +1,7 @@
 """Account permissions related functionality."""
 
 from ._create import create_account
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 from ..functions import comma_separated_to_list
 from .subscriptions import AccountSubscriptions
 
@@ -11,32 +11,35 @@ class AccountPermissions:
     def __init__(self, discord_user_id: int) -> None:
         self._discord_user_id = discord_user_id
 
-    def add_permission(self, permission: str) -> None:
+    @ensure_cursor
+    def add_permission(self, permission: str, *, cursor: Cursor=None) -> None:
         """
         Add a permission to a user if they don't already have it.
 
         :param permission: The permission to add to the user.
         """
-        permissions = self.get_permissions()
+        permissions = self.get_permissions(cursor=cursor)
 
         if permission not in permissions:
             permissions.append(permission)
-            self.set_permissions(permissions)
+            self.set_permissions(permissions, cursor=cursor)
 
-    def remove_permission(self, permission: str) -> None:
+    @ensure_cursor
+    def remove_permission(self, permission: str, *, cursor: Cursor=None) -> None:
         """
         Remove a permission from a user.
 
         :param permission: The permission to remove from the user.
         """
-        permissions = self.get_permissions()
+        permissions = self.get_permissions(cursor=cursor)
 
         if permission in permissions:
             while permission in permissions:
                 permissions.remove(permission)
-            self.set_permissions(permissions)
+            self.set_permissions(permissions, cursor=cursor)
 
-    def set_permissions(self, permissions: list) -> None:
+    @ensure_cursor
+    def set_permissions(self, permissions: list, *, cursor: Cursor=None) -> None:
         """
         Set the user's permissions to the given set of permissions.
         This will completely override any existing permissions.
@@ -46,43 +49,43 @@ class AccountPermissions:
         permissions = list(set(permissions))  # Remove duplicates.
         permissions_str = ','.join(permissions)
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        cursor.execute(
+            'SELECT account_id FROM accounts WHERE discord_id = ?',
+            (self._discord_user_id,))
+        existing_data: tuple = cursor.fetchone()
 
+        if existing_data:
             cursor.execute(
-                'SELECT account_id FROM accounts WHERE discord_id = ?',
-                (self._discord_user_id,))
-            existing_data: tuple = cursor.fetchone()
+                "UPDATE accounts SET permissions = ? WHERE discord_id = ?",
+                (permissions_str, self._discord_user_id))
+        else:
+            create_account(self._discord_user_id, permissions=permissions, cursor=cursor)
 
-            if existing_data:
-                cursor.execute(
-                    "UPDATE accounts SET permissions = ? WHERE discord_id = ?",
-                    (permissions_str, self._discord_user_id))
-            else:
-                create_account(self._discord_user_id, permissions=permissions)
-
-    def get_permissions(self) -> list[str]:
+    @ensure_cursor
+    def get_permissions(self, *, cursor: Cursor=None) -> list[str]:
         """
         Get a list of the user's permissions.
 
         :return list: A list of the user's permissions.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        # Create account if it doesn't exist
+        create_account(self._discord_user_id, cursor=cursor)
 
-            create_account(self._discord_user_id)
-
-            cursor.execute(
-                'SELECT permissions FROM accounts WHERE discord_id = ?',
-                (self._discord_user_id,))
-            permissions: tuple = cursor.fetchone()
+        cursor.execute(
+            'SELECT permissions FROM accounts WHERE discord_id = ?',
+            (self._discord_user_id,))
+        permissions: tuple = cursor.fetchone()
 
         if permissions:
             return comma_separated_to_list(permissions[0])
         return []
 
+    @ensure_cursor
     def has_permission(
-        self, permissions: str | list[str], allow_star: bool=True
+        self,
+        permissions: str | list[str],
+        allow_star: bool=True,
+        *, cursor: Cursor=None
     ) -> bool:
         """
         Check if a user has one or more of the specified permissions.
@@ -91,7 +94,7 @@ class AccountPermissions:
         :param allow_star: Allow star (*) permission to overrule permission checks.
         :return bool: Whether the user has derived access to the specified permissions.
         """
-        user_permissions = self.get_permissions()
+        user_permissions = self.get_permissions(cursor=cursor)
 
         if allow_star and '*' in user_permissions:
             return True
@@ -105,8 +108,12 @@ class AccountPermissions:
 
         return False
 
+    @ensure_cursor
     def has_access(
-        self, permissions: str | list[str], allow_star: bool=True
+        self,
+        permissions: str | list[str],
+        allow_star: bool=True,
+        *, cursor: Cursor=None
     ) -> bool:
         """
         Check if a user's account has access to one or more of the
@@ -120,12 +127,13 @@ class AccountPermissions:
         if not self._discord_user_id:
             return False
 
-        subscription = AccountSubscriptions(self._discord_user_id).get_subscription()
+        subscription = AccountSubscriptions(self._discord_user_id) \
+            .get_subscription(cursor=cursor)
         package_perms = subscription.package_permissions
 
         package_perms = set(package_perms)
 
-        user_permissions = self.get_permissions()
+        user_permissions = self.get_permissions(cursor=cursor)
 
         for user_permission in user_permissions:
             package_perms.add(user_permission)

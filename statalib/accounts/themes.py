@@ -5,7 +5,7 @@ from typing import TypeVar
 
 from ..errors import ThemeNotFoundError
 from ..cfg import config
-from ..db import db_connect
+from ..db import ensure_cursor, Cursor
 
 
 def get_voter_themes() -> list:
@@ -64,39 +64,39 @@ class AccountThemes:
         if not theme_name in self.get_available_themes():
             raise ThemeNotFoundError('The respective theme is not an available theme!')
 
-    def load(self) -> ThemesData:
+    @ensure_cursor
+    def load(self, *, cursor: Cursor=None) -> ThemesData:
         """Load the user's themes from the database."""
-        with db_connect() as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(
-                'SELECT * FROM themes_data WHERE discord_id = ?',
-                (self._discord_user_id,))
-
-            themes_data = cursor.fetchone()
+        themes_data = cursor.execute(
+            'SELECT * FROM themes_data WHERE discord_id = ?',
+            (self._discord_user_id,)
+        ).fetchone()
 
         if themes_data:
             return ThemesData(
                 self._discord_user_id,
-                themes_data[1].split(','),
+                [theme for theme in (themes_data[1] or '').split(',') if theme],
                 themes_data[2]
             )
 
         return ThemesData(self._discord_user_id, [], None)
 
-    def get_owned_themes(self) -> list[str]:
+    @ensure_cursor
+    def get_owned_themes(self, *, cursor: Cursor=None) -> list[str]:
         """
         Retrieve a list of themes owned by the user.
 
         :return list: A list of the user's owned themes.
         """
-        return self.load().owned_themes
+        return self.load(cursor=cursor).owned_themes
 
-    def get_available_themes(self) -> list[str]:
+    @ensure_cursor
+    def get_available_themes(self, *, cursor: Cursor=None) -> list[str]:
         """Retrieve all themes available to the user."""
-        return self.get_owned_themes() + get_voter_themes()
+        return self.get_owned_themes(cursor=cursor) + get_voter_themes()
 
-    def add_owned_theme(self, theme_name: str) -> None:
+    @ensure_cursor
+    def add_owned_theme(self, theme_name: str, *, cursor: Cursor=None) -> None:
         """
         Gives the user a theme by the given name.
 
@@ -104,53 +104,49 @@ class AccountThemes:
         """
         self._raise_if_exclusive_not_found(theme_name)
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,))
+        themes_data = cursor.execute(
+            f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
+        ).fetchone()
 
-            themes_data = cursor.fetchone()
+        if themes_data:
+            owned_str = themes_data[1]
+            owned_list = owned_str.split(',') if owned_str else []
 
-            if themes_data:
-                owned_str = themes_data[1]
-                owned_list = owned_str.split(',') if owned_str else []
-
-                if not theme_name in owned_list:
-                    owned_list.append(theme_name)
-                    cursor.execute(
-                        "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
-                        (','.join(owned_list), self._discord_user_id))
-            else:
+            if not theme_name in owned_list:
+                owned_list.append(theme_name)
                 cursor.execute(
-                    'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
-                    (self._discord_user_id, theme_name)
-                )
+                    "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    (','.join(owned_list), self._discord_user_id))
+        else:
+            cursor.execute(
+                'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
+                (self._discord_user_id, theme_name)
+            )
 
-    def remove_owned_theme(self, theme_name: str) -> None:
+    @ensure_cursor
+    def remove_owned_theme(self, theme_name: str, *, cursor: Cursor=None) -> None:
         """
         Remove an owned theme from the user's account.
 
         :param theme_name: The name of the theme to remove from the user.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT owned_themes FROM themes_data WHERE discord_id = ?",
-                (self._discord_user_id,))
+        owned_themes = cursor.execute(
+            "SELECT owned_themes FROM themes_data WHERE discord_id = ?",
+            (self._discord_user_id,)
+        ).fetchone()
 
-            owned_themes = cursor.fetchone()
+        if owned_themes and (owned_themes[0]):
+            owned_themes: list = owned_themes[0].split(',')
 
-            if owned_themes and (owned_themes[0]):
-                owned_themes: list = owned_themes[0].split(',')
+            if theme_name in owned_themes:
+                owned_themes.remove(theme_name)
+                cursor.execute(
+                    "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                    (','.join(owned_themes) if owned_themes else None, self._discord_user_id)
+                )
 
-                if theme_name in owned_themes:
-                    owned_themes.remove(theme_name)
-                    cursor.execute(
-                        "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
-                        (','.join(owned_themes) if owned_themes else None, self._discord_user_id)
-                    )
-
-    def set_owned_themes(self, themes: list) -> None:
+    @ensure_cursor
+    def set_owned_themes(self, themes: list, *, cursor: Cursor=None) -> None:
         """
         Sets the user's owned themes to a list of given themes.
         This will overwrite any existing owned themes.
@@ -164,35 +160,38 @@ class AccountThemes:
         # Ensure all themes are ownable
         themes = [theme for theme in themes if theme in get_exclusive_themes()]
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        themes_data = cursor.execute(
+            f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
+        ).fetchone()
+
+        if themes_data:
             cursor.execute(
-                f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,))
-
-            themes_data = cursor.fetchone()
-
-            if themes_data:
-                cursor.execute(
-                    "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
-                    (','.join(themes), self._discord_user_id)
-                )
-            else:
-                cursor.execute(
-                    'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
-                    (self._discord_user_id, ','.join(themes))
-                )
+                "UPDATE themes_data SET owned_themes = ? WHERE discord_id = ?",
+                (','.join(themes), self._discord_user_id)
+            )
+        else:
+            cursor.execute(
+                'INSERT INTO themes_data (discord_id, owned_themes) VALUES (?, ?)',
+                (self._discord_user_id, ','.join(themes))
+            )
 
     DefaultT = TypeVar("DefaultT")
 
-    def get_active_theme(self, default: DefaultT='none') -> str | DefaultT:
+    @ensure_cursor
+    def get_active_theme(
+        self,
+        default: DefaultT='none',
+        *, cursor: Cursor=None
+    ) -> str | DefaultT:
         """
         Get the user's current active theme pack.
 
         :param default: The default value to return if the user has no active theme.
         """
-        return self.load().active_theme or default
+        return self.load(cursor=cursor).active_theme or default
 
-    def set_active_theme(self, theme_name: str) -> None:
+    @ensure_cursor
+    def set_active_theme(self, theme_name: str, *, cursor: Cursor=None) -> None:
         """
         Sets the user's active theme to the given theme.
 
@@ -200,20 +199,17 @@ class AccountThemes:
         """
         self._raise_if_unavailable(theme_name)
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        themes_data = cursor.execute(
+            f'SELECT * FROM themes_data WHERE discord_id = ?', (self._discord_user_id,)
+        ).fetchone()
 
+        if themes_data:
             cursor.execute(
-                f'SELECT * FROM themes_data WHERE discord_id = ?', (self._discord_user_id,))
-            themes_data = cursor.fetchone()
-
-            if themes_data:
-                cursor.execute(
-                    "UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
-                    (theme_name, self._discord_user_id)
-                )
-            else:
-                cursor.execute(
-                    "INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
-                    (self._discord_user_id, theme_name)
-                )
+                "UPDATE themes_data SET selected_theme = ? WHERE discord_id = ?",
+                (theme_name, self._discord_user_id)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
+                (self._discord_user_id, theme_name)
+            )

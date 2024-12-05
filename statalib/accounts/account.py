@@ -11,7 +11,7 @@ from .subscriptions import AccountSubscriptions
 from .linking import AccountLinking
 from .voting import AccountVoting
 from .usage import AccountUsage
-from ..db import db_connect
+from ..db import ensure_cursor
 
 
 @dataclass
@@ -75,34 +75,38 @@ class Account:
             'SELECT * FROM accounts WHERE discord_id = ?', (self._discord_user_id,)
         ).fetchone()
 
-    def load(self, create: bool=True) -> AccountData | None:
+    @ensure_cursor
+    def load(
+        self,
+        create: bool=True,
+        *, cursor: sqlite3.Cursor=None
+    ) -> AccountData | None:
         """
         Load the account from the database.
 
         :param create: Whether to create and return the account if it doesn't exist.
         :return AccountData | None: The account data, or None if it doesn't exist.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        account_data = self._select_account_data(cursor)
 
-            account_data = self._select_account_data(cursor)
+        if account_data is None:
+            if create is False:
+                return None
 
-            if account_data is None:
-                if create is False:
-                    return None
-
-                self.create()
-                return self.load(create=False)
+            self.create(cursor=cursor)
+            return self.load(create=False, cursor=cursor)
 
         self.__exists = True
         return AccountData.new(account_data)
 
+    @ensure_cursor
     def create(
         self,
         creation_timestamp: float | None=None,
         permissions: list[str] | None=None,
         blacklisted: bool=False,
         account_id: int | None=None,
+        *, cursor: sqlite3.Cursor=None
     ) -> None:
         """
         Create the account if it doesn't already exist. If the account already
@@ -119,41 +123,45 @@ class Account:
             creation_timestamp,
             permissions,
             blacklisted,
-            account_id
+            account_id,
+            cursor=cursor
         )
         self.__exists = True
 
-    def update(self, blacklisted: bool, create: bool=True) -> None:
+    @ensure_cursor
+    def update(
+        self,
+        blacklisted: bool,
+        create: bool=True,
+        *, cursor: sqlite3.Cursor=None
+    ) -> None:
         """
         Update the account's metadata such as blacklist standing.
 
         :param blacklisted: Whether the account should be blacklisted.
         :param create: Whether to create the account if it doesn't exist.
         """
-        account_data = self.load()
+        account_data = self.load(cursor=cursor)
 
         if not account_data:
             if create:
-                self.create(blacklisted=blacklisted)
+                self.create(blacklisted=blacklisted, cursor=cursor)
             return
 
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                'UPDATE accounts SET blacklisted = ? WHERE discord_id = ?',
-                (int(blacklisted), self._discord_user_id,))
+        cursor.execute(
+            'UPDATE accounts SET blacklisted = ? WHERE discord_id = ?',
+            (int(blacklisted), self._discord_user_id,))
 
         self.__exists = True
 
-    def delete(self) -> None:
+    @ensure_cursor
+    def delete(self, *, cursor: sqlite3.Cursor=None) -> None:
         """
         Delete the account from the database.
         This will not delete data in other tables such as voting data and themes.
         """
-        with db_connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                'DELETE FROM accounts WHERE discord_id = ?', (self._discord_user_id,))
+        cursor.execute(
+            'DELETE FROM accounts WHERE discord_id = ?', (self._discord_user_id,))
 
         self.__exists = False
 

@@ -2,11 +2,11 @@
 
 import json
 import socket
-import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, UTC
 from typing import Any
 
+from ..db import ensure_cursor, Cursor
 from ..cfg import config
 
 
@@ -169,7 +169,7 @@ class AccountSubscriptions:
     def __set_active_subscription(
         self,
         subscription: Subscription,
-        cursor: sqlite3.Cursor
+        cursor: Cursor
     ) -> None:
         cursor.execute(
             "SELECT * FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
@@ -190,7 +190,7 @@ class AccountSubscriptions:
 
     def __update_active_subscription(
         self,
-        cursor: sqlite3.Cursor
+        cursor: Cursor
     ) -> Subscription:
         """
         Update the active subscription based on the paused subscriptions.
@@ -242,48 +242,39 @@ class AccountSubscriptions:
         return subscription
 
 
+    @ensure_cursor
     def get_subscription(
         self,
         update_roles: bool=True,
-        cursor: sqlite3.Cursor=None
+        *, cursor: Cursor=None
     ) -> Subscription:
         """
         Get the user's current subscription.
 
         :param update_roles: Whether or not to update the user's subscription \
             Discord roles if their subscription state is updated.
-        :param cursor: A custom `sqlite3.cursor` object to operate on.
+        :param cursor: A custom `Cursor` object to operate on.
         :return Subscription: The user's current subscription.
         """
-        def __get_subscription(cursor: sqlite3.Cursor) -> Subscription:
-            cursor.execute(
-                "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
-                (self._discord_id,))
+        cursor.execute(
+            "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
+            (self._discord_id,))
 
-            active_subscription = cursor.fetchone()
+        active_subscription = cursor.fetchone()
 
-            if active_subscription is None:
-                return Subscription(config("global.subscriptions.default_package"), None)
+        if active_subscription is None:
+            return Subscription(config("global.subscriptions.default_package"), None)
 
-            # Check if subscription has expired (and isn't lifetime)
-            if active_subscription[1] and \
-                active_subscription[1] < datetime.now(UTC).timestamp():
-                # Update subscription data
-                subscription = self.__update_active_subscription(cursor)
-            else:
-                subscription = Subscription(
-                    package=active_subscription[0],
-                    expiry_timestamp=active_subscription[1]
-                )
-
-            return subscription
-
-        if cursor is not None:
-            subscription = __get_subscription(cursor)
+        # Check if subscription has expired (and isn't lifetime)
+        if active_subscription[1] and \
+            active_subscription[1] < datetime.now(UTC).timestamp():
+            # Update subscription data
+            subscription = self.__update_active_subscription(cursor)
         else:
-            with sqlite3.connect(config.DB_FILE_PATH) as conn:
-                cursor = conn.cursor()
-                subscription = __get_subscription(cursor)
+            subscription = Subscription(
+                package=active_subscription[0],
+                expiry_timestamp=active_subscription[1]
+            )
 
         # Update user roles
         if update_roles:
@@ -291,54 +282,43 @@ class AccountSubscriptions:
         return subscription
 
 
+    @ensure_cursor
     def _get_paused_subscriptions(
         self,
-        package: str | None = None,
-        cursor: sqlite3.Cursor | None = None
+        package: str | None=None,
+        *, cursor: Cursor=None
     ) -> list[tuple]:
-        def __get_paused_subscriptions(cursor: sqlite3.Cursor):
-            query = ("SELECT package, duration_remaining "
-                "FROM subscriptions_paused WHERE discord_id = ?")
+        query = ("SELECT package, duration_remaining "
+            "FROM subscriptions_paused WHERE discord_id = ?")
 
-            if package is None:
-                cursor.execute(query, (self._discord_id,))
-                return cursor.fetchall()
-
-            query += " AND package = ?"
-            cursor.execute(query, (self._discord_id, package))
+        if package is None:
+            cursor.execute(query, (self._discord_id,))
             return cursor.fetchall()
 
-        if cursor is not None:
-            return __get_paused_subscriptions(cursor)
-
-        with sqlite3.connect(config.DB_FILE_PATH) as conn:
-            cursor = conn.cursor()
-            return __get_paused_subscriptions(cursor)
+        query += " AND package = ?"
+        cursor.execute(query, (self._discord_id, package))
+        return cursor.fetchall()
 
 
+    @ensure_cursor
     def _add_paused_subscription(
         self,
         package: str,
         duration_remaining: float | None,
-        cursor: sqlite3.Cursor | None=None
+        *, cursor: Cursor=None
     ) -> None:
-        def __add_paused_subscription(
-            cursor: sqlite3.Cursor
-        ) -> None:
-            cursor.execute(
-                "INSERT INTO subscriptions_paused (discord_id, package, duration_remaining) "
-                "VALUES (?, ?, ?)", (self._discord_id, package, duration_remaining)
-            )
-
-        if cursor is not None:
-            return __add_paused_subscription(cursor)
-
-        with sqlite3.connect(config.DB_FILE_PATH) as conn:
-            cursor = conn.cursor()
-            return __add_paused_subscription(cursor)
+        cursor.execute(
+            "INSERT INTO subscriptions_paused (discord_id, package, duration_remaining) "
+            "VALUES (?, ?, ?)", (self._discord_id, package, duration_remaining)
+        )
 
 
-    def has_package_conflicts(self, package: str) -> bool:
+    @ensure_cursor
+    def has_package_conflicts(
+        self,
+        package: str,
+        *, cursor: Cursor=None
+    ) -> bool:
         """
         Check whether a certain adding a certain package to a user's
         subscription will have conflicts with their existing subscription.
@@ -347,7 +327,7 @@ class AccountSubscriptions:
         :return bool: Whether (or not) there are conflicts.
         """
         package_tier = Subscription.get_package_tier(package)
-        subscription = self.get_subscription()
+        subscription = self.get_subscription(cursor=cursor)
 
         # Active subscription package is permanent
         if subscription.expiry_timestamp is None:
@@ -359,7 +339,7 @@ class AccountSubscriptions:
 
     def __add_subscription_existing_subscription(
         self,
-        cursor: sqlite3.Cursor,
+        cursor: Cursor,
         existing_subscription: Subscription,
         package: str,
         duration: float
@@ -380,7 +360,7 @@ class AccountSubscriptions:
 
                 # Pause active subscription (preserve it)
                 self._add_paused_subscription(
-                    existing_subscription.package, existing_subscription.expires_in(), cursor)
+                    existing_subscription.package, existing_subscription.expires_in(), cursor=cursor)
             else:
                 if existing_subscription.expires_in() > 0:
                     # Extend existing subscription because it is still running
@@ -399,7 +379,7 @@ class AccountSubscriptions:
         if Subscription.get_package_tier(package) > existing_subscription.tier:
             # Pause active subscription and activate new subscription
             self._add_paused_subscription(
-                existing_subscription.package, existing_subscription.expires_in(), cursor)
+                existing_subscription.package, existing_subscription.expires_in(), cursor=cursor)
 
             new_subscription = Subscription(
                 package, datetime.now(UTC).timestamp() + duration)
@@ -416,14 +396,16 @@ class AccountSubscriptions:
                 "package you are attempting to add can never be activated."
             )
 
-        self._add_paused_subscription(package, duration, cursor)
+        self._add_paused_subscription(package, duration, cursor=cursor)
 
 
+    @ensure_cursor
     def add_subscription(
         self,
         package: str,
         duration: float | None=None,
-        update_roles: bool=True
+        update_roles: bool=True,
+        *, cursor: Cursor=None
     ) -> None:
         """
         Adds a subscription to the user's account.
@@ -434,44 +416,40 @@ class AccountSubscriptions:
         :param update_roles: Whether or not to update the user's subscription \
             Discord roles if their subscription state is updated.
         """
-        with sqlite3.connect(config.DB_FILE_PATH) as conn:
-            cursor = conn.cursor()
+        # Ensure active subscription is accurate
+        active_subscription = self.get_subscription(
+            update_roles=False, cursor=cursor)
 
-            # Ensure active subscription is accurate
-            active_subscription = self.get_subscription(
+        # User has no active subscription.
+        # Simply add the subscription to the user's account
+        if (
+            active_subscription.package == config("global.subscriptions.default_package")
+        ):
+            # There may be an expired subscription in the active subscriptions table
+            cursor.execute(
+                "DELETE FROM subscriptions_active WHERE discord_id = ?",
+                (self._discord_id,))
+
+            # Insert new subscription
+            if duration is not None:
+                expires = datetime.now(UTC).timestamp() + duration
+            else:
+                expires = None
+
+            cursor.execute(
+                "INSERT INTO subscriptions_active (discord_id, package, expires) "
+                "VALUES (?, ?, ?)", (self._discord_id, package, expires)
+            )
+
+            new_subscription = Subscription(package, expires)
+
+        else:
+            self.__add_subscription_existing_subscription(
+                cursor, active_subscription, package, duration
+            )
+
+        if update_roles:
+            new_subscription = self.get_subscription(
                 update_roles=False, cursor=cursor)
 
-            # User has no active subscription.
-            # Simply add the subscription to the user's account
-            if (
-                active_subscription.package ==
-                config("global.subscriptions.default_package")
-            ):
-                # There may be an expired subscription in the active subscriptions table
-                cursor.execute(
-                    "DELETE FROM subscriptions_active WHERE discord_id = ?",
-                    (self._discord_id,))
-
-                # Insert new subscription
-                if duration is not None:
-                    expires = datetime.now(UTC).timestamp() + duration
-                else:
-                    expires = None
-
-                cursor.execute(
-                    "INSERT INTO subscriptions_active (discord_id, package, expires) "
-                    "VALUES (?, ?, ?)", (self._discord_id, package, expires)
-                )
-
-                new_subscription = Subscription(package, expires)
-
-            else:
-                self.__add_subscription_existing_subscription(
-                    cursor, active_subscription, package, duration
-                )
-
-            if update_roles:
-                new_subscription = self.get_subscription(
-                    update_roles=False, cursor=cursor)
-
-                self.__update_user_roles(new_subscription)
+            self.__update_user_roles(new_subscription)

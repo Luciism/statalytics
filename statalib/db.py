@@ -1,5 +1,6 @@
 import functools
 import sqlite3
+from sqlite3 import Cursor
 
 from .cfg import config
 
@@ -16,7 +17,7 @@ def ensure_cursor(func):
     will be acquired, otherwise the passed `cursor` argument will be used.
     """
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         cursor = kwargs.get('cursor')
         if cursor:  # Use provided cursor.
             return func(*args, **kwargs)
@@ -28,3 +29,10 @@ def ensure_cursor(func):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+__all__ = [
+    'db_connect',
+    'ensure_cursor',
+    'Cursor',
+]
