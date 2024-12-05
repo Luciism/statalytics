@@ -150,7 +150,7 @@ class Status(commands.Cog):
         embeds = [discord.Embed.from_dict(embed) for embed in embeds]
         await interaction.followup.send(embeds=embeds)
 
-        lib.update_command_stats(interaction.user.id, 'status_hypixel')
+        lib.usage.update_command_stats(interaction.user.id, 'status_hypixel')
 
 
 async def setup(client: commands.Bot) -> None:

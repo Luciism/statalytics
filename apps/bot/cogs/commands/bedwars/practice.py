@@ -44,7 +44,7 @@ class Practice(commands.Cog):
             attachments=[discord.File(rendered, filename='practice.png')]
         )
 
-        lib.update_command_stats(interaction.user.id, 'practice')
+        lib.usage.update_command_stats(interaction.user.id, 'practice')
 
 
 async def setup(client: commands.Bot) -> None:

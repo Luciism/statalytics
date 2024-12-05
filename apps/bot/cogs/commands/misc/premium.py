@@ -25,7 +25,7 @@ class Premium(commands.Cog):
             view=helper.views.PremiumInfoView()
         )
 
-        lib.update_command_stats(discord_id=interaction.user.id, command='premium')
+        lib.usage.update_command_stats(discord_id=interaction.user.id, command='premium')
 
 
 async def setup(client: commands.Bot) -> None:

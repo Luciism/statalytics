@@ -119,7 +119,7 @@ class Sessions(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_session, kwargs)
-        lib.update_command_stats(interaction.user.id, 'session')
+        lib.usage.update_command_stats(interaction.user.id, 'session')
 
 
     @session_group.command(name="start", description="Starts a new session")
@@ -163,7 +163,7 @@ class Sessions(commands.Cog):
         await interaction.followup.send(
             f'A new session was successfully created! Session ID: `{session_id}`')
 
-        lib.update_command_stats(interaction.user.id, 'startsession')
+        lib.usage.update_command_stats(interaction.user.id, 'startsession')
 
 
     @session_group.command(name="end", description="Ends an active session")
@@ -193,7 +193,7 @@ class Sessions(commands.Cog):
             await interaction.response.send_message(
                 f"You don't have an active session with ID: `{session}`!")
 
-        lib.update_command_stats(interaction.user.id, 'endsession')
+        lib.usage.update_command_stats(interaction.user.id, 'endsession')
 
 
     @session_group.command(name="reset", description="Resets an active session")
@@ -224,7 +224,7 @@ class Sessions(commands.Cog):
             view=view, ephemeral=True)
         view.message = await interaction.original_response()
 
-        lib.update_command_stats(interaction.user.id, 'resetsession')
+        lib.usage.update_command_stats(interaction.user.id, 'resetsession')
 
 
     @session_group.command(name="active", description="View all active sessions")
@@ -250,7 +250,7 @@ class Sessions(commands.Cog):
             await interaction.followup.send(
                 "You don't have any sessions active! Use `/session start` to create one!")
 
-        lib.update_command_stats(interaction.user.id, 'activesessions')
+        lib.usage.update_command_stats(interaction.user.id, 'activesessions')
 
 
 async def setup(client: commands.Bot) -> None:

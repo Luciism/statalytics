@@ -22,7 +22,7 @@ class Credits(commands.Cog):
         embeds = lib.load_embeds('credits', color='primary')
         await interaction.response.send_message(embeds=embeds)
 
-        lib.update_command_stats(interaction.user.id, 'credits')
+        lib.usage.update_command_stats(interaction.user.id, 'credits')
 
 
 async def setup(client: commands.Bot) -> None:

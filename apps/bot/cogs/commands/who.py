@@ -31,7 +31,7 @@ class Who(commands.Cog):
             await interaction.response.send_message(
                 f'Name for **{uuid}** -> `{name}`', ephemeral=True)
 
-        lib.update_command_stats(interaction.user.id, 'who')
+        lib.usage.update_command_stats(interaction.user.id, 'who')
 
 
 async def setup(client: commands.Bot) -> None:

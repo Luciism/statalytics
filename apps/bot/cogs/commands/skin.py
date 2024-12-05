@@ -38,7 +38,7 @@ class Skin(commands.Cog):
         file = discord.File(BytesIO(image_bytes), filename='skin.png')
         await interaction.followup.send(file=file, embed=embed)
 
-        lib.update_command_stats(interaction.user.id, 'skin')
+        lib.usage.update_command_stats(interaction.user.id, 'skin')
 
 
 async def setup(client: commands.Bot) -> None:

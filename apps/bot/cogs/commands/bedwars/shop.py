@@ -37,7 +37,7 @@ class Shop(commands.Cog):
             attachments=[discord.File(rendered, filename="shop.png")]
         )
 
-        lib.update_command_stats(interaction.user.id, 'shop')
+        lib.usage.update_command_stats(interaction.user.id, 'shop')
 
 
 async def setup(client: commands.Bot) -> None:

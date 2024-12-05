@@ -42,7 +42,7 @@ class Total(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_func, kwargs)
-        lib.update_command_stats(interaction.user.id, method)
+        lib.usage.update_command_stats(interaction.user.id, method)
 
 
     @app_commands.command(

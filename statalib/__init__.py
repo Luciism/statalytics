@@ -16,6 +16,7 @@ from . import network
 from . import rotational_stats as rotational_stats
 from . import sessions
 from . import shared_views
+from . import usage
 
 from .aliases import *
 from .assets import ASSET_LOADER
@@ -37,4 +38,5 @@ __all__ = [
     'rotational_stats',
     'sessions',
     'shared_views',
+    'usage',
 ]

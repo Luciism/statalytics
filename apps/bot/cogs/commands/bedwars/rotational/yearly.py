@@ -92,7 +92,7 @@ class Yearly(commands.Cog):
             custom_view=helper.views.tracker_view()
         )
 
-        lib.update_command_stats(interaction.user.id, 'yearly')
+        lib.usage.update_command_stats(interaction.user.id, 'yearly')
 
 
     @app_commands.command(
@@ -177,7 +177,7 @@ class Yearly(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.update_command_stats(interaction.user.id, 'lastyear')
+        lib.usage.update_command_stats(interaction.user.id, 'lastyear')
 
 
 async def setup(client: commands.Bot) -> None:

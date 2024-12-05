@@ -91,7 +91,7 @@ class Weekly(commands.Cog):
             message=message,
             custom_view=helper.views.tracker_view()
         )
-        lib.update_command_stats(interaction.user.id, 'weekly')
+        lib.usage.update_command_stats(interaction.user.id, 'weekly')
 
 
     @app_commands.command(
@@ -170,7 +170,7 @@ class Weekly(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.update_command_stats(interaction.user.id, 'lastweek')
+        lib.usage.update_command_stats(interaction.user.id, 'lastweek')
 
 
 async def setup(client: commands.Bot) -> None:

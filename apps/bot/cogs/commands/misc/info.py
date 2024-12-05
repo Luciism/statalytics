@@ -78,7 +78,7 @@ class Info(commands.Cog):
         embeds = lib.load_embeds('info', format_values, color='primary')
         await interaction.followup.send(embeds=embeds)
 
-        lib.update_command_stats(discord_id=interaction.user.id, command='info')
+        lib.usage.update_command_stats(discord_id=interaction.user.id, command='info')
 
 
 async def setup(client: commands.Bot) -> None:

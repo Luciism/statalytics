@@ -114,7 +114,7 @@ class Denick(commands.Cog):
 
         await interaction.followup.send(embed=embed)
 
-        lib.update_command_stats(interaction.user.id, 'numberdenick')
+        lib.usage.update_command_stats(interaction.user.id, 'numberdenick')
 
 
 async def setup(client: commands.Bot) -> None:

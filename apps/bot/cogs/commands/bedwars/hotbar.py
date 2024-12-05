@@ -36,7 +36,7 @@ class Hotbar(commands.Cog):
             attachments=[discord.File(rendered, filename="hotbar.png")]
         )
 
-        lib.update_command_stats(interaction.user.id, 'hotbar')
+        lib.usage.update_command_stats(interaction.user.id, 'hotbar')
 
 
 async def setup(client: commands.Bot) -> None:

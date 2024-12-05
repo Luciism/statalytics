@@ -222,7 +222,7 @@ class Settings(commands.Cog):
         await interaction.followup.send(
             embeds=embeds, view=SettingsButtons(interaction=interaction))
 
-        lib.update_command_stats(interaction.user.id, 'settings')
+        lib.usage.update_command_stats(interaction.user.id, 'settings')
 
 
 async def setup(client: commands.Bot) -> None:

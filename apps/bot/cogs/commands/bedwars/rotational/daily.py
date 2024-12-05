@@ -92,7 +92,7 @@ class Daily(commands.Cog):
             message=message,
             custom_view=helper.views.tracker_view()
         )
-        lib.update_command_stats(interaction.user.id, 'daily')
+        lib.usage.update_command_stats(interaction.user.id, 'daily')
 
 
     @app_commands.command(
@@ -172,7 +172,7 @@ class Daily(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.update_command_stats(interaction.user.id, 'lastday')
+        lib.usage.update_command_stats(interaction.user.id, 'lastday')
 
 
 async def setup(client: commands.Bot) -> None:

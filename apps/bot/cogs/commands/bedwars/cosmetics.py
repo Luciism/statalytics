@@ -38,7 +38,7 @@ class Cosmetics(commands.Cog):
             attachments=[discord.File(rendered, filename='cosmetics.png')]
         )
 
-        lib.update_command_stats(interaction.user.id, 'cosmetics')
+        lib.usage.update_command_stats(interaction.user.id, 'cosmetics')
 
 
 async def setup(client: commands.Bot) -> None:

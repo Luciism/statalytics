@@ -60,7 +60,7 @@ class Year(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_year, kwargs)
-        lib.update_command_stats(interaction.user.id, f'year_{year}')
+        lib.usage.update_command_stats(interaction.user.id, f'year_{year}')
 
 
     @year_group.command(

@@ -37,7 +37,7 @@ class MostPlayed(commands.Cog):
             attachments=[discord.File(rendered, filename='mostplayed.png')]
         )
 
-        lib.update_command_stats(interaction.user.id, 'mostplayed')
+        lib.usage.update_command_stats(interaction.user.id, 'mostplayed')
 
 
 async def setup(client: commands.Bot) -> None:

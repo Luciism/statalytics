@@ -45,7 +45,7 @@ class Average(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_average, kwargs)
-        lib.update_command_stats(interaction.user.id, 'average')
+        lib.usage.update_command_stats(interaction.user.id, 'average')
 
 
 async def setup(client: commands.Bot) -> None:

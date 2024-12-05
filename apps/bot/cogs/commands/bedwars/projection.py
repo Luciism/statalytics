@@ -76,7 +76,7 @@ class Projection(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_projection, kwargs)
-        lib.update_command_stats(interaction.user.id, 'projection')
+        lib.usage.update_command_stats(interaction.user.id, 'projection')
 
 
 async def setup(client: commands.Bot) -> None:

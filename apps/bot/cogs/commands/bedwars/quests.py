@@ -43,7 +43,7 @@ class Quests(commands.Cog):
             attachments=[discord.File(rendered, filename='quests.png')]
         )
 
-        lib.update_command_stats(interaction.user.id, 'quests')
+        lib.usage.update_command_stats(interaction.user.id, 'quests')
 
 
 async def setup(client: commands.Bot) -> None:

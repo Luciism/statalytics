@@ -4,7 +4,7 @@ from .permissions import AccountPermissions
 from ..mcfetch import AsyncFetchPlayer, FetchPlayer2
 from ..sessions import SessionManager
 from ..aliases import PlayerName, PlayerUUID, HypixelData
-from ..functions import insert_growth_data
+from ..usage import insert_growth_data
 from ..db import ensure_cursor, Cursor
 
 

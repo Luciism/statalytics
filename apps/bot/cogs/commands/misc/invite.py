@@ -21,7 +21,7 @@ class Invite(commands.Cog):
         await interaction.response.send_message(
             f'To add Statalytics to your server, click [here]({invite_url})')
 
-        lib.update_command_stats(interaction.user.id, 'invite')
+        lib.usage.update_command_stats(interaction.user.id, 'invite')
 
 
 async def setup(client: commands.Bot) -> None:

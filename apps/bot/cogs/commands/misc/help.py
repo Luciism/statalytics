@@ -21,7 +21,7 @@ class Help(commands.Cog):
         view = lib.shared_views.HelpMenuButtons()
         await interaction.response.send_message(embeds=embeds, view=view)
 
-        lib.update_command_stats(interaction.user.id, 'help')
+        lib.usage.update_command_stats(interaction.user.id, 'help')
 
 
 async def setup(client: commands.Bot) -> None:

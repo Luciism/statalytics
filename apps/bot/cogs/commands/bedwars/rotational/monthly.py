@@ -103,7 +103,7 @@ class Monthly(commands.Cog):
             message=message,
             custom_view=helper.views.tracker_view()
         )
-        lib.update_command_stats(interaction.user.id, 'monthly')
+        lib.usage.update_command_stats(interaction.user.id, 'monthly')
 
 
     @app_commands.command(
@@ -182,7 +182,7 @@ class Monthly(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.update_command_stats(interaction.user.id, 'lastmonth')
+        lib.usage.update_command_stats(interaction.user.id, 'lastmonth')
 
 
 async def setup(client: commands.Bot) -> None:

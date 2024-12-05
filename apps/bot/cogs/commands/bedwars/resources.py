@@ -39,7 +39,7 @@ class Resources(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_resources, kwargs)
-        lib.update_command_stats(interaction.user.id, 'resources')
+        lib.usage.update_command_stats(interaction.user.id, 'resources')
 
 
 async def setup(client: commands.Bot) -> None:

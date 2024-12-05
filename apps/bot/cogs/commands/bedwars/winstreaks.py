@@ -43,7 +43,7 @@ class Winstreaks(commands.Cog):
             attachments=[discord.File(rendered, filename='winstreaks.png')]
         )
 
-        lib.update_command_stats(interaction.user.id, 'winstreaks')
+        lib.usage.update_command_stats(interaction.user.id, 'winstreaks')
 
 
 async def setup(client: commands.Bot) -> None:

@@ -47,7 +47,7 @@ class Vote(commands.Cog):
         embeds = lib.load_embeds('vote', format_values, color='primary')
 
         await interaction.followup.send(embeds=embeds)
-        lib.update_command_stats(interaction.user.id, command='vote')
+        lib.usage.update_command_stats(interaction.user.id, command='vote')
 
 
 async def setup(client: commands.Bot) -> None:

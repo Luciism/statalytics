@@ -50,7 +50,7 @@ class Compare(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_compare, kwargs)
-        lib.update_command_stats(interaction.user.id, 'compare')
+        lib.usage.update_command_stats(interaction.user.id, 'compare')
 
 
 async def setup(client: commands.Bot) -> None:

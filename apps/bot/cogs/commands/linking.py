@@ -19,7 +19,7 @@ class Linking(commands.Cog):
     @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
     async def link(self, interaction: discord.Interaction, player: str):
         await helper.interactions.linking_interaction(interaction, player)
-        lib.update_command_stats(interaction.user.id, 'link')
+        lib.usage.update_command_stats(interaction.user.id, 'link')
 
 
     @app_commands.command(name="unlink", description="Unlink your account")
@@ -37,7 +37,7 @@ class Linking(commands.Cog):
             message = 'Successfully unlinked your account!'
 
         await interaction.followup.send(message)
-        lib.update_command_stats(interaction.user.id, 'unlink')
+        lib.usage.update_command_stats(interaction.user.id, 'unlink')
 
 
 async def setup(client: commands.Bot) -> None:

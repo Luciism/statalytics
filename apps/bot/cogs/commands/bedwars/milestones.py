@@ -68,7 +68,7 @@ class Milestones(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_milestones, kwargs)
-        lib.update_command_stats(interaction.user.id, 'milestones')
+        lib.usage.update_command_stats(interaction.user.id, 'milestones')
 
 
 async def setup(client: commands.Bot) -> None:

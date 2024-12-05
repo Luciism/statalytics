@@ -68,7 +68,7 @@ class Difference(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(interaction, render_difference, kwargs)
-        lib.update_command_stats(interaction.user.id, f'difference_{tracker}')
+        lib.usage.update_command_stats(interaction.user.id, f'difference_{tracker}')
 
 
     @difference_group.command(

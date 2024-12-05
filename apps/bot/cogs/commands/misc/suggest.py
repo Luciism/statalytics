@@ -60,7 +60,7 @@ class Suggest(commands.Cog):
         channel = self.client.get_channel(channel_id)
         await interaction.response.send_modal(SubmitSuggestion(channel))
 
-        lib.update_command_stats(interaction.user.id, 'suggest')
+        lib.usage.update_command_stats(interaction.user.id, 'suggest')
 
 
 async def setup(client: commands.Bot) -> None:

@@ -37,7 +37,7 @@ class DisplayName(commands.Cog):
             files=[discord.File(rendered, filename="displayname.png")]
         )
 
-        lib.update_command_stats(interaction.user.id, 'displayname')
+        lib.usage.update_command_stats(interaction.user.id, 'displayname')
 
 
 async def setup(client: commands.Bot) -> None:

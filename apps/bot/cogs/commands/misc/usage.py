@@ -74,7 +74,7 @@ class Usage(commands.Cog):
         embed = self.build_embed(command_usage, column_names)
         await interaction.followup.send(embed=embed)
 
-        lib.update_command_stats(discord_id, 'usage')
+        lib.usage.update_command_stats(discord_id, 'usage')
 
 
 async def setup(client: commands.Bot) -> None:
