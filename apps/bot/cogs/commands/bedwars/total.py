@@ -14,7 +14,7 @@ from render.pointless import render_pointless
 class Total(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     async def total_command(

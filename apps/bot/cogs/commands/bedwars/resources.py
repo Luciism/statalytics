@@ -10,7 +10,7 @@ from render.resources import render_resources
 class Resources(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     @app_commands.command(

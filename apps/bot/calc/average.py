@@ -11,7 +11,7 @@ class AverageStats(BedwarsStats):
     def __init__(
         self,
         hypixel_data: dict,
-        mode: str='overall'
+        mode: str = 'overall'
     ) -> None:
         super().__init__(hypixel_data, ganemode=mode.lower())
 
@@ -35,7 +35,8 @@ class AverageStats(BedwarsStats):
         self.kills_per_game = ratio(self.kills, self.games_played)
         self.deaths_per_game = ratio(self.deaths, self.games_played)
 
-        self.games_per_final_death = ratio(self.games_played, self.final_deaths)
+        self.games_per_final_death = ratio(
+            self.games_played, self.final_deaths)
         self.games_per_bed_lost = ratio(self.games_played, self.beds_lost)
 
         self._clutch_rate = None
@@ -45,11 +46,9 @@ class AverageStats(BedwarsStats):
         self._most_wins_mode = None
         self._most_losses_mode = None
 
-
-    def _get_percent(self, dividend: int, divisor: int, round_by: int=2):
+    def _get_percent(self, dividend: int, divisor: int, round_by: int = 2):
         rate = (dividend / (divisor or -1)) * 100
         return f'{max(rround(rate, round_by), 0)}%'
-
 
     @property
     def clutch_rate(self):
@@ -59,14 +58,12 @@ class AverageStats(BedwarsStats):
             self._clutch_rate = self._get_percent(clutches, self.beds_lost)
         return self._clutch_rate
 
-
     @property
     def win_rate(self):
         """Percentage of games won"""
         if self._win_rate is None:
             self._win_rate = self._get_percent(self.wins, self.games_played)
         return self._win_rate
-
 
     @property
     def loss_rate(self):
@@ -75,18 +72,18 @@ class AverageStats(BedwarsStats):
             self._loss_rate = self._get_percent(self.losses, self.games_played)
         return self._loss_rate
 
-
     @property
     def most_wins_mode(self):
         """Mode that the player has gained the most wins"""
         if self._most_wins_mode is None:
-            self._most_wins_mode = get_most_mode(self._bedwars_data, 'wins_bedwars')
+            self._most_wins_mode = get_most_mode(
+                self._bedwars_data, 'wins_bedwars')
         return self._most_wins_mode
-
 
     @property
     def most_losses_mode(self):
         """Mode that the player has gained the most losses"""
         if self._most_losses_mode is None:
-            self._most_losses_mode = get_most_mode(self._bedwars_data, 'losses_bedwars')
+            self._most_losses_mode = get_most_mode(
+                self._bedwars_data, 'losses_bedwars')
         return self._most_losses_mode

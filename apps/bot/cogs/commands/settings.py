@@ -64,14 +64,14 @@ class UTCOffsetSelect(_ResetTimeSelectBase):
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
         manager.update(lib.rotational_stats.ResetTime(utc_offset=selection))
-        return f'Timezone updated to **GMT{lib.prefix_int(selection)}:00**'
+        return f'Timezone updated to **GMT{lib.fmt.prefix_int(selection)}:00**'
 
 class ResetHourSelect(_ResetTimeSelectBase):
     def make_updates(
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
         manager.update(lib.rotational_stats.ResetTime(reset_hour=selection))
-        fmted_time = lib.format_12hr_time(selection, manager.get().reset_minute)
+        fmted_time = lib.fmt.format_12hr_time(selection, manager.get().reset_minute)
         return f'Reset time updated to **{fmted_time}**.'
 
 class ResetMinuteSelect(_ResetTimeSelectBase):
@@ -79,7 +79,7 @@ class ResetMinuteSelect(_ResetTimeSelectBase):
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
         manager.update(lib.rotational_stats.ResetTime(reset_minute=selection))
-        fmted_time = lib.format_12hr_time(manager.get().reset_hour, selection)
+        fmted_time = lib.fmt.format_12hr_time(manager.get().reset_hour, selection)
         return f'Reset time updated to **{fmted_time}**.'
 
 
@@ -173,7 +173,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
         embeds = lib.load_embeds('reset_time', color='primary')
 
         timezone_options = [
-            discord.SelectOption(label=f'GMT{lib.prefix_int(i-12)}', value=i-12)
+            discord.SelectOption(label=f'GMT{lib.fmt.prefix_int(i-12)}', value=i-12)
             for i in reversed(range(25))
         ]
         reset_hour_options = [

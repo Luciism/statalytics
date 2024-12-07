@@ -8,6 +8,7 @@ loading assets, calculating statistics, session stats, themes, and more.
 from . import accounts
 from . import db
 from . import errors
+from . import fmt
 from . import handlers
 from . import hypixel
 from . import loggers
@@ -30,6 +31,7 @@ __all__ = [
     'ASSET_LOADER',
     'config',
     'errors',
+    'fmt',
     'handlers',
     'hypixel',
     'loggers',

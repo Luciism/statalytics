@@ -14,7 +14,7 @@ os.makedirs(f'{REL_PATH}/database/', exist_ok=True)
 
 config.DB_FILE_PATH = f"{REL_PATH}/database/tests.db"
 config.SHOULD_UPDATE_SUBSCRIPTION_ROLES = False
-statalib.setup_database_schema(db_fp=config.DB_FILE_PATH)
+statalib.db.setup_database_schema(db_fp=config.DB_FILE_PATH)
 
 class MockData:
     discord_id = 123

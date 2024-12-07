@@ -15,7 +15,7 @@ from render.rotational import render_rotational
 class Monthly(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     @app_commands.command(
@@ -49,11 +49,11 @@ class Monthly(commands.Cog):
             manager.initialize_rotational_tracking(hypixel_data)
 
             await interaction.edit_original_response(
-                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
 
 
         if lib.rotational_stats.has_auto_reset_access(uuid):
@@ -158,8 +158,8 @@ class Monthly(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fname(name)} has no tracked data for {months} '
-                f'{lib.pluralize(months, "month")} ago!')
+                f'{lib.fmt.fname(name)} has no tracked data for {months} '
+                f'{lib.fmt.pluralize(months, "month")} ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -174,7 +174,7 @@ class Monthly(commands.Cog):
             "uuid": uuid,
             "tracker": "lastmonth",
             "relative_date": formatted_date,
-            "title": f"{months} {lib.pluralize(months, 'Month')} Ago",
+            "title": f"{months} {lib.fmt.pluralize(months, 'Month')} Ago",
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id,

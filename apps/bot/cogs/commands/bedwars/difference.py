@@ -14,7 +14,7 @@ from render.difference import render_difference
 class Difference(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     difference_group = app_commands.Group(
@@ -51,11 +51,11 @@ class Difference(commands.Cog):
             manager.initialize_rotational_tracking(hypixel_data)
 
             await interaction.edit_original_response(
-                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=utc_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
 
         kwargs = {
             "name": name,

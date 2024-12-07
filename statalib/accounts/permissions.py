@@ -2,7 +2,7 @@
 
 from ._create import create_account
 from ..db import ensure_cursor, Cursor
-from ..functions import comma_separated_to_list
+from ..fmt import comma_separated_to_list
 from .subscriptions import AccountSubscriptions
 
 

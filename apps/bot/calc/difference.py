@@ -1,4 +1,4 @@
-from statalib.functions import prefix_int
+from statalib.fmt import prefix_int
 from statalib.hypixel import CumulativeStats, get_rank_info, ratio
 from statalib import rotational_stats as rotational
 

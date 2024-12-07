@@ -104,12 +104,12 @@ async def linking_interaction(
         str(interaction.user), hypixel_data, name, uuid)
 
     if response == 1:
-        await interaction.followup.send(f"Successfully linked to **{lib.fname(name)}**")
+        await interaction.followup.send(f"Successfully linked to **{lib.fmt.fname(name)}**")
         return
 
     if response == 2:
         await interaction.followup.send(
-            f"Successfully linked to **{lib.fname(name)}**\n"
+            f"Successfully linked to **{lib.fmt.fname(name)}**\n"
             "No sessions where found for this player so one was created.",
             view=lib.shared_views.SessionInfoButton())
         return
@@ -148,13 +148,13 @@ async def find_dynamic_session_interaction(
             session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
 
             await interaction_callback(
-                content=f"**{lib.fname(username)}** has no active sessions so one was created!"
+                content=f"**{lib.fmt.fname(username)}** has no active sessions so one was created!"
             )
             raise lib.errors.SessionNotFoundError
 
         await interaction_callback(
             content=
-                f"**{lib.fname(username)}** doesn't have an active session with ID: `{session}`!"
+                f"**{lib.fmt.fname(username)}** doesn't have an active session with ID: `{session}`!"
         )
         raise lib.errors.SessionNotFoundError
 

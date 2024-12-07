@@ -25,11 +25,11 @@ class Info(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        commands_ran = lib.get_commands_total()
+        commands_ran = lib.usage.get_commands_total()
         linked_accounts = lib.accounts.get_total_linked_accounts()
 
         total_guilds = len(self.client.guilds)
-        total_users = lib.get_user_total()
+        total_users = lib.usage.get_user_total()
 
         with open(f'{lib.REL_PATH}/database/uptime.json') as datafile:
             start_time = load_json(datafile)['start_time']

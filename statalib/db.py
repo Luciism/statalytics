@@ -2,6 +2,7 @@ import functools
 import sqlite3
 from sqlite3 import Cursor
 
+from .common import REL_PATH
 from .cfg import config
 
 
@@ -29,6 +30,24 @@ def ensure_cursor(func):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def setup_database_schema(
+    schema_fp=f"{REL_PATH}/schema.sql",
+    db_fp=config.DB_FILE_PATH
+) -> None:
+    """
+    Run the database schema setup script.
+
+    :param schema_fp: The path to the database schema setup script.
+    :param db_fp: The path to the database file.
+    """
+    with open(schema_fp) as db_schema_file:
+        db_schema_setup = db_schema_file.read()
+
+    with sqlite3.connect(db_fp) as conn:
+        cursor = conn.cursor()
+        cursor.executescript(db_schema_setup)
 
 
 __all__ = [

@@ -74,6 +74,10 @@ class _Config:
             self._load_config_data()
         return self._config_data
 
+    def loading_message() -> str:
+        """Get the currently configured loading message."""
+        return config('apps.bot.loading_message')
+
 
 config = _Config()  # Globally used instance
 "Global config instance."

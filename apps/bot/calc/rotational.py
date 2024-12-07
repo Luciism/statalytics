@@ -5,9 +5,9 @@ from statalib import hypixel, rotational_stats as rotational
 def _get_reset_time_info(uuid: str) -> tuple[str, str]:
     reset_time = rotational.get_dynamic_reset_time(uuid)
 
-    timezone = f'GMT{statalib.prefix_int(reset_time.utc_offset)}:00'
+    timezone = f'GMT{statalib.fmt.prefix_int(reset_time.utc_offset)}:00'
 
-    reset_time = statalib.format_12hr_time(
+    reset_time = statalib.fmt.format_12hr_time(
         reset_time.reset_hour, reset_time.reset_minute)
 
     return timezone, reset_time

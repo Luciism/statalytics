@@ -28,7 +28,7 @@ class Skin(commands.Cog):
         image_bytes = await lib.network.fetch_skin_model(uuid, size=256, style='full')
 
         embed = discord.Embed(
-            title=f"{lib.fname(name)}'s skin",
+            title=f"{lib.fmt.fname(name)}'s skin",
             url=f"https://namemc.com/profile/{uuid}",
             description=f"Click [here](https://crafatar.com/skins/{uuid}) to download",
             color=lib.get_embed_color('primary')

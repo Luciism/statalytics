@@ -14,7 +14,7 @@ from render.rotational import render_rotational
 class Daily(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     @app_commands.command(
@@ -48,11 +48,11 @@ class Daily(commands.Cog):
             manager.initialize_rotational_tracking(hypixel_data)
 
             await interaction.edit_original_response(
-                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
+        formatted_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
 
         kwargs = {
             "name": name,
@@ -133,7 +133,7 @@ class Daily(commands.Cog):
                 relative_date -= timedelta(days=1)
 
             formatted_date = relative_date.strftime(
-                f"%b {relative_date.day}{lib.ordinal(relative_date.day)}, %Y")
+                f"%b {relative_date.day}{lib.fmt.ordinal(relative_date.day)}, %Y")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')
             return
@@ -148,8 +148,8 @@ class Daily(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fname(name)} has no tracked data for {days} '
-                f'{lib.pluralize(days, "day")} ago!')
+                f'{lib.fmt.fname(name)} has no tracked data for {days} '
+                f'{lib.fmt.pluralize(days, "day")} ago!')
             return
 
         await interaction.followup.send(self.LOADING_MSG)
@@ -164,7 +164,7 @@ class Daily(commands.Cog):
             "uuid": uuid,
             "tracker": "lastday",
             "relative_date": formatted_date,
-            "title": f"{days} {lib.pluralize(days, 'Day')} Ago",
+            "title": f"{days} {lib.fmt.pluralize(days, 'Day')} Ago",
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id,

@@ -13,7 +13,7 @@ from render.milestones import render_milestones
 class Milestones(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     @app_commands.command(

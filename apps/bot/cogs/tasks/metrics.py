@@ -36,8 +36,8 @@ class Metrics(commands.Cog):
 
         metrics = {
             'linked': lib.accounts.get_total_linked_accounts(),
-            'users': lib.get_user_total(),
-            'commands': lib.get_commands_total(),
+            'users': lib.usage.get_user_total(),
+            'commands': lib.usage.get_commands_total(),
             'servers': len(self.client.guilds)
         }
 

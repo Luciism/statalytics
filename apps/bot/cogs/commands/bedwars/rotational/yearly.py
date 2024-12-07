@@ -15,7 +15,7 @@ from render.rotational import render_rotational
 class Yearly(commands.Cog):
     def __init__(self, client):
         self.client: commands.Bot = client
-        self.LOADING_MSG = lib.loading_message()
+        self.LOADING_MSG = lib.config.loading_message()
 
 
     @app_commands.command(
@@ -49,11 +49,11 @@ class Yearly(commands.Cog):
             manager.initialize_rotational_tracking(hypixel_data)
 
             await interaction.edit_original_response(
-                content=f'Historical stats for {lib.fname(name)} will now be tracked.')
+                content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
-        relative_date = now.strftime(f"%b {now.day}{lib.ordinal(now.day)}, %Y")
+        relative_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
 
         if reset_time.reset_hour > 0:
             reset_time.reset_hour -= 1  # Idk
@@ -152,8 +152,8 @@ class Yearly(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fname(name)} has no tracked data for {years} '
-                f'{lib.pluralize(years, "year")} ago!')
+                f'{lib.fmt.fname(name)} has no tracked data for {years} '
+                f'{lib.fmt.pluralize(years, "year")} ago!')
             return
 
         # Render and send
@@ -169,7 +169,7 @@ class Yearly(commands.Cog):
             "uuid": uuid,
             "tracker": "lastyear",
             "relative_date": formatted_date,
-            "title": f"{years} {lib.pluralize(years, 'Year')} Ago",
+            "title": f"{years} {lib.fmt.pluralize(years, 'Year')} Ago",
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id,

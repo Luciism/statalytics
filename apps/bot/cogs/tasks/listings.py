@@ -1,4 +1,6 @@
+import asyncio
 from os import getenv
+from datetime import datetime
 
 from aiohttp import ClientSession
 from discord.ext import commands, tasks
@@ -21,7 +23,7 @@ class Listings(commands.Cog):
         await self.client.wait_until_ready()
 
         guild_count = len(self.client.guilds)
-        total_users = lib.get_user_total()
+        total_users = lib.usage.get_user_total()
 
         client_id = self.client.user.id
 
@@ -75,7 +77,10 @@ class Listings(commands.Cog):
 
     @update_listings_loop.before_loop
     async def before_update_listings(self):
-        await lib.align_to_hour()
+        now = datetime.now()
+        sleep_seconds = (60 - now.minute) * 60 - now.second
+        await asyncio.sleep(sleep_seconds)
+
 
 
 async def setup(client: commands.Bot) -> None:

@@ -75,3 +75,24 @@ def update_command_stats(
     """
     _update_usage(command, discord_id, cursor)
     _update_usage(command, 0, cursor)  # Global commands
+
+
+@ensure_cursor
+def get_user_total(*, cursor: Cursor=None) -> int:
+    """Get total amount of account that exist."""
+    result = cursor.execute('SELECT COUNT(account_id) FROM accounts').fetchone()
+
+    if result:
+        return result[0]
+    return 0
+
+
+@ensure_cursor
+def get_commands_total(*, cursor: Cursor=None) -> int:
+    """Get the total amount of commands run by all users, ever."""
+    cursor.execute('SELECT overall FROM command_usage WHERE discord_id = 0')
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    return 0

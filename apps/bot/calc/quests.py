@@ -1,4 +1,4 @@
-from statalib.functions import format_seconds
+from statalib.fmt import format_seconds
 from statalib.hypixel import (
     BedwarsStats,
     get_rank_info,
