@@ -106,7 +106,7 @@ class RotationalStatsManager:
         current_bedwars_data = get_bedwars_data(current_hypixel_data)
 
         # Add tracked rotation data to list
-        bedwars_data_list = [
+        bedwars_data_list: list[int] = [
             current_bedwars_data.get(key, 0)
             for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
         ]
@@ -124,13 +124,13 @@ class RotationalStatsManager:
             snapshot_id = uuid4().hex
 
             cursor.execute(
-                "INSERT INTO rotational_info (uuid, rotation, last_reset_timestamp, "
+                "INSERT OR IGNORE INTO rotational_info (uuid, rotation, last_reset_timestamp, "
                 "snapshot_id) VALUES (?, ?, ?, ?)",
                 (self._uuid, rotation.value, timestamp, snapshot_id)
             )
 
             # Insert snapshot data
             cursor.execute(
-                f"INSERT INTO bedwars_stats_snapshots (snapshot_id, {set_clause}) VALUES (?, {question_marks})",
+                f"INSERT OR IGNORE INTO bedwars_stats_snapshots (snapshot_id, {set_clause}) VALUES (?, {question_marks})",
                 (snapshot_id, *bedwars_data_list)
             )

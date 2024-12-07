@@ -18,6 +18,8 @@ apps/api/
 # Generated
 .vscode/
 .devtools/
+.venv/
+venv/
 .hintrc
 desktop.ini
 
