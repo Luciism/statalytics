@@ -1,0 +1,38 @@
+from discord import Embed
+
+
+class SettingsEmbeds:
+    @staticmethod
+    def settings() -> Embed:
+        embed = Embed(
+            title="Configure your settings for Statalytics",
+            description="Use the buttons below to customize your experience.",
+            color=3092790
+        )
+        return embed
+
+    @staticmethod
+    def select_theme() -> Embed:
+        embed = Embed(
+            title="Select a theme pack!",
+            description=
+                "In order for your selected theme pack to take effect, you must have voted in "
+                "the past 24 HOURS.\n\n [Premium supporters](https://statalytics.net/premium) "
+                "bypass this restriction.",
+            color=3092790
+        )
+        return embed
+
+    @staticmethod
+    def configure_reset_time() -> Embed:
+        embed = Embed(
+            title="Configure reset time",
+            description=
+                "This will determine when your daily, weekly, monthly, and yearly stats "
+                "roll over.\nGMT offset - your timezone offset to Greenwich Mean Time\n"
+                "Reset hour - the hour which your rotational stats will rollover\n\nClick "
+                "[here](https://greenwichmeantime.com/current-time/) if you are unsure of "
+                "your GMT offset.",
+            color=3092790
+        )
+        return embed

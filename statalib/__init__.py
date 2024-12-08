@@ -7,6 +7,7 @@ loading assets, calculating statistics, session stats, themes, and more.
 
 from . import accounts
 from . import db
+from . import embeds
 from . import errors
 from . import fmt
 from . import handlers
@@ -22,6 +23,7 @@ from . import usage
 from .aliases import *
 from .assets import ASSET_LOADER
 from .cfg import config
+from .embeds import Embeds
 from .functions import *
 
 
@@ -30,6 +32,8 @@ __all__ = [
     'db',
     'ASSET_LOADER',
     'config',
+    'embeds',
+    'Embeds',
     'errors',
     'fmt',
     'handlers',
