@@ -1,3 +1,5 @@
+"""Usage metrics related functionality."""
+
 import time
 from typing import Literal
 

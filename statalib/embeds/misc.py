@@ -1,3 +1,5 @@
+"""Miscellaneous embeds."""
+
 from typing import Any
 from discord import Embed
 
@@ -6,6 +8,7 @@ from ..aliases import PlayerName, PlayerUUID
 
 
 class MiscEmbeds:
+    """Miscellaneous embeds."""
     @staticmethod
     def credits() -> Embed:
         embed = Embed(

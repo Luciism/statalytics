@@ -1,3 +1,5 @@
+"""Database related functionality."""
+
 import functools
 import sqlite3
 from sqlite3 import Cursor

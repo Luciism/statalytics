@@ -1,3 +1,5 @@
+"""Useful functions for formatting strings."""
+
 from datetime import timedelta
 
 

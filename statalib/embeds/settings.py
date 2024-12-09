@@ -1,9 +1,12 @@
+"""Settings embeds."""
+
 from discord import Embed
 
 from ..cfg import config
 
 
 class SettingsEmbeds:
+    """Settings embeds."""
     @staticmethod
     def settings() -> Embed:
         embed = Embed(

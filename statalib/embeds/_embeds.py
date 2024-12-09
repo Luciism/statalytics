@@ -1,3 +1,5 @@
+"""Main module for embeds."""
+
 from .help import HelpEmbeds
 from .misc import MiscEmbeds
 from .premium import PremiumEmbeds
@@ -6,6 +8,7 @@ from .problems import ProblemsEmbeds
 
 
 class Embeds:
+    """Discord embeds for statalytics."""
     help = HelpEmbeds
     misc = MiscEmbeds
     premium = PremiumEmbeds

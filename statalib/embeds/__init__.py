@@ -1,3 +1,5 @@
+"""Functionality for building Discord embeds."""
+
 from ._embeds import *
 from discord import Embed
 

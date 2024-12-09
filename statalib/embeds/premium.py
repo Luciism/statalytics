@@ -1,9 +1,12 @@
+"""Premium info embeds."""
+
 from discord import Embed
 
 from ..cfg import config
 
 
 class PremiumEmbeds:
+    """Premium info embeds."""
     @staticmethod
     def premium() -> Embed:
         embed = Embed(

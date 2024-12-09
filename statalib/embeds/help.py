@@ -1,9 +1,12 @@
+"""Embeds for the help menu."""
+
 from discord import Embed
 
 from ..cfg import config
 
 
 class HelpEmbeds:
+    """Embeds for the help menu."""
     @staticmethod
     def help() -> Embed:
         embed = Embed(

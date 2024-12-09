@@ -1,3 +1,5 @@
+"""Problem info embeds."""
+
 import os
 
 from discord import Embed
@@ -6,6 +8,7 @@ from ..cfg import config
 
 
 class ProblemsEmbeds:
+    """Problem info embeds."""
     @staticmethod
     def no_premium_2026() -> Embed:
         embed = Embed(
