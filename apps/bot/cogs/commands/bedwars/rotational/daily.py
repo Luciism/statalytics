@@ -116,8 +116,8 @@ class Daily(commands.Cog):
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
 
         if max_lookback is not None and max_lookback < days:
-            embeds = rotational.build_invalid_lookback_embeds(max_lookback)
-            await interaction.followup.send(embeds=embeds)
+            embed = lib.Embeds.problems.max_lookback_exceeded(max_lookback)
+            await interaction.followup.send(embed=embed)
             return
 
         days = max(days, 1)  # Minimum of 1 day

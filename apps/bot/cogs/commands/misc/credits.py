@@ -19,8 +19,8 @@ class Credits(commands.Cog):
     async def credits(self, interaction: discord.Interaction):
         await helper.interactions.run_interaction_checks(interaction)
 
-        embeds = lib.load_embeds('credits', color='primary')
-        await interaction.response.send_message(embeds=embeds)
+        embed = lib.Embeds.misc.credits()
+        await interaction.response.send_message(embed=embed)
 
         lib.usage.update_command_stats(interaction.user.id, 'credits')
 

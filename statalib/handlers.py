@@ -8,7 +8,7 @@ import discord
 from discord import app_commands
 
 from .cfg import config
-from .functions import load_embeds, get_embed_color
+from .embeds import Embeds
 from .errors import (
     UserBlacklistedError,
     MissingPermissionsError,
@@ -62,7 +62,7 @@ async def log_error_msg(
 async def handle_hypixel_error(interaction: discord.Interaction) -> None:
     """Attempt to respond to a Hypixel API error."""
     try:
-        embeds = load_embeds('hypixel_connection_error', color='danger')
+        embed = Embeds.problems.hypixel_connection_error()
         button = discord.ui.Button(
             label='API Status',
             url='https://status.hypixel.net/',
@@ -70,15 +70,15 @@ async def handle_hypixel_error(interaction: discord.Interaction) -> None:
         )
         view = discord.ui.View().add_item(button)
         await interaction.edit_original_response(
-            content=None, embeds=embeds, view=view)
+            content=None, embed=embed, view=view)
     except discord.errors.NotFound:
         pass
 
 
 async def _handle_mojang_error(interaction: discord.Interaction):
     try:
-        embeds = load_embeds('mojang_error', color='danger')
-        await interaction.edit_original_response(content=None, embeds=embeds)
+        embed = Embeds.problems.mojang_api_error()
+        await interaction.edit_original_response(content=None, embed=embed)
     except discord.errors.NotFound:
         pass
 
@@ -87,29 +87,16 @@ async def _handle_cooldown_error(
     interaction: discord.Interaction,
     error: discord.app_commands.CommandOnCooldown
 ) -> None:
-    format_values = {
-        'description': {
-            'retry_after': round(error.retry_after, 2)
-        }
-    }
-    embeds = load_embeds('command_cooldown', format_values, color='warning')
-    await interaction.response.send_message(embeds=embeds, ephemeral=True)
+    embed = Embeds.problems.command_on_cooldown(round(error.retry_after, 2))
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def handle_remaining_tree_errors(
     interaction: discord.Interaction,
     error: Exception
 ) -> None:
-    embed = discord.Embed(
-        title=
-            f'An error occured running /{interaction.data["name"]}'
-            if interaction.type == 2 else
-            'An error occured while trying to complete your request.',
-        description=
-            f'```{error}```\nIf the problem persists, please '
-            f'[get in touch]({config("global.links.support_server")})',
-        color=get_embed_color(embed_type='danger')
-    )
+    embed = Embeds.problems.error_occured(
+        command_name=interaction.data.get("name"), error=error)
     try:
         await interaction.edit_original_response(embed=embed)
     except discord.errors.NotFound:

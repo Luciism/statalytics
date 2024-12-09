@@ -3,7 +3,6 @@
 import json
 import os
 import functools
-from copy import deepcopy
 
 from PIL import Image, ImageFont
 
@@ -54,20 +53,6 @@ class _AssetLoader:
         :param font_size: The font size to load the font in.
         """
         return ImageFont.truetype(f"{REL_PATH}/assets/fonts/{font_file}", font_size)
-
-
-    @functools.lru_cache(maxsize=32)
-    def __load_embed(self, embed_file: str) -> dict:
-        with open(f"{REL_PATH}/assets/embeds/{embed_file}") as df:
-            return json.load(df)
-
-    def load_embed(self, embed_file: str) -> dict:
-        """
-        Load an embed by file name.
-
-        :param embed_file: The path to the embed file relative to `assets/embeds/`.
-        """
-        deepcopy(self.__load_embed(embed_file))
 
 
 ASSET_LOADER = _AssetLoader()

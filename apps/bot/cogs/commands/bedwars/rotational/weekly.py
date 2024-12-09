@@ -115,8 +115,8 @@ class Weekly(commands.Cog):
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
 
         if max_lookback is not None and max_lookback < (weeks * 7):
-            embeds = rotational.build_invalid_lookback_embeds(max_lookback)
-            await interaction.followup.send(embeds=embeds)
+            embed = lib.Embeds.problems.max_lookback_exceeded(max_lookback)
+            await interaction.followup.send(embed=embed)
             return
 
         weeks = max(weeks, 1)  # Minimum of 1 week

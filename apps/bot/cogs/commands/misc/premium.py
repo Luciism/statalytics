@@ -21,7 +21,7 @@ class Premium(commands.Cog):
         await helper.interactions.run_interaction_checks(interaction)
 
         await interaction.followup.send(
-            embeds=lib.load_embeds("premium", color="primary"),
+            embed=lib.Embeds.premium.premium(),
             view=helper.views.PremiumInfoView()
         )
 

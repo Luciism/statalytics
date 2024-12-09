@@ -2,96 +2,107 @@
 
 import discord
 
-from ..functions import load_embeds
+from ..embeds import Embeds
 from .custom import CustomBaseView
 
 
 class InfoButton(discord.ui.Button):
     """Base class for info buttons."""
     def __init__(
-        self, label: str, embed_file: str, row: int=1, color: str='primary'
+        self, label: str, embed: discord.Embed
     ) -> None:
         """
         Create a button which sends an embed upon being pressed.
 
         :param label: The label of the button component.
-        :param embed_file: The filename of the embed JSON file to send.
-        :param row: The row for the button to appear on the view.
-        :param color: The color of the embed.
+        :param embed: The embed object to send.
         """
-        self.embed_file = embed_file
-        self.color = color
+        self.embed = embed
 
         emoji = discord.PartialEmoji(name='info_white', id=1128651261890285659)
         super().__init__(
             label=label, style=discord.ButtonStyle.gray,
-            emoji=emoji, row=row, custom_id=f'{label.lower()}_info_button')
-
+            emoji=emoji, custom_id=f'{label.lower()}_info_button')
 
     async def callback(self, interaction: discord.Interaction):
-        embeds = load_embeds(self.embed_file, color=self.color)
-        await interaction.response.send_message(embeds=embeds, ephemeral=True)
+        await interaction.response.send_message(embed=self.embed, ephemeral=True)
 
 
 class SessionInfoButton(CustomBaseView):
     """Session info button."""
+    button = InfoButton('Sessions', Embeds.help.sessions())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Sessions', 'help/sessions'))
+        self.add_item(self.button)
 
 class ProjectionInfoButton(CustomBaseView):
     """Projection info button."""
+    button = InfoButton('Projection', Embeds.help.projection())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Projection', 'help/projection'))
+        self.add_item(self.button)
 
 class ComparisonInfoButton(CustomBaseView):
     """Comparison info button."""
+    button = InfoButton('Comparison', Embeds.help.compare())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Comparison', 'help/compare'))
+        self.add_item(self.button)
 
 class RotationalInfoButton(CustomBaseView):
     """Rotational info button."""
+    button = InfoButton('Rotational', Embeds.help.rotational())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Rotational', 'help/rotational'))
+        self.add_item(self.button)
 
 class LinkingInfoButton(CustomBaseView):
     """Linking info button."""
+    button = InfoButton('Linking', Embeds.help.linking())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Linking', 'help/linking'))
+        self.add_item(self.button)
 
 class SettingsInfoButton(CustomBaseView):
     """Settings info button."""
+    button = InfoButton('Settings', Embeds.help.settings())
+
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Settings', 'help/settings'))
+        self.add_item(self.button)
 
 class OtherInfoButton(CustomBaseView):
     """Button that shows info on all other commands."""
-    def __init__(self) -> None:
-        super().__init__(timeout=None)
-        self.add_item(InfoButton('Other', 'help/other'))
+    button = InfoButton('Other', Embeds.help.other())
 
-class TrackerResettingInfoButton(CustomBaseView):
-    """Tracker resetting info button."""
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Historical Resetting', 'tracker_resetting'))
+        self.add_item(self.button)
+
+class RotationalResettingInfoButton(CustomBaseView):
+    """Rotational resetting info button."""
+    button = InfoButton('Rotational Resetting', Embeds.help.tracker_resetting())
+
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
+        self.add_item(self.button)
 
 class HelpMenuButtons(CustomBaseView):
     """Help menu buttons view."""
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(InfoButton('Sessions', 'help/sessions', row=1))
-        self.add_item(InfoButton('Projection', 'help/projection', row=1))
-        self.add_item(InfoButton('Comparison', 'help/compare', row=1))
-        self.add_item(InfoButton('Rotational', 'help/rotational', row=2))
-        self.add_item(InfoButton('Linking', 'help/linking', row=2))
-        self.add_item(InfoButton('Settings', 'help/settings', row=2))
-        self.add_item(InfoButton('Other', 'help/other', row=2))
+        self.add_item(SessionInfoButton.button)
+        self.add_item(ProjectionInfoButton.button)
+        self.add_item(ComparisonInfoButton.button)
+        self.add_item(RotationalInfoButton.button)
+        self.add_item(LinkingInfoButton.button)
+        self.add_item(SettingsInfoButton.button)
+        self.add_item(OtherInfoButton.button)
 
 
 def add_info_view(client: discord.Client) -> None:
@@ -106,5 +117,6 @@ def add_info_view(client: discord.Client) -> None:
     client.add_view(RotationalInfoButton())
     client.add_view(LinkingInfoButton())
     client.add_view(OtherInfoButton())
+    client.add_view(RotationalResettingInfoButton())
+
     client.add_view(HelpMenuButtons())
-    client.add_view(TrackerResettingInfoButton())

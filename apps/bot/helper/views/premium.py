@@ -8,9 +8,14 @@ def _premium_info_button(label: str, package: str) -> discord.ui.Button:
         label=label,
         custom_id=f"premium_info:{package}_button"
     )
+
+    if package == "pro":
+        embed = lib.Embeds.premium.pro()
+    else:
+        embed = lib.Embeds.premium.basic()
+
     async def callback(interaction: discord.Interaction) -> None:
-        await interaction.response.send_message(
-            embeds=lib.load_embeds(f"premium/{package}", color="primary"))
+        await interaction.response.send_message(embed=embed)
     btn.callback = callback
 
     return btn

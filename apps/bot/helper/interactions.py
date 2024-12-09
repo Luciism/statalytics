@@ -115,8 +115,7 @@ async def linking_interaction(
         return
 
     # Player not linked embed
-    embeds = lib.load_embeds('linking', color='primary')
-    await interaction.followup.send(embeds=embeds)
+    await interaction.followup.send(embed=lib.Embeds.problems.linking_error())
 
 
 async def find_dynamic_session_interaction(
@@ -163,14 +162,14 @@ async def find_dynamic_session_interaction(
 
 async def _send_interaction_check_response(
     interaction: Interaction,
-    embeds: list[Embed]
+    embed: Embed
 ):
     if interaction.response.is_done():
         await interaction.edit_original_response(
-            embeds=embeds, content=None, attachments=[])
+            embed=embed, content=None, attachments=[])
     else:
         await interaction.response.send_message(
-            embeds=embeds, content=None, files=[])
+            embed=embed, content=None, files=[])
 
 
 async def run_interaction_checks(
@@ -195,8 +194,8 @@ async def run_interaction_checks(
 
     # User is blacklisted
     if check_blacklisted and account_data.blacklisted:
-        embeds = lib.load_embeds('blacklisted', color='danger')
-        await _send_interaction_check_response(interaction, embeds)
+        embed = lib.Embeds.problems.user_blacklisted()
+        await _send_interaction_check_response(interaction, embed)
 
         logger.debug(
             f'`Blacklisted User`: Denied {interaction.user} '
@@ -207,8 +206,8 @@ async def run_interaction_checks(
         # User doesn't have at least one of the required permissions
         if not (allow_star and '*' in account_data.permissions):
             if not set(permissions) & set(account_data.permissions):
-                embeds = lib.load_embeds('missing_permissions', color='danger')
-                await _send_interaction_check_response(interaction, embeds)
+                embed = lib.Embeds.problems.missing_permissions()
+                await _send_interaction_check_response(interaction, embed)
 
                 logger.debug(
                     f'`Missing permissions`: Denied {interaction.user} '

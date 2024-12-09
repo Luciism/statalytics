@@ -17,7 +17,7 @@ class Usage(commands.Cog):
                 title='No Command Usage!',
                 description=
                 'You have no command usage stats as you have never run a command.',
-                color=lib.get_embed_color('primary')
+                color=lib.config.embed_color('primary')
             )
 
         usage_dict = {}
@@ -44,7 +44,7 @@ class Usage(commands.Cog):
 
         embed = discord.Embed(
             title="Your Command Usage", description=overall,
-            color=lib.get_embed_color('primary'))
+            color=lib.config.embed_color('primary'))
 
         for i in range(0, len(description), 10):
             sublist = description[i:i+10]

@@ -22,22 +22,10 @@ class SubmitSuggestion(
     async def on_submit(self, interaction: discord.Interaction):
         await helper.interactions.run_interaction_checks(interaction)
 
-        format_values = {
-            'title': {
-                'user': interaction.user,
-                'discord_id': interaction.user.id
-            },
-            'fields': {
-                0: {
-                    'value': {
-                        'suggestion': str(self.suggestion)
-                    }
-                }
-            }
-        }
-        embeds = lib.load_embeds('suggestion', format_values, color='primary')
+        embed = lib.Embeds.misc.suggestion_message(
+            str(interaction.user), interaction.user.id, str(self.suggestion))
 
-        await self.channel.send(embeds=embeds)
+        await self.channel.send(embed=embed)
         await interaction.response.send_message(
             'Successfully submitted suggestion!', ephemeral=True)
 

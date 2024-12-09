@@ -104,8 +104,8 @@ class Year(commands.Cog):
         condition_2 = Account(interaction.user.id).permissions.has_access('year_2026')
 
         if not condition_1 and not condition_2:
-            embeds = lib.load_embeds('2026', color='primary')
-            await interaction.followup.send(embeds=embeds)
+            embed = lib.Embeds.problems.no_premium_2026()
+            await interaction.followup.send(embed=embed)
             return
 
         await self.year_command(interaction, name, uuid, session, 2026)

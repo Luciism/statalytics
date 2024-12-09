@@ -10,7 +10,7 @@ def tracker_view() -> discord.ui.View:
 
     # return resetting info view
     if is_whitelist_only:
-        return lib.shared_views.TrackerResettingInfoButton()
+        return lib.shared_views.RotationalResettingInfoButton()
 
     # return empty view
     return discord.ui.View()

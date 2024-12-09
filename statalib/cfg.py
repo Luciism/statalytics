@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Any
+from typing import Any, Literal
 
 from .common import REL_PATH
 
@@ -74,10 +74,19 @@ class _Config:
             self._load_config_data()
         return self._config_data
 
+    @staticmethod
     def loading_message() -> str:
         """Get the currently configured loading message."""
         return config('apps.bot.loading_message')
 
+    @staticmethod
+    def embed_color(embed_type: Literal["primary", "warning", "danger"]) -> int:
+        """
+        Get a base 16 integer for a specfied embed color.
+
+        :param embed_type: The embed color type (primary, warning, or danger).
+        """
+        return int(config(f'apps.bot.embeds.{embed_type}_color'), base=16)
 
 config = _Config()  # Globally used instance
 "Global config instance."

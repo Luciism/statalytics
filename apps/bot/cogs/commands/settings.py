@@ -138,7 +138,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        embeds = lib.load_embeds('active_theme', color='primary')
+        embed = lib.Embeds.settings.select_theme()
 
         owned_themes = Account(interaction.user.id).themes.get_owned_themes()
         theme_packs: dict = lib.config('global.theme_packs')
@@ -159,7 +159,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
         view.add_item(ActiveThemeSelect(options))
 
         await interaction.response.send_message(
-            embeds=embeds, view=view, ephemeral=True)
+            embed=embed, view=view, ephemeral=True)
 
 
     @discord.ui.button(
@@ -170,7 +170,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        embeds = lib.load_embeds('reset_time', color='primary')
+        embed = lib.Embeds.settings.configure_reset_time()
 
         timezone_options = [
             discord.SelectOption(label=f'GMT{lib.fmt.prefix_int(i-12)}', value=i-12)
@@ -189,7 +189,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
         view.add_item(ResetMinuteSelect(reset_minute_options, "Select a reset minute"))
 
         await interaction.response.send_message(
-            embeds=embeds,
+            embed=embed,
             view=view,
             ephemeral=True
         )
@@ -218,9 +218,9 @@ class Settings(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        embeds = lib.load_embeds('settings', color='primary')
+        embed = lib.Embeds.settings.settings()
         await interaction.followup.send(
-            embeds=embeds, view=SettingsButtons(interaction=interaction))
+            embed=embed, view=SettingsButtons(interaction=interaction))
 
         lib.usage.update_command_stats(interaction.user.id, 'settings')
 

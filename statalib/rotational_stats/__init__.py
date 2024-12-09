@@ -13,10 +13,7 @@ from .reset_time import (
     ResetTime as ResetTime,
     get_dynamic_reset_time as get_dynamic_reset_time
 )
-from .lookback import (
-    build_invalid_lookback_embeds as build_invalid_lookback_embeds,
-    get_max_lookback as get_max_lookback
-)
+from .lookback import get_max_lookback as get_max_lookback
 from .managers import RotationalStatsManager as RotationalStatsManager
 from .resetting import (
     RotationalResetting as RotationalResetting,

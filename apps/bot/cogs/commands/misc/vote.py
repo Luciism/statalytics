@@ -18,8 +18,6 @@ class Vote(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        vote_links = lib.config('global.links.voting')
-
         voting_data = lib.accounts.Account(interaction.user.id).voting.load()
 
         if voting_data.last_vote:
@@ -27,26 +25,9 @@ class Vote(commands.Cog):
         else:
             last_vote_timestamp = 'N/A'
 
-        format_values = {
-            'fields': {
-                0: {
-                    'value': {
-                        'top_gg': vote_links["top.gg"],
-                        'discordbotlist_com': vote_links["discordbotlist.com"],
-                        'discords_com': vote_links["discords.com"]
-                    }
-                },
-                2: {
-                    'value': {
-                        'last_vote': last_vote_timestamp,
-                        'total_votes': voting_data.total_votes
-                    }
-                }
-            }
-        }
-        embeds = lib.load_embeds('vote', format_values, color='primary')
+        embed = lib.Embeds.misc.voting_info(last_vote_timestamp, voting_data.total_votes)
 
-        await interaction.followup.send(embeds=embeds)
+        await interaction.followup.send(embed=embed)
         lib.usage.update_command_stats(interaction.user.id, command='vote')
 
 

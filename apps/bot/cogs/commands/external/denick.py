@@ -76,15 +76,16 @@ class Denick(commands.Cog):
 
         if data is None:
             await interaction.followup.send(
-                embeds=lib.load_embeds('antisniper_connection_error', color='danger'))
+                embed=lib.Embeds.problems.antisniper_connection_error())
             return
 
-        embed_color = lib.get_embed_color(embed_type='primary')
+        embed_color = lib.config.embed_color('primary')
         embed = discord.Embed(
             title='Number Denicker',
-            description=f'Mode: {mode}\n'
-                        f'Count: {count}\n'
-                        f'Results: {len(data["data"])}',
+            description=
+                f'Mode: {mode}\n'
+                f'Count: {count}\n'
+                f'Results: {len(data["data"])}',
             color=embed_color
         )
 

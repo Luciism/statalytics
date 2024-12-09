@@ -2,7 +2,7 @@
 
 from ..cfg import config
 from ..accounts.subscriptions import AccountSubscriptions
-from ..functions import load_embeds
+from ..embeds import Embeds, Embed
 
 
 FALLBACK_MAX_LOOKBACK = 30  # Days
@@ -40,27 +40,3 @@ def get_max_lookback(discord_ids: list[int]) -> int | None:
 
     # Highest value
     return max(max_lookbacks)
-
-
-def build_invalid_lookback_embeds(max_lookback: int | None) -> list:
-    """
-    Build an embed to notify users of an invalid lookback value.
-
-    :param max_lookback: The maximum lookback available to the user.
-    :return list: A list of embeds.
-    """
-    format_values = {
-        'description': {
-            'max_lookback': max_lookback
-        },
-        'fields': {
-            0: {
-                'value': {
-                    'max_lookback': max_lookback
-                }
-            }
-        }
-    }
-    embeds = load_embeds('max_lookback', format_values, color='primary')
-
-    return embeds
