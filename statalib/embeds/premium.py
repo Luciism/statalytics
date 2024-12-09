@@ -1,5 +1,7 @@
 from discord import Embed
 
+from ..cfg import config
+
 
 class PremiumEmbeds:
     @staticmethod
@@ -11,7 +13,7 @@ class PremiumEmbeds:
                 "functionality and customizability.\n\nUse the buttons below for information "
                 "on the available premium tiers.",
             url="https://statalytics.net/premium",
-            color=5793266
+            color=config.embed_color("primary"),
         )
         return embed
 
@@ -20,7 +22,7 @@ class PremiumEmbeds:
         embed = Embed(
             title="Statalytics Pro (Tier 2)",
             url="https://statalytics.net/premium",
-            color=5793266,
+            color=config.embed_color("primary"),
         )
         embed.add_field(
             name="Past, present, and future stats",
@@ -47,7 +49,7 @@ class PremiumEmbeds:
         embed = Embed(
             title="Statalytics Basic (Tier 1)",
             url="https://statalytics.net/premium",
-            color=5793266,
+            color=config.embed_color("primary"),
         )
         embed.add_field(
             name="Past, present, and future stats",
@@ -80,6 +82,6 @@ class PremiumEmbeds:
                 " - 2026 stat projection\n"
                 " - Infinite lookback\n"
                 " - Unlock all themes",
-            color=16741370
+            color=16741370,  # Booster color (bright pink)
         )
         return embed

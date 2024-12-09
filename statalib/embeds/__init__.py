@@ -1,7 +1,9 @@
 from ._embeds import *
+from discord import Embed
 
 __all__ = [
     "Embeds",
+    "Embed",
     "HelpEmbeds",
     "MiscEmbeds",
     "PremiumEmbeds",

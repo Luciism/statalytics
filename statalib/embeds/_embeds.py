@@ -11,3 +11,12 @@ class Embeds:
     premium = PremiumEmbeds
     settings = SettingsEmbeds
     problems = ProblemsEmbeds
+
+__all__ = [
+    "Embeds",
+    "HelpEmbeds",
+    "MiscEmbeds",
+    "PremiumEmbeds",
+    "SettingsEmbeds",
+    "ProblemsEmbeds",
+]

@@ -1,5 +1,7 @@
 from discord import Embed
 
+from ..cfg import config
+
 
 class HelpEmbeds:
     @staticmethod
@@ -8,7 +10,7 @@ class HelpEmbeds:
             title="Statalytics Help Menu",
             description=
                 "To get more information on the different features of statalytics, please navigate using the buttons below. Each button will go in depth on different functionality and how it works.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
 
@@ -21,7 +23,7 @@ class HelpEmbeds:
                 "\n- To use this feature, run the `/compare` command and provide the names "
                 "of the two players.\n- If your account is linked, providing only one player "
                 "will compare your stats with theirs.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -40,7 +42,7 @@ class HelpEmbeds:
                 "account is connected to Hypixel with your current Discord tag.\n- Upon "
                 "linking, if the target player does not already have an active session, one "
                 "will be created automatically",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -61,7 +63,7 @@ class HelpEmbeds:
                 "expected stats and dates.\n- The `/year 2025` command predicts your stats "
                 "for the year 2025, giving a quick overview of your future performance in "
                 "that year.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -86,7 +88,7 @@ class HelpEmbeds:
                 "week, month, or year to the previous one.\n- Adding a number after the "
                 "`/last` commands shows the stats of a specific past period. For example, "
                 "/lastweek 2 shows the stats of two weeks ago.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -115,7 +117,7 @@ class HelpEmbeds:
                 "session is used. If a player has a session, the default session is used "
                 "unless specified otherwise.\n- Specifying a session with the ID of 0 for "
                 "`/milestones` will run the calculations without using a session.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -143,7 +145,7 @@ class HelpEmbeds:
                 "automatically assigned a random reset hour when their historical tracking is "
                 "initiated.\n- Player-based reset times are used if a Discord-based reset time "
                 "is not configured",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
@@ -174,7 +176,7 @@ class HelpEmbeds:
                 "[<player>]` - view or download the skin of a player\n\n### Bot Related\n"
                 "`/vote` - get voting information and links\n`/info` - get metrics for "
                 "statalytics such as uptime and latency",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
 
@@ -186,7 +188,7 @@ class HelpEmbeds:
                 "Hypixel API changes and growth require a new, efficient rotational stats "
                 "reset system for non-premium users. Automatic resets remain available for "
                 "premium supporters.",
-            color=5793266
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="User Prompted Resetting",

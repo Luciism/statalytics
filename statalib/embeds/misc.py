@@ -11,7 +11,7 @@ class MiscEmbeds:
         embed = Embed(
             title="Credits",
             description="Statalytics was made possible by the following:",
-            color=5793266,
+            color=config.embed_color("primary"),
         )
         embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
         embed.add_field(
@@ -38,14 +38,14 @@ class MiscEmbeds:
     def services_info(info: dict[str, Any]) -> Embed:
         embed = Embed(
             title="Statalytics Info",
-            color=3092790,
+            color=config.embed_color("primary"),
         )
         embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
         embed.add_field(
             name="Key Metrics",
             value=
                 f"> Uptime: `{info['uptime']}`\n> Ping: `{info['ping']}`\n> Commands: "
-                f"`{info['commands']}`\n> Version: `{info['version']}`",
+                f"`{info['commands']}`\n> Version: `{config('apps.bot.version')}`",
             inline=True
         )
         embed.add_field(
@@ -60,10 +60,11 @@ class MiscEmbeds:
                 f"Ran: `{info['commands_ran']}`\n> Linked Users: `{info['linked_users']}`\n\u200B",
             inline=True
         )
+        devs = ', '.join(config("global.developers"))
         embed.add_field(
             name="Specifications",
             value=
-                f"> Devs: `{info['devs']}`\n> Library: `{info['library']}`\n> Python: "
+                f"> Devs: `{devs}`\n> Library: `discord.py`\n> Python: "
                 f"`{info['python_ver']}`\n> Shard Count: `{info['shard_count']}`",
             inline=True
         )
@@ -97,7 +98,7 @@ class MiscEmbeds:
                 "`\u2022` Use appropriate language in all channels, including voice channels.\n"
                 "`\u2022` Do not impersonate other users, staff, or services.\n"
                 "`\u2022` Follow any additional rules specific to certain channels.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
 
@@ -107,7 +108,7 @@ class MiscEmbeds:
             title=f"{username}'s Skin",
             url=f"https://namemc.com/profile/{uuid}",
             description=f"Click [here](https://crafatar.com/skins/{uuid}) to download",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.set_image(url=f"attachment://skin.png")
         return embed
@@ -165,7 +166,7 @@ class MiscEmbeds:
     ) -> Embed:
         embed = Embed(
             title=f"Suggestion by {discord_username} ({discord_user_id})",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.add_field(
             name="Suggestion",
@@ -174,19 +175,20 @@ class MiscEmbeds:
         return embed
 
     @staticmethod
-    def voting_info(last_vote: float, total_votes: int) -> Embed:
+    def voting_info(last_vote: str, total_votes: int) -> Embed:
         embed = Embed(
             title="Vote for Statalytics!",
             description="Voting helps Statalytics grow by increasing public exposure.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
+        vote_links = config('global.links.voting')
         embed.add_field(
             name="Links",
             value=
-                "Vote on [top.gg](https://top.gg/bot/828302000697224448)\n"
-                "Vote on [discordbotlist.com](https://discordbotlist.com/bots/statalytics)\n"
-                "Vote on [discords.com](https://discords.com/bots/bot/828302000697224448)",
+                f"Vote on [top.gg]({vote_links['top.gg']})\n"
+                f"Vote on [discordbotlist.com]({vote_links['discordbotlist.com']})\n"
+                f"Vote on [discords.com]({vote_links['discords.com']})",
             inline=True
         )
         embed.add_field(
@@ -204,3 +206,4 @@ class MiscEmbeds:
                 f"Total Votes: {total_votes}",
             inline=True
         )
+        return embed

@@ -13,7 +13,7 @@ class ProblemsEmbeds:
             description=
                 "In order to view stats for 2026, a [premium plan]"
                 "(https://statalytics.net/premium) is required!",
-            color=5793266,
+            color=config.embed_color("warning"),
         )
         embed.add_field(
             name="How does it work?",
@@ -48,7 +48,7 @@ class ProblemsEmbeds:
             title="Antisniper API Connection Error",
             description=
                 "There was an issue connecting to Antisniper's API! Please try again later.",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed
 
@@ -59,7 +59,7 @@ class ProblemsEmbeds:
             description=
                 "You are currently unable to access commands due "
                 "to an active blacklist on your account!",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed
 
@@ -70,7 +70,7 @@ class ProblemsEmbeds:
             description=
                 f"Wait another `{retry_after}` and try again!\n[Premium supporters]"
                 "(https://statalytics.net/premium) bypass this restriction.",
-            color=5793266
+            color=config.embed_color("warning")
         )
         embed.set_thumbnail(url="https://statalytics.net/static/images/cooldown_hourglass.png")
         return embed
@@ -89,7 +89,7 @@ class ProblemsEmbeds:
                 "There was an error processing your request. Please try again later.\n"
                 f"If the problem persists, please [get in touch]({support_url})"
                 + f"\n```{error}```" if is_dev_mode else "",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed
 
@@ -99,7 +99,7 @@ class ProblemsEmbeds:
             title="Hypixel API Connection Error",
             description=
                 "There was an issue connecting to Hypixel's API! Please try again later.",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed
 
@@ -110,7 +110,7 @@ class ProblemsEmbeds:
             description=
                 "To successfully link your account, please ensure that your Hypixel Discord "
                 "connection corresponds accurately with your current Discord tag.",
-            color=5793266
+            color=config.embed_color("danger")
         )
         embed.set_image(url="https://statalytics.net/static/gifs/link.gif")
         return embed
@@ -122,7 +122,7 @@ class ProblemsEmbeds:
             description=
                 "The maximum lookback for viewing that player's historical rotational "
                 f"stats is {max_lookback}!",
-            color=5793266
+            color=config.embed_color("warning")
         )
         embed.add_field(
             name="How it works:",
@@ -148,7 +148,7 @@ class ProblemsEmbeds:
         embed = Embed(
             title="Missing permissions!",
             description="You do not have the required permissions to access this command!",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed
 
@@ -159,6 +159,6 @@ class ProblemsEmbeds:
             description=
                 "There was an issue fetching player information from Mojang's API.\n"
                 "Please try again in a moment!",
-            color=5793266
+            color=config.embed_color("danger")
         )
         return embed

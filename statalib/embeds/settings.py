@@ -1,5 +1,7 @@
 from discord import Embed
 
+from ..cfg import config
+
 
 class SettingsEmbeds:
     @staticmethod
@@ -7,7 +9,7 @@ class SettingsEmbeds:
         embed = Embed(
             title="Configure your settings for Statalytics",
             description="Use the buttons below to customize your experience.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
 
@@ -19,7 +21,7 @@ class SettingsEmbeds:
                 "In order for your selected theme pack to take effect, you must have voted in "
                 "the past 24 HOURS.\n\n [Premium supporters](https://statalytics.net/premium) "
                 "bypass this restriction.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
 
@@ -33,6 +35,6 @@ class SettingsEmbeds:
                 "Reset hour - the hour which your rotational stats will rollover\n\nClick "
                 "[here](https://greenwichmeantime.com/current-time/) if you are unsure of "
                 "your GMT offset.",
-            color=3092790
+            color=config.embed_color("primary")
         )
         return embed
