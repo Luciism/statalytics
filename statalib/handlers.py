@@ -95,6 +95,7 @@ async def handle_remaining_tree_errors(
     interaction: discord.Interaction,
     error: Exception
 ) -> None:
+    """Handle slash command tree errors."""
     embed = Embeds.problems.error_occured(
         command_name=interaction.data.get("name"), error=error)
     try:

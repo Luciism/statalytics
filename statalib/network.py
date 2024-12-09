@@ -173,5 +173,4 @@ async def fetch_skin_model(
 
     # except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError):
     except Exception:  # shit just wasnt working idk why
-        skin_model = skin_from_file()
-    return skin_model
+        return skin_from_file()

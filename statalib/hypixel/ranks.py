@@ -32,6 +32,7 @@ def _get_default_rank(hypixel_player_data: HypixelPlayerData) -> str:
 
 
 class RankInfo(TypedDict):
+    """Information about a player's rank."""
     rank: str
     "The ID of the rank."
     prefix: str

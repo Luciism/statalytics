@@ -11,6 +11,7 @@ class MiscEmbeds:
     """Miscellaneous embeds."""
     @staticmethod
     def credits() -> Embed:
+        """Project credits embed."""
         embed = Embed(
             title="Credits",
             description="Statalytics was made possible by the following:",
@@ -39,6 +40,7 @@ class MiscEmbeds:
 
     @staticmethod
     def services_info(info: dict[str, Any]) -> Embed:
+        """Services info embed."""
         embed = Embed(
             title="Statalytics Info",
             color=config.embed_color("primary"),
@@ -88,6 +90,7 @@ class MiscEmbeds:
 
     @staticmethod
     def support_server_rules() -> Embed:
+        """Support server rules embed."""
         embed = Embed(
             title=":books: Server Rules",
             description=
@@ -107,17 +110,19 @@ class MiscEmbeds:
 
     @staticmethod
     def player_skin(username: PlayerName, uuid: PlayerUUID) -> Embed:
+        """Player skin display embed."""
         embed = Embed(
             title=f"{username}'s Skin",
             url=f"https://namemc.com/profile/{uuid}",
             description=f"Click [here](https://crafatar.com/skins/{uuid}) to download",
             color=config.embed_color("primary")
         )
-        embed.set_image(url=f"attachment://skin.png")
+        embed.set_image(url="attachment://skin.png")
         return embed
 
     @staticmethod
     def hypixel_status(server_info: dict[str, Any]) -> list[Embed]:
+        """Hypixel status info embed."""
         status_embed = Embed(
             "Hypixel Status",
             description=
@@ -150,7 +155,8 @@ class MiscEmbeds:
         players_embed = Embed(
             "Players",
             description=
-                f"**` > ` Players**: `{server_info['players']}` / `{server_info['max_players']}`\n\n"
+                f"**` > ` Players**: `{server_info['players']}` / `"
+                f"{server_info['max_players']}`\n\n"
                 f"**` > ` Peak**: `{server_info['peak_players']}`\n"
                 f"**` > ` Average**: `{server_info['avg_players']}`\n"
                 f"**` > ` Min**: `{server_info['min_players']}`",
@@ -167,6 +173,7 @@ class MiscEmbeds:
         discord_user_id: int,
         suggestion: str
     ) -> Embed:
+        """User feature suggestion embed."""
         embed = Embed(
             title=f"Suggestion by {discord_username} ({discord_user_id})",
             color=config.embed_color("primary")
@@ -179,6 +186,7 @@ class MiscEmbeds:
 
     @staticmethod
     def voting_info(last_vote: str, total_votes: int) -> Embed:
+        """User voting info embed."""
         embed = Embed(
             title="Vote for Statalytics!",
             description="Voting helps Statalytics grow by increasing public exposure.",
@@ -203,7 +211,7 @@ class MiscEmbeds:
             inline=True
         )
         embed.add_field(
-            "Your Voting History",
+            name="Your Voting History",
             value=
                 f"Last Vote: {last_vote}\n"
                 f"Total Votes: {total_votes}",

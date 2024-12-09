@@ -38,7 +38,9 @@ def recolor_pixels(
 
     # Replace placeholder with other color... (leaves alpha values alone...)
     for rgb_from_val, rgb_to_val in zip(rgb_from, rgb_to):
-        placeholders = (red == rgb_from_val[0]) & (green == rgb_from_val[1]) & (blue == rgb_from_val[2])
+        placeholders = (red == rgb_from_val[0]) \
+            & (green == rgb_from_val[1]) \
+            & (blue == rgb_from_val[2])
         data[..., :-1][placeholders.T] = rgb_to_val
 
     return Image.fromarray(data)

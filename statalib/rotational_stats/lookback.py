@@ -2,7 +2,6 @@
 
 from ..cfg import config
 from ..accounts.subscriptions import AccountSubscriptions
-from ..embeds import Embeds, Embed
 
 
 FALLBACK_MAX_LOOKBACK = 30  # Days

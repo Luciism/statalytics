@@ -8,8 +8,9 @@ from .common import REL_PATH
 from .cfg import config
 
 
-db_connect = lambda: sqlite3.connect(config.DB_FILE_PATH)
-"Open a database connection."
+def db_connect() -> sqlite3.Connection:
+    "Open a database connection."
+    return sqlite3.connect(config.DB_FILE_PATH)
 
 
 def ensure_cursor(func):
@@ -44,7 +45,7 @@ def setup_database_schema(
     :param schema_fp: The path to the database schema setup script.
     :param db_fp: The path to the database file.
     """
-    with open(schema_fp) as db_schema_file:
+    with open(schema_fp, encoding="utf-8") as db_schema_file:
         db_schema_setup = db_schema_file.read()
 
     with sqlite3.connect(db_fp) as conn:

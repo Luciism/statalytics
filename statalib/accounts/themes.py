@@ -105,7 +105,7 @@ class AccountThemes:
         self._raise_if_exclusive_not_found(theme_name)
 
         themes_data = cursor.execute(
-            f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
+            "SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
         ).fetchone()
 
         if themes_data:
@@ -161,7 +161,7 @@ class AccountThemes:
         themes = [theme for theme in themes if theme in get_exclusive_themes()]
 
         themes_data = cursor.execute(
-            f"SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
+            "SELECT * FROM themes_data WHERE discord_id = ?", (self._discord_user_id,)
         ).fetchone()
 
         if themes_data:
@@ -200,7 +200,7 @@ class AccountThemes:
         self._raise_if_unavailable(theme_name)
 
         themes_data = cursor.execute(
-            f'SELECT * FROM themes_data WHERE discord_id = ?', (self._discord_user_id,)
+            'SELECT * FROM themes_data WHERE discord_id = ?', (self._discord_user_id,)
         ).fetchone()
 
         if themes_data:

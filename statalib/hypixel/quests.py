@@ -25,10 +25,12 @@ at different times, it will be a dictionary mapped to a unix timestamp."""
 
 
 class QuestDataDict(TypedDict):
+    """Data for a specific quest."""
     completions: int
     experience: int
 
 class QuestsExpDataDict(TypedDict):
+    """Data for each type of quest."""
     bedwars_daily_win: QuestDataDict
     bedwars_daily_one_more: QuestDataDict
     bedwars_daily_gifts: QuestDataDict
@@ -43,6 +45,7 @@ class QuestsExpDataDict(TypedDict):
     bedwars_weekly_final_killer: QuestDataDict
 
 class QuestsDataDict(TypedDict):
+    """Data for all quests."""
     quests_exp: QuestsExpDataDict
     real_exp: int
     total_quests_exp: int

@@ -11,10 +11,11 @@ def decimal_of(number: float) -> int:
     :param number: The floating point number to find the decimal of.
     :return int: The decimal on the right side of the `.` as an integer.
     """
-    return int(str(number).split(".")[-1])
+    return int(str(number).rsplit(maxsplit=1)[-1])
 
 
 class LevelProgressionTuple(NamedTuple):
+    """Leveling progression tuple."""
     progress: int
     """The xp progress made towards completing the current level."""
     target: int
@@ -27,7 +28,7 @@ class Leveling:
     """Leveling calculation class."""
     def __init__(
         self,
-        xp: int | None=None,
+        xp: int | None=None,  # pylint: disable=invalid-name
         level: int | None=None
     ) -> None:
         """
@@ -45,7 +46,7 @@ class Leveling:
         self.__progression = None
 
     @staticmethod
-    def __calc_level(xp: int) -> float:
+    def __calc_level(xp: int) -> float:  # pylint: disable=invalid-name
         level: int = 100 * (xp // 487000)  # prestige
         xp %= 487000  # exp this prestige
         xp_map = (0, 500, 1500, 3500, 7000)
@@ -71,18 +72,18 @@ class Leveling:
     @staticmethod
     def __calc_xp(level: float):
         prestige, level = divmod(level, 100)
-        xp = prestige * 487000
+        xp = prestige * 487000  # pylint: disable=invalid-name
         xp_map = (0, 500, 1500, 3500, 7000)
 
         if level < 4:
             index = int(level)
             factor = xp_map[index]
             return int(xp + factor + (level - index) * (xp_map[index + 1] - factor))
-        else:
-            return int(xp + 7000 + (level - 4) * 5000)
+
+        return int(xp + 7000 + (level - 4) * 5000)
 
     @property
-    def xp(self) -> int:
+    def xp(self) -> int:  # pylint: disable=invalid-name
         """The total amount of leveling xp."""
         if self.__xp is None:
             self.__xp = self.__calc_xp(self.level)

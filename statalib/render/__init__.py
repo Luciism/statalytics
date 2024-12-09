@@ -16,6 +16,5 @@ __all__ = [
     'BackgroundImageLoader',
     'ImageRender',
     'Prestige',
-    'PrestigeColors',
-    'render_mc_text'
+    'PrestigeColors'
 ]

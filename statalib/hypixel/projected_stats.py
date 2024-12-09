@@ -49,7 +49,7 @@ class ProjectedStats(CumulativeStats):
             self.levels_to_go = target_level - self.level
         else:
             self.levels_to_go = target_level - self.level
-            days_per_level_gained = (self.session_duration_days / (self.levels_cum or 1))
+            days_per_level_gained = self.session_duration_days / (self.levels_cum or 1)
 
             self.days_to_go = int(days_per_level_gained * self.levels_to_go)
 

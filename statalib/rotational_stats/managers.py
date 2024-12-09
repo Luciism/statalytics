@@ -131,6 +131,7 @@ class RotationalStatsManager:
 
             # Insert snapshot data
             cursor.execute(
-                f"INSERT OR IGNORE INTO bedwars_stats_snapshots (snapshot_id, {set_clause}) VALUES (?, {question_marks})",
+                "INSERT OR IGNORE INTO bedwars_stats_snapshots "
+                f"(snapshot_id, {set_clause}) VALUES (?, {question_marks})",
                 (snapshot_id, *bedwars_data_list)
             )

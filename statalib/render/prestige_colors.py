@@ -72,9 +72,10 @@ class PrestigeColorMaps:
 
 
 class PrestigeColorEnum(Enum):
-    single = 0
+    """Whether a prestige is a single color or multiple."""
+    SINGLE = 0
     "A single RGB color."
-    multi = 1
+    MULTI = 1
     "Multiple RGB colors."
 
 @dataclass
@@ -111,11 +112,11 @@ class PrestigeColors:
 
             if 1000 <= self._prestige < 10000:
                 color = c.prestige_map_2.get(self._prestige, c.prestige_map_2.get(5000))
-                self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.multi, color)
+                self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.MULTI, color)
                 return self.__prestige_colors
 
             color =  c.prestige_map.get(self._prestige, c.prestige_map.get(10000))
-            self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.single, color)
+            self.__prestige_colors = PrestigeColorType(PrestigeColorEnum.SINGLE, color)
 
         return self.__prestige_colors
 
@@ -125,7 +126,7 @@ class PrestigeColors:
         if self.__prestige_primary_rgb is None:
             pres_color_code = self.prestige_colors.color
 
-            if self.prestige_colors.type == PrestigeColorEnum.multi:
+            if self.prestige_colors.type == PrestigeColorEnum.MULTI:
                 pres_color_code = pres_color_code[0]
 
             self.__prestige_primary_rgb = ColorMappings.color_codes.get(pres_color_code)
@@ -180,7 +181,7 @@ class Prestige:
             star_symbol = self.star_symbol
             level_string = f'[{self._level}{star_symbol}]'
 
-            if prestige_colors.type == PrestigeColorEnum.multi:
+            if prestige_colors.type == PrestigeColorEnum.MULTI:
                 self.__formatted_level_str = ''.join([
                     f'{prestige_colors.color[i]}{char}' for i, char in enumerate(level_string)
                 ])

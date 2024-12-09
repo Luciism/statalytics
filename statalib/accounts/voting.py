@@ -37,7 +37,7 @@ class AccountVoting:
     def load(self, *, cursor: Cursor=None) -> VotingData:
         """Load the account's voting data from the database."""
         voting_data = cursor.execute(
-            f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
+            'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
         ).fetchone()
 
         return VotingData(*(voting_data or (self._discord_user_id, 0, 0, None)))
@@ -59,7 +59,7 @@ class AccountVoting:
             timestamp = datetime.now(UTC).timestamp()
 
         current_voting_data = cursor.execute(
-            f'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
+            'SELECT * FROM voting_data WHERE discord_id = ?', (self._discord_user_id,)
         ).fetchone()
 
         if current_voting_data:

@@ -9,16 +9,20 @@ class HelpEmbeds:
     """Embeds for the help menu."""
     @staticmethod
     def help() -> Embed:
+        """Help menu embed."""
         embed = Embed(
             title="Statalytics Help Menu",
             description=
-                "To get more information on the different features of statalytics, please navigate using the buttons below. Each button will go in depth on different functionality and how it works.",
+                "To get more information on the different features of statalytics, please "
+                "navigate using the buttons below. Each button will go in depth on different "
+                "functionality and how it works.",
             color=config.embed_color("primary")
         )
         return embed
 
     @staticmethod
     def compare() -> Embed:
+        """Compare info embed."""
         embed = Embed(
             title="Stat Comparison Info Page",
             description=
@@ -36,6 +40,7 @@ class HelpEmbeds:
 
     @staticmethod
     def linking() -> Embed:
+        """Linking info embed."""
         embed = Embed(
             title="Stat Linking Info Page",
             description=
@@ -55,6 +60,7 @@ class HelpEmbeds:
 
     @staticmethod
     def projection() -> Embed:
+        """Projection info embed."""
         embed = Embed(
             title="Stat Projection Info Page",
             description=
@@ -78,6 +84,7 @@ class HelpEmbeds:
 
     @staticmethod
     def rotational() -> Embed:
+        """Rotational info embed."""
         embed = Embed(
             title="Rotational Stat Tracking Info Page",
             description=
@@ -108,6 +115,7 @@ class HelpEmbeds:
 
     @staticmethod
     def sessions() -> Embed:
+        """Session info embed."""
         embed = Embed(
             title="Session Info Page",
             description=
@@ -132,6 +140,7 @@ class HelpEmbeds:
 
     @staticmethod
     def settings() -> Embed:
+        """Settings info embed."""
         embed = Embed(
             title="Settings Info Page",
             description=
@@ -158,6 +167,7 @@ class HelpEmbeds:
 
     @staticmethod
     def other() -> Embed:
+        """Other commands info embed."""
         embed = Embed(
             title="Misc Commands Info Page",
             description=
@@ -185,6 +195,7 @@ class HelpEmbeds:
 
     @staticmethod
     def tracker_resetting() -> Embed:
+        """Rotational resetting info embed."""
         embed = Embed(
             title="How Rotational Stat Resetting Works",
             description=

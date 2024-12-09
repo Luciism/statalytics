@@ -15,7 +15,7 @@ from . import hypixel
 from . import loggers
 from . import mcfetch
 from . import network
-from . import rotational_stats as rotational_stats
+from . import rotational_stats
 from . import sessions
 from . import shared_views
 from . import usage

@@ -69,6 +69,7 @@ class ThemeImageLoader:
 
 
 class BackgroundImageLoader:
+    """Class responsible for loading background images."""
     def __init__(
         self,
         dir: str,

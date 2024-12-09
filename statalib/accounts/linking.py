@@ -11,7 +11,7 @@ from ..db import ensure_cursor, Cursor
 @ensure_cursor
 def get_total_linked_accounts(*, cursor: Cursor=None) -> int:
     """Return the total linked accounts count."""
-    cursor.execute(f"SELECT COUNT(discord_id) FROM linked_accounts")
+    cursor.execute("SELECT COUNT(discord_id) FROM linked_accounts")
     total = cursor.fetchone()
 
     if total:
@@ -31,7 +31,7 @@ def uuid_to_discord_id(
     :return int | None: The linked Discord ID if found, otherwise None.
     """
     discord_id = cursor.execute(
-        f"SELECT discord_id FROM linked_accounts WHERE uuid = ?", (uuid,)
+        "SELECT discord_id FROM linked_accounts WHERE uuid = ?", (uuid,)
     ).fetchone()
 
     return None if not discord_id else discord_id[0]
@@ -47,7 +47,7 @@ class AccountLinking:
     def get_linked_player_uuid(self, *, cursor: Cursor=None) -> PlayerUUID | None:
         """Retrieve the player UUID linked to a user if there is one."""
         linked_data = cursor.execute(
-            f"SELECT * FROM linked_accounts WHERE discord_id = ?", (self._discord_user_id,)
+            "SELECT * FROM linked_accounts WHERE discord_id = ?", (self._discord_user_id,)
         ).fetchone()
 
         if linked_data and linked_data[1]:
@@ -62,7 +62,7 @@ class AccountLinking:
         :param uuid: The Minecraft player UUID of the respective player.
         """
         cursor.execute(
-            f"SELECT * FROM linked_accounts WHERE discord_id = ?",
+            "SELECT * FROM linked_accounts WHERE discord_id = ?",
             (self._discord_user_id,))
         linked_data = cursor.fetchone()
 
@@ -114,7 +114,7 @@ class AccountLinking:
         """
         if AccountPermissions(self._discord_user_id).has_access('autofill'):
             autofill_data: tuple = cursor.execute(
-                f"SELECT * FROM autofill WHERE discord_id = ?", (self._discord_user_id,)
+                "SELECT * FROM autofill WHERE discord_id = ?", (self._discord_user_id,)
             ).fetchone()
 
             if not autofill_data:

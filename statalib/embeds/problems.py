@@ -11,6 +11,7 @@ class ProblemsEmbeds:
     """Problem info embeds."""
     @staticmethod
     def no_premium_2026() -> Embed:
+        """User has no access to 2026 command."""
         embed = Embed(
             title="That player doesn't have premium!",
             description=
@@ -29,6 +30,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def no_premium_yearly() -> Embed:
+        """User has no access to yearly command."""
         embed = Embed(
             title="That player doesn't have premium!",
             description=
@@ -47,6 +49,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def antisniper_connection_error() -> Embed:
+        """Antisniper API connection error."""
         embed = Embed(
             title="Antisniper API Connection Error",
             description=
@@ -57,6 +60,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def user_blacklisted() -> Embed:
+        """User cannot access command because they are blacklisted."""
         embed = Embed(
             title="You are blacklisted!",
             description=
@@ -68,6 +72,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def command_on_cooldown(retry_after: float) -> Embed:
+        """Command is on cooldown."""
         embed = Embed(
             title="Command on cooldown!",
             description=
@@ -80,6 +85,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def error_occured(command_name: str | None, error: str) -> Embed:
+        """Generic error embed."""
         support_url = config("global.links.support_server")
         is_dev_mode = os.getenv("ENVIRONMENT").lower() == "development"
 
@@ -98,6 +104,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def hypixel_connection_error() -> Embed:
+        """Hypixel API connection error."""
         embed = Embed(
             title="Hypixel API Connection Error",
             description=
@@ -108,6 +115,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def linking_error() -> Embed:
+        """Hypixel Discord connection mismatch."""
         embed = Embed(
             title="Hypixel Discord Connection Mismatch!",
             description=
@@ -120,6 +128,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def max_lookback_exceeded(max_lookback: int) -> Embed:
+        """Maximum lookback exceeded."""
         embed = Embed(
             title="Maximum lookback exceeded!",
             description=
@@ -132,22 +141,23 @@ class ProblemsEmbeds:
             value=
                 f"`-` You can view history up to `{max_lookback}` days with yours or the "
                 "checked player's plan.\n"
-                f"`-` You can view longer history if you or the checked player has a "
+                "`-` You can view longer history if you or the checked player has a "
                 "premium plan.",
             inline=True
         )
         embed.add_field(
             name="Limits",
             value=
-                f"`-` Free tier maximum lookback - 30 days\n"
-                f"`-` Basic tier maxmum lookback  - 60 days\n"
-                f"`-` Pro tier maximum lookback - unlimited",
+                "`-` Free tier maximum lookback - 30 days\n"
+                "`-` Basic tier maxmum lookback  - 60 days\n"
+                "`-` Pro tier maximum lookback - unlimited",
             inline=True
         )
         return embed
 
     @staticmethod
     def missing_permissions() -> Embed:
+        """Insufficient user permissions."""
         embed = Embed(
             title="Missing permissions!",
             description="You do not have the required permissions to access this command!",
@@ -157,6 +167,7 @@ class ProblemsEmbeds:
 
     @staticmethod
     def mojang_api_error() -> Embed:
+        """Mojang API error."""
         embed = Embed(
             title="Mojang API Error",
             description=

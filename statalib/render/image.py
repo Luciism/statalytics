@@ -117,7 +117,7 @@ class TextRender:
         :param text: The text to draw.
         :param text_options: The text configuration in which to use.
         """
-        if not "position" in text_options:
+        if "position" not in text_options:
             text_options["position"] = (0, 0)
         render_mc_text(text, image=self._image, **text_options)
 

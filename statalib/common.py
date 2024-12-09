@@ -22,5 +22,6 @@ class _MissingSentinel:  # Thanks discord.py
 MISSING = _MissingSentinel()
 "Global missing sentinel instance."
 
-utc_now = lambda: datetime.now(UTC)
-"Returns the current UTC datetime."
+def utc_now() -> datetime:
+    """Get the current UTC datetime."""
+    return datetime.now(UTC)

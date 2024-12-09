@@ -5,10 +5,10 @@ from datetime import timedelta
 
 def fname(username: str):
     """Escapes underscore characters to bypass Discord's markdown."""
-    return username.replace("_", "\_")
+    return username.replace("_", r"\_")
 
 
-def ordinal(n: int) -> str:
+def ordinal(n: int) -> str:  # pylint: disable=invalid-name
     """
     Formats a day of the month, for example `21` would be `21st`.
 
@@ -41,12 +41,12 @@ def format_seconds(seconds):
 
 
 def format_12hr_time(hour: int, minute: int) -> str:
-  """Format time as hr:min(AM/PM)"""
-  hour_12 = hour % 12
-  hour_12 = 12 if hour_12 == 0 else hour_12
+    """Format time as hr:min(AM/PM)"""
+    hour_12 = hour % 12
+    hour_12 = 12 if hour_12 == 0 else hour_12
 
-  period = "AM" if hour < 12 else "PM"
-  return f"{hour_12}:{minute:02d}{period}"
+    period = "AM" if hour < 12 else "PM"
+    return f"{hour_12}:{minute:02d}{period}"
 
 
 def pluralize(number: int, word: str, suffix: str='s') -> str:

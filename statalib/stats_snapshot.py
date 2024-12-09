@@ -10,7 +10,7 @@ from .db import ensure_cursor
 class BedwarsStatsSnapshot:
     """Bedwars stats snapshot dataclass."""
     snapshot_id: str
-    Experience: int
+    Experience: int  # pylint: disable=invalid-name
     wins_bedwars: int
     losses_bedwars: int
     final_kills_bedwars: int
@@ -73,6 +73,12 @@ class BedwarsStatsSnapshot:
     two_four_items_purchased_bedwars: int
 
     def as_tuple(self, include_snapshot_id: bool=True) -> tuple:
+        """
+        Convert the dataclass to a tuple.
+
+        :param include_snapshot_id: Whether or not to include the snapshot ID.
+        :return tuple: A tuple containing the snapshot data.
+        """
         result = tuple(self.__dict__.values())
 
         if include_snapshot_id is False:
@@ -81,6 +87,12 @@ class BedwarsStatsSnapshot:
         return result
 
     def as_dict(self, include_snapshot_id: bool=True) -> dict:
+        """
+        Convert the dataclass to a dictionary.
+
+        :param include_snapshot_id: Whether or not to include the snapshot ID.
+        :return dict: A dictionary containing the snapshot data.
+        """
         result = self.__dict__
 
         if include_snapshot_id is False:
@@ -89,7 +101,12 @@ class BedwarsStatsSnapshot:
 
     @staticmethod
     def keys(include_snapshot_id: bool=True) -> list[str]:
-        """Stats keys"""
+        """
+        Get the list of keys for the dataclass.
+
+        :param include_snapshot_id: Whether or not to include the snapshot ID.
+        :return list: A list of keys for the dataclass.
+        """
         keys = list(BedwarsStatsSnapshot.__annotations__.keys())
 
         if include_snapshot_id is False:

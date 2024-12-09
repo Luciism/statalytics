@@ -9,6 +9,7 @@ class SettingsEmbeds:
     """Settings embeds."""
     @staticmethod
     def settings() -> Embed:
+        """Settings menu embed."""
         embed = Embed(
             title="Configure your settings for Statalytics",
             description="Use the buttons below to customize your experience.",
@@ -18,6 +19,7 @@ class SettingsEmbeds:
 
     @staticmethod
     def select_theme() -> Embed:
+        """Select theme embed."""
         embed = Embed(
             title="Select a theme pack!",
             description=
@@ -30,6 +32,7 @@ class SettingsEmbeds:
 
     @staticmethod
     def configure_reset_time() -> Embed:
+        """Configure reset time embed."""
         embed = Embed(
             title="Configure reset time",
             description=

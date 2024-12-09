@@ -3,8 +3,9 @@
 import logging
 import calendar
 from datetime import UTC, datetime, timedelta
-from dateutil.relativedelta import relativedelta
 from uuid import uuid4
+
+from dateutil.relativedelta import relativedelta
 
 from statalib.errors import DataNotFoundError
 from statalib.stats_snapshot import BedwarsStatsSnapshot
@@ -183,7 +184,7 @@ class RotationalResetting:
         ).fetchone()
 
         if result is None:
-            return None  # Probably raise an exception instead
+            return  # FIXME: Probably raise an exception instead
 
         # Update last reset timestamp
         cursor.execute(
@@ -242,14 +243,14 @@ def reset_rotational_stats_if_whitelisted(
     cursor.execute(
         "SELECT rotation, last_reset_timestamp FROM rotational_info "
         "WHERE uuid = ?", (uuid,))
-    last_resets: dict[str, int] = {k: v for k, v in cursor.fetchall()}
+    last_resets: dict[str, int] = dict(cursor.fetchall())
 
     reset_manager = RotationalResetting(uuid)
 
     def _archive_and_refresh(
-        rotation_type: RotationType, dt: datetime, cursor: Cursor
+        rotation_type: RotationType, period_dt: datetime, cursor: Cursor
     ) -> None:
-        period = HistoricalRotationPeriodID(rotation_type, last_day_dt)
+        period = HistoricalRotationPeriodID(rotation_type, period_dt)
         reset_manager.archive_rotational_data(period, hypixel_data, cursor=cursor)
         reset_manager.refresh_rotational_data(
             rotation_type, hypixel_data, cursor=cursor)

@@ -51,12 +51,12 @@ class _Config:
         return config_data
 
     def _load_config_data(self) -> dict:
-        with open(f'{REL_PATH}/config.json', 'r') as datafile:
+        with open(f'{REL_PATH}/config.json', encoding="utf-8") as datafile:
             config_data: dict = json.load(datafile)
 
         # Load dev config
         if os.getenv('ENVIRONMENT').lower() == "development":
-            with open(f'{REL_PATH}/config.dev.json', 'r') as datafile:
+            with open(f'{REL_PATH}/config.dev.json', encoding="utf-8") as datafile:
                 dev_config_data: dict = json.load(datafile)
             config_data = merge_dicts(config_data, dev_config_data)
 

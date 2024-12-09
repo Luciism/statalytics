@@ -347,7 +347,7 @@ class AccountSubscriptions:
         # New subscription is same tier as existing one
         if package == existing_subscription.package:
             # Check if existing subscription is a lifetime subscription
-            if existing_subscription.expiry_timestamp == None:
+            if existing_subscription.expiry_timestamp is None:
                 raise PackageTierConflictError(
                     "The package you are trying to add is the same tier as the currently "
                     "active subscription package. Because the currently active subscription "
@@ -360,7 +360,9 @@ class AccountSubscriptions:
 
                 # Pause active subscription (preserve it)
                 self._add_paused_subscription(
-                    existing_subscription.package, existing_subscription.expires_in(), cursor=cursor)
+                    existing_subscription.package,
+                    existing_subscription.expires_in(),
+                    cursor=cursor)
             else:
                 if existing_subscription.expires_in() > 0:
                     # Extend existing subscription because it is still running

@@ -7,7 +7,7 @@ from .settings import SettingsEmbeds
 from .problems import ProblemsEmbeds
 
 
-class Embeds:
+class Embeds:  # pylint: disable=too-few-public-methods
     """Discord embeds for statalytics."""
     help = HelpEmbeds
     misc = MiscEmbeds
