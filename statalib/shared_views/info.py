@@ -30,79 +30,95 @@ class InfoButton(discord.ui.Button):
 
 class SessionInfoButton(CustomBaseView):
     """Session info button."""
-    button = InfoButton('Sessions', Embeds.help.sessions())
+    @staticmethod
+    def button():
+        return InfoButton('Sessions', Embeds.help.sessions())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class ProjectionInfoButton(CustomBaseView):
     """Projection info button."""
-    button = InfoButton('Projection', Embeds.help.projection())
+    @staticmethod
+    def button():
+        return InfoButton('Projection', Embeds.help.projection())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class ComparisonInfoButton(CustomBaseView):
     """Comparison info button."""
-    button = InfoButton('Comparison', Embeds.help.compare())
+    @staticmethod
+    def button():
+        return InfoButton('Comparison', Embeds.help.compare())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class RotationalInfoButton(CustomBaseView):
     """Rotational info button."""
-    button = InfoButton('Rotational', Embeds.help.rotational())
+    @staticmethod
+    def button():
+        return InfoButton('Rotational', Embeds.help.rotational())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class LinkingInfoButton(CustomBaseView):
     """Linking info button."""
-    button = InfoButton('Linking', Embeds.help.linking())
+    @staticmethod
+    def button() -> None:
+        return InfoButton('Linking', Embeds.help.linking())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class SettingsInfoButton(CustomBaseView):
     """Settings info button."""
-    button = InfoButton('Settings', Embeds.help.settings())
+    @staticmethod
+    def button():
+        return InfoButton('Settings', Embeds.help.settings())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class OtherInfoButton(CustomBaseView):
     """Button that shows info on all other commands."""
-    button = InfoButton('Other', Embeds.help.other())
+    @staticmethod
+    def button():
+        return InfoButton('Other', Embeds.help.other())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class RotationalResettingInfoButton(CustomBaseView):
     """Rotational resetting info button."""
-    button = InfoButton('Rotational Resetting', Embeds.help.tracker_resetting())
+    @staticmethod
+    def button():
+        return InfoButton('Rotational Resetting', Embeds.help.tracker_resetting())
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(self.button)
+        self.add_item(self.button())
 
 class HelpMenuButtons(CustomBaseView):
     """Help menu buttons view."""
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(SessionInfoButton.button)
-        self.add_item(ProjectionInfoButton.button)
-        self.add_item(ComparisonInfoButton.button)
-        self.add_item(RotationalInfoButton.button)
-        self.add_item(LinkingInfoButton.button)
-        self.add_item(SettingsInfoButton.button)
-        self.add_item(OtherInfoButton.button)
+        self.add_item(SessionInfoButton.button())
+        self.add_item(ProjectionInfoButton.button())
+        self.add_item(ComparisonInfoButton.button())
+        self.add_item(RotationalInfoButton.button())
+        self.add_item(LinkingInfoButton.button())
+        self.add_item(SettingsInfoButton.button())
+        self.add_item(OtherInfoButton.button())
 
 
 def add_info_view(client: discord.Client) -> None:

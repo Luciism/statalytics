@@ -1,5 +1,9 @@
 import unittest
 
+from statalib.common import REL_PATH
+
+from dotenv import load_dotenv
+load_dotenv(f"{REL_PATH}/.env.test")
 
 loader = unittest.TestLoader()
 
