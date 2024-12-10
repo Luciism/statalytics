@@ -11,7 +11,7 @@ def decimal_of(number: float) -> int:
     :param number: The floating point number to find the decimal of.
     :return int: The decimal on the right side of the `.` as an integer.
     """
-    return int(str(number).rsplit(maxsplit=1)[-1])
+    return int(str(number).split(".")[-1])
 
 
 class LevelProgressionTuple(NamedTuple):

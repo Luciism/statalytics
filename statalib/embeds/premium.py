@@ -37,7 +37,8 @@ class PremiumEmbeds:
                 "yearly rotational stats.\n- 2026 Stats - predict your own or another "
                 "player's stats for the year 2026.\n- Infinite Historical Lookback - view "
                 "historical rotational stats with no limits.\n- Up to 5 Active Sessions - "
-                "activate up to 5 sessions at one time."
+                "activate up to 5 sessions at one time.",
+            inline=False
         )
         embed.add_field(
             name="Customizability, ease of access, misc",
@@ -46,7 +47,8 @@ class PremiumEmbeds:
                 "- Unlock All Themes - get instant access to all voter themes without voting.\n"
                 "- No Command Cooldowns - remove cooldowns on commands ran.\n"
                 "- Username Autocomplete - be added to the username autocomplete options.\n"
-                "- Beta Access - access and give feedback on up and coming beta features."
+                "- Beta Access - access and give feedback on up and coming beta features.",
+            inline=False
         )
         return embed
 
@@ -65,14 +67,16 @@ class PremiumEmbeds:
                 "- 2026 Stats - predict your own or another player's stats for the year 2026."
                 "\n- 60 Day Historical Lookback - view historical rotational stats with a 60 "
                 "day limit.\n- Up to 3 Active Sessions - activate up to 3 sessions at one "
-                "time."
+                "time.",
+            inline=False
         )
         embed.add_field(
             name="Customizability, ease of access, misc",
             value=
                 "- Unlock All Themes - get instant access to all voter themes without voting."
                 "\n- No Command Cooldowns - remove cooldowns on commands ran.\n"
-                "- Username Autocomplete - be added to the username autocomplete options."
+                "- Username Autocomplete - be added to the username autocomplete options.",
+            inline=False
         )
         return embed
 

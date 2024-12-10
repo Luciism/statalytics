@@ -5,7 +5,7 @@ from ..mcfetch import AsyncFetchPlayer, FetchPlayer2
 from ..sessions import SessionManager
 from ..aliases import PlayerName, PlayerUUID, HypixelData
 from ..usage import insert_growth_data
-from ..db import ensure_cursor, Cursor
+from ..db import ensure_cursor, async_ensure_cursor, Cursor
 
 
 @ensure_cursor
@@ -112,7 +112,8 @@ class AccountLinking:
         :param uuid: The linked player UUID of the target linked user.
         :param username: The updated linked player username of the target linked user.
         """
-        if AccountPermissions(self._discord_user_id).has_access('autofill'):
+        perms = AccountPermissions(self._discord_user_id)
+        if perms.has_access('autofill', cursor=cursor):
             autofill_data: tuple = cursor.execute(
                 "SELECT * FROM autofill WHERE discord_id = ?", (self._discord_user_id,)
             ).fetchone()
@@ -124,7 +125,7 @@ class AccountLinking:
                 query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
                 cursor.execute(query, (uuid, username, self._discord_user_id))
 
-    @ensure_cursor
+    @async_ensure_cursor
     async def link_account(
         self,
         discord_tag: str,

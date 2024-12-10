@@ -76,7 +76,7 @@ class ProblemsEmbeds:
         embed = Embed(
             title="Command on cooldown!",
             description=
-                f"Wait another `{retry_after}` and try again!\n[Premium supporters]"
+                f"Wait another `{retry_after}s` and try again!\n[Premium supporters]"
                 "(https://statalytics.net/premium) bypass this restriction.",
             color=config.embed_color("warning")
         )
@@ -96,7 +96,7 @@ class ProblemsEmbeds:
                 "An error occured while trying to complete your request.",
             description=
                 "There was an error processing your request. Please try again later.\n"
-                f"If the problem persists, please [get in touch]({support_url})"
+                f"If the problem persists, please [get in touch]({support_url})."
                 + f"\n```{error}```" if is_dev_mode else "",
             color=config.embed_color("danger")
         )
@@ -143,7 +143,7 @@ class ProblemsEmbeds:
                 "checked player's plan.\n"
                 "`-` You can view longer history if you or the checked player has a "
                 "premium plan.",
-            inline=True
+            inline=False
         )
         embed.add_field(
             name="Limits",
@@ -151,7 +151,7 @@ class ProblemsEmbeds:
                 "`-` Free tier maximum lookback - 30 days\n"
                 "`-` Basic tier maxmum lookback  - 60 days\n"
                 "`-` Pro tier maximum lookback - unlimited",
-            inline=True
+            inline=False
         )
         return embed
 

@@ -75,8 +75,8 @@ def update_command_stats(
     :param discord_id: The Discord ID of the user that ran the command.
     :param command: The ID of the command run by the user to be incremented.
     """
-    _update_usage(command, discord_id, cursor)
-    _update_usage(command, 0, cursor)  # Global commands
+    _update_usage(command, discord_id, cursor=cursor)
+    _update_usage(command, 0, cursor=cursor)  # Global commands
 
 
 @ensure_cursor

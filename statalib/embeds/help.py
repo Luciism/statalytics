@@ -210,13 +210,15 @@ class HelpEmbeds:
                 "Command execution by users triggers API calls that fetch player stats. This "
                 "data is reused to reset rotational stats, ensuring accuracy by only "
                 "triggering resets periodically. One drawback of this approach is that "
-                "resetting may not align to the beginning of days, weeks, months, etc."
+                "resetting may not align to the beginning of days, weeks, months, etc.",
+            inline=False
         )
         embed.add_field(
             name="Automatic Resetting",
             value=
                 "This method, now only available to [premium supporters](https://statalytics.net/"
                 "premium), automatically resets periodically at the beginning of every day, "
-                "week, month, etc. User configured reset times are also taken into account."
+                "week, month, etc. User configured reset times are also taken into account.",
+            inline=False
         )
         return embed

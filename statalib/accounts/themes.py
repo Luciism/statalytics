@@ -62,7 +62,7 @@ class AccountThemes:
 
     def _raise_if_unavailable(self, theme_name: str) -> None:
         if not theme_name in self.get_available_themes():
-            raise ThemeNotFoundError('The respective theme is not an available theme!')
+            raise ThemeNotFoundError(f'Theme `{theme_name}` is not an available theme!')
 
     @ensure_cursor
     def load(self, *, cursor: Cursor=None) -> ThemesData:

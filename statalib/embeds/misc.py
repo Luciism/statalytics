@@ -26,16 +26,23 @@ class MiscEmbeds:
             name="Community Manager",
             value="[caspuhh](https://github.com/casparml)",
             inline=True)
-        embed.add_field(name="", value="")  # Spacer
+        embed.add_field(name="", value="", inline=False)  # Spacer
         embed.add_field(
             name="Web Engineers",
             value="[caspuhh](https://github.com/casparml)\n[lukism](https://github.com/Luciism)",
             inline=True)
-        embed.add_field(name="", value="")  # Spacer
         embed.add_field(
-            name="API Engineers",
-            value="[caspuhh](https://github.com/casparml)\n[lukism](https://github.com/Luciism)",
+            name="Beta Testers",
+            value=
+                "[caspuhh](https://github.com/casparml)\n"
+                "[polsulpicien](https://discordapp.com/users/647487369246801921)",
             inline=True)
+        embed.add_field(
+            name="",
+            value=
+                "Github Contributers: [click here]"
+                "(https://github.com/Luciism/statalytics/graphs/contributors)",
+            inline=False)
         return embed
 
     @staticmethod
@@ -49,7 +56,7 @@ class MiscEmbeds:
         embed.add_field(
             name="Key Metrics",
             value=
-                f"> Uptime: `{info['uptime']}`\n> Ping: `{info['ping']}`\n> Commands: "
+                f"> Uptime: `{info['uptime']}`\n> Ping: `{info['ping']}ms`\n> Commands: "
                 f"`{info['commands']}`\n> Version: `{config('apps.bot.version')}`",
             inline=True
         )
@@ -81,9 +88,9 @@ class MiscEmbeds:
         embed.add_field(
             name="Links",
             value=
-                f"> [Invite]({info['invite_url']})\n> [Website](https://statalytics.net)\n"
+                f"> [Invite]({config('global.links.invite_url')})\n> [Website](https://statalytics.net)\n"
                 f"> [Support]({config('global.links.support_server')})\n"
-                "> [GitHub]({config('global.links.github')})",
+                f"> [GitHub]({config('global.links.github')})",
             inline=True
         )
         return embed
@@ -200,7 +207,7 @@ class MiscEmbeds:
                 f"Vote on [top.gg]({vote_links['top.gg']})\n"
                 f"Vote on [discordbotlist.com]({vote_links['discordbotlist.com']})\n"
                 f"Vote on [discords.com]({vote_links['discords.com']})",
-            inline=True
+            inline=False
         )
         embed.add_field(
             name="Rewards",
@@ -208,13 +215,13 @@ class MiscEmbeds:
                 "Theme packs for 24 hours.\n"
                 "Cooldowns reduced by 50% (1.75s)\n\n"
                 "*You can change your theme pack with `/settings`*",
-            inline=True
+            inline=False
         )
         embed.add_field(
             name="Your Voting History",
             value=
                 f"Last Vote: {last_vote}\n"
                 f"Total Votes: {total_votes}",
-            inline=True
+            inline=False
         )
         return embed

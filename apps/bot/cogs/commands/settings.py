@@ -32,9 +32,6 @@ class ActiveThemeSelect(discord.ui.Select):
         discord_id = interaction.user.id
         selection = self.values[0]
 
-        if selection == 'none':
-            selection = None
-
         Account(discord_id).themes.set_active_theme(selection)
         await interaction.followup.send('Theme updated successfully!', ephemeral=True)
 

@@ -43,8 +43,12 @@ class ManageSession(lib.shared_views.CustomBaseView):
         button.disabled = True
         await self.message.edit(view=self)
 
-        session_manager = lib.SessionManager(self.uuid)
-        session_manager.delete_session(self.session)
+        session_manager = lib.sessions.SessionManager(self.uuid)
+
+        try:
+            session_manager.delete_session(self.session)
+        except lib.errors.DataNotFoundError:
+            pass
 
         if self.action == "reset":
             hypixel_data = await lib.network.fetch_hypixel_data(self.uuid)
@@ -135,7 +139,7 @@ class Sessions(commands.Cog):
                 "Use `/session stats <player>` to create a session if none exists!")
             return
 
-        session_manager = lib.SessionManager(uuid)
+        session_manager = lib.sessions.SessionManager(uuid)
         active_sessions = session_manager.active_sessions()
         active_sessions_count = len(active_sessions)
 
@@ -178,7 +182,7 @@ class Sessions(commands.Cog):
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        session_manager = lib.SessionManager(uuid)
+        session_manager = lib.sessions.SessionManager(uuid)
         active_sessions = session_manager.active_sessions()
 
         if session in active_sessions:
@@ -239,7 +243,7 @@ class Sessions(commands.Cog):
                 "You don't have an account linked! In order to link use `/link`!")
             return
 
-        session_manager = lib.SessionManager(uuid)
+        session_manager = lib.sessions.SessionManager(uuid)
         active_sessions = session_manager.active_sessions()
 
         if active_sessions:
