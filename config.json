@@ -1,7 +1,7 @@
 {
   "apps": {
     "bot": {
-      "version": "1.18.2",
+      "version": "1.19.0",
       "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
       "embeds": {
         "primary_color": "5865F2",
@@ -72,7 +72,7 @@
       }
     },
     "utils": {
-      "version": "3.1.0",
+      "version": "3.2.0",
       "socket_server_port": 57621,
       "cogs": {
         "enabled": [
@@ -99,7 +99,7 @@
       }
     },
     "website": {
-      "version": "3.1.1"
+      "version": "3.2.0"
     }
   },
   "global": {
