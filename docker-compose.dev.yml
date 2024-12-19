@@ -1,0 +1,41 @@
+name: statalytics-dev
+
+services:
+  bot:
+    extends:
+      file: docker-compose.yml
+      service: bot
+    volumes:
+      - ./apps/bot/:/app/bot/
+    env_file:
+      - ./.env.dev
+
+  trackers:
+    extends:
+      file: docker-compose.yml
+      service: trackers
+    env_file:
+      - ./.env.dev
+
+  utils:
+    extends:
+      file: docker-compose.yml
+      service: utils
+    env_file:
+      - ./.env.dev
+
+  website:
+    extends:
+      file: docker-compose.yml
+      service: website
+    build:
+      target: dev
+    volumes:
+      - ./apps/website/:/app/website/
+    env_file:
+      - ./.env.dev
+
+
+volumes:
+  database:
+  logs:

@@ -36,6 +36,7 @@ services:
     build:
       context: ./
       dockerfile: ./apps/website/Dockerfile
+      target: runner
     env_file:
       - ./.env
     volumes:

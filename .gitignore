@@ -6,8 +6,8 @@
 **/logs/
 
 # Secrets
-**/.env
-**/.env.test
+**/.env*
+!.env.example
 apps/bot/tips.json
 
 # Private apps
