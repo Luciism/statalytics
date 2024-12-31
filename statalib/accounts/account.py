@@ -14,6 +14,25 @@ from .usage import AccountUsage
 from ..db import ensure_cursor
 
 
+@ensure_cursor
+def autocomplete_discord_ids(
+    query: str,
+    result_limit: int=10,
+    *, cursor: sqlite3.Cursor=None
+) -> list[int]:
+    """
+    Retrieve a list of Discord IDs that match the given query.
+
+    :param query: The query to search for Discord IDs.
+    :param result_limit: The maximum number of results to return.
+    :return list: A list of Discord IDs that match the query.
+    """
+    return cursor.execute(
+        'SELECT discord_id FROM accounts WHERE discord_id LIKE ? LIMIT ?',
+        (fr'%{query}%', result_limit)
+    ).fetchall()
+
+
 @dataclass
 class AccountData:
     """Account data dataclass."""
