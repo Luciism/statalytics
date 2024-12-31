@@ -2,7 +2,7 @@ import unittest
 
 from statalib.accounts import Account
 
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 class TestCreateAccount(unittest.TestCase):

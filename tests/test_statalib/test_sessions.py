@@ -4,7 +4,7 @@ import unittest
 from statalib import sessions
 
 import statalib
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 mock_hypixel_data_1 = {}

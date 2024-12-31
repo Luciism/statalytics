@@ -8,7 +8,7 @@ from statalib.accounts.subscriptions import (
     PackageTierConflictError
 )
 
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 def set_active_subscription(

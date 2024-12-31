@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 
 from statalib.accounts import AccountVoting, voting
 
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 class TestAddAndLoadVotes(unittest.TestCase):

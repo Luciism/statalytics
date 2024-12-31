@@ -6,7 +6,7 @@ from statalib.rotational_stats import (
     ResetTime,
     get_dynamic_reset_time
 )
-from utils import MockData, clean_database, link_mock_data
+from tests.utils import MockData, clean_database, link_mock_data
 
 
 class BaseTestResetTime:

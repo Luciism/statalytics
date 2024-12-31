@@ -3,7 +3,7 @@ import unittest
 from statalib import config
 from statalib.accounts import AccountPermissions, Account
 
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 def setup_config():
     config._load_config_data()

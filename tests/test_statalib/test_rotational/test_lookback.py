@@ -4,7 +4,7 @@ from statalib import config
 from statalib.rotational_stats import get_max_lookback
 
 from statalib.accounts.subscriptions import AccountSubscriptions
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 # Ensure subscription config is expected

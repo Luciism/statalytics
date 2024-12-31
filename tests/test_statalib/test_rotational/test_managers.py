@@ -8,7 +8,7 @@ from statalib.rotational_stats import (
     RotationalResetting
 )
 
-from utils import clean_database, MockData
+from tests.utils import clean_database, MockData
 
 
 mock_hypixel_data_1 = {}
