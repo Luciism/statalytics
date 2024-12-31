@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from statalib.common import REL_PATH
@@ -17,8 +18,8 @@ def run_test_suite(start_dir: str) -> int:
     return len(test_result.failures)
 
 failures += run_test_suite("tests/test_statalib")
-# failures += run_test_suite("tests/test_statalib/test_rotational")
-# failures += run_test_suite("tests/test_statalib/test_accounts")
+if os.path.exists("apps/website/tests"):
+    failures += run_test_suite("apps/website/tests/")
 
 if failures > 0:
     exit(1)
