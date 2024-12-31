@@ -17,7 +17,7 @@ class MiscEmbeds:
             description="Statalytics was made possible by the following:",
             color=config.embed_color("primary"),
         )
-        embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
+        embed.set_thumbnail(url="https://statalytics.net/image/branding/logo.png?v=2")
         embed.add_field(
             name="Lead Bot Developer",
             value="[lukism](https://github.com/Luciism)",
@@ -52,7 +52,7 @@ class MiscEmbeds:
             title="Statalytics Info",
             color=config.embed_color("primary"),
         )
-        embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
+        embed.set_thumbnail(url="https://statalytics.net/image/branding/logo.png?v=2")
         embed.add_field(
             name="Key Metrics",
             value=
@@ -199,7 +199,7 @@ class MiscEmbeds:
             description="Voting helps Statalytics grow by increasing public exposure.",
             color=config.embed_color("primary")
         )
-        embed.set_thumbnail(url="https://statalytics.net/image/logo.png?v=2")
+        embed.set_thumbnail(url="https://statalytics.net/image/branding/logo.png?v=2")
         vote_links = config('global.links.voting')
         embed.add_field(
             name="Links",
