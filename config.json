@@ -213,7 +213,8 @@
         "view_rawdata",
         "change_presence",
         "automatic_tracker_reset",
-        "set_reminders"
+        "set_reminders",
+        "admin_dashboard"
       ]
     },
     "voting": {

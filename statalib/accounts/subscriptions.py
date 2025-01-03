@@ -25,6 +25,8 @@ class Subscription:
     expiry_timestamp: float | int | None
     """The expiry timestamp of the subscription,
     or `None` if the subscription is permanent"""
+    id: int | None=None
+    """The ID of the subscription if it is paused."""
 
 
     def expires_in(self) -> float | None:
@@ -131,6 +133,67 @@ class Subscription:
         :return: The property value, or the default value if no value is found.
         """
         return self.get_package_property(self.package, property, default)
+
+
+class _SubUtils:
+    @staticmethod
+    def subscription_obj_from_row(row: tuple) -> Subscription:
+        if row:
+            return Subscription(*row)
+        return None
+
+    @staticmethod
+    def weight_subscription(subscription: Subscription) -> int:
+        weight = subscription.tier
+
+        # Subscription is a lifetime subscription
+        if subscription.expiry_timestamp is None:
+            # Bump the subscription above subscriptions of the same tier but not higher tiers.
+            weight += 0.5
+
+        return weight
+
+    @staticmethod
+    def extract_active_subscription_from_all_subscriptions(
+        all_subscriptions: list[Subscription]
+    ) -> tuple[Subscription, list[Subscription]]:
+        if not all_subscriptions:
+            return None, []
+
+        # Weight all the subscriptions
+        weighted_subscriptions = [
+            (_SubUtils.weight_subscription(sub), sub)
+            for sub in all_subscriptions
+        ]
+
+        # Find the greatest weight and the subscriptions with the same greatest weight
+        greatest_weight = max([w[0] for w in weighted_subscriptions])
+        subscriptions_with_greatest_weight = [
+            w[1] for w in weighted_subscriptions if w[0] == greatest_weight
+        ]
+
+        # Combine subscriptions with the same greatest weight into one
+        if len(subscriptions_with_greatest_weight) > 1:
+            # Combine all durations together
+            subscription_duration = sum([
+                sub.expires_in() for sub in subscriptions_with_greatest_weight])
+
+            # Create a new subscription with the combined duration
+            new_active_subscription = Subscription(
+                subscriptions_with_greatest_weight[0].package,
+                datetime.now(UTC).timestamp() + subscription_duration
+            )
+        else:
+            # Probably has an infinite duration
+            new_active_subscription = subscriptions_with_greatest_weight[0]
+
+        # Make the paused subscriptions list exclude the subscriptions that were made active.
+        paused_subscriptions = [
+            subscription for subscription in all_subscriptions
+            if subscription not in subscriptions_with_greatest_weight
+        ]
+
+        return new_active_subscription, paused_subscriptions
 
 
 class AccountSubscriptions:
@@ -399,6 +462,54 @@ class AccountSubscriptions:
             )
 
         self._add_paused_subscription(package, duration, cursor=cursor)
+
+
+    @ensure_cursor
+    def determine_subscription_updates(
+        self,
+        added_subscription: Subscription,
+        *, cursor: Cursor=None
+    ) -> tuple[Subscription, list[Subscription]]:
+        # Select all existing subscription data.
+        active_subscription_row = cursor.execute(
+            "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
+            (self._discord_id,)).fetchone()
+        active_subscription = _SubUtils.subscription_obj_from_row(active_subscription_row)
+
+        paused_subscription_rows = cursor.execute(
+            "SELECT package, duration_remaining, id FROM subscriptions_paused "
+            "WHERE discord_id = ?", (self._discord_id,)).fetchall()
+        all_subscriptions = [
+            _SubUtils.subscription_obj_from_row(row)
+            for row in paused_subscription_rows
+        ]
+
+        # Include the active subscription if it hasn't expired
+        if active_subscription is not None:
+            expires_in = active_subscription.expires_in()
+            if not expires_in or expires_in > 0:
+                all_subscriptions.append(active_subscription)
+
+        # Ensure added subscription doesn't conflict with existing subscriptions
+        existing_lifetime_subscriptions = [
+            sub for sub in all_subscriptions if sub.expiry_timestamp is None
+        ]
+
+        # Raise error if there is an existing lifetime package with the same or higher tier.
+        # Adding another package would be entirely pointless in this case.
+        for subscription in existing_lifetime_subscriptions:
+            if subscription.tier >= added_subscription.tier:
+                raise PackageTierConflictError(
+                    "There is an existing lifetime subscription "
+                    "that conflicts with the added subscription.")
+
+        # Include the added subscription
+        all_subscriptions.append(added_subscription)
+
+        active_subscription, paused_subscriptions = _SubUtils \
+            .extract_active_subscription_from_all_subscriptions(all_subscriptions)
+
+        return active_subscription, paused_subscriptions
 
 
     @ensure_cursor
