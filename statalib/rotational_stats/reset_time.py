@@ -24,6 +24,13 @@ class ResetTime:
         """A tuple of [utc_offset, reset_hour, reset_minute]"""
         return (self.utc_offset, self.reset_hour, self.reset_minute)
 
+    def as_dict(self) -> dict:
+        return {
+            "utc_offset": self.utc_offset,
+            "reset_hour": self.reset_hour,
+            "reset_minute": self.reset_minute
+        }
+
 
 class _ResetTimeManagerBase(ABC):
     """Base class for reset time managers."""

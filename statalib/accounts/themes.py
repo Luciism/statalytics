@@ -8,12 +8,12 @@ from ..cfg import config
 from ..db import ensure_cursor, Cursor
 
 
-def get_voter_themes() -> list:
+def get_voter_themes() -> list[str]:
     """Return a list of available voter themes from the config file."""
     themes: dict = config('global.theme_packs.voter_themes')
     return list(themes.keys())
 
-def get_exclusive_themes() -> list:
+def get_exclusive_themes() -> list[str]:
     """Return a list of available exclusive themes from the config file."""
     themes: dict = config('global.theme_packs.exclusive_themes')
     return list(themes.keys())

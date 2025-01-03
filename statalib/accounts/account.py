@@ -64,6 +64,16 @@ class AccountData:
         creation_dt = datetime.fromtimestamp(self.creation_timestamp, UTC)
         return creation_dt.strftime('%d/%m/%Y')
 
+    def as_dict(self) -> dict:
+        return {
+            'account_id': self.account_id,
+            'discord_id': self.discord_id,
+            'creation_timestamp': self.creation_timestamp,
+            'formatted_creation_date': self.formatted_creation_date,
+            'permissions': self.permissions,
+            'blacklisted': self.blacklisted
+        }
+
 
 class Account:
     """Represent a user's account."""
@@ -150,7 +160,9 @@ class Account:
     @ensure_cursor
     def update(
         self,
-        blacklisted: bool,
+        blacklisted: bool | None=None,
+        creation_timestamp: float | None=None,
+        account_id: int | None=None,
         create: bool=True,
         *, cursor: sqlite3.Cursor=None
     ) -> None:
@@ -160,16 +172,30 @@ class Account:
         :param blacklisted: Whether the account should be blacklisted.
         :param create: Whether to create the account if it doesn't exist.
         """
-        account_data = self.load(cursor=cursor)
+        account_data = self.load(cursor=cursor, create=False)
 
         if not account_data:
             if create:
-                self.create(blacklisted=blacklisted, cursor=cursor)
+                self.create(
+                    creation_timestamp=creation_timestamp,
+                    account_id=account_id,
+                    blacklisted=blacklisted,
+                    cursor=cursor)
             return
 
+        update_data = {}
+
+        if blacklisted:
+            update_data['blacklisted'] = blacklisted
+        if creation_timestamp:
+            update_data['creation_timestamp'] = creation_timestamp
+        if account_id:
+            update_data['account_id'] = account_id
+
+        set_statement = ', '.join([f'{key} = ?' for key in update_data])
         cursor.execute(
-            'UPDATE accounts SET blacklisted = ? WHERE discord_id = ?',
-            (int(blacklisted), self._discord_user_id,))
+            f'UPDATE accounts SET {set_statement} WHERE discord_id = ?',
+            (*update_data.values(), self._discord_user_id,))
 
         self.__exists = True
 

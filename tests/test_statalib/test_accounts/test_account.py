@@ -65,17 +65,30 @@ class TestUpdateAccount(unittest.TestCase):
     def test_update_created_account(self):
         a = Account(MockData.discord_id)
         a.create()
-        a.update(blacklisted=True, create=False)
+        a.update(
+            blacklisted=True,
+            creation_timestamp=123.0,
+            account_id=1,
+            create=False)
         account_data = a.load(create=False)
 
         self.assertTrue(account_data.blacklisted)
+        self.assertEqual(account_data.creation_timestamp, 123.0)
+        self.assertEqual(account_data.account_id, 1)
 
     def test_update_and_create_uncreated_account(self):
         a = Account(MockData.discord_id)
-        a.update(blacklisted=True, create=True)
+        a.update(
+            blacklisted=True,
+            creation_timestamp=123.0,
+            account_id=1,
+            create=True)
         account_data = a.load(create=False)
 
         self.assertTrue(account_data.blacklisted)
+        self.assertEqual(account_data.creation_timestamp, 123.0)
+        self.assertEqual(account_data.account_id, 1)
+
 
 
 class TestDeleteAccount(unittest.TestCase):
