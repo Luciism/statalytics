@@ -134,6 +134,13 @@ class Subscription:
         """
         return self.get_package_property(self.package, property, default)
 
+    @staticmethod
+    def default() -> 'Subscription':
+        return Subscription(config("global.subscriptions.default_package"), None)
+
+    @staticmethod
+    def create_timestamp(add: float | int) -> float:
+        return datetime.now(UTC).timestamp() + add
 
 class _SubUtils:
     @staticmethod
@@ -229,82 +236,6 @@ class AccountSubscriptions:
             return  # Utils bot is probably offline
 
 
-    def __set_active_subscription(
-        self,
-        subscription: Subscription,
-        cursor: Cursor
-    ) -> None:
-        cursor.execute(
-            "SELECT * FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
-
-        if cursor.fetchone():
-            query = ("UPDATE subscriptions_active SET package = ?, "
-                "expires = ? WHERE discord_id = ?")
-        else:
-            query = ("INSERT INTO subscriptions_active "
-                "(package, expires, discord_id) VALUES (?, ?, ?)")
-
-        # Set active subscription to provided subscription
-        cursor.execute(
-            query,
-            (subscription.package, subscription.expiry_timestamp, self._discord_id)
-        )
-
-
-    def __update_active_subscription(
-        self,
-        cursor: Cursor
-    ) -> Subscription:
-        """
-        Update the active subscription based on the paused subscriptions.
-        :param cursor: A database cursor to operate on.
-        :return: The updated active subscription of the user.
-        """
-        # Select all paused package data
-        cursor.execute(
-            "SELECT package, duration_remaining, id FROM subscriptions_paused "
-            "WHERE discord_id = ?", (self._discord_id,)
-        )
-        paused_subscriptions = cursor.fetchall()
-
-        # User has no paused subscriptions
-        if not paused_subscriptions:
-            # Return the default subscription as well as a filler callable
-            # because no further action is required.
-            return Subscription(config("global.subscriptions.default_package"), None)
-
-        # Get package with highest tier property
-        highest_tier_package = paused_subscriptions[0]
-
-        for sub in paused_subscriptions[1:]:
-            if (
-                config(f"global.subscriptions.packages.{sub[0]}.tier")
-                > config(f"global.subscriptions.packages.{highest_tier_package[0]}.tier")
-            ):
-                highest_tier_package = sub
-
-        # Create subscription object from highest tier paused package
-        if highest_tier_package[1] is not None:  # Package duration is not permanent
-            expiry_timestamp = datetime.now(UTC).timestamp() + highest_tier_package[1]
-        else:
-            expiry_timestamp = None
-
-        subscription = Subscription(
-            package=highest_tier_package[0], expiry_timestamp=expiry_timestamp
-        )
-
-        # Insert or update new active subscription data
-        self.__set_active_subscription(subscription, cursor)
-
-        # Remove paused subscription
-        cursor.execute(
-            "DELETE FROM subscriptions_paused WHERE discord_id = ? AND id = ?",
-            (self._discord_id, highest_tier_package[2])
-        )
-
-        return subscription
-
-
     @ensure_cursor
     def get_subscription(
         self,
@@ -326,60 +257,32 @@ class AccountSubscriptions:
         active_subscription = cursor.fetchone()
 
         if active_subscription is None:
-            return Subscription(config("global.subscriptions.default_package"), None)
+            return Subscription.default()
+
+        active_subscription = Subscription(*active_subscription)
 
         # Check if subscription has expired (and isn't lifetime)
-        if active_subscription[1] and \
-            active_subscription[1] < datetime.now(UTC).timestamp():
+        if (
+            active_subscription.expiry_timestamp and
+            active_subscription.expiry_timestamp < datetime.now(UTC).timestamp()
+        ):
             # Update subscription data
-            subscription = self.__update_active_subscription(cursor)
-        else:
-            subscription = Subscription(
-                package=active_subscription[0],
-                expiry_timestamp=active_subscription[1]
-            )
+            active_subscription, paused_subscriptions = self.determine_subscription_updates()
+            self._set_subscriptions(active_subscription, paused_subscriptions)
+
+            if active_subscription is None:
+                return Subscription.default()
 
         # Update user roles
         if update_roles:
-            self.__update_user_roles(subscription)
-        return subscription
-
-
-    @ensure_cursor
-    def _get_paused_subscriptions(
-        self,
-        package: str | None=None,
-        *, cursor: Cursor=None
-    ) -> list[tuple]:
-        query = ("SELECT package, duration_remaining "
-            "FROM subscriptions_paused WHERE discord_id = ?")
-
-        if package is None:
-            cursor.execute(query, (self._discord_id,))
-            return cursor.fetchall()
-
-        query += " AND package = ?"
-        cursor.execute(query, (self._discord_id, package))
-        return cursor.fetchall()
-
-
-    @ensure_cursor
-    def _add_paused_subscription(
-        self,
-        package: str,
-        duration_remaining: float | None,
-        *, cursor: Cursor=None
-    ) -> None:
-        cursor.execute(
-            "INSERT INTO subscriptions_paused (discord_id, package, duration_remaining) "
-            "VALUES (?, ?, ?)", (self._discord_id, package, duration_remaining)
-        )
+            self.__update_user_roles(active_subscription)
+        return active_subscription
 
 
     @ensure_cursor
     def has_package_conflicts(
         self,
-        package: str,
+        new_subscription: Subscription,
         *, cursor: Cursor=None
     ) -> bool:
         """
@@ -389,87 +292,20 @@ class AccountSubscriptions:
         :param package: The package to check for conflicts against.
         :return bool: Whether (or not) there are conflicts.
         """
-        package_tier = Subscription.get_package_tier(package)
-        subscription = self.get_subscription(cursor=cursor)
-
-        # Active subscription package is permanent
-        if subscription.expiry_timestamp is None:
-            # Package tier is not a higher tier than active subscription package
-            if package_tier <= subscription.tier:
-                return True
-        return False
-
-
-    def __add_subscription_existing_subscription(
-        self,
-        cursor: Cursor,
-        existing_subscription: Subscription,
-        package: str,
-        duration: float
-    ) -> None:
-        # New subscription is same tier as existing one
-        if package == existing_subscription.package:
-            # Check if existing subscription is a lifetime subscription
-            if existing_subscription.expiry_timestamp is None:
-                raise PackageTierConflictError(
-                    "The package you are trying to add is the same tier as the currently "
-                    "active subscription package. Because the currently active subscription "
-                    "package has an infinite duration, it cannot be extended."
-                )
-
-            if duration is None:
-                # Subscription being added is a lifetime subscription
-                expires = None
-
-                # Pause active subscription (preserve it)
-                self._add_paused_subscription(
-                    existing_subscription.package,
-                    existing_subscription.expires_in(),
-                    cursor=cursor)
-            else:
-                if existing_subscription.expires_in() > 0:
-                    # Extend existing subscription because it is still running
-                    expires = existing_subscription.expiry_timestamp + duration
-                else:
-                    # Set expiry to now + duration because existing subscription has expired
-                    expires = datetime.now(UTC).timestamp() + duration
-
-            cursor.execute(
-                "UPDATE subscriptions_active SET expires = ? WHERE discord_id = ?",
-                (expires, self._discord_id)
-            )
-            return
-
-        # New subscription is higher tier than existing one
-        if Subscription.get_package_tier(package) > existing_subscription.tier:
-            # Pause active subscription and activate new subscription
-            self._add_paused_subscription(
-                existing_subscription.package, existing_subscription.expires_in(), cursor=cursor)
-
-            new_subscription = Subscription(
-                package, datetime.now(UTC).timestamp() + duration)
-            self.__set_active_subscription(new_subscription, cursor)
-            return
-
-        # New subscription is lower tier than existing one
-        # Check if existing package is a lifetime subscription
-        if existing_subscription.expiry_timestamp is None:
-            raise PackageTierConflictError(
-                "The package you are attempting to add is a lower tier than "
-                "the currently active subscription package. Because the currently "
-                "active subscription package has an infinite duration, the "
-                "package you are attempting to add can never be activated."
-            )
-
-        self._add_paused_subscription(package, duration, cursor=cursor)
+        try:
+            self.determine_subscription_updates(
+                added_subscription=new_subscription, cursor=cursor)
+            return False
+        except PackageTierConflictError:
+            return True
 
 
     @ensure_cursor
     def determine_subscription_updates(
         self,
-        added_subscription: Subscription,
+        added_subscription: Subscription | None=None,
         *, cursor: Cursor=None
-    ) -> tuple[Subscription, list[Subscription]]:
+    ) -> tuple[Subscription | None, list[Subscription]]:
         # Select all existing subscription data.
         active_subscription_row = cursor.execute(
             "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
@@ -495,21 +331,50 @@ class AccountSubscriptions:
             sub for sub in all_subscriptions if sub.expiry_timestamp is None
         ]
 
-        # Raise error if there is an existing lifetime package with the same or higher tier.
-        # Adding another package would be entirely pointless in this case.
-        for subscription in existing_lifetime_subscriptions:
-            if subscription.tier >= added_subscription.tier:
-                raise PackageTierConflictError(
-                    "There is an existing lifetime subscription "
-                    "that conflicts with the added subscription.")
+        if added_subscription is not None:
+            # Raise error if there is an existing lifetime package with the same or higher tier.
+            # Adding another package would be entirely pointless in this case.
+            for subscription in existing_lifetime_subscriptions:
+                if subscription.tier >= added_subscription.tier:
+                    raise PackageTierConflictError(
+                        "There is an existing lifetime subscription "
+                        "that conflicts with the added subscription.")
 
-        # Include the added subscription
-        all_subscriptions.append(added_subscription)
+            # Include the added subscription
+            all_subscriptions.append(added_subscription)
 
         active_subscription, paused_subscriptions = _SubUtils \
             .extract_active_subscription_from_all_subscriptions(all_subscriptions)
 
         return active_subscription, paused_subscriptions
+
+
+    @ensure_cursor
+    def _set_subscriptions(
+        self,
+        active_subscription: Subscription | None,
+        paused_subscriptions: list[Subscription],
+        *, cursor: Cursor=None
+    ) -> None:
+        # Remove old subscription data
+        cursor.execute(
+            "DELETE FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
+        cursor.execute(
+            "DELETE FROM subscriptions_paused WHERE discord_id = ?", (self._discord_id,))
+
+        # Add new subscription data
+        if active_subscription is not None:
+            cursor.execute(
+                "INSERT INTO subscriptions_active (discord_id, package, expires) "
+                "VALUES (?, ?, ?)", (self._discord_id, active_subscription.package,
+                active_subscription.expiry_timestamp))
+
+        for paused_sub in paused_subscriptions:
+            cursor.execute(
+                "INSERT INTO subscriptions_paused (discord_id, package, duration_remaining) "
+                "VALUES (?, ?, ?)", (self._discord_id, paused_sub.package,
+                paused_sub.expires_in())
+            )
 
 
     @ensure_cursor
@@ -529,40 +394,18 @@ class AccountSubscriptions:
         :param update_roles: Whether or not to update the user's subscription \
             Discord roles if their subscription state is updated.
         """
-        # Ensure active subscription is accurate
-        active_subscription = self.get_subscription(
-            update_roles=False, cursor=cursor)
-
-        # User has no active subscription.
-        # Simply add the subscription to the user's account
-        if (
-            active_subscription.package == config("global.subscriptions.default_package")
-        ):
-            # There may be an expired subscription in the active subscriptions table
-            cursor.execute(
-                "DELETE FROM subscriptions_active WHERE discord_id = ?",
-                (self._discord_id,))
-
-            # Insert new subscription
-            if duration is not None:
-                expires = datetime.now(UTC).timestamp() + duration
-            else:
-                expires = None
-
-            cursor.execute(
-                "INSERT INTO subscriptions_active (discord_id, package, expires) "
-                "VALUES (?, ?, ?)", (self._discord_id, package, expires)
-            )
-
-            new_subscription = Subscription(package, expires)
-
+        if duration is not None:
+            expiry_timestamp = datetime.now(UTC).timestamp() + duration
         else:
-            self.__add_subscription_existing_subscription(
-                cursor, active_subscription, package, duration
-            )
+            expiry_timestamp = None
+
+        # Determine new subscription data
+        active_subscription, paused_subscriptions = self.determine_subscription_updates(
+            Subscription(package, expiry_timestamp), cursor=cursor
+        )
+
+        self._set_subscriptions(
+            active_subscription, paused_subscriptions, cursor=cursor)
 
         if update_roles:
-            new_subscription = self.get_subscription(
-                update_roles=False, cursor=cursor)
-
-            self.__update_user_roles(new_subscription)
+            self.__update_user_roles(active_subscription)
