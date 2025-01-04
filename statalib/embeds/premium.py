@@ -34,8 +34,8 @@ class PremiumEmbeds:
             value=
                 "- Auto Rotational Resets - rotational stats automatically rollover "
                 "daily/weekly/etc.\n- Yearly Stats - view your own or another player's "
-                "yearly rotational stats.\n- 2026 Stats - predict your own or another "
-                "player's stats for the year 2026.\n- Infinite Historical Lookback - view "
+                "yearly rotational stats.\n- 2027 Stats - predict your own or another "
+                "player's stats for the year 2027.\n- Infinite Historical Lookback - view "
                 "historical rotational stats with no limits.\n- Up to 5 Active Sessions - "
                 "activate up to 5 sessions at one time.",
             inline=False
@@ -64,7 +64,7 @@ class PremiumEmbeds:
             name="Past, present, and future stats",
             value=
                 "- Yearly Stats - view your own or another player's yearly rotational stats.\n"
-                "- 2026 Stats - predict your own or another player's stats for the year 2026."
+                "- 2027 Stats - predict your own or another player's stats for the year 2027."
                 "\n- 60 Day Historical Lookback - view historical rotational stats with a 60 "
                 "day limit.\n- Up to 3 Active Sessions - activate up to 3 sessions at one "
                 "time.",
@@ -94,7 +94,7 @@ class PremiumEmbeds:
                 " - Username autofill\n"
                 " - Yearly stat history\n"
                 " - Beta testing access\n"
-                " - 2026 stat projection\n"
+                " - 2027 stat projection\n"
                 " - Infinite lookback\n"
                 " - Unlock all themes",
             color=16741370,  # Booster color (bright pink)

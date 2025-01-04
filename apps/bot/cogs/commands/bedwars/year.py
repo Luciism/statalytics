@@ -64,24 +64,6 @@ class Year(commands.Cog):
 
 
     @year_group.command(
-        name="2025",
-        description="View the a players projected stats for 2025")
-    @app_commands.describe(
-        player='The player you want to view',
-        session='The session you want to use')
-    @app_commands.autocomplete(
-        player=helper.username_autocompletion,
-        session=helper.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def year_2025(
-        self, interaction: discord.Interaction, player: str=None, session: int=None
-    ) -> None:
-        await interaction.response.defer()
-        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
-        await self.year_command(interaction, name, uuid, session, 2025)
-
-
-    @year_group.command(
         name="2026",
         description="View the a players projected stats for 2026")
     @app_commands.describe(
@@ -96,19 +78,37 @@ class Year(commands.Cog):
     ) -> None:
         await interaction.response.defer()
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
+        await self.year_command(interaction, name, uuid, session, 2026)
+
+
+    @year_group.command(
+        name="2027",
+        description="View the a players projected stats for 2027")
+    @app_commands.describe(
+        player='The player you want to view',
+        session='The session you want to use')
+    @app_commands.autocomplete(
+        player=helper.username_autocompletion,
+        session=helper.session_autocompletion)
+    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    async def year_2027(
+        self, interaction: discord.Interaction, player: str=None, session: int=None
+    ) -> None:
+        await interaction.response.defer()
+        name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
         discord_id = lib.accounts.uuid_to_discord_id(uuid)
 
         # Either command user or checked player has access
-        condition_1 = Account(discord_id).permissions.has_access('year_2026')
-        condition_2 = Account(interaction.user.id).permissions.has_access('year_2026')
+        condition_1 = Account(discord_id).permissions.has_access('year_2027')
+        condition_2 = Account(interaction.user.id).permissions.has_access('year_2027')
 
         if not condition_1 and not condition_2:
-            embed = lib.Embeds.problems.no_premium_2026()
+            embed = lib.Embeds.problems.no_premium_2027()
             await interaction.followup.send(embed=embed)
             return
 
-        await self.year_command(interaction, name, uuid, session, 2026)
+        await self.year_command(interaction, name, uuid, session, 2027)
 
 
 async def setup(client: commands.Bot) -> None:

@@ -10,20 +10,20 @@ from ..cfg import config
 class ProblemsEmbeds:
     """Problem info embeds."""
     @staticmethod
-    def no_premium_2026() -> Embed:
-        """User has no access to 2026 command."""
+    def no_premium_2027() -> Embed:
+        """User has no access to 2027 command."""
         embed = Embed(
             title="That player doesn't have premium!",
             description=
-                "In order to view stats for 2026, a [premium plan]"
+                "In order to view stats for 2027, a [premium plan]"
                 "(https://statalytics.net/premium) is required!",
             color=config.embed_color("warning"),
         )
         embed.add_field(
             name="How does it work?",
             value=
-                "`-` You can view any player's stats for 2026 if you have a premium plan.\n"
-                "`-` You can view a player's stats for 2026 if they have a premium plan.",
+                "`-` You can view any player's stats for 2027 if you have a premium plan.\n"
+                "`-` You can view a player's stats for 2027 if they have a premium plan.",
             inline=True
         )
         return embed

@@ -154,7 +154,7 @@
             "automatic_tracker_reset",
             "custom_backgrounds",
             "voter_themes",
-            "year_2026",
+            "year_2027",
             "autofill",
             "cooldown_bypass",
             "no_tips"
@@ -173,7 +173,7 @@
           "role_id": 1083186443523985448,
           "permissions": [
             "voter_themes",
-            "year_2026",
+            "year_2027",
             "autofill",
             "cooldown_bypass",
             "no_tips"
@@ -212,9 +212,16 @@
         "view_command_usage",
         "view_rawdata",
         "change_presence",
-        "automatic_tracker_reset",
         "set_reminders",
-        "admin_dashboard"
+
+        "automatic_tracker_reset",
+        "admin_dashboard",
+        "custom_backgrounds",
+        "voter_themes",
+        "year_2027",
+        "autofill",
+        "cooldown_bypass",
+        "no_tips"
       ]
     },
     "voting": {

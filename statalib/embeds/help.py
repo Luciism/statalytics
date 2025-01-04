@@ -69,16 +69,16 @@ class HelpEmbeds:
                 "forecasting, so a long session is recommended for precise results.\n- You "
                 "can specify a session for projections otherwise it will be dynamically "
                 "determined.\n- The `/prestige` command gives a detailed breakdown of "
-                "expected stats and dates.\n- The `/year 2025` command predicts your stats "
-                "for the year 2025, giving a quick overview of your future performance in "
+                "expected stats and dates.\n- The `/year 2026` command predicts your stats "
+                "for the year 2026, giving a quick overview of your future performance in "
                 "that year.",
             color=config.embed_color("primary")
         )
         embed.add_field(
             name="**Commands:**",
             value=
-            "`/prestige [<prestige>] [<player>] [<session>]`\n`/year 2025 "
-            "[<player>] [<session>]`\n`/year 2026 [<player>] [<session>]`"
+            "`/prestige [<prestige>] [<player>] [<session>]`\n`/year 2026 "
+            "[<player>] [<session>]`\n`/year 2027 [<player>] [<session>]`"
         )
         return embed
 
@@ -120,7 +120,7 @@ class HelpEmbeds:
             title="Session Info Page",
             description=
                 "- Sessions are used to track stats that can be factored into calculations "
-                "for commands like `/prestige`, `/milestones`, and `/year 2025`.\n- If a "
+                "for commands like `/prestige`, `/milestones`, and `/year 2026.\n- If a "
                 "session is not specified in a session based command, the default session "
                 "is the one with the lowest ID.\n- A new session will be automatically "
                 "created for a player when they link to another player, if they do not have "
