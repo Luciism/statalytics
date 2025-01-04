@@ -54,24 +54,6 @@ def add_paused_subscription(
         "VALUES (?, ?, ?)", (s._discord_id, package, duration_remaining)
     )
 
-@statalib.db.ensure_cursor
-def get_paused_subscriptions(
-    s: AccountSubscriptions,
-    package: str | None=None,
-    *, cursor: statalib.db.Cursor=None
-) -> list[tuple]:
-    query = (
-        "SELECT package, duration_remaining "
-        "FROM subscriptions_paused WHERE discord_id = ?")
-
-    if package is None:
-        cursor.execute(query, (s._discord_id,))
-        return cursor.fetchall()
-
-    query += " AND package = ?"
-    cursor.execute(query, (s._discord_id, package))
-    return cursor.fetchall()
-
 
 def now_plus(x: int) -> int:
     return int(datetime.now(UTC).timestamp() + x)
@@ -134,7 +116,7 @@ class TestAddSubscription(unittest.TestCase):
         s.add_subscription("pro", 5000, update_roles=False)
 
         assert s.get_subscription(False).package == "pro"
-        assert len(get_paused_subscriptions(s, "basic")) == 1
+        assert len(s.get_paused_subscriptions("basic")) == 1
 
     def test_add_subscription_higher_tier_existing(self):
         s = AccountSubscriptions(MockData.discord_id)
@@ -143,7 +125,7 @@ class TestAddSubscription(unittest.TestCase):
         s.add_subscription("basic", 5000, update_roles=False)
 
         assert s.get_subscription(False).package == "pro"
-        assert len(get_paused_subscriptions(s, "basic")) == 1
+        assert len(s.get_paused_subscriptions("basic")) == 1
 
     def test_add_subscription_same_tier_existing_not_expired(self):
         s = AccountSubscriptions(MockData.discord_id)
@@ -152,7 +134,7 @@ class TestAddSubscription(unittest.TestCase):
         s.add_subscription("pro", 5000, update_roles=False)
 
         assert s.get_subscription(False).expires_in() > 5000
-        assert len(get_paused_subscriptions(s, "pro")) == 0
+        assert len(s.get_paused_subscriptions("pro")) == 0
 
 
     def test_add_subscription_same_tier_existing_expired(self):
@@ -162,7 +144,7 @@ class TestAddSubscription(unittest.TestCase):
         s.add_subscription("pro", 5000, update_roles=False)
 
         assert s.get_subscription(False).expires_in() > 0
-        assert len(get_paused_subscriptions(s, "pro")) == 0
+        assert len(s.get_paused_subscriptions("pro")) == 0
 
 
     def test_add_subscription_higher_tier_existing_lifetime(self):
@@ -178,7 +160,7 @@ class TestAddSubscription(unittest.TestCase):
         assert isinstance(sub.expires_in(), (float, int))
 
         # Permanent subscription gets paused
-        assert len(get_paused_subscriptions(s, "basic")) == 1
+        assert len(s.get_paused_subscriptions("basic")) == 1
 
 
     def test_add_subscription_same_tier_existing_lifetime(self):
@@ -216,7 +198,7 @@ class TestAddSubscription(unittest.TestCase):
 
         assert s.get_subscription(False).package == "pro"
         assert s.get_subscription(False).expiry_timestamp == None
-        assert len(get_paused_subscriptions(s, "pro")) == 1  # Original was paused
+        assert len(s.get_paused_subscriptions("pro")) == 1  # Original was paused
 
 
 class TestDetermineSubscriptionUpdates(unittest.TestCase):
@@ -227,7 +209,7 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
         s = AccountSubscriptions(MockData.discord_id)
 
         new_sub = Subscription("pro", ts_plus(3600))
-        updates = s.determine_subscription_updates(new_sub)
+        updates = s.determine_user_subscription_updates(new_sub)
 
         self.assertEqual(updates[0], new_sub)
         self.assertListEqual(updates[1], [])
@@ -237,7 +219,7 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
         s.add_subscription("basic", 3600)
 
         new_sub = Subscription("pro", ts_plus(3600))
-        updates = s.determine_subscription_updates(new_sub)
+        updates = s.determine_user_subscription_updates(new_sub)
 
         self.assertEqual(updates[0], new_sub)
         self.assertEqual(len(updates[1]), 1)
@@ -248,7 +230,7 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
         s.add_subscription("pro", 3600)
 
         new_sub = Subscription("basic", ts_plus(3600))
-        updates = s.determine_subscription_updates(new_sub)
+        updates = s.determine_user_subscription_updates(new_sub)
 
         self.assertEqual(updates[0].package, "pro")
         self.assertEqual(len(updates[1]), 1)
@@ -260,7 +242,7 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
         s.add_subscription("pro", 3600)
 
         new_sub = Subscription("pro", ts_plus(3600))
-        updates = s.determine_subscription_updates(new_sub)
+        updates = s.determine_user_subscription_updates(new_sub)
 
         self.assertEqual(updates[0].package, "pro")
         self.assertGreater(updates[0].expiry_timestamp, 3600)  # Durations were added
@@ -271,7 +253,7 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
         s.add_subscription("pro", 3600)
 
         new_sub = Subscription("pro", None)
-        updates = s.determine_subscription_updates(new_sub)
+        updates = s.determine_user_subscription_updates(new_sub)
 
         self.assertEqual(updates[0], new_sub)
         self.assertEqual(updates[1][0].package, "pro")
@@ -284,16 +266,26 @@ class TestDetermineSubscriptionUpdates(unittest.TestCase):
 
         new_sub = Subscription("pro", 3600)
         with self.assertRaises(PackageTierConflictError):
-            s.determine_subscription_updates(new_sub)
+            s.determine_user_subscription_updates(new_sub)
 
     def test_add_no_subscription_no_subscriptions(self):
         s = AccountSubscriptions(MockData.discord_id)
 
-        updates = s.determine_subscription_updates()
+        updates = s.determine_user_subscription_updates()
 
         self.assertIsNone(updates[0])
         self.assertListEqual(updates[1], [])
 
+    def test_add_subscription_paused_subscription_same_tier(self):
+        s = AccountSubscriptions(MockData.discord_id)
+        add_paused_subscription(s, "pro", 3600)
+
+        new_sub = Subscription("pro", ts_plus(3600))
+        updates = s.determine_user_subscription_updates(new_sub)
+
+        self.assertEqual(updates[0].package, "pro")
+        self.assertGreater(updates[0].expires_in(), 3600)
+        self.assertEqual(len(updates[1]), 0)
 
 class TestHasPackageConflicts(unittest.TestCase):
     def setUp(self) -> None:

@@ -28,6 +28,13 @@ class Subscription:
     id: int | None=None
     """The ID of the subscription if it is paused."""
 
+    def as_dict(self) -> dict:
+        return {
+            "package": self.package,
+            "expiry_timestamp": self.expiry_timestamp,
+            "duration_remaining": self.expires_in(),
+            "id": self.id
+        }
 
     def expires_in(self) -> float | None:
         """
@@ -134,23 +141,32 @@ class Subscription:
         """
         return self.get_package_property(self.package, property, default)
 
+    @property
+    def is_default(self) -> bool:
+        """Whether the subscription is the default (free) subscription."""
+        return self == self.default()
+
     @staticmethod
     def default() -> 'Subscription':
+        """Get the default (free) subscription info."""
         return Subscription(config("global.subscriptions.default_package"), None)
 
     @staticmethod
     def create_timestamp(add: float | int) -> float:
+        """Add a value to the current UTC timestamp."""
         return datetime.now(UTC).timestamp() + add
 
 class _SubUtils:
     @staticmethod
     def subscription_obj_from_row(row: tuple) -> Subscription:
+        """Build a `~Subscription` object from a database row."""
         if row:
             return Subscription(*row)
         return None
 
     @staticmethod
     def weight_subscription(subscription: Subscription) -> int:
+        """Weight a subscription based on its tier and duration."""
         weight = subscription.tier
 
         # Subscription is a lifetime subscription
@@ -164,6 +180,13 @@ class _SubUtils:
     def extract_active_subscription_from_all_subscriptions(
         all_subscriptions: list[Subscription]
     ) -> tuple[Subscription, list[Subscription]]:
+        """
+        Creates the best possible active subscription from a list of subscriptions.
+
+        :param all_subscriptions: A list of subscriptions.
+        :return tuple: A tuple of the best possible active subscription and the \
+            remaining subscriptions.
+        """
         if not all_subscriptions:
             return None, []
 
@@ -267,8 +290,8 @@ class AccountSubscriptions:
             active_subscription.expiry_timestamp < datetime.now(UTC).timestamp()
         ):
             # Update subscription data
-            active_subscription, paused_subscriptions = self.determine_subscription_updates()
-            self._set_subscriptions(active_subscription, paused_subscriptions)
+            active_subscription, paused_subscriptions = self.determine_user_subscription_updates()
+            self.set_subscriptions(active_subscription, paused_subscriptions)
 
             if active_subscription is None:
                 return Subscription.default()
@@ -286,46 +309,24 @@ class AccountSubscriptions:
         *, cursor: Cursor=None
     ) -> bool:
         """
-        Check whether a certain adding a certain package to a user's
-        subscription will have conflicts with their existing subscription.
+        Check whether a certain adding a certain subscription to a user's
+        subscriptions will have conflicts with their existing subscription.
 
-        :param package: The package to check for conflicts against.
+        :param new_subscription: The subscription to check for conflicts against.
         :return bool: Whether (or not) there are conflicts.
         """
         try:
-            self.determine_subscription_updates(
+            self.determine_user_subscription_updates(
                 added_subscription=new_subscription, cursor=cursor)
             return False
         except PackageTierConflictError:
             return True
 
-
-    @ensure_cursor
+    @staticmethod
     def determine_subscription_updates(
-        self,
+        all_subscriptions: list[Subscription],
         added_subscription: Subscription | None=None,
-        *, cursor: Cursor=None
     ) -> tuple[Subscription | None, list[Subscription]]:
-        # Select all existing subscription data.
-        active_subscription_row = cursor.execute(
-            "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
-            (self._discord_id,)).fetchone()
-        active_subscription = _SubUtils.subscription_obj_from_row(active_subscription_row)
-
-        paused_subscription_rows = cursor.execute(
-            "SELECT package, duration_remaining, id FROM subscriptions_paused "
-            "WHERE discord_id = ?", (self._discord_id,)).fetchall()
-        all_subscriptions = [
-            _SubUtils.subscription_obj_from_row(row)
-            for row in paused_subscription_rows
-        ]
-
-        # Include the active subscription if it hasn't expired
-        if active_subscription is not None:
-            expires_in = active_subscription.expires_in()
-            if not expires_in or expires_in > 0:
-                all_subscriptions.append(active_subscription)
-
         # Ensure added subscription doesn't conflict with existing subscriptions
         existing_lifetime_subscriptions = [
             sub for sub in all_subscriptions if sub.expiry_timestamp is None
@@ -348,14 +349,72 @@ class AccountSubscriptions:
 
         return active_subscription, paused_subscriptions
 
+    @ensure_cursor
+    def determine_user_subscription_updates(
+        self,
+        added_subscription: Subscription | None=None,
+        *, cursor: Cursor=None
+    ) -> tuple[Subscription | None, list[Subscription]]:
+        """
+        Determines what active and paused subscriptions the user should have.
+
+        **NOTE:** This method wraps the `determine_subscription_updates` method but extends it
+        to automatically use the user's current subscription data.
+
+        :param added_subscription: Optionally add another subscription to be factored in.
+        :param all_subscriptions: Optionally add multiple subscriptions to be factored \
+            in, may include an active subscription and multiple paused subscriptions.
+        :return tuple: A tuple of the new active and paused subscriptions.
+        :raise PackageTierConflictError: If there is a conflict between the added \
+            subscription and existing subscriptions.
+        """
+        # Select all existing subscription data.
+        active_subscription_row = cursor.execute(
+            "SELECT package, expires FROM subscriptions_active WHERE discord_id = ?",
+            (self._discord_id,)).fetchone()
+        active_subscription = _SubUtils.subscription_obj_from_row(active_subscription_row)
+
+        paused_subscription_rows = cursor.execute(
+            "SELECT package, duration_remaining, id FROM subscriptions_paused "
+            "WHERE discord_id = ?", (self._discord_id,)).fetchall()
+        all_subscriptions = [
+            _SubUtils.subscription_obj_from_row((
+                row[0],
+                (datetime.now(UTC).timestamp() + row[1]
+                    if row[1] is not None
+                    else row[1]),  # FIXME: duration will drain as code runs
+                row[2],
+            ))
+            for row in paused_subscription_rows
+        ]
+
+        # Include the active subscription if it hasn't expired
+        if active_subscription is not None:
+            expires_in = active_subscription.expires_in()
+            if not expires_in or expires_in > 0:
+                all_subscriptions.append(active_subscription)
+
+        return self.determine_subscription_updates(
+            all_subscriptions, added_subscription=added_subscription)
+
+
 
     @ensure_cursor
-    def _set_subscriptions(
+    def set_subscriptions(
         self,
         active_subscription: Subscription | None,
         paused_subscriptions: list[Subscription],
         *, cursor: Cursor=None
     ) -> None:
+        """
+        Set the user's active and paused subscriptions directly.
+
+        **WARNING:** This method will remove any existing subscription data,
+        use this only if you know what you're doing.
+
+        :param active_subscription: The active subscription to set for the user.
+        :param paused_subscriptions: The paused subscriptions to set for the user.
+        """
         # Remove old subscription data
         cursor.execute(
             "DELETE FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
@@ -393,6 +452,8 @@ class AccountSubscriptions:
             left as `None` for an infinite duration.
         :param update_roles: Whether or not to update the user's subscription \
             Discord roles if their subscription state is updated.
+        :raise PackageTierConflictError: If there is an existing lifetime \
+            subscription with the same or higher tier.
         """
         if duration is not None:
             expiry_timestamp = datetime.now(UTC).timestamp() + duration
@@ -400,12 +461,80 @@ class AccountSubscriptions:
             expiry_timestamp = None
 
         # Determine new subscription data
-        active_subscription, paused_subscriptions = self.determine_subscription_updates(
+        active_subscription, paused_subscriptions = self.determine_user_subscription_updates(
             Subscription(package, expiry_timestamp), cursor=cursor
         )
 
-        self._set_subscriptions(
+        self.set_subscriptions(
             active_subscription, paused_subscriptions, cursor=cursor)
 
         if update_roles:
-            self.__update_user_roles(active_subscription)
+            self.__update_user_roles(active_subscription or Subscription.default())
+
+
+    @ensure_cursor
+    def remove_active_subscription(
+        self,
+        update_roles: bool=True,
+        *, cursor: Cursor=None
+    ) -> None:
+        """
+        Delete the user's current active subscription. This will activate
+        any paused subscription that should take its place.
+
+        :param update_roles: Whether or not to update the user's subscription \
+            Discord roles if their subscription state is updated.
+        """
+        cursor.execute(
+            "DELETE FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
+
+        active_subscription, paused_subscriptions = self\
+            .determine_user_subscription_updates(cursor=cursor)
+        self.set_subscriptions(
+            active_subscription, paused_subscriptions, cursor=cursor)
+
+        if update_roles:
+            self.__update_user_roles(active_subscription or Subscription.default())
+
+
+    @ensure_cursor
+    def remove_paused_subscription(
+        self,
+        paused_subscription_id: int,
+        *, cursor: Cursor=None
+    ) -> None:
+        """
+        Remove a paused subscription with a specified ID.
+
+        :param paused_subscription_id: The ID of the paused subscription to remove.
+        """
+        cursor.execute(
+            "DELETE FROM paused_subscriptions WHERE discord_id = ? AND id = ?",
+            (self._discord_id, paused_subscription_id))
+        # No need to update user roles or subscriptions
+
+    @ensure_cursor
+    def get_paused_subscriptions(
+        self,
+        package: str | None=None,
+        *, cursor: Cursor=None
+    ) -> list[Subscription]:
+        query = (
+            "SELECT package, duration_remaining, id "
+            "FROM subscriptions_paused WHERE discord_id = ?")
+        params = [self._discord_id]
+
+        if package is not None:
+            params.append(package)
+            query += " AND package = ?"
+
+        cursor.execute(query, params)
+        results = cursor.fetchall()
+
+        return [Subscription(
+            result[0],
+            (datetime.now(UTC).timestamp() + result[1]
+                if result[1] is not None
+                else result[1]),  # FIXME
+            result[2]
+        ) for result in results]
