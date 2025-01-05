@@ -10,7 +10,7 @@ from .utils import (
     BEDWARS_MODES_MAP
 )
 from .leveling import Leveling
-from .quests import QuestDataDict, get_quests_data
+from .quests import QuestsDataDict, get_quests_data
 
 
 class BedwarsStats:
@@ -88,7 +88,7 @@ class BedwarsStats:
 
 
     @property
-    def quests_data(self) -> QuestDataDict:
+    def quests_data(self) -> QuestsDataDict:
         """The player's quests data."""
         if self._quests_data is None:
             self._quests_data = get_quests_data(self._hypixel_player_data)

@@ -9,7 +9,7 @@ from .custom import CustomBaseView
 class InfoButton(discord.ui.Button):
     """Base class for info buttons."""
     def __init__(
-        self, label: str, embed: discord.Embed
+        self, label: str, embed: discord.Embed, docs_url: str | None=None
     ) -> None:
         """
         Create a button which sends an embed upon being pressed.
@@ -18,6 +18,7 @@ class InfoButton(discord.ui.Button):
         :param embed: The embed object to send.
         """
         self.embed = embed
+        self.docs_url = docs_url
 
         emoji = discord.PartialEmoji(name='info_white', id=1128651261890285659)
         super().__init__(
@@ -25,14 +26,24 @@ class InfoButton(discord.ui.Button):
             emoji=emoji, custom_id=f'{label.lower()}_info_button')
 
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.send_message(embed=self.embed, ephemeral=True)
+        view = discord.ui.View()
+        if self.docs_url is not None:
+            docs_btn = discord.ui.Button(
+                label="Docs Reference",
+                url=self.docs_url,
+                emoji="<:docs:1325495671272374272>")
+            view.add_item(docs_btn)
+        await interaction.response.send_message(embed=self.embed, view=view, ephemeral=True)
 
 
 class SessionInfoButton(CustomBaseView):
     """Session info button."""
     @staticmethod
     def button():
-        return InfoButton('Sessions', Embeds.help.sessions())
+        return InfoButton(
+            'Sessions', Embeds.help.sessions(),
+            "https://docs.statalytics.net/features/session-stats/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -42,7 +53,10 @@ class ProjectionInfoButton(CustomBaseView):
     """Projection info button."""
     @staticmethod
     def button():
-        return InfoButton('Projection', Embeds.help.projection())
+        return InfoButton(
+            'Projection', Embeds.help.projection(),
+            "https://docs.statalytics.net/features/projection/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -52,7 +66,10 @@ class ComparisonInfoButton(CustomBaseView):
     """Comparison info button."""
     @staticmethod
     def button():
-        return InfoButton('Comparison', Embeds.help.compare())
+        return InfoButton(
+            'Comparison', Embeds.help.compare(),
+            "https://docs.statalytics.net/features/other-bedwars-commands/#stat-comparison"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -62,7 +79,10 @@ class RotationalInfoButton(CustomBaseView):
     """Rotational info button."""
     @staticmethod
     def button():
-        return InfoButton('Rotational', Embeds.help.rotational())
+        return InfoButton(
+            'Rotational', Embeds.help.rotational(),
+            "https://docs.statalytics.net/features/rotational-stats/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -71,8 +91,11 @@ class RotationalInfoButton(CustomBaseView):
 class LinkingInfoButton(CustomBaseView):
     """Linking info button."""
     @staticmethod
-    def button() -> None:
-        return InfoButton('Linking', Embeds.help.linking())
+    def button():
+        return InfoButton(
+            'Linking', Embeds.help.linking(),
+            "https://docs.statalytics.net/settings/linking/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -82,7 +105,10 @@ class SettingsInfoButton(CustomBaseView):
     """Settings info button."""
     @staticmethod
     def button():
-        return InfoButton('Settings', Embeds.help.settings())
+        return InfoButton(
+            'Settings', Embeds.help.settings(),
+            "https://docs.statalytics.net/settings/linking"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -92,7 +118,10 @@ class OtherInfoButton(CustomBaseView):
     """Button that shows info on all other commands."""
     @staticmethod
     def button():
-        return InfoButton('Other', Embeds.help.other())
+        return InfoButton(
+            'Other', Embeds.help.other(),
+            "https://docs.statalytics.net/features/other-bedwars-commands/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)
@@ -102,7 +131,10 @@ class RotationalResettingInfoButton(CustomBaseView):
     """Rotational resetting info button."""
     @staticmethod
     def button():
-        return InfoButton('Rotational Resetting', Embeds.help.tracker_resetting())
+        return InfoButton(
+            'Rotational Resetting', Embeds.help.tracker_resetting(),
+            "https://docs.statalytics.net/features/rotational-stats/"
+        )
 
     def __init__(self) -> None:
         super().__init__(timeout=None)

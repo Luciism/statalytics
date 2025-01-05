@@ -1,4 +1,5 @@
 from statalib.hypixel import (
+    HypixelData,
     BedwarsStats,
     get_rank_info,
     rround,
@@ -10,7 +11,7 @@ from statalib.hypixel import (
 class AverageStats(BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict,
+        hypixel_data: HypixelData,
         mode: str = 'overall'
     ) -> None:
         super().__init__(hypixel_data, ganemode=mode.lower())

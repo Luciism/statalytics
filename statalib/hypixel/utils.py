@@ -82,7 +82,7 @@ def get_most_mode(
     :param bedwars_data: Hypixel bedwars data from 'player'>'stats'>'Bedwars'.
     :param stat_key: The bedwars stat key, for example `games_played_bedwars`.
     """
-    modes_dict: dict = {
+    modes_dict: dict[str, int] = {
         'Solos': bedwars_data.get(f'eight_one_{stat_key}', 0),
         'Doubles': bedwars_data.get(f'eight_two_{stat_key}', 0),
         'Threes':  bedwars_data.get(f'four_three_{stat_key}', 0),
@@ -151,27 +151,27 @@ def rround(number: float | int, ndigits: int=0) -> float | int:
     return rounded
 
 
-def add_suffixes(*args) -> list[str] | str:
+def add_suffixes(*args: int) -> list[str] | str:
     """
     Add suffixes to the end of large numbers to approximate them.
 
     :param *args: The number(s) to approximate.
     :return list[str] | str: The approximated number(s).
     """
-    formatted_values: list = []
+    formatted_values: list[str] = []
     for value in args:
         for num, suffix in NUM_SUFFIXES_MAP.items():
             if value >= num:
-                value: str = f"{value/num:,.1f}{suffix}"
+                fmt_value: str = f"{value/num:,.1f}{suffix}"
                 break
         else:
-            value: str = f"{rround(value, 2):,}"
-        formatted_values.append(value)
+            fmt_value: str = f"{rround(value, 2):,}"
+        formatted_values.append(fmt_value)
 
     return formatted_values[0] if len(formatted_values) == 1 else formatted_values
 
 
-def ratio(dividend: int, divisor: int) -> int | float:
+def ratio(dividend: int | float, divisor: int | float) -> int | float:
     """
     Safely gets the ratio of 2 numbers nicely rounded to
     2 decimal places without dividing by 0.

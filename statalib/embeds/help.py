@@ -13,10 +13,15 @@ class HelpEmbeds:
         embed = Embed(
             title="Statalytics Help Menu",
             description=
-                "To get more information on the different features of statalytics, please "
-                "navigate using the buttons below. Each button will go in depth on different "
-                "functionality and how it works.",
+                "Statalytics is a Discord bot that provides a range of Bedwars related "
+                "functionality.\n\nFor indepth information on different aspects of"
+                "features, navigate using the buttons below.",
             color=config.embed_color("primary")
+        )
+        embed.add_field(
+            name="Resources",
+            value=
+            "Documentation: https://docs.statalytics.net\nAdd to Server: https://statalytics.net/invite\nSupport Server: https://statalytics.net/discord"
         )
         return embed
 
@@ -26,7 +31,7 @@ class HelpEmbeds:
         embed = Embed(
             title="Stat Comparison Info Page",
             description=
-                "- The Stat Comparison feature lets users compare the stats of two players."
+                "- The stat comparison feature allows you to compare the stats of two players."
                 "\n- To use this feature, run the `/compare` command and provide the names "
                 "of the two players.\n- If your account is linked, providing only one player "
                 "will compare your stats with theirs.",
@@ -120,7 +125,7 @@ class HelpEmbeds:
             title="Session Info Page",
             description=
                 "- Sessions are used to track stats that can be factored into calculations "
-                "for commands like `/prestige`, `/milestones`, and `/year 2026.\n- If a "
+                "for commands like `/prestige`, `/milestones`, and `/year 2026`.\n- If a "
                 "session is not specified in a session based command, the default session "
                 "is the one with the lowest ID.\n- A new session will be automatically "
                 "created for a player when they link to another player, if they do not have "
