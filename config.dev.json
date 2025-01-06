@@ -1,4 +1,11 @@
 {
+  "apps": {
+    "website": {
+      "logging": {
+        "level": "DEBUG"
+      }
+    }
+  },
   "global": {
     "support_server": {
       "id": 1129410064986415176,
