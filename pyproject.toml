@@ -21,6 +21,7 @@ dependencies = [
 ]
 
 [tool.poetry]
+name = "statalytics"
 package-mode = false
 
 [build-system]
