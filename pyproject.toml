@@ -1,0 +1,28 @@
+[project]
+name = "statalytics"
+version = "1.19.0"
+description = "Statalytics - the unmatched bedwars stats bot with exceptional functionalities."
+authors = [
+    {name = "Luciism"}
+]
+readme = "README.md"
+requires-python = "^3.11"
+dependencies = [
+    # Statalib dependencies
+    "aiohttp-client-cache (==0.8.2)",
+    "aiosqlite (==0.19.0)",
+    "colorlog (==6.7.0)",
+    "discord-py (==2.4.0)",
+    "numpy (==2.2.2)",
+    "pillow (==10.3.0)",
+    "python-dateutil (==2.8.2)",
+    "python-dotenv (==1.0.0)",
+    "requests (==2.32.2)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
