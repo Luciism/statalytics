@@ -6,7 +6,7 @@ authors = [
     {name = "Luciism"}
 ]
 readme = "README.md"
-requires-python = "^3.11"
+requires-python = "3.12.8"
 dependencies = [
     # Statalib dependencies
     "aiohttp-client-cache (==0.8.2)",
@@ -14,7 +14,7 @@ dependencies = [
     "colorlog (==6.7.0)",
     "discord-py (==2.4.0)",
     "numpy (==2.2.2)",
-    "pillow (==10.3.0)",
+    "pillow (==11.1.0)",
     "python-dateutil (==2.8.2)",
     "python-dotenv (==1.0.0)",
     "requests (==2.32.2)"
@@ -22,8 +22,15 @@ dependencies = [
 
 [tool.poetry]
 name = "statalytics"
+version = "1.19.0"
 package-mode = false
+
+[tool.pyright]
+reportMissingTypeStubs = false
+strictDictionaryInference = false
+strictSetInference = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
