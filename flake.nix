@@ -1,29 +1,41 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.poetry2nix.url = "github:nix-community/poetry2nix";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    python-3-12-8-nixpkgs.url = "github:NixOS/nixpkgs/3df3c47c19dc90fec35359e89ffb52b34d2b0e94";
+    poetry2nix.url = "github:nix-community/poetry2nix";
+  };
 
-  outputs = { self, nixpkgs, poetry2nix }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      poetry2nix,
+      ...
+    }@inputs:
     let
-      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-      pkgs = forAllSystems (system: nixpkgs.legacyPackages.${system});
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+      python = inputs.python-3-12-8-nixpkgs.legacyPackages.${system}.python3;
+      poetry = inputs.nixpkgs.legacyPackages.${system}.poetry;
+      inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication;
     in
     {
-      packages = forAllSystems (system: let
-        inherit (poetry2nix.lib.mkPoetry2Nix { pkgs = pkgs.${system}; }) mkPoetryApplication;
-      in {
-        default = mkPoetryApplication { projectDir = self; };
-      });
-
-      devShells = forAllSystems (system: let
-        inherit (poetry2nix.lib.mkPoetry2Nix { pkgs = pkgs.${system}; }) mkPoetryEnv;
-      in {
-        default = pkgs.${system}.mkShellNoCC {
-          packages = with pkgs.${system}; [
-            (mkPoetryEnv { projectDir = self; })
+      devShells.${system} = {
+        default = pkgs.mkShell {
+          packages = [
+            python
             poetry
           ];
+          shellHook = ''
+            # Set the PS1 variable to indicate dev environment
+            PS1="\[\033[1m\]\[$(tput setaf 51)\][\[\e]0;\u@devshell: \w\a\]\u@devshell:\w]\$\[\033[0m\] "
+          '';
+          installPhase = ''
+            poetry install
+          '';
+          PYTHONPATH=self;
         };
-      });
+
+      };
     };
 }
