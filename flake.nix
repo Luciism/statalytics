@@ -29,6 +29,7 @@
           shellHook = ''
             # Set the PS1 variable to indicate dev environment
             PS1="\[\033[1m\]\[$(tput setaf 51)\][\[\e]0;\u@devshell: \w\a\]\u@devshell:\w]\$\[\033[0m\] "
+            eval $(poetry env activate)
           '';
           installPhase = ''
             poetry install
