@@ -89,7 +89,7 @@ class HistoricalRotationPeriodID:
         self.rotation_type = rotation_type
         self.datetime_info = datetime_info
 
-    def to_string(self) -> None:
+    def to_string(self) -> str:
         """Format the period ID into a string"""
         format_map = {
             "daily": "daily_%Y_%m_%d",
