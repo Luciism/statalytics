@@ -137,7 +137,7 @@ class Weekly(commands.Cog):
             return
 
         period_id = rotational.HistoricalRotationPeriodID(
-            rotation_type=rotational.RotationType.MONTHLY,
+            rotation_type=rotational.RotationType.WEEKLY,
             datetime_info=relative_date
         )
 
