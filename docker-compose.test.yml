@@ -1,0 +1,16 @@
+name: statalytics-tests
+
+
+services:
+  tests:
+    build:
+      context: ./
+      dockerfile: ./tests/Dockerfile
+    env_file: ./.env.test
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+ 
+volumes:
+  database:
+  logs:

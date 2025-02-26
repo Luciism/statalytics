@@ -28,7 +28,7 @@ def split_string(
 
     # Extract the matched substrings from the match_posses and filter out empty strings
     match_posses = re.finditer(f"(.*?)(?:{pattern}|$)", input_string)
-    matches = [match.group(1) for match in match_posses if match.group(1)]
+    matches = [match.group(1) for i, match in enumerate(match_posses) if i != 0]
 
     values = re.findall(pattern, input_string)
 
