@@ -1,5 +1,5 @@
 # FROM python:3.13.1-alpine3.21 AS base
-FROM python:3.12.8-alpine3.21 AS base
+FROM python:3.11.11-slim-bullseye AS base
 
 ENV PYTHONPATH /app/
 
