@@ -1,5 +1,3 @@
-import logging
-
 from calc.cosmetics import ActiveCosmetics
 import statalib as lib
 from statalib import to_thread
@@ -12,7 +10,7 @@ bg = BackgroundImageLoader(dir="cosmetics")
 def render_cosmetics(
     name: str,
     uuid: str,
-    hypixel_data: dict
+    hypixel_data: lib.HypixelData 
 ) -> bytes:
     cosmetics = ActiveCosmetics(name, hypixel_data)
     level = cosmetics.level
