@@ -90,8 +90,8 @@ def render_mc_text(
     text: str,
     position: tuple[int, int],
     image: Image.Image,
-    font: ImageFont.ImageFont=None,
-    font_size: int=None,
+    font: ImageFont.ImageFont | None=None,
+    font_size: int | None=None,
     shadow_offset: tuple[int, int]=None,
     align: Literal['left', 'center', 'right']='left'
 ) -> int:

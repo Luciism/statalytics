@@ -119,6 +119,7 @@ class TextRender:
         """
         if "position" not in text_options:
             text_options["position"] = (0, 0)
+
         render_mc_text(text, image=self._image, **text_options)
 
     def draw_many(

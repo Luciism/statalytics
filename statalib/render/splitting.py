@@ -1,5 +1,6 @@
 """String splitting utilities."""
 
+import logging
 import re
 
 
@@ -29,6 +30,10 @@ def split_string(
     # Extract the matched substrings from the match_posses and filter out empty strings
     match_posses = re.finditer(f"(.*?)(?:{pattern}|$)", input_string)
     matches = [match.group(1) for i, match in enumerate(match_posses) if i != 0]
+    matches.remove("")  # Last match will always be an empty string
+
+    if not matches:
+        return [(input_string, '')]
 
     values = re.findall(pattern, input_string)
 

@@ -1,3 +1,5 @@
+import logging
+
 from calc.cosmetics import ActiveCosmetics
 import statalib as lib
 from statalib import to_thread
@@ -34,7 +36,7 @@ def render_cosmetics(
         uuid, {"level": level, "rank_info": rank_info}))
 
     for cosmetic, (x, y) in cosmetic_data.items():
-        text = getattr(cosmetics, cosmetic)
+        text: str = getattr(cosmetics, cosmetic)
 
         im.text.draw(text, {
             "position": (x, y),
