@@ -1,5 +1,8 @@
 {
   "apps": {
+    "bot": {
+        "sync_on_startup": false
+    },
     "website": {
       "logging": {
         "level": "DEBUG"
