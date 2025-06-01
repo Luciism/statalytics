@@ -1,15 +1,30 @@
 <div align="center">
 
+<img src="https://statalytics.net/static/images/branding/logo.svg" height="80px" />
+
 <h1>Statalytics</h1>
-Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with exceptional functionalities.
+Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and reliability.
+
 <br>
+
 <a href="https://statalytics.net/invite">Invite</a> •
 <a href="https://statalytics.net/">Website</a> •
+<a href="https://docs.statalytics.net/">Docs</a> •
 <a href="https://statalytics.net/discord">Support</a>
+
+<br /><br />
+
+
+| <img src="https://statalytics.net/static/images/present_stats.png" height="340px" /> | <img src="https://statalytics.net/static/images/future_stats.png" height="340px" /> |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+
+
+<br /><br />
 
 ## Commands
 
-#### Current Stats
+<details>
+<summary><h4>Current Stats</h4></summary>
 
 | Command            | Function                                     |
 | ------------------ | -------------------------------------------- |
@@ -26,7 +41,10 @@ Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with 
 | `/hotbar`          | View the hotbar preference of any player     |
 | `/shop`            | View the shop of any player                  |
 
-#### Projections & Predictions
+</details>
+
+<details>
+<summary><h4>Projections & Predictions</h4></summary>
 
 | Command       | Function                                                       |
 | ------------- | -------------------------------------------------------------- |
@@ -34,7 +52,10 @@ Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with 
 | `/prestige`   | View projected stats of a player (requires session)            |
 | `/milestones` | View milestone stats of any player                             |
 
-#### Rotational Stats & Past Stats
+</details>
+
+<details>
+<summary><h4>Rotational Stats & Past Stats</h4></summary>
 
 | Command               | Function                                              |
 | --------------------- | ----------------------------------------------------- |
@@ -56,7 +77,10 @@ Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with 
 | `/session reset`      | Reset a specified session (requires linking)          |
 | `/session active`     | Get a list of all your active sessions                |
 
-#### Miscellaneous
+</details>
+
+<details>
+<summary><h4>Miscellaneous</h4></summary>
 
 | Command        | Function                                            |
 | -------------- | --------------------------------------------------- |
@@ -70,9 +94,12 @@ Transform Bedwars stat tracking with Statalytics - the unmatched stats bot with 
 | `/settings`    | Configure historical reset time & theme packs.      |
 | `/vote`        | Get a bunch of voting information for the bot.      |
 
+</details>
+
 <br>
 
-<h3>Features</h3>
+
+## Feature Previews
 
 |                                                                                                                                                                                         |                                                                                                                                                                                                        |
 | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
