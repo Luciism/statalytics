@@ -11,8 +11,8 @@
 apps/bot/tips.json
 
 # Private apps
-apps/website/
-apps/utils/
+# apps/website/
+# apps/utils/
 apps/api/
 
 # Generated

@@ -1,0 +1,6 @@
+[submodule "apps/website"]
+	path = apps/website
+	url = git@github.com:Luciism/statalytics-website.git
+[submodule "apps/utils"]
+	path = apps/utils
+	url = git@github.com:Luciism/statalytics-utils.git
