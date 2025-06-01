@@ -185,11 +185,11 @@ class Account:
 
         update_data = {}
 
-        if blacklisted:
+        if blacklisted is not None:
             update_data['blacklisted'] = blacklisted
-        if creation_timestamp:
+        if creation_timestamp is not None:
             update_data['creation_timestamp'] = creation_timestamp
-        if account_id:
+        if account_id is not None:
             update_data['account_id'] = account_id
 
         set_statement = ', '.join([f'{key} = ?' for key in update_data])
