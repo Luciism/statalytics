@@ -3,6 +3,7 @@ import os
 import logging
 from typing import Callable
 
+import mcfetch
 import discord
 from discord import Interaction, Embed
 from aiohttp import ContentTypeError, ClientConnectionError
@@ -47,7 +48,7 @@ async def fetch_player_info(
 
         if uuid:
             try:
-                name = await lib.mcfetch.AsyncFetchPlayer2(
+                name = await mcfetch.AsyncPlayer(
                     uuid, cache_backend=lib.network.mojang_session).name
             except (ContentTypeError, ClientConnectionError) as exc:
                 raise lib.errors.MojangInvalidResponseError from exc
@@ -67,7 +68,7 @@ async def fetch_player_info(
         if player.isnumeric() and len(player) >= 16:
             player = Account(int(player)).linking.get_linked_player_uuid() or ''
 
-        player_data = lib.mcfetch.AsyncFetchPlayer2(
+        player_data = mcfetch.AsyncPlayer(
             player, cache_backend=lib.network.mojang_session)
 
         try:

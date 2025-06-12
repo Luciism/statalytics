@@ -1,7 +1,7 @@
 """Functionality for linking Discord accounts to Hypixel accounts."""
+import mcfetch
 
 from .permissions import AccountPermissions
-from ..mcfetch import AsyncFetchPlayer, FetchPlayer2
 from ..sessions import SessionManager
 from ..aliases import PlayerName, PlayerUUID, HypixelData
 from ..usage import insert_growth_data
@@ -160,7 +160,7 @@ class AccountLinking:
         if hypixel_discord_tag:
             if discord_tag == hypixel_discord_tag:
                 if not name:
-                    name = await AsyncFetchPlayer(uuid=uuid).name
+                    name = await mcfetch.AsyncPlayer(uuid).name
 
                 self.set_linked_player(uuid, cursor=cursor)
                 self.update_autofill(uuid, name, cursor=cursor)
@@ -181,5 +181,5 @@ class AccountLinking:
         linked_player_uuid = self.get_linked_player_uuid(cursor=cursor)
 
         if linked_player_uuid is not None:
-            return FetchPlayer2(linked_player_uuid).name
+            return mcfetch.Player(linked_player_uuid).name
         return None

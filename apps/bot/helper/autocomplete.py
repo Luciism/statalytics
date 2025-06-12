@@ -1,5 +1,6 @@
 """Application command autocompletion functions."""
 
+import mcfetch
 from discord import app_commands, Interaction
 
 import statalib as lib
@@ -28,7 +29,7 @@ async def session_autocompletion(
                 break
 
     if username:
-        uuid = await lib.mcfetch.AsyncFetchPlayer(name=username).uuid
+        uuid = await mcfetch.AsyncPlayer(username).uuid
     else:
         uuid = AccountLinking(interaction.user.id).get_linked_player_uuid()
 
