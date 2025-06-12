@@ -13,7 +13,6 @@ from . import fmt
 from . import handlers
 from . import hypixel
 from . import loggers
-from . import mcfetch
 from . import network
 from . import render
 from . import rotational_stats
@@ -41,7 +40,6 @@ __all__ = [
     'handlers',
     'hypixel',
     'loggers',
-    'mcfetch',
     'network',
     'render',
     'rotational_stats',
