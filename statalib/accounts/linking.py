@@ -125,6 +125,17 @@ class AccountLinking:
                 query = "UPDATE autofill SET uuid = ?, username = ? WHERE discord_id = ?"
                 cursor.execute(query, (uuid, username, self._discord_user_id))
 
+
+    @ensure_cursor
+    def delete_all_autofill_data(self, *, cursor: Cursor=None) -> None:
+        """
+        Irreversibly delete all the user's autofill data.
+        """
+        cursor.execute(
+            'DELETE FROM autofill WHERE discord_id = ?',
+            (self._discord_user_id,))
+
+
     @async_ensure_cursor
     async def link_account(
         self,

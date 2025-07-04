@@ -76,3 +76,13 @@ class AccountVoting:
                 'INSERT INTO voting_data (discord_id, total_votes, '
                 'weekend_votes, last_vote) VALUES (?, ?, ?, ?)',
                 (self._discord_user_id, 1, int(is_weekend), timestamp))
+
+    @ensure_cursor
+    def delete_all_voting_data(self, *, cursor: Cursor=None) -> None:
+        """
+        Irreversibly delete all the user's voting data.
+        """
+        cursor.execute(
+            'DELETE FROM voting_data WHERE discord_id = ?',
+            (self._discord_user_id,))
+
