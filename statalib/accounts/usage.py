@@ -32,3 +32,13 @@ class AccountUsage:
         if result:
             return result[0]
         return 0
+
+    @ensure_cursor
+    def delete_all_usage_data(self, *, cursor: Cursor=None) -> None:
+        """
+        Irreversibly delete all the user's usage data.
+        """
+        cursor.execute(
+            'DELETE FROM command_usage WHERE discord_id = ?',
+            (self._discord_user_id,))
+

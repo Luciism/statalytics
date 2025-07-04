@@ -509,7 +509,7 @@ class AccountSubscriptions:
         :param paused_subscription_id: The ID of the paused subscription to remove.
         """
         cursor.execute(
-            "DELETE FROM paused_subscriptions WHERE discord_id = ? AND id = ?",
+            "DELETE FROM subscriptions_paused WHERE discord_id = ? AND id = ?",
             (self._discord_id, paused_subscription_id))
         # No need to update user roles or subscriptions
 
@@ -538,3 +538,26 @@ class AccountSubscriptions:
                 else result[1]),  # FIXME
             result[2]
         ) for result in results]
+
+
+    @ensure_cursor
+    def delete_all_subscription_data(
+        self,
+        update_roles: bool=True,
+        *, cursor: Cursor=None
+    ) -> None:
+        """
+        Delete any subscription data associated with the user. This includes both
+        active and paused subscriptions.
+
+        :param update_roles: Whether or not to update the user's subscription \
+            Discord roles if their subscription state is updated.
+        """
+        cursor.execute(
+            "DELETE FROM subscriptions_active WHERE discord_id = ?", (self._discord_id,))
+        cursor.execute(
+            "DELETE FROM subscriptions_paused WHERE discord_id = ?", (self._discord_id,))
+
+        if update_roles:
+            self.__update_user_roles(Subscription.default())
+

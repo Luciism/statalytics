@@ -213,3 +213,12 @@ class AccountThemes:
                 "INSERT INTO themes_data (discord_id, selected_theme) VALUES (?, ?)",
                 (self._discord_user_id, theme_name)
             )
+
+    @ensure_cursor
+    def delete_all_theme_data(self, *, cursor: Cursor=None) -> None:
+        """
+        Irreversibly delete all the user's theme data.
+        """
+        cursor.execute(
+            'DELETE FROM themes_data WHERE discord_id = ?',
+            (self._discord_user_id,))

@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS default_reset_times (
     reset_minute INTEGER DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS permissions (
-    discord_id INTEGER PRIMARY KEY,
-    permissions TEXT
-);
+-- CREATE TABLE IF NOT EXISTS permissions (
+--     discord_id INTEGER PRIMARY KEY,
+--     permissions TEXT
+-- );
 
 CREATE TABLE IF NOT EXISTS growth_data (
     timestamp REAL,
