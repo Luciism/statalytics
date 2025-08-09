@@ -16,7 +16,7 @@ from aiohttp_client_cache import CachedSession, SQLiteBackend
 from .cfg import config
 from .common import REL_PATH
 from .errors import HypixelInvalidResponseError, HypixelRateLimitedError
-from .aliases import PlayerUUID
+from .aliases import HypixelData, PlayerUUID
 from .rotational_stats import async_reset_rotational_stats_if_whitelisted
 
 
@@ -67,7 +67,7 @@ async def fetch_hypixel_data(
     cached_session: SQLiteBackend = stats_session,
     retries: int = 3,
     retry_delay: int = 5
-) -> dict:
+) -> HypixelData:
     """
     Fetch a player's Hypixel data from Hypixel's API.
     Supports caching and request retry system.
@@ -107,7 +107,7 @@ async def fetch_hypixel_data_rate_limit_safe(
     retry_delay: int = 5,
     attempts=5,
     attempt_delay=20
-) -> dict:
+) -> HypixelData:
     """
     Rate limit safe version of `~fetch_hypixel_data()`.
 
