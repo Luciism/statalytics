@@ -16,7 +16,7 @@ from ._types import (
 )
 from ._utils import get_bedwars_data
 from .managers import RotationalStatsManager
-from ..aliases import PlayerUUID, HypixelData
+from ..aliases import BedwarsData, PlayerUUID, HypixelData
 from ..hypixel.leveling import Leveling
 from ..cfg import config
 from ..db import ensure_cursor, Cursor
@@ -129,7 +129,7 @@ class RotationalResetting:
         # Data was expected
         if current_rotational_data is None:
             raise DataNotFoundError(
-                f"No rotational data for rotational type {period_id.rotation_type.value} "
+                f"No rotational data for rotational type {period_id.rotation_type.value} " +
                 f"exists for player with UUID {self._player_uuid}"
             )
 
@@ -143,8 +143,8 @@ class RotationalResetting:
         current_bedwars_level = Leveling(xp=current_xp).level
 
         # Insert info
-        cursor.execute(
-            "INSERT INTO historical_info (uuid, period_id, level, snapshot_id) "
+        _ = cursor.execute(
+            "INSERT INTO historical_info (uuid, period_id, level, snapshot_id) " + 
             "VALUES (?, ?, ?, ?)",
             (self._player_uuid, period_id.to_string(), current_bedwars_level, snapshot_id)
         )
@@ -154,7 +154,7 @@ class RotationalResetting:
         column_names = ", ".join(keys)
         question_marks = ", ".join("?"*len(keys))
 
-        cursor.execute(f"""
+        _ = cursor.execute(f"""
             INSERT INTO bedwars_stats_snapshots
             (snapshot_id, {column_names}) VALUES (?, {question_marks})
         """, (snapshot_id, *calculated_values))
@@ -175,45 +175,58 @@ class RotationalResetting:
         :param rotation_type: The type of rotation; daily, weekly, monthly, etc.
         :param current_hypixel_data: The current Hypixel data of the player.
         """
+        hypixel_bedwars_data: BedwarsData = (
+            (current_hypixel_data.get("player") or {}).get("stats", {}).get("Bedwars", {})
+        )
+
+        # Create dictionary of session data
+        session_data = {
+            k: hypixel_bedwars_data.get(k, 0) for k in BedwarsStatsSnapshot.keys()
+        }
+        snapshot = BedwarsStatsSnapshot(snapshot_id=uuid4().hex, **session_data)
+
+        self.refresh_rotational_data_with_snapshot(rotation_type, snapshot, cursor=cursor)
+
+
+    @ensure_cursor
+    def refresh_rotational_data_with_snapshot(
+        self,
+        rotation_type: RotationType,
+        snapshot: BedwarsStatsSnapshot,
+        *, cursor: Cursor=None
+    ) -> None:
+        """
+        Refresh rotational data by updating the data to the provided stats snapshot.
+
+        :param rotation_type: The type of rotation; daily, weekly, monthly, etc.
+        :param snapshot: The snapshot to update the rotation with.
+        """
         timestamp = datetime.now(UTC).timestamp()
 
         # Get snapshot ID
-        result = cursor.execute(
-            "SELECT snapshot_id FROM rotational_info WHERE uuid = ? "
-            "AND rotation = ?", (self._player_uuid, rotation_type.value)
+        result: tuple[str] | None = cursor.execute(
+            "SELECT snapshot_id FROM rotational_info WHERE uuid = ? AND rotation = ?",
+            (self._player_uuid, rotation_type.value)
         ).fetchone()
 
         if result is None:
             return  # FIXME: Probably raise an exception instead
 
         # Update last reset timestamp
-        cursor.execute(
-            "UPDATE rotational_info SET last_reset_timestamp = ? "
-            "WHERE uuid = ? AND rotation = ?",
+        _ = cursor.execute(
+            "UPDATE rotational_info SET last_reset_timestamp = ? WHERE uuid = ? AND rotation = ?",
             (timestamp, self._player_uuid, rotation_type.value)
         )
 
         snapshot_id = result[0]
 
-        # Convert bedwars data to list of tracked values
-        current_bedwars_data = get_bedwars_data(current_hypixel_data)
-
-        bedwars_data_list = [
-            current_bedwars_data.get(key, 0)
-            for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
-        ]
-
         # Format set query
-        set_keys = [
-            f"{key} = ?"
-            for key in BedwarsStatsSnapshot.keys(include_snapshot_id=False)
-        ]
-        set_clause = ", ".join(set_keys)
+        set_clause = ", ".join([ f"{key} = ?" for key in snapshot.keys(False) ])
 
         # Update snapshot data
-        cursor.execute(
+        _ = cursor.execute(
             f"UPDATE bedwars_stats_snapshots SET {set_clause} WHERE snapshot_id = ?",
-            (*bedwars_data_list, snapshot_id)
+            (*snapshot.as_tuple(False), snapshot_id)
         )
 
 
@@ -241,7 +254,7 @@ def reset_rotational_stats_if_whitelisted(
 
     # Get last reset timestamp for all rotations
     cursor.execute(
-        "SELECT rotation, last_reset_timestamp FROM rotational_info "
+        "SELECT rotation, last_reset_timestamp FROM rotational_info " + 
         "WHERE uuid = ?", (uuid,))
     last_resets: dict[str, int] = dict(cursor.fetchall())
 

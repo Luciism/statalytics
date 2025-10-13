@@ -1,6 +1,7 @@
 """Bedwars stats snapshot dataclass and related functionality."""
 
 from dataclasses import dataclass
+import logging
 import sqlite3
 
 from .db import ensure_cursor
@@ -141,3 +142,27 @@ def get_snapshot_data(
 
     snapshot_data = BedwarsStatsSnapshot(*rotation_data)
     return snapshot_info_dict, snapshot_data
+
+@ensure_cursor
+def update_snapshot_data(
+    snapshot: BedwarsStatsSnapshot,
+    *, cursor: sqlite3.Cursor=None
+) -> None:
+    """
+    Update an existing snapshot in the database.
+
+    :param cursor: A custom `sqlite3.Cursor` object to operate on.
+    :param snapshot: The new snapshot data to write.
+    """
+    column_names = snapshot.keys(False)
+    values = snapshot.as_tuple(False)
+
+    query = ", ".join([f"{c} = ?" for c in column_names]) 
+
+    _ = cursor.execute(
+        f"""UPDATE bedwars_stats_snapshots
+        SET {query}
+        WHERE snapshot_id = ?
+        """, (*values, snapshot.snapshot_id)
+    )
+    
