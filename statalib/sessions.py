@@ -92,7 +92,7 @@ class SessionManager:
 
         # Create dictionary of session data
         session_data = {
-            k: hypixel_bedwars_data.get(k, 0) for k in BedwarsStatsSnapshot.keys()
+            k: hypixel_bedwars_data.get(k, 0) for k in BedwarsStatsSnapshot.keys(False)
         }
         snapshot = BedwarsStatsSnapshot(snapshot_id=uuid4().hex, **session_data)
 
