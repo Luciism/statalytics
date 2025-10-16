@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 
 import statalib as lib
-from statalib import hypixel, to_thread
+from statalib import HypixelData, hypixel, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -14,7 +14,7 @@ BAR_POSITIONS = [(97, 354), (220, 354), (343, 354), (466, 354)]
 def render_mostplayed(
     name: str,
     uuid: str,
-    hypixel_data: dict
+    hypixel_data: HypixelData 
 ) -> bytes:
     hypixel_data = hypixel.get_player_dict(hypixel_data)
     bedwars_data: dict = hypixel_data.get('stats', {}).get('Bedwars', {})

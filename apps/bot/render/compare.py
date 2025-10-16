@@ -1,6 +1,6 @@
 from calc.compare import CompareStats
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 
 from statalib.render import ImageRender, BackgroundImageLoader
 
@@ -21,9 +21,9 @@ def render_compare(
     name_1: str,
     name_2: str,
     uuid_1: str,
-    mode: str,
-    hypixel_data_1: dict,
-    hypixel_data_2: dict,
+    mode: Mode,
+    hypixel_data_1: HypixelData,
+    hypixel_data_2: HypixelData,
     save_dir: str
 ) -> None:
     stats = CompareStats(hypixel_data_1, hypixel_data_2, mode)
@@ -80,4 +80,4 @@ def render_compare(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/compare/overlay.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

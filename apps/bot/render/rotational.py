@@ -1,7 +1,7 @@
 from calc.rotational import RotationalStats, HistoricalRotationalStats
 
 import statalib as lib
-from statalib import rotational_stats as rotational, to_thread, REL_PATH
+from statalib import HypixelData, Mode, rotational_stats as rotational, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -12,8 +12,8 @@ def render_rotational(
     tracker: str,
     relative_date: str,
     title: str,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str,
     period_id: rotational.HistoricalRotationPeriodID | None=None
@@ -86,4 +86,4 @@ def render_rotational(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/rotational/overlay.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

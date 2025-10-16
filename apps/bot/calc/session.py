@@ -1,21 +1,24 @@
 from datetime import datetime, UTC
+from typing import final
 
+from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     CumulativeStats,
+    HypixelData,
     get_rank_info,
-    mode_name_to_id,
     rround
 )
 from statalib.sessions import BedwarsSession, SessionManager
 
 
+@final
 class SessionStats(CumulativeStats):
     def __init__(
         self,
         uuid: str,
         session_info: BedwarsSession,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode = ModesEnum.OVERALL.value
     ) -> None:
 
         super().__init__(hypixel_data, session_info.data, gamemode=mode)
@@ -24,7 +27,7 @@ class SessionStats(CumulativeStats):
         session_manager = SessionManager(uuid)
         self.total_sessions = session_manager.session_count()
 
-        self.mode = mode_name_to_id(mode)
+        self.mode = mode
 
         self.rank_info = get_rank_info(self._hypixel_player_data)
 

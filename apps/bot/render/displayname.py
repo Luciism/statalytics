@@ -1,10 +1,10 @@
-from statalib import render, hypixel, to_thread
+from statalib import HypixelData, render, hypixel, to_thread
 
 
 @to_thread
 def render_displayname(
     name: str,
-    hypixel_data: dict
+    hypixel_data: HypixelData 
 ) -> bytes:
     hypixel_data = hypixel.get_player_dict(hypixel_data)
 

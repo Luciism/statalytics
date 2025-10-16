@@ -1,7 +1,7 @@
 import asyncio
 import os
 import logging
-from typing import Callable
+from typing import Any, Coroutine, Callable
 
 import mcfetch
 import discord
@@ -10,6 +10,7 @@ from aiohttp import ContentTypeError, ClientConnectionError
 
 import statalib as lib
 from statalib.accounts import Account
+from statalib.common import Mode, ModesEnum 
 from .tips import random_tip_message
 from .views import ModesView
 
@@ -218,46 +219,51 @@ async def run_interaction_checks(
 
 async def handle_modes_renders(
     interaction: discord.Interaction,
-    func: object,
-    kwargs: dict,
-    message=None,
-    custom_view: discord.ui.View=None
+    func: Callable[[Mode], Coroutine[None, None, None]],
+    kwargs: dict[str, Any],
+    message: str | None=None,
+    custom_view: discord.ui.View | None=None,
+    dreams: bool=False
 ) -> None:
     """
-    Renders and sends all modes to discord for the selected render
-    :param interaction: the relative discord interaction object
-    :param func: the function object to render with
-    :param kwargs: the keyword arguments needed to render the image
-    :param message: the message to send to discord with the image
-    :param view: a discord view to merge with the sent view
+    Renders and sends all modes to discord for the selected render.
+    :param interaction: The relative discord interaction object.
+    :param func: The function object to render with.
+    :param kwargs: The keyword arguments needed to render the image.
+    :param message: The message to send to discord with the image.
+    :param custom_view: A discord view to merge with the sent view.
+    :param dreams: Whether to render dream modes instead of regualar modes.
     """
     if not message:
         message = random_tip_message(interaction.user.id)
 
     os.makedirs(f'{lib.REL_PATH}/database/rendered/{interaction.id}')
-    await func(mode="Overall", **kwargs)
+
+    if not dreams:
+        modes = ModesEnum.non_dream_modes()
+    else:
+        modes = ModesEnum.dream_modes()
+
+    await func(mode=modes[0], **kwargs)
     view = ModesView(
         interaction_origin=interaction,
-        placeholder='Select a mode'
+        placeholder='Select a mode',
+        modes=modes
     )
 
     if custom_view is not None:
         for child in custom_view.children:
-            view.add_item(child)
+            _ = view.add_item(child)
 
     image = discord.File(
-        f"{lib.REL_PATH}/database/rendered/{interaction.id}/overall.png")
+        f"{lib.REL_PATH}/database/rendered/{interaction.id}/{modes[0].id}.png")
     try:
-        await interaction.edit_original_response(
+        _ = await interaction.edit_original_response(
             content=message, attachments=[image], view=view
         )
     except discord.errors.NotFound:
         return
 
     await asyncio.gather(
-        func(mode="Solos", **kwargs),
-        func(mode="Doubles", **kwargs),
-        func(mode="Threes", **kwargs),
-        func(mode="Fours", **kwargs),
-        func(mode="4v4", **kwargs),
+        *[func(mode=mode, **kwargs) for mode in modes[1:]]
     )

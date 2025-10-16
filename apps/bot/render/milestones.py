@@ -1,5 +1,5 @@
 from calc.milestones import MilestonesStats
-from statalib import sessions, to_thread, REL_PATH
+from statalib import HypixelData, Mode, sessions, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
@@ -9,9 +9,9 @@ bg = BackgroundImageLoader(dir="milestones")
 def render_milestones(
     name: str,
     uuid: str,
-    mode: str,
+    mode: Mode,
     session_info: sessions.BedwarsSession,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -116,4 +116,4 @@ def render_milestones(
 
     im.player.paste_skin(skin_model, position=(472, 61))
 
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

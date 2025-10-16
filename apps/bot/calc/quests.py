@@ -1,31 +1,21 @@
+from typing import final
+from statalib import ModesEnum
 from statalib.fmt import format_seconds
 from statalib.hypixel import (
     BedwarsStats,
+    HypixelData,
     get_rank_info,
     Leveling,
     rround
 )
 
-"""
-quest_map = {
-    "bedwars_daily_win": "First Win of the Day",
-    "bedwars_daily_one_more": "One More Game!",
-    "bedwars_daily_bed_breaker": "Painsomnia",
-    "bedwars_daily_final_killer": "Head Hunter",
-    "bedwars_weekly_bed_elims": "Bed Removal Co.",
-    "bedwars_weekly_dream_win": "Sleep Tight.",
-    "bedwars_weekly_challenges": "Challenger",
-    "bedwars_weekly_challenges_win": "Challenger",
-    "bedwars_weekly_final_killer": "Finishing the Job"
-}
-"""
-
+@final
 class QuestStats(BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict,
+        hypixel_data: HypixelData,
     ) -> None:
-        super().__init__(hypixel_data, ganemode='overall')
+        super().__init__(hypixel_data, gamemode=ModesEnum.OVERALL.value)
 
         self.rank_info = get_rank_info(self._hypixel_player_data)
 

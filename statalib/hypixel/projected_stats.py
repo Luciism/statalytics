@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from ..aliases import HypixelData
 from ..sessions import BedwarsSession
+from ..common import Mode, ModesEnum
 from .cumulative_stats import CumulativeStats
 from .utils import ratio, rround
 
@@ -14,9 +15,9 @@ class ProjectedStats(CumulativeStats):
         self,
         hypixel_data: HypixelData,
         session_info: BedwarsSession,
-        target_level: float=None,
-        target_date: datetime=None,
-        gamemode: str='overall'
+        target_level: float | None=None,
+        target_date: datetime | None=None,
+        gamemode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         """
         Initialize the class.
@@ -38,15 +39,15 @@ class ProjectedStats(CumulativeStats):
 
         session_start_time = datetime.fromtimestamp(
             session_info.creation_timestamp, UTC)
-        self.session_duration_days = (now - session_start_time).days
+        self.session_duration_days: int = (now - session_start_time).days
 
-        self.levels_per_day = ratio(self.levels_cum, self.session_duration_days)
+        self.levels_per_day: float = ratio(self.levels_cum, self.session_duration_days)
 
         if target_level is None:
-            self.days_to_go = (target_date - now).days or 1
+            self.days_to_go: int = (target_date - now).days or 1
 
             target_level = self.level + (self.levels_per_day * self.days_to_go)
-            self.levels_to_go = target_level - self.level
+            self.levels_to_go: float = target_level - self.level
         else:
             self.levels_to_go = target_level - self.level
             days_per_level_gained = self.session_duration_days / (self.levels_cum or 1)
@@ -58,52 +59,52 @@ class ProjectedStats(CumulativeStats):
             except OverflowError:
                 target_date = None
 
-        self.target_level = target_level
-        self.target_date = target_date
+        self.target_level: float | None = target_level
+        self.target_date: datetime | None = target_date
 
-        self.complete_percent = f"{round((self.level / (target_level or 1)) * 100, 2)}%"
-
-
-        self.wins_projected = self._calc_projection(self.wins, self.wins_cum)
-        self.losses_projected = self._calc_projection(self.losses, self.losses_cum)
-        self.wlr_projected = ratio(self.wins_projected, self.losses_projected)
+        self.complete_percent: str = f"{round((self.level / (target_level or 1)) * 100, 2)}%"
 
 
-        self.final_kills_projected = self._calc_projection(
+        self.wins_projected: int = self._calc_projection(self.wins, self.wins_cum)
+        self.losses_projected: int = self._calc_projection(self.losses, self.losses_cum)
+        self.wlr_projected: float = ratio(self.wins_projected, self.losses_projected)
+
+
+        self.final_kills_projected: int = self._calc_projection(
             self.final_kills, self.final_kills_cum)
 
-        self.final_deaths_projected = self._calc_projection(
+        self.final_deaths_projected: int = self._calc_projection(
             self.final_deaths, self.final_deaths_cum)
 
-        self.fkdr_projected = ratio(
+        self.fkdr_projected: float = ratio(
             self.final_kills_projected, self.final_deaths_projected)
 
 
-        self.beds_broken_projected = self._calc_projection(
+        self.beds_broken_projected: int = self._calc_projection(
             self.beds_broken, self.beds_broken_cum)
 
-        self.beds_lost_projected = self._calc_projection(
+        self.beds_lost_projected: int = self._calc_projection(
             self.beds_lost, self.beds_lost_cum)
 
-        self.bblr_projected = ratio(
+        self.bblr_projected: float = ratio(
             self.beds_broken_projected, self.beds_lost_projected)
 
 
-        self.kills_projected = self._calc_projection(self.kills, self.kills_cum)
-        self.deaths_projected = self._calc_projection(self.deaths, self.deaths_cum)
-        self.kdr_projected = ratio(self.kills_projected, self.deaths_projected)
+        self.kills_projected: int = self._calc_projection(self.kills, self.kills_cum)
+        self.deaths_projected: int = self._calc_projection(self.deaths, self.deaths_cum)
+        self.kdr_projected: float = ratio(self.kills_projected, self.deaths_projected)
 
 
-        self.items_purchased_projected = self._calc_projection(
+        self.items_purchased_projected: int = self._calc_projection(
             self.items_purchased, self.items_purchased_cum)
 
-        self.wins_per_star = self._per_star(self.wins_projected, self.wins)
-        self.kills_per_star = self._per_star(self.kills_projected, self.kills)
+        self.wins_per_star: float = self._per_star(self.wins_projected, self.wins)
+        self.kills_per_star: float = self._per_star(self.kills_projected, self.kills)
 
-        self.final_kills_per_star = self._per_star(
+        self.final_kills_per_star: float = self._per_star(
             self.final_kills_projected, self.final_kills)
 
-        self.beds_broken_per_star = self._per_star(
+        self.beds_broken_per_star: float = self._per_star(
             self.beds_broken_projected, self.beds_broken)
 
         self._projection_date: str = None

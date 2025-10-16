@@ -1,6 +1,6 @@
 from calc.resources import ResourcesStats
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -10,15 +10,11 @@ bg = BackgroundImageLoader(dir="resources")
 def render_resources(
     name: str,
     uuid: str,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     save_dir: str
 ) -> None:
     stats = ResourcesStats(hypixel_data, mode)
-
-    level = stats.level
-
-    rank_info = stats.rank_info
 
     iron_per_game, gold_per_game, dias_per_game,\
         ems_per_game = stats.get_per_game()
@@ -85,4 +81,4 @@ def render_resources(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/resources/overlay.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

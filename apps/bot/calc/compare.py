@@ -1,19 +1,22 @@
+from typing import final
+from statalib import Mode, ModesEnum
 from statalib.fmt import prefix_int
 from statalib.hypixel import (
-    BedwarsStats, get_rank_info, mode_name_to_id, rround, ratio)
+    BedwarsStats, HypixelData, get_rank_info, rround, ratio)
 
 
+@final
 class CompareStats:
     def __init__(
         self,
-        hypixel_data_1: dict,
-        hypixel_data_2: dict,
-        mode: str='overall'
+        hypixel_data_1: HypixelData,
+        hypixel_data_2: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
-        self._bw_1 = BedwarsStats(hypixel_data_1, ganemode=mode)
-        self._bw_2 = BedwarsStats(hypixel_data_2, ganemode=mode)
+        self._bw_1 = BedwarsStats(hypixel_data_1, gamemode=mode)
+        self._bw_2 = BedwarsStats(hypixel_data_2, gamemode=mode)
 
-        self.mode = mode_name_to_id(mode)
+        self.mode = mode
 
         self.level_1 = int(self._bw_1.level)
         self.level_2 = int(self._bw_2.level)

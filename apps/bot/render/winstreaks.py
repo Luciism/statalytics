@@ -1,7 +1,7 @@
 from calc.winstreaks import WinstreakStats
 
 import statalib as lib
-from statalib import to_thread
+from statalib import HypixelData, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -11,7 +11,7 @@ bg = BackgroundImageLoader(dir="winstreaks")
 def render_winstreaks(
     name: str,
     uuid: str,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     skin_model: bytes
 ) -> bytes:
     stats = WinstreakStats(hypixel_data)

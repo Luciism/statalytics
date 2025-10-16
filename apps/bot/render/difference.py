@@ -1,6 +1,6 @@
 from calc.difference import DifferenceStats
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -17,8 +17,8 @@ def render_difference(
     uuid: str,
     relative_date: str,
     method: str,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -68,7 +68,7 @@ def render_difference(
         position=(225, 88),
         align="center"
     )
-    im.progress.draw_progress_text(
+    _ = im.progress.draw_progress_text(
         lvl_progress, lvl_target, position=(225, 119), align="center")
 
     im.text.draw(f'{method.title()} Diffs', {
@@ -85,4 +85,4 @@ def render_difference(
     im.player.paste_skin(skin_model, position=(465, 67))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

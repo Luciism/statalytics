@@ -1,5 +1,7 @@
 """Wrapper for cumulative hypixel bedwars stats."""
 
+from typing import final
+from ..common import Mode, ModesEnum
 from ..aliases import HypixelData
 from .bedwars_stats import BedwarsStats
 from .utils import BEDWARS_MODES_MAP
@@ -13,7 +15,7 @@ class CumulativeStats(BedwarsStats):
         self,
         hypixel_data: HypixelData,
         bedwars_stats_snapshot: BedwarsStatsSnapshot,
-        gamemode: str='overall'
+        gamemode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         """
         Initialize the class.
@@ -24,50 +26,50 @@ class CumulativeStats(BedwarsStats):
         """
         super().__init__(hypixel_data, gamemode)
 
-        self._bedwars_stats_snapshot = bedwars_stats_snapshot
+        self._bedwars_stats_snapshot: BedwarsStatsSnapshot = bedwars_stats_snapshot
 
-        self.wins_local = self._get_mode_stats_local('wins_bedwars')
-        self.losses_local = self._get_mode_stats_local('losses_bedwars')
+        self.wins_local: int = self._get_mode_stats_local('wins_bedwars')
+        self.losses_local: int = self._get_mode_stats_local('losses_bedwars')
 
-        self.wins_cum = self._calc_cum('wins_bedwars')
-        self.losses_cum = self._calc_cum('losses_bedwars')
-        self.wlr_cum = self._get_ratio(self.wins_cum, self.losses_cum)
+        self.wins_cum: int = self._calc_cum('wins_bedwars')
+        self.losses_cum: int = self._calc_cum('losses_bedwars')
+        self.wlr_cum: float = self._get_ratio(self.wins_cum, self.losses_cum)
 
-        self.final_kills_local = self._get_mode_stats_local('final_kills_bedwars')
-        self.final_deaths_local = self._get_mode_stats_local('final_deaths_bedwars')
+        self.final_kills_local: int = self._get_mode_stats_local('final_kills_bedwars')
+        self.final_deaths_local: int = self._get_mode_stats_local('final_deaths_bedwars')
 
-        self.final_kills_cum = self._calc_cum('final_kills_bedwars')
-        self.final_deaths_cum = self._calc_cum('final_deaths_bedwars')
-        self.fkdr_cum = self._get_ratio(self.final_kills_cum, self.final_deaths_cum)
+        self.final_kills_cum: int = self._calc_cum('final_kills_bedwars')
+        self.final_deaths_cum: int = self._calc_cum('final_deaths_bedwars')
+        self.fkdr_cum: float = self._get_ratio(self.final_kills_cum, self.final_deaths_cum)
 
-        self.beds_broken_local = self._get_mode_stats_local('beds_broken_bedwars')
-        self.beds_lost_local = self._get_mode_stats_local('beds_lost_bedwars')
+        self.beds_broken_local: int = self._get_mode_stats_local('beds_broken_bedwars')
+        self.beds_lost_local: int = self._get_mode_stats_local('beds_lost_bedwars')
 
-        self.beds_broken_cum = self._calc_cum('beds_broken_bedwars')
-        self.beds_lost_cum = self._calc_cum('beds_lost_bedwars')
-        self.bblr_cum = self._get_ratio(self.beds_broken_cum, self.beds_lost_cum)
+        self.beds_broken_cum: int = self._calc_cum('beds_broken_bedwars')
+        self.beds_lost_cum: int = self._calc_cum('beds_lost_bedwars')
+        self.bblr_cum: float = self._get_ratio(self.beds_broken_cum, self.beds_lost_cum)
 
-        self.kills_local = self._get_mode_stats_local('kills_bedwars')
-        self.deaths_local = self._get_mode_stats_local('deaths_bedwars')
+        self.kills_local: int = self._get_mode_stats_local('kills_bedwars')
+        self.deaths_local: int = self._get_mode_stats_local('deaths_bedwars')
 
-        self.kills_cum = self._calc_cum('kills_bedwars')
-        self.deaths_cum = self._calc_cum('deaths_bedwars')
-        self.kdr_cum = self._get_ratio(self.kills_cum, self.deaths_cum)
+        self.kills_cum: int = self._calc_cum('kills_bedwars')
+        self.deaths_cum: int = self._calc_cum('deaths_bedwars')
+        self.kdr_cum: float = self._get_ratio(self.kills_cum, self.deaths_cum)
 
-        self.most_played_cum = self._get_most_played()
-        self.games_played_cum = self._calc_cum('games_played_bedwars')
+        self.most_played_cum: str = self._get_most_played()
+        self.games_played_cum: int = self._calc_cum('games_played_bedwars')
 
-        self.experience_local = self._bedwars_stats_snapshot.Experience
-        self.level_local = Leveling(xp=self.experience_local).level
+        self.experience_local: int = self._bedwars_stats_snapshot.Experience
+        self.level_local: float = Leveling(xp=self.experience_local).level
 
-        self.experience_cum = self.experience - self.experience_local
-        self.levels_cum = self.level - Leveling(xp=self.experience_local).level
+        self.experience_cum: int = self.experience - self.experience_local
+        self.levels_cum: float = self.level - Leveling(xp=self.experience_local).level
 
-        self.items_purchased_cum = self._calc_cum('items_purchased_bedwars')
+        self.items_purchased_cum: int = self._calc_cum('items_purchased_bedwars')
 
 
-    def _get_mode_stats_local(self, key: str, default=0) -> dict | int:
-        prefix = BEDWARS_MODES_MAP.get(self._gamemode.lower())
+    def _get_mode_stats_local(self, key: str, default=0) -> int:
+        prefix = self._gamemode.prefix
         return self._bedwars_stats_snapshot.__dict__.get(f'{prefix}{key}', default)
 
 

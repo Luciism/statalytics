@@ -1,12 +1,14 @@
-from statalib import hypixel
+from typing import final
+from statalib import ModesEnum, hypixel
 
 
+@final
 class WinstreakStats(hypixel.BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict
+        hypixel_data: hypixel.HypixelData
     ) -> None:
-        super().__init__(hypixel_data, ganemode='overall')
+        super().__init__(hypixel_data, gamemode=ModesEnum.OVERALL.value)
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)
@@ -19,7 +21,7 @@ class WinstreakStats(hypixel.BedwarsStats):
         self.winstreak_4v4: str = self.__format_ws('two_four_winstreak')
 
         # True if winstreak is present, False in all other cases
-        winstreak_overall = self._bedwars_data.get('winstreak')
+        winstreak_overall: int = self._bedwars_data.get('winstreak')
         self.api_status = "On" if winstreak_overall is not None else "Off"
 
 

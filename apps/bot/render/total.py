@@ -1,7 +1,7 @@
 from calc.total import TotalStats
 
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -11,8 +11,8 @@ bg = BackgroundImageLoader(dir="total")
 def render_total(
     name: str,
     uuid: str,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -71,4 +71,4 @@ def render_total(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/total/overlay_generic.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

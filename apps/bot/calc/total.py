@@ -1,20 +1,23 @@
+from typing import final
+from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     BedwarsStats,
+    HypixelData,
     get_rank_info,
-    mode_name_to_id,
     rround,
 )
 
 
+@final
 class TotalStats(BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
-        super().__init__(hypixel_data, ganemode=mode)
+        super().__init__(hypixel_data, gamemode=mode)
 
-        self.mode = mode_name_to_id(mode)
+        self.mode = mode
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_player_data)
 

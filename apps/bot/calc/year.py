@@ -1,16 +1,18 @@
 from datetime import UTC, datetime
+from typing import final
 
-from statalib import hypixel, sessions
+from statalib import Mode, ModesEnum, hypixel, sessions
 
 
+@final
 class YearStats(hypixel.ProjectedStats):
     def __init__(
         self,
         uuid: str,
         session_info: sessions.BedwarsSession,
         year: int,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: hypixel.HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         target_date = datetime(year=year, month=1, day=1, tzinfo=UTC)
 

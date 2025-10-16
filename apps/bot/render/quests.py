@@ -1,6 +1,6 @@
 from calc.quests import QuestStats
 import statalib as lib
-from statalib import to_thread
+from statalib import HypixelData, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
@@ -10,7 +10,7 @@ bg = BackgroundImageLoader(dir="quests")
 def render_quests(
     name: str,
     uuid: str,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     skin_model: bytes
 ) -> bytes:
     stats = QuestStats(hypixel_data)

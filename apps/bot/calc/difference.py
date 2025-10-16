@@ -1,15 +1,17 @@
+from typing import final
 from statalib.fmt import prefix_int
-from statalib.hypixel import CumulativeStats, get_rank_info, ratio
-from statalib import rotational_stats as rotational
+from statalib.hypixel import CumulativeStats, HypixelData, get_rank_info, ratio
+from statalib import Mode, ModesEnum, rotational_stats as rotational
 
 
+@final
 class DifferenceStats(CumulativeStats):
     def __init__(
         self,
         uuid: str,
         tracker: str,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         rotation_type = rotational.RotationType.from_string(tracker)
         bedwars_stats_snapshot = rotational.RotationalStatsManager(uuid) \

@@ -1,6 +1,6 @@
 from calc.practice import PracticeStats
 import statalib as lib
-from statalib import to_thread
+from statalib import HypixelData, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -10,7 +10,7 @@ bg = BackgroundImageLoader(dir="practice")
 def render_practice(
     name: str,
     uuid: str,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     skin_model: bytes
 ) -> bytes:
     stats = PracticeStats(hypixel_data)

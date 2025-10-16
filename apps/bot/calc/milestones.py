@@ -1,19 +1,22 @@
 import math
+from typing import final
 
+from statalib import Mode, ModesEnum
 from statalib.sessions import BedwarsSession
-from statalib.hypixel import BedwarsStats, get_rank_info, mode_name_to_id
+from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info, mode_name_to_id
 
 
+@final
 class MilestonesStats(BedwarsStats):
     def __init__(
         self,
         session_info: BedwarsSession,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value 
     ) -> None:
-        super().__init__(hypixel_data, ganemode=mode)
+        super().__init__(hypixel_data, gamemode=mode)
 
-        self.mode = mode_name_to_id(mode)
+        self.mode = mode
         self.session = session_info
 
         self.level = int(self.level)
@@ -71,22 +74,22 @@ class MilestonesStats(BedwarsStats):
 
     def get_wins(self):
         return self._calc_general_stats(
-            f'{self.mode}wins_bedwars', f'{self.mode}losses_bedwars', 'WLR')
+            f'{self.mode.prefix}wins_bedwars', f'{self.mode.prefix}losses_bedwars', 'WLR')
 
 
     def get_finals(self):
         return self._calc_general_stats(
-            f'{self.mode}final_kills_bedwars', f'{self.mode}final_deaths_bedwars', 'FKDR')
+            f'{self.mode.prefix}final_kills_bedwars', f'{self.mode.prefix}final_deaths_bedwars', 'FKDR')
 
 
     def get_beds(self):
         return self._calc_general_stats(
-            f'{self.mode}beds_broken_bedwars', f'{self.mode}beds_lost_bedwars', 'BBLR')
+            f'{self.mode.prefix}beds_broken_bedwars', f'{self.mode.prefix}beds_lost_bedwars', 'BBLR')
 
 
     def get_kills(self):
         return self._calc_general_stats(
-            f'{self.mode}kills_bedwars', f'{self.mode}deaths_bedwars', 'KDR')
+            f'{self.mode.prefix}kills_bedwars', f'{self.mode.prefix}deaths_bedwars', 'KDR')
 
 
     def get_stars(self):

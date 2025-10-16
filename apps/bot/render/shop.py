@@ -1,7 +1,7 @@
 from PIL import Image
 
 import statalib as lib
-from statalib import hypixel, to_thread
+from statalib import HypixelData, hypixel, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -31,7 +31,7 @@ def get_shop_layout(hypixel_data: dict) -> list:
 def render_shop(
     name: str,
     uuid: str,
-    hypixel_data: dict
+    hypixel_data: HypixelData 
 ) -> bytes:
     rank_info = hypixel.get_rank_info(hypixel_player_data=hypixel.get_player_dict(hypixel_data))
 
