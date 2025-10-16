@@ -1,5 +1,8 @@
+from typing import final
+from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     BedwarsStats,
+    HypixelData,
     rround,
     get_rank_info,
     real_title_case,
@@ -7,13 +10,14 @@ from statalib.hypixel import (
 )
 
 
+@final
 class ResourcesStats(BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
-        super().__init__(hypixel_data, ganemode=mode)
+        super().__init__(hypixel_data, gamemode=mode)
 
         self.rank_info = get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)
@@ -27,7 +31,6 @@ class ResourcesStats(BedwarsStats):
 
         return f'{iron_per_game:,}', f'{gold_per_game:,}',\
                f'{diamonds_per_game:,}', f'{emeralds_per_game:,}'
-
 
     def get_per_star(self):
         iron_per_star = rround(self.iron_collected / (self.level or 1), 2)

@@ -1,3 +1,4 @@
+from statalib import ModesEnum, Mode
 from statalib.hypixel import (
     HypixelData,
     BedwarsStats,
@@ -12,9 +13,9 @@ class AverageStats(BedwarsStats):
     def __init__(
         self,
         hypixel_data: HypixelData,
-        mode: str = 'overall'
+        mode: Mode = ModesEnum.OVERALL.value
     ) -> None:
-        super().__init__(hypixel_data, ganemode=mode.lower())
+        super().__init__(hypixel_data, gamemode=mode)
 
         self._level_real = self.questless_exp / 5000
         self.level = int(self.level)

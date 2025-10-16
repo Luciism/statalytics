@@ -1,12 +1,15 @@
-from statalib.hypixel import BedwarsStats, get_rank_info, ratio
+from typing import final
+from statalib import ModesEnum
+from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info, ratio
 
 
+@final
 class PracticeStats(BedwarsStats):
     def __init__(
         self,
-        hypixel_data: dict
+        hypixel_data: HypixelData 
     ) -> None:
-        super().__init__(hypixel_data, ganemode='overall')
+        super().__init__(hypixel_data, gamemode=ModesEnum.OVERALL.value)
         self.practice_stats: dict = self._bedwars_data.get('practice', {})
 
         self.level = int(self.level)

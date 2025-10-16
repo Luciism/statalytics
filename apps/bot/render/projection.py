@@ -1,7 +1,7 @@
 from calc.projection import PrestigeStats
 
 import statalib as lib
-from statalib import to_thread, REL_PATH, sessions
+from statalib import HypixelData, Mode, ModesEnum, to_thread, REL_PATH, sessions
 from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
@@ -13,9 +13,9 @@ def render_projection(
     name: str,
     uuid: str,
     session_info: sessions.BedwarsSession,
-    mode: str,
+    mode: Mode,
     target: int,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None | int:
@@ -81,7 +81,7 @@ def render_projection(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/projection/overlay.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')
 
-    if mode.lower() == "overall":
+    if mode.id == ModesEnum.OVERALL.value.id:
         return stats.level

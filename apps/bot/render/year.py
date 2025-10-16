@@ -1,21 +1,21 @@
 from calc.year import YearStats
 
 import statalib as lib
-from statalib import sessions
+from statalib import HypixelData, Mode, ModesEnum, sessions, to_thread
 from statalib.hypixel import add_suffixes
 from statalib.render import ImageRender, BackgroundImageLoader, Prestige
 
 
 bg = BackgroundImageLoader(dir="year")
 
-@lib.to_thread
+@to_thread
 def render_year(
     name: str,
     uuid: str,
     session_info: sessions.BedwarsSession,
     year: int,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -88,7 +88,7 @@ def render_year(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/year/overlay.png"))
 
     # Save the image
-    im.save(f'{lib.REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{lib.REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')
 
-    if mode.lower() == "overall":
+    if mode.id == ModesEnum.OVERALL.value.id:
         return stats.level

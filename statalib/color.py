@@ -1,5 +1,9 @@
 """Minecraft color code mappings."""
 
+from typing import final
+
+
+@final
 class ColorMappings:
     """Minecraft color code mapping class."""
     black = (0, 0, 0)

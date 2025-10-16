@@ -1,7 +1,7 @@
 from calc.session import SessionStats
 
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 from statalib.sessions import BedwarsSession
 from statalib.render import ImageRender, BackgroundImageLoader
 
@@ -13,8 +13,8 @@ def render_session(
     name: str,
     uuid: str,
     session_info: BedwarsSession,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -79,4 +79,4 @@ def render_session(
     im.overlay_image(lib.ASSET_LOADER.load_image("bg/session/overlay.png"))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

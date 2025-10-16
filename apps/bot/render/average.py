@@ -1,6 +1,6 @@
 from calc.average import AverageStats
 import statalib as lib
-from statalib import to_thread, REL_PATH
+from statalib import HypixelData, Mode, to_thread, REL_PATH
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -10,8 +10,8 @@ bg = BackgroundImageLoader(dir="average")
 def render_average(
     name: str,
     uuid: str,
-    mode: str,
-    hypixel_data: dict,
+    mode: Mode,
+    hypixel_data: HypixelData,
     skin_model: bytes,
     save_dir: str
 ) -> None:
@@ -78,4 +78,4 @@ def render_average(
     im.player.paste_skin(skin_model, position=(465, 67))
 
     # Save the image
-    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.lower()}.png')
+    im.save(f'{REL_PATH}/database/rendered/{save_dir}/{mode.id}.png')

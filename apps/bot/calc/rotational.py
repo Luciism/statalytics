@@ -1,5 +1,6 @@
+from typing import final
 import statalib
-from statalib import hypixel, rotational_stats as rotational
+from statalib import HypixelData, Mode, ModesEnum, hypixel, rotational_stats as rotational
 
 
 def _get_reset_time_info(uuid: str) -> tuple[str, str]:
@@ -13,13 +14,14 @@ def _get_reset_time_info(uuid: str) -> tuple[str, str]:
     return timezone, reset_time
 
 
+@final
 class RotationalStats(hypixel.CumulativeStats):
     def __init__(
         self,
         uuid: str,
         rotation_type: rotational.RotationType,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: hypixel.HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         self.rotational_data = rotational.RotationalStatsManager(uuid) \
             .get_rotational_data(rotation_type)
@@ -27,7 +29,7 @@ class RotationalStats(hypixel.CumulativeStats):
         super().__init__(hypixel_data, self.rotational_data.data, gamemode=mode)
 
         self.uuid = uuid
-        self.mode = hypixel.mode_name_to_id(mode)
+        self.mode = mode
 
         self.stars_gained = f'{hypixel.rround(self.levels_cum, 2):,}'
         self.level = int(self.level)
@@ -38,21 +40,22 @@ class RotationalStats(hypixel.CumulativeStats):
 
 
 
+@final
 class HistoricalRotationalStats(hypixel.BedwarsStats):
     def __init__(
         self,
         uuid: str,
         period_id: rotational.HistoricalRotationPeriodID,
-        hypixel_data: dict,
-        mode: str='overall'
+        hypixel_data: HypixelData,
+        mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
-        super().__init__(hypixel_data, ganemode=mode)
+        super().__init__(hypixel_data, gamemode=mode)
 
         self.historical_stats = rotational.RotationalStatsManager(uuid) \
             .get_historical_rotation_data(period_id.to_string())
 
         self.uuid = uuid
-        self.mode = hypixel.mode_name_to_id(mode)
+        self.mode = mode
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_player_data)
 
@@ -89,7 +92,7 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
         self.kdr_cum = hypixel.ratio(self.kills_cum, self.deaths_cum)
 
 
-    def _get_stat(self, key: str, default=0):
+    def _get_stat(self, key: str, default=0) -> int | float:
         return self.historical_stats.data.as_dict().get(f'{self.mode}{key}', default)
 
 

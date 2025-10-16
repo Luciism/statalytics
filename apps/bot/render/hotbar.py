@@ -1,7 +1,7 @@
 from PIL import Image
 
 import statalib as lib
-from statalib import hypixel, to_thread
+from statalib import HypixelData, hypixel, to_thread
 from statalib.render import ImageRender, BackgroundImageLoader
 
 
@@ -16,7 +16,7 @@ SLOT_POSITIONS = [
 def render_hotbar(
     name: str,
     uuid: str,
-    hypixel_data: dict
+    hypixel_data: HypixelData,
 ) -> bytes:
     try:
         hypixel_data = hypixel_data['player']
