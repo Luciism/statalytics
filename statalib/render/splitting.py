@@ -1,13 +1,9 @@
 """String splitting utilities."""
 
-import logging
 import re
 
 
-def split_string(
-    input_string: str,
-    split_chars: tuple | list
-) -> list[tuple[str, str]]:
+def split_string(input_string: str, split_chars: tuple | list) -> list[tuple[str, str]]:
     """
     Split a string at all specified substrings and returns both
     split list with their respective substrings.
@@ -27,19 +23,22 @@ def split_string(
     """
     pattern = '|'.join(map(re.escape, split_chars))
 
-    # Extract the matched substrings from the match_posses and filter out empty strings
-    match_posses = re.finditer(f"(.*?)(?:{pattern}|$)", input_string)
-    matches = [match.group(1) for i, match in enumerate(match_posses) if i != 0]
-    matches.remove("")  # Last match will always be an empty string
-
-    if not matches:
+    # Find the splits and their codes
+    parts = re.split(f"({pattern})", input_string)
+    if not parts:
         return [(input_string, '')]
 
-    values = re.findall(pattern, input_string)
+    result = []
+    current_code = ''
+    for part in parts:
+        if part in split_chars:
+            current_code = part
+        else:
+            result.append((part, current_code))
+            current_code = ''  # reset only if you want new code to apply per block
 
-    # If the string doesn't start with a split character,
-    # add a dummy value at the beginning of 'values' list.
-    if not input_string.startswith(tuple(split_chars)):
-        values.insert(0, '')
+    # remove any empty initial tuple if nothing before first code
+    if result and result[0][0] == '' and result[0][1] == '':
+        result.pop(0)
 
-    return zip(matches, values)
+    return result
