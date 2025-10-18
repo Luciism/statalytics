@@ -6,12 +6,7 @@ from ..aliases import BedwarsData, HypixelData, HypixelPlayerData
 from ..common import Mode
 from .leveling import Leveling
 from .quests import QuestsDataDict, get_quests_data
-from .utils import (
-    calc_xp_from_wins,
-    get_most_played_mode,
-    get_player_dict,
-    rround,
-)
+from .utils import calc_xp_from_wins, get_most_played_mode, get_player_dict, rround
 
 
 class BedwarsStats:
@@ -50,7 +45,10 @@ class BedwarsStats:
         self.kdr: float = self._get_ratio(self.kills, self.deaths)
 
         self.games_played: int = self._get_mode_stats("games_played_bedwars")
-        self.most_played: str = get_most_played_mode(self._bedwars_data)
+        self.most_played_mode: Mode | None = get_most_played_mode(
+            self._bedwars_data, dreams=gamemode.is_dream
+        )
+        self.most_played: str = self.most_played_mode.name if self.most_played_mode else "N/A"
 
         self.experience: int = self._bedwars_data.get("Experience", 0)
 
@@ -58,11 +56,19 @@ class BedwarsStats:
         self.level: float = self.leveling.level
 
         self.items_purchased: int = self._get_mode_stats("items_purchased_bedwars")
-        self.tools_purchased: int = self._get_mode_stats("permanent_items_purchased_bedwars")
+        self.tools_purchased: int = self._get_mode_stats(
+            "permanent_items_purchased_bedwars"
+        )
 
-        self.resources_collected: int = self._get_mode_stats("resources_collected_bedwars")
-        self.iron_collected: int = self._get_mode_stats("iron_resources_collected_bedwars")
-        self.gold_collected: int = self._get_mode_stats("gold_resources_collected_bedwars")
+        self.resources_collected: int = self._get_mode_stats(
+            "resources_collected_bedwars"
+        )
+        self.iron_collected: int = self._get_mode_stats(
+            "iron_resources_collected_bedwars"
+        )
+        self.gold_collected: int = self._get_mode_stats(
+            "gold_resources_collected_bedwars"
+        )
         self.diamonds_collected: int = self._get_mode_stats(
             "diamond_resources_collected_bedwars"
         )
@@ -130,4 +136,12 @@ class BedwarsStats:
         return rround(val_1 / (val_2 or 1), 2)
 
     def _get_mode_stats(self, key: str, default: int = 0) -> int:
-        return self._bedwars_data.get(f"{self._gamemode.prefix}{key}", default)
+        if not self._gamemode.is_compound:
+            return self._bedwars_data.get(f"{self._gamemode.prefix}{key}", default)
+
+        sum = 0
+
+        for prefix in self._gamemode.prefix:
+            sum += self._bedwars_data.get(f"{prefix}{key}", default)
+
+        return sum

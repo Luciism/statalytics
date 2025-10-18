@@ -1,23 +1,13 @@
 """Utility functions for calculating bedwars stats."""
 
-
 from typing import Literal
+from typing_extensions import deprecated
 
-from ..aliases import HypixelData, HypixelPlayerData, BedwarsData
-
+from ..aliases import BedwarsData, HypixelData, HypixelPlayerData
+from ..common import Mode, ModesEnum
 
 PROGRESS_BAR_MAX = 30
 "Maximum progress bar length."
-
-BEDWARS_MODES_MAP = {
-    "overall": "",
-    "solos": "eight_one_",
-    "doubles": "eight_two_",
-    "threes": "four_three_",
-    "fours": "four_four_",
-    "4v4": "two_four_"
-}
-"Mode name to key prefix mapping."
 
 WINS_XP_MAP = {
     "eight_one_wins_bedwars": 100,
@@ -45,22 +35,26 @@ WINS_XP_MAP = {
 
 # Suffixes used to approximate large numbers
 NUM_SUFFIXES_MAP = {
-    10**60: 'NoDc', 10**57: 'OcDc', 10**54: 'SpDc', 10**51: 'SxDc',
-    10**48: 'QiDc', 10**45: 'QaDc', 10**42: 'TDc', 10**39: 'DDc',
-    10**36: 'UDc', 10**33: 'Dc', 10**30: 'No', 10**27: 'Oc', 10**24: 'Sp',
-    10**21: 'Sx', 10**18: 'Qi', 10**15: 'Qa', 10**12: 'T', 10**9: 'B', 10**6: 'M'
+    10**60: "NoDc",
+    10**57: "OcDc",
+    10**54: "SpDc",
+    10**51: "SxDc",
+    10**48: "QiDc",
+    10**45: "QaDc",
+    10**42: "TDc",
+    10**39: "DDc",
+    10**36: "UDc",
+    10**33: "Dc",
+    10**30: "No",
+    10**27: "Oc",
+    10**24: "Sp",
+    10**21: "Sx",
+    10**18: "Qi",
+    10**15: "Qa",
+    10**12: "T",
+    10**9: "B",
+    10**6: "M",
 }
-
-
-def real_title_case(text: str) -> str:
-    """
-    Like calling .title() except it wont capitalize words like `4v4`.
-
-    :param text: The text to operate on.
-    """
-    words = text.split()
-    title_words = [word.title() if word[0].isalpha() else word for word in words]
-    return ' '.join(title_words)
 
 
 def get_player_dict(hypixel_data: HypixelData) -> HypixelPlayerData:
@@ -69,12 +63,35 @@ def get_player_dict(hypixel_data: HypixelData) -> HypixelPlayerData:
 
     :param hypixel_data: The raw Hypixel API JSON response.
     """
-    return hypixel_data.get('player') or {}
+    return hypixel_data.get("player") or {}
 
 
+def get_most_mode_v2(
+    bedwars_data: BedwarsData, stat_key: str, dreams: bool = False
+) -> Mode | None:
+    """
+    Return the mode with the most amount of a certain statistic.
+
+    :param bedwars_data: Hypixel bedwars data from 'player'>'stats'>'Bedwars'.
+    :param stat_key: The bedwars stat key, for example `games_played_bedwars`.
+    """
+    modes = ModesEnum.non_dream_modes() if not dreams else ModesEnum.dream_modes()
+
+    mode_tuples = [
+        (mode, bedwars_data.get(f"{mode.prefix}{stat_key}", 0))
+        for mode in modes
+        if mode.is_real
+    ]
+
+    if max(mode_tuples, key=lambda m: m[1]) == 0:
+        return None
+
+    return max(mode_tuples, key=lambda m: m[1])[0]
+
+
+@deprecated("Use get_most_mode_v2 instead")
 def get_most_mode(
-    bedwars_data: BedwarsData,
-    stat_key: str
+    bedwars_data: BedwarsData, stat_key: str
 ) -> Literal["Solos", "Doubles", "Threes", "Fours", "4v4", "N/A"]:
     """
     Return the mode with the most amount of a certain statistic.
@@ -83,35 +100,27 @@ def get_most_mode(
     :param stat_key: The bedwars stat key, for example `games_played_bedwars`.
     """
     modes_dict: dict[str, int] = {
-        'Solos': bedwars_data.get(f'eight_one_{stat_key}', 0),
-        'Doubles': bedwars_data.get(f'eight_two_{stat_key}', 0),
-        'Threes':  bedwars_data.get(f'four_three_{stat_key}', 0),
-        'Fours': bedwars_data.get(f'four_four_{stat_key}', 0),
-        '4v4': bedwars_data.get(f'two_four_{stat_key}', 0)
+        "Solos": bedwars_data.get(f"eight_one_{stat_key}", 0),
+        "Doubles": bedwars_data.get(f"eight_two_{stat_key}", 0),
+        "Threes": bedwars_data.get(f"four_three_{stat_key}", 0),
+        "Fours": bedwars_data.get(f"four_four_{stat_key}", 0),
+        "4v4": bedwars_data.get(f"two_four_{stat_key}", 0),
     }
     if max(modes_dict.values()) == 0:
         return "N/A"
     return str(max(modes_dict, key=modes_dict.get))
 
 
-def get_most_played_mode(bedwars_data: BedwarsData):
+def get_most_played_mode(
+    bedwars_data: BedwarsData, dreams: bool = False
+) -> Mode | None:
     """
     Gets most played bedwars modes (solos, doubles, etc).
 
     :param bedwars_data: The Hypixel bedwars data of the player.
     """
-    return get_most_mode(bedwars_data, 'games_played_bedwars')
-
-
-def mode_name_to_id(mode: str) -> str:
-    """
-    Convert a mode name (Solos, Doubles, etc) into hypixel
-    format (eight_one_, eight_two_, etc). If the mode doesnt exist or is 'overall'
-    returns an empty string. Can be to prefix stats, eg: f'{mode}wins_bedwars'.
-
-    :param mode: The mode name to convert.
-    """
-    return BEDWARS_MODES_MAP.get(mode.lower(), "")
+    # return get_most_mode(bedwars_data, 'games_played_bedwars')
+    return get_most_mode_v2(bedwars_data, "games_played_bedwars", dreams)
 
 
 def calc_xp_from_wins(bedwars_data: BedwarsData) -> dict[str, int]:
@@ -123,7 +132,7 @@ def calc_xp_from_wins(bedwars_data: BedwarsData) -> dict[str, int]:
     :return dict[str, int]: A dictionary of modes and their xp, as well \
         as the total xp.
     """
-    exp_data = {'experience': 0}
+    exp_data = {"experience": 0}
 
     for mode, exp_amount in WINS_XP_MAP.items():
         total_wins = bedwars_data.get(mode, 0)
@@ -131,12 +140,12 @@ def calc_xp_from_wins(bedwars_data: BedwarsData) -> dict[str, int]:
         mode_exp = total_wins * exp_amount
 
         exp_data[mode] = mode_exp
-        exp_data['experience'] += mode_exp
+        exp_data["experience"] += mode_exp
 
     return exp_data
 
 
-def rround(number: float | int, ndigits: int=0) -> float | int:
+def rround(number: float | int, ndigits: int = 0) -> float | int:
     """
     Round a number to a specified number of decimal places. If the number is a
     whole number, it will be converted to an int.
