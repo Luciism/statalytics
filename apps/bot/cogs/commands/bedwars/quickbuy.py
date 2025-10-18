@@ -2,17 +2,17 @@ import asyncio
 
 import discord
 import statalib as lib
-from discord import app_commands
 from discord.ext import commands
 
 import helper
+from helper import app_command
 from render.quickbuy import render_quickbuy
 
 
 class QuickBuy(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-        self.LOADING_MSG = lib.config.loading_message()
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
+        self.LOADING_MSG: str = lib.config.loading_message()
 
         self.deprecation_warning: str = (
             "<:docs:1325495671272374272> **Warning:** "
@@ -40,42 +40,28 @@ class QuickBuy(commands.Cog):
             content=None, attachments=[discord.File(rendered, filename="quickbuy.png")]
         )
 
-    @app_commands.command(name="shop", description="[DEPRECATED] View the shopkeeper of a player")
-    @app_commands.describe(player="The player you want to view")
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    @app_command("shop", "[DEPRECATED] View the shopkeeper layout of a player", {
+        "player": "The player you want to view"})
     async def shop(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
         _ = await interaction.edit_original_response(content=self.deprecation_warning)
         lib.usage.update_command_stats(interaction.user.id, "shop")
 
-    @app_commands.command(
-        name="hotbar",
-        description="[DEPRECATED] View the hotbar preferences of a player")
-    @app_commands.describe(player='The player you want to view')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    @app_command("hotbar", "[DEPRECATED] View the hotbar layout of a player", {
+        "player": "The player you want to view"})
     async def hotbar(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
         _ = await interaction.edit_original_response(content=self.deprecation_warning)
         lib.usage.update_command_stats(interaction.user.id, "hotbar")
 
-    @app_commands.command(
-        name="quickbuy", description="View the quickbuy layout of a player"
-    )
-    @app_commands.describe(player="The player you want to view")
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+
+    @app_command("quickbuy", "View the quickbuy layout of a player", {
+        "player": "The player you would like to lookup"})
     async def quickbuy(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
         lib.usage.update_command_stats(interaction.user.id, "quickbuy")
 
 
-async def setup(client: commands.Bot) -> None:
+async def setup(client: helper.Client) -> None:
     await client.add_cog(QuickBuy(client))
+
