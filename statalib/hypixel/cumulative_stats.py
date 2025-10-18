@@ -4,7 +4,6 @@ from typing import final
 from ..common import Mode, ModesEnum
 from ..aliases import HypixelData
 from .bedwars_stats import BedwarsStats
-from .utils import BEDWARS_MODES_MAP
 from .leveling import Leveling
 from ..stats_snapshot import BedwarsStatsSnapshot
 
