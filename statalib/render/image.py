@@ -1,15 +1,15 @@
 """Main image rendering functionality."""
 
 from io import BytesIO
-from typing import Literal, TypedDict
+from typing import Literal, Sequence, TypedDict
 
 from PIL import Image, UnidentifiedImageError
 
-from . import text as imgtext
-from .text import render_mc_text
-from .prestige_colors import Prestige
 from ..assets import ASSET_LOADER
-from ..hypixel import RankInfo, PROGRESS_BAR_MAX
+from ..hypixel import PROGRESS_BAR_MAX, RankInfo
+from . import text as imgtext
+from .prestige_colors import Prestige
+from .text import render_mc_text
 
 
 class TextOptions(TypedDict):
@@ -233,9 +233,14 @@ class ImageRender:
         self.player = PlayerRender(self._image)
         self.progress = ProgressRender(self._image, self.text)
 
-    def overlay_image(self, overlay_image: Image.Image) -> None:
+    def overlay_image(
+        self,
+        overlay_image: Image.Image,
+        source: Sequence[int]=(0, 0),
+        dest: Sequence[int]=(0, 0)
+    ) -> None:
         """Composite / overlay another image onto the image."""
-        self._image.alpha_composite(overlay_image.convert("RGBA"))
+        self._image.alpha_composite(overlay_image.convert("RGBA"), source, dest)
 
     def paste_titles(self, asset_dir: str) -> None:
         """

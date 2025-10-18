@@ -3,7 +3,7 @@ from typing import final
 
 from statalib import Mode, ModesEnum
 from statalib.sessions import BedwarsSession
-from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info, mode_name_to_id
+from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info 
 
 
 @final
