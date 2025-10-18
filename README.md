@@ -38,8 +38,7 @@ Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and rel
 | `/resources`       | View resource stats of any player            |
 | `/practice`        | View practice stats of any player            |
 | `/activecosmetics` | View the active cosmetics of any player      |
-| `/hotbar`          | View the hotbar preference of any player     |
-| `/shop`            | View the shop of any player                  |
+| `/quickbuy`        | View the quickbuy and hotbar of any player   |
 
 </details>
 
@@ -111,6 +110,6 @@ Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and rel
 |     <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/resources.png?width=400&height=293"></div> **Resource Stats**     |             <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/practice.png?width=400&height=293"></div> **Practice Stats**             |
 |    <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/milestones.png?width=400&height=293"></div> **Milestone Stats**    |              <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/ratios.png?width=400&height=293"></div> **Average Stats**               |
 | <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/activecosmetics.png?width=400&height=293"></div> **Active Cosmetics** |          <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/mostplayed.png?width=400&height=263"></div> **Most Played Stats**           |
-|      <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/shop.png?width=400&height=217"></div> **Quick Buy Viewer**       |         <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/hotbar.png?width=400&height=247"></div> **Hotbar Preference Viewer**         |
+|      <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/quickbuy.png?width=400&height=243"></div> **QuickBuy Viewer**       | |
 
 </div>
