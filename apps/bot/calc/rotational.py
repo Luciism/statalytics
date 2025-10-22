@@ -93,7 +93,7 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
 
 
     def _get_stat(self, key: str, default=0) -> int | float:
-        return self.historical_stats.data.as_dict().get(f'{self.mode}{key}', default)
+        return self.historical_stats.data.as_dict().get(f'{self.mode.prefix}{key}', default)
 
 
     def _get_most_played(self):
