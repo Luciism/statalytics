@@ -46,6 +46,19 @@ services:
       - "${WEBSITE_PORT}:443"
     restart: unless-stopped
 
+  redis:
+    image: redis:8.2.1-alpine
+    env_file:
+      - ./.env
+    volumes:
+      - ./redis.conf:/etc/redis/redis.conf
+      - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
+    restart: unless-stopped
+
+    ports:
+      - 8767:6379
+
 
 volumes:
   database:

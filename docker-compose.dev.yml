@@ -36,6 +36,13 @@ services:
     env_file:
       - ./.env.dev
 
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis 
+    env_file:
+      - ./.env.dev
+
 
 volumes:
   database:

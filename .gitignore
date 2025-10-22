@@ -25,5 +25,7 @@ desktop.ini
 
 # Misc
 **/test.py
+test_consumer.py
+test_producer.py
 pyrightconfig.json
 .nvimlog

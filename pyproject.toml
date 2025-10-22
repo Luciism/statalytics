@@ -8,7 +8,7 @@ requires-python = ">=3.11"
 # Dev dependencies
 dependencies = [
     "aiohttp-client-cache==0.8.2",
-    "aiosqlite==0.19.0",  # used by `aiohttp-client-cache`
+    "aiosqlite==0.19.0", # used by `aiohttp-client-cache`
     "colorlog==6.7.0",
     "discord.py==2.4.0",
     "numpy==2.2.2",
@@ -21,5 +21,6 @@ dependencies = [
     "Flask[async]",
     "Flask-Discord==0.1.69",
     "matplotlib==3.10.0",
+    "redis==6.4.0",
 ]
 

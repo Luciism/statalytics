@@ -15,6 +15,7 @@ from . import hypixel
 from . import loggers
 from . import network
 from . import render
+from . import redis_ext
 from . import rotational_stats
 from . import sessions
 from . import shared_views
@@ -46,6 +47,7 @@ __all__ = [
     'sessions',
     'shared_views',
     'usage',
+    'redis_ext',
     'REL_PATH',
     'MISSING',
     'utc_now',
