@@ -53,6 +53,7 @@ services:
     volumes:
       - ./redis.conf:/etc/redis/redis.conf
       - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - redis_data:/data
     entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
     restart: unless-stopped
 
@@ -63,3 +64,4 @@ services:
 volumes:
   database:
   logs:
+  redis_data:
