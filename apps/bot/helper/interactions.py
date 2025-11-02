@@ -1,21 +1,22 @@
 import asyncio
-import os
 import logging
-from typing import Any, Coroutine, Callable
+import os
+from typing import Any, Callable, Coroutine
 
-import mcfetch
 import discord
-from discord import Interaction, Embed
-from aiohttp import ContentTypeError, ClientConnectionError
-
+import mcfetch
 import statalib as lib
+from aiohttp import ClientConnectionError, ContentTypeError
+from discord import Embed, Interaction
 from statalib.accounts import Account
-from statalib.common import Mode, ModesEnum 
+from statalib.accounts.linking import LinkingOutcomeEnum
+from statalib.aliases import PlayerName
+from statalib.common import Mode, ModesEnum
+
 from .tips import random_tip_message
 from .views import ModesView
 
-
-logger = logging.getLogger('statalytics')
+logger = logging.getLogger("statalytics")
 
 
 def interaction_send_object(interaction: Interaction) -> Callable:
@@ -32,11 +33,8 @@ def interaction_send_object(interaction: Interaction) -> Callable:
     return response_obj
 
 
-
 async def fetch_player_info(
-    player: lib.aliases.PlayerDynamic,
-    interaction: Interaction,
-    eph=False
+    player: lib.aliases.PlayerDynamic, interaction: Interaction, eph=False
 ) -> tuple[lib.aliases.PlayerName, lib.aliases.PlayerUUID]:
     """
     Get formatted username & uuid of a user from their minecraft ign / uuid
@@ -50,14 +48,17 @@ async def fetch_player_info(
         if uuid:
             try:
                 name = await mcfetch.AsyncPlayer(
-                    uuid, cache_backend=lib.network.mojang_session).name
+                    uuid, cache_backend=lib.network.mojang_session
+                ).name
             except (ContentTypeError, ClientConnectionError) as exc:
                 raise lib.errors.MojangInvalidResponseError from exc
 
             Account(interaction.user.id).linking.update_autofill(uuid, name)
         else:
-            msg = ("You are not linked! Either specify "
-                   "a player or link your account using `/link`!")
+            msg = (
+                "You are not linked! Either specify "
+                "a player or link your account using `/link`!"
+            )
 
             if interaction.response.is_done():
                 await interaction.followup.send(msg)
@@ -67,10 +68,11 @@ async def fetch_player_info(
     else:
         # allow for linked discord ids
         if player.isnumeric() and len(player) >= 16:
-            player = Account(int(player)).linking.get_linked_player_uuid() or ''
+            player = Account(int(player)).linking.get_linked_player_uuid() or ""
 
         player_data = mcfetch.AsyncPlayer(
-            player, cache_backend=lib.network.mojang_session)
+            player, cache_backend=lib.network.mojang_session
+        )
 
         try:
             name = await player_data.name
@@ -80,14 +82,14 @@ async def fetch_player_info(
 
         if name is None:
             await interaction_send_object(interaction)(
-                "That player does not exist!", ephemeral=eph)
+                "That player does not exist!", ephemeral=eph
+            )
             raise lib.errors.PlayerNotFoundError
     return name, uuid
 
 
 async def linking_interaction(
-    interaction: Interaction,
-    username: lib.aliases.PlayerName
+    interaction: Interaction, username: lib.aliases.PlayerName
 ):
     """
     discord.py interaction for account linking
@@ -102,19 +104,21 @@ async def linking_interaction(
     hypixel_data = await lib.network.fetch_hypixel_data(uuid, cache=False)
 
     # Linking Logic
-    response = await Account(interaction.user.id).linking.link_account(
-        str(interaction.user), hypixel_data, name, uuid)
+    response = Account(interaction.user.id).linking.link_account(
+        str(interaction.user), hypixel_data, name, uuid
+    )
 
-    if response == 1:
-        await interaction.followup.send(f"Successfully linked to **{lib.fmt.fname(name)}**")
-        return
+    if response == LinkingOutcomeEnum.SUCCESS:
+        return await interaction.followup.send(
+            f"Successfully linked to **{lib.fmt.fname(name)}**"
+        )
 
-    if response == 2:
-        await interaction.followup.send(
+    if response == LinkingOutcomeEnum.SUCCESS_AND_SESSION_CREATED:
+        return await interaction.followup.send(
             f"Successfully linked to **{lib.fmt.fname(name)}**\n"
-            "No sessions where found for this player so one was created.",
-            view=lib.shared_views.SessionInfoButton())
-        return
+            + "No sessions where found for this player so one was created.",
+            view=lib.shared_views.SessionInfoButton(),
+        )
 
     # Player not linked embed
     await interaction.followup.send(embed=lib.Embeds.problems.linking_error())
@@ -125,7 +129,7 @@ async def find_dynamic_session_interaction(
     username: lib.aliases.PlayerName,
     uuid: lib.aliases.PlayerUUID,
     hypixel_data: dict,
-    session: int | None=None
+    session: int | None = None,
 ) -> lib.sessions.BedwarsSession:
     """
     Dynamically gets a session of a user\n
@@ -154,31 +158,27 @@ async def find_dynamic_session_interaction(
             raise lib.errors.SessionNotFoundError
 
         await interaction_callback(
-            content=
-                f"**{lib.fmt.fname(username)}** doesn't have an active session with ID: `{session}`!"
+            content=f"**{lib.fmt.fname(username)}** doesn't have an active session with ID: `{session}`!"
         )
         raise lib.errors.SessionNotFoundError
 
     return session_info
 
 
-async def _send_interaction_check_response(
-    interaction: Interaction,
-    embed: Embed
-):
+async def _send_interaction_check_response(interaction: Interaction, embed: Embed):
     if interaction.response.is_done():
         await interaction.edit_original_response(
-            embed=embed, content=None, attachments=[])
+            embed=embed, content=None, attachments=[]
+        )
     else:
-        await interaction.response.send_message(
-            embed=embed, content=None, files=[])
+        await interaction.response.send_message(embed=embed, content=None, files=[])
 
 
 async def run_interaction_checks(
     interaction: Interaction,
-    check_blacklisted: bool=True,
-    permissions: list | str=None,
-    allow_star: bool=True
+    check_blacklisted: bool = True,
+    permissions: list | str = None,
+    allow_star: bool = True,
 ):
     """
     Runs any checks to see if the interaction is allowed to proceed.
@@ -200,20 +200,22 @@ async def run_interaction_checks(
         await _send_interaction_check_response(interaction, embed)
 
         logger.debug(
-            f'`Blacklisted User`: Denied {interaction.user} '
-            f'({interaction.user.id}) access to an interaction')
+            f"`Blacklisted User`: Denied {interaction.user} "
+            f"({interaction.user.id}) access to an interaction"
+        )
         raise lib.errors.UserBlacklistedError
 
     if permissions:
         # User doesn't have at least one of the required permissions
-        if not (allow_star and '*' in account_data.permissions):
+        if not (allow_star and "*" in account_data.permissions):
             if not set(permissions) & set(account_data.permissions):
                 embed = lib.Embeds.problems.missing_permissions()
                 await _send_interaction_check_response(interaction, embed)
 
                 logger.debug(
-                    f'`Missing permissions`: Denied {interaction.user} '
-                    f'({interaction.user.id}) access to an interaction.')
+                    f"`Missing permissions`: Denied {interaction.user} "
+                    f"({interaction.user.id}) access to an interaction."
+                )
                 raise lib.errors.MissingPermissionsError
 
 
@@ -221,9 +223,9 @@ async def handle_modes_renders(
     interaction: discord.Interaction,
     func: Callable[[Mode], Coroutine[None, None, None]],
     kwargs: dict[str, Any],
-    message: str | None=None,
-    custom_view: discord.ui.View | None=None,
-    dreams: bool=False
+    message: str | None = None,
+    custom_view: discord.ui.View | None = None,
+    dreams: bool = False,
 ) -> None:
     """
     Renders and sends all modes to discord for the selected render.
@@ -237,7 +239,7 @@ async def handle_modes_renders(
     if not message:
         message = random_tip_message(interaction.user.id)
 
-    os.makedirs(f'{lib.REL_PATH}/database/rendered/{interaction.id}')
+    os.makedirs(f"{lib.REL_PATH}/database/rendered/{interaction.id}")
 
     if not dreams:
         modes = ModesEnum.non_dream_modes()
@@ -246,9 +248,7 @@ async def handle_modes_renders(
 
     await func(mode=modes[0], **kwargs)
     view = ModesView(
-        interaction_origin=interaction,
-        placeholder='Select a mode',
-        modes=modes
+        interaction_origin=interaction, placeholder="Select a mode", modes=modes
     )
 
     if custom_view is not None:
@@ -256,7 +256,8 @@ async def handle_modes_renders(
             _ = view.add_item(child)
 
     image = discord.File(
-        f"{lib.REL_PATH}/database/rendered/{interaction.id}/{modes[0].id}.png")
+        f"{lib.REL_PATH}/database/rendered/{interaction.id}/{modes[0].id}.png"
+    )
     try:
         _ = await interaction.edit_original_response(
             content=message, attachments=[image], view=view
@@ -264,6 +265,4 @@ async def handle_modes_renders(
     except discord.errors.NotFound:
         return
 
-    await asyncio.gather(
-        *[func(mode=mode, **kwargs) for mode in modes[1:]]
-    )
+    await asyncio.gather(*[func(mode=mode, **kwargs) for mode in modes[1:]])
