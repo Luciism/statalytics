@@ -1,0 +1,142 @@
+{
+    "render_modes": [
+        {
+            "id": "average",
+            "name": "Average Stats",
+            "path": "average/",
+            "size": [640, 468]
+        },
+        {
+            "id": "compare",
+            "name": "Stat Comparison",
+            "path": "compare/",
+            "size": [640, 468]
+        },
+        {
+            "id": "cosmetics",
+            "name": "Cosmetics",
+            "path": "cosmetics/",
+            "size": [640, 468]
+        },
+        {
+            "id": "difference",
+            "name": "Difference",
+            "path": "difference/",
+            "size": [640, 468]
+        },
+        {
+            "id": "milestones",
+            "name": "Milestones",
+            "path": "milestones/",
+            "size": [640, 468]
+        },
+        {
+            "id": "mostplayed",
+            "name": "Most Played",
+            "path": "mostplayed/",
+            "size": [640, 420]
+        },
+        {
+            "id": "practice",
+            "name": "Practice Stats",
+            "path": "practice/",
+            "size": [640, 468]
+        },
+        {
+            "id": "projection",
+            "name": "Projected Stats",
+            "path": "projection/",
+            "size": [640, 468]
+        },
+        {
+            "id": "quests",
+            "name": "Quest Stats",
+            "path": "quests/",
+            "size": [640, 468]
+        },
+        {
+            "id": "quickbuy",
+            "name": "Quick Buy",
+            "path": "quickbuy/",
+            "size": [880, 534]
+        },
+        {
+            "id": "resources",
+            "name": "Resources",
+            "path": "resources/",
+            "size": [640, 468]
+        },
+        {
+            "id": "daily",
+            "name": "Daily Stats",
+            "path": "rotational/daily",
+            "size": [640, 468]
+        },
+        {
+            "id": "weekly",
+            "name": "Weekly Stats",
+            "path": "rotational/weekly",
+            "size": [640, 468]
+        },
+        {
+            "id": "monthly",
+            "name": "Monthly Stats",
+            "path": "rotational/monthly",
+            "size": [640, 468]
+        },
+        {
+            "id": "yearly",
+            "name": "Yearly Stats",
+            "path": "rotational/yearly",
+            "size": [640, 468]
+        },
+        {
+            "id": "lastday",
+            "name": "Last Day",
+            "path": "rotational/lastday",
+            "size": [640, 468]
+        },
+        {
+            "id": "lastweek",
+            "name": "Last Week",
+            "path": "rotational/lastweek",
+            "size": [640, 468]
+        },
+        {
+            "id": "lastmonth",
+            "name": "Last Month",
+            "path": "rotational/lastmonth",
+            "size": [640, 468]
+        },
+        {
+            "id": "lastyear",
+            "name": "Last Year",
+            "path": "rotational/lastyear",
+            "size": [640, 468]
+        },
+        {
+            "id": "session",
+            "name": "Session Stats",
+            "path": "session/",
+            "size": [640, 468]
+        },
+        {
+            "id": "total",
+            "name": "Bedwars Stats",
+            "path": "total/",
+            "size": [640, 468]
+        },
+        {
+            "id": "winstreaks",
+            "name": "Winstreak Stats",
+            "path": "winstreaks/",
+            "size": [640, 352]
+        },
+        {
+            "id": "year_projection",
+            "name": "Projected 2026 / 2027 Stats",
+            "path": "year/",
+            "size": [640, 352]
+        }
+    ]
+}

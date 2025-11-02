@@ -1,12 +1,14 @@
 """Functionality to lazy load assets into memory as needed."""
 
+import functools
 import json
 import os
-import functools
+from dataclasses import dataclass
 
 from PIL import Image, ImageFont
 
 from .common import REL_PATH
+from .errors import BackgroundPropertiesNotFoundError
 
 
 class _AssetLoader:
@@ -22,7 +24,6 @@ class _AssetLoader:
             with open(f"{REL_PATH}/assets/command_map.json", encoding="utf-8") as file:
                 self.__command_map = json.load(file)
         return self.__command_map
-
 
     def image_file_exists(self, image_path: str) -> bool:
         """
@@ -57,3 +58,61 @@ class _AssetLoader:
 
 ASSET_LOADER = _AssetLoader()
 "Global asset loader instance."
+
+
+@dataclass
+class BackgroundProperties:
+    """Properties for background image assets."""
+
+    id: str
+    "The ID of the background."
+    name: str
+    "The display name of the background assets."
+    path: str
+    "The assets path to the background assets (excludes trailing slashes)."
+    size: tuple[int, int]
+    "The (width, height) of the background image(s)."
+
+    @staticmethod
+    def get_by_id(background_id: str) -> "BackgroundProperties":
+        """
+        Load background properties from a background ID.
+
+        :param background_id: The ID of the background to load properties for.
+        :raises: BackgroundPropertiesNotFoundError: No properties were found for
+            the specified background ID.
+        """
+        with open(f"{REL_PATH}/assets/bg/properties.json") as f:
+            bgs: dict[str, list[dict[str, str | list[int]]]] = json.load(f)
+
+        for bg in bgs["render_modes"]:
+            if bg["id"] == background_id:
+                return BackgroundProperties(
+                    id=bg["id"],
+                    name=bg["name"],
+                    path=bg["path"].removesuffix("/").removesuffix("\\"),
+                    size=(bg["size"][0], bg["size"][1]),
+                )
+
+        raise BackgroundPropertiesNotFoundError(
+            f"Unknown background ID: {background_id}"
+        )
+
+    def full_path(self) -> str:
+        """The full, absolute path to the background assets."""
+        return f"{REL_PATH}/assets/bg/{self.path}"
+
+    @staticmethod
+    def get_all() -> list["BackgroundProperties"]:
+        with open(f"{REL_PATH}/assets/bg/properties.json") as f:
+            bgs: dict[str, list[dict[str, str | list[int]]]] = json.load(f)
+
+        return [
+            BackgroundProperties(
+                id=bg["id"],
+                name=bg["name"],
+                path=bg["path"].removesuffix("/").removesuffix("\\"),
+                size=(bg["size"][0], bg["size"][1]),
+            )
+            for bg in bgs["render_modes"]
+        ]
