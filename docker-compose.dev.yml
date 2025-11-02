@@ -47,3 +47,4 @@ services:
 volumes:
   database:
   logs:
+  redis_data:
