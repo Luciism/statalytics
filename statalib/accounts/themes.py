@@ -39,7 +39,6 @@ def get_theme_by_id(theme_id: str) -> Theme:
         theme = theme_packs.get("exclusive_themes", {}).get(theme_id)
 
         if theme is None:
-            print(f"Theme does not exist: {theme_id}")
             raise ThemeNotFoundError("The specified theme does not exist!")
 
     return Theme(theme_id, theme["display_name"], theme["dynamic_color"])
@@ -111,7 +110,7 @@ class AccountThemes:
 
     def _raise_if_exclusive_not_found(self, theme_id: str) -> None:
         exclusive_themes = get_exclusive_themes()
-        if not theme_id in exclusive_themes:
+        if not theme_id in [t.id for t in exclusive_themes]:
             raise ThemeNotFoundError(
                 "The respective theme is not a valid exclusive theme!"
             )
