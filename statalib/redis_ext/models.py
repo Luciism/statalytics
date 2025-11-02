@@ -36,8 +36,8 @@ class SubscriptionUpdate:
     def deserialize(fields: dict[str, int]) -> 'SubscriptionUpdate':
         """Deserialize a dictionary into the model."""
         try:
-            return SubscriptionUpdate(user_id=fields["user_id"])
-        except (KeyError, UnicodeDecodeError) as exc:
+            return SubscriptionUpdate(user_id=int(fields["user_id"]))
+        except (KeyError, UnicodeDecodeError, ValueError) as exc:
             raise DeserializationError from exc
 
 
