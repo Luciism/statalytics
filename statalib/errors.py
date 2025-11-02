@@ -34,6 +34,8 @@ class ThemeNotFoundError(Exception):
     def __str__(self):
         return self.message
 
+class ThemeUnavailableError(Exception):
+    """The theme not available to a user."""
 
 class NoLinkedAccountError(Exception):
     """No linked account exception class."""
@@ -61,3 +63,6 @@ class MissingPermissionsError(AppCommandError):
 
 class DataNotFoundError(Exception):
     """Expected data was not found in the database."""
+
+class BackgroundPropertiesNotFoundError(Exception):
+    """No properties were found for the provided background ID."""

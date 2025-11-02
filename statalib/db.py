@@ -2,6 +2,8 @@
 
 import functools
 import sqlite3
+import aiosqlite
+from aiosqlite import Cursor as AsyncCursor
 from sqlite3 import Cursor
 
 from .common import REL_PATH
@@ -22,7 +24,7 @@ def ensure_cursor(func):
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        cursor = kwargs.get('cursor')
+        cursor: Cursor | None = kwargs.get('cursor')
         if cursor:  # Use provided cursor.
             return func(*args, **kwargs)
 
@@ -37,29 +39,37 @@ def ensure_cursor(func):
 
 def async_ensure_cursor(func):
     """
+    *Uses aiosqlite*
     Decorator to ensure a database cursor is resolved.
 
     If the `cursor` argument is `None`, a new db connection and cursor
     will be acquired, otherwise the passed `cursor` argument will be used.
+    Automatically commits the changes.
     """
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        cursor = kwargs.get('cursor')
+        cursor: AsyncCursor | None = kwargs.get('cursor')
         if cursor:  # Use provided cursor.
             return await func(*args, **kwargs)
 
         # Create a new db connection and cursor object.
-        with db_connect() as conn:
-            cursor = conn.cursor()
+        async with aiosqlite.connect(config.DB_FILE_PATH) as conn:
+            cursor = await conn.cursor()
+            cursor.row_factory = aiosqlite.Row
             kwargs['cursor'] = cursor
-            return await func(*args, **kwargs)
+
+            result = await func(*args, **kwargs)
+
+            await conn.commit()
+
+            return result
 
     return wrapper
 
 
 def setup_database_schema(
-    schema_fp=f"{REL_PATH}/schema.sql",
-    db_fp=config.DB_FILE_PATH
+    schema_fp: str=f"{REL_PATH}/schema.sql",
+    db_fp: str=config.DB_FILE_PATH
 ) -> None:
     """
     Run the database schema setup script.

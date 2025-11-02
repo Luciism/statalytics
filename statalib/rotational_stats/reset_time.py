@@ -8,7 +8,7 @@ from ..aliases import PlayerUUID
 from ..common import MISSING
 from ..db import ensure_cursor, Cursor
 from ..accounts.linking import uuid_to_discord_id
-
+from .. import fmt
 
 @dataclass
 class ResetTime:
@@ -23,6 +23,12 @@ class ResetTime:
     def as_tuple(self) -> tuple[int, int, int]:
         """A tuple of [utc_offset, reset_hour, reset_minute]"""
         return (self.utc_offset, self.reset_hour, self.reset_minute)
+
+    def format_utc_offset(self) -> str:
+        return f'UTC{fmt.prefix_int(self.utc_offset)}:00'
+
+    def format_reset_time(self) -> str:
+        return fmt.format_12hr_time(self.reset_hour, self.reset_minute)
 
     def as_dict(self) -> dict:
         return {

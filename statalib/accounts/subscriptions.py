@@ -1,10 +1,13 @@
 """Account subscriptions related functionality."""
 
-import json
-import socket
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime, UTC
+import threading
 from typing import Any
+
+from ..redis_ext import SubscriptionUpdate, RedisStreamProducer
+from ..redis_ext.client import RedisClient, redis_client as main_redis_client
 
 from ..db import ensure_cursor, Cursor
 from ..cfg import config
@@ -228,35 +231,39 @@ class _SubUtils:
 
 class AccountSubscriptions:
     """Class to manage user subscriptions."""
-    def __init__(self, discord_id: int) -> None:
+    def __init__(self, discord_id: int, redis_client: RedisClient | None = None) -> None:
         """
         Class to manage user subscriptions.
 
         :param discord_id: The Discord user ID of the respective user.
         """
-        self._discord_id = discord_id
+        self._discord_id: int = discord_id
+        self._redis_client: RedisClient = redis_client or main_redis_client
 
 
-    def __update_user_roles(self, subscription: Subscription) -> None:
+    async def __async_update_user_roles(self) -> None:
         if not config.SHOULD_UPDATE_SUBSCRIPTION_ROLES:  # Overrules everything
             return
 
-        json_data = json.dumps({
-            "action": "dispatch_event",
-            "event_name": "subscription_update",
-            "args": [
-                self._discord_id,
-                subscription.package,
-                subscription.expiry_timestamp
-            ]
-        })
+        await RedisStreamProducer(self._redis_client.client).add_subscription_update(
+            SubscriptionUpdate(self._discord_id)
+        )
 
+    def __update_user_roles(self) -> None:
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-                client.connect(('utils', config("apps.utils.socket_server_port")))
-                client.send(json_data.encode())
-        except (ConnectionRefusedError, socket.gaierror):
-            return  # Utils bot is probably offline
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            threading.Thread(target=loop.run_forever, daemon=True).start()
+
+        _ = asyncio.run_coroutine_threadsafe(self.__async_update_user_roles(), loop)
+        # try:
+        #     loop = asyncio.get_running_loop()
+        #     _ = loop.create_task(self.__async_update_user_roles())
+        # except RuntimeError:
+        #     # asyncio.run(self.__async_update_user_roles())
+        #     loop = asyncio.new_event_loop()
+        #     loop.run(self.__async_update_user_roles())
 
 
     @ensure_cursor
@@ -298,7 +305,7 @@ class AccountSubscriptions:
 
         # Update user roles
         if update_roles:
-            self.__update_user_roles(active_subscription)
+            self.__update_user_roles()
         return active_subscription
 
 
@@ -469,7 +476,7 @@ class AccountSubscriptions:
             active_subscription, paused_subscriptions, cursor=cursor)
 
         if update_roles:
-            self.__update_user_roles(active_subscription or Subscription.default())
+            self.__update_user_roles()
 
 
     @ensure_cursor
@@ -494,7 +501,7 @@ class AccountSubscriptions:
             active_subscription, paused_subscriptions, cursor=cursor)
 
         if update_roles:
-            self.__update_user_roles(active_subscription or Subscription.default())
+            self.__update_user_roles()
 
 
     @ensure_cursor
@@ -559,5 +566,5 @@ class AccountSubscriptions:
             "DELETE FROM subscriptions_paused WHERE discord_id = ?", (self._discord_id,))
 
         if update_roles:
-            self.__update_user_roles(Subscription.default())
+            self.__update_user_roles()
 

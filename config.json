@@ -136,6 +136,7 @@
           "max_tickets_per_user": 3
         },
         "modlog_channel_id": 1062991100803031082,
+        "priority_logs_channel_id": 1308602912221696102,
         "lockdown_channel_ids": [
           1062688988411998228, 1059961325943525416, 1062689035279151154,
           1062688742143442944
@@ -144,7 +145,13 @@
       "roles": {
         "member_role_id": 1062652460814041098,
         "booster_role_id": 1067770271286706267,
-        "staff_role_id": 1062931151083290625
+        "staff_role_id": 1062931151083290625,
+        "priority_logs": {
+            "low": 1308604940956074068,
+            "medium": 1308604628480430080,
+            "high": 1308604756016758804,
+            "critical": 1308604852531892334
+        }
       }
     },
     "subscriptions": {
@@ -212,6 +219,7 @@
         "manage_subscriptions",
         "manage_themes",
         "manage_logs",
+        "manage_accounts",
         "view_command_usage",
         "view_rawdata",
         "change_presence",

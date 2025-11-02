@@ -1,7 +1,6 @@
 """Bedwars stats snapshot dataclass and related functionality."""
 
 from dataclasses import dataclass
-import logging
 import sqlite3
 
 from .db import ensure_cursor

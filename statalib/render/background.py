@@ -27,7 +27,7 @@ class ThemeImageLoader:
     """Class responsible for loading theme images."""
     def __init__(
         self,
-        theme: str,
+        theme: themes.Theme,
         dir: str,
         render_params: dict[str, Any]
     ) -> None:
@@ -38,19 +38,18 @@ class ThemeImageLoader:
         :param dir: The asset directory where the theme background is stored.
         :param render_params: Any custom parameters that the theme may require.
         """
-        self.theme = theme
-        self._asset_dir = dir
-        self._render_params = render_params
+        self._asset_dir: str = dir
+        self._render_params: dict[str, Any] = render_params
 
-        self.theme_properties = themes.get_theme_properties(theme)
-        self._theme_img_path = f"bg/{dir}/themes/{self.theme}.png"
+        self.theme: themes.Theme = theme
+        self._theme_img_path: str = f"bg/{dir}/themes/{self.theme.id}.png"
 
     def _load_theme_image(self) -> Image.Image:
         return ASSET_LOADER.load_image(self._theme_img_path)
 
     def _load_dynamically_colored_theme(self) -> Image.Image:
         rank_info = self._render_params.get('rank_info')
-        prestige = (self._render_params.get('level') // 100) * 100
+        prestige: int = (self._render_params.get('level', 0) // 100) * 100
 
         star_color = PrestigeColors(prestige).primary_prestige_color
 
@@ -62,7 +61,7 @@ class ThemeImageLoader:
 
     def load_theme_background(self) -> Image.Image:
         """Load the theme image."""
-        if self.theme_properties.get('dynamic_color'):
+        if self.theme.dynamic_color:
             return self._load_dynamically_colored_theme()
 
         return self._load_theme_image()
@@ -81,11 +80,11 @@ class BackgroundImageLoader:
         :param dir: The asset directory where the background images are stored.
         :param default_filename: The filename of the default background image.
         """
-        self._asset_dir = dir
-        self._default_filename = default_filename
+        self._asset_dir: str = dir
+        self._default_filename: str = default_filename
 
-        self._default_img_path = f"bg/{dir}/{default_filename}"
-        self._custom_img_dir = f'{REL_PATH}/database/custom_bg/{dir}/'
+        self._default_img_path: str = f"bg/{dir}/{default_filename}"
+        self._custom_img_dir: str = f'{REL_PATH}/database/custom_bg/{dir}/'
 
     def _custom_image_path(self, discord_user_id: int) -> str:
         return f"{self._custom_img_dir}/{discord_user_id}.png"
@@ -109,7 +108,7 @@ class BackgroundImageLoader:
         theme_data: themes.ThemesData,
         render_params: dict[str, Any]
     ) -> Image.Image:
-        voter_themes_available = config('global.theme_packs.voter_themes').keys()
+        voter_themes_available = themes.get_voter_themes()
 
         has_voter_perks = user_has_voter_perks(voting_data)
 

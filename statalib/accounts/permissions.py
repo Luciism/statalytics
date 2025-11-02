@@ -39,7 +39,7 @@ class AccountPermissions:
             self.set_permissions(permissions, cursor=cursor)
 
     @ensure_cursor
-    def set_permissions(self, permissions: list, *, cursor: Cursor=None) -> None:
+    def set_permissions(self, permissions: list[str], *, cursor: Cursor=None) -> None:
         """
         Set the user's permissions to the given set of permissions.
         This will completely override any existing permissions.
