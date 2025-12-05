@@ -15,6 +15,20 @@
       "channels": {
         "error_logs_channel_id": 1129410066827718672,
         "suggestions_channel_id": 1129410066827718673,
+        "metrics_channels": {
+          "servers": {
+            "id": 1438305748936425475,
+          },
+          "users": {
+            "id": 1438305797569249280,
+          },
+          "linked": {
+            "id": 1438305825004453972,
+          },
+          "commands": {
+            "id": 1438305773783486614,
+          }
+        },
         "tickets": {
           "ticket_category_id": 1129410067117113377,
           "archived_tickets_category_id": 1129410067117113379
