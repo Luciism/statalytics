@@ -92,7 +92,7 @@
         "type": "indirect"
       }
     },
-    "python-3-11-11-nixpkgs": {
+    "python-3-nixpkgs": {
       "locked": {
         "lastModified": 1738927596,
         "narHash": "sha256-oZLdIlpBKY+WEJlKMafIUK+MBqddHreSeGc4b4yF1uU=",
@@ -112,7 +112,7 @@
       "inputs": {
         "nixpkgs": "nixpkgs",
         "poetry2nix": "poetry2nix",
-        "python-3-11-11-nixpkgs": "python-3-11-11-nixpkgs"
+        "python-3-nixpkgs": "python-3-nixpkgs"
       }
     },
     "systems": {

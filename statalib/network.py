@@ -4,13 +4,14 @@ Module for handling API requests to Hypixel as well as skin model fetching.
 
 import asyncio
 import logging
-from typing import Literal
+from typing import Any, Literal
 from os import getenv
 from json import JSONDecodeError
 from http.client import RemoteDisconnected
 
+from aiohttp_client_cache.response import CachedResponse
 from requests import ReadTimeout, ConnectTimeout
-from aiohttp import ClientSession, ContentTypeError
+from aiohttp import ClientError, ClientSession, ContentTypeError
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
 from .cfg import config
@@ -39,7 +40,7 @@ SkinStyle = Literal[
 
 
 async def __make_hypixel_request(
-    session: ClientSession,
+    session: ClientSession | CachedSession,
     uuid: str
 ) -> dict:
     api_key = getenv('API_KEY_HYPIXEL')
@@ -51,7 +52,10 @@ async def __make_hypixel_request(
     }
 
     # fetch hypixel data
-    hypixel_data = await (await session.get(**options)).json()
+    res = await session.get(**options)
+    hypixel_data = await res.json()
+    logging.info(f"From cache: {res.from_cache}")
+    
 
     # reset trackers using the data if they are due
     asyncio.ensure_future(
@@ -174,3 +178,6 @@ async def fetch_skin_model(
     # except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError):
     except Exception:  # shit just wasnt working idk why
         return skin_from_file()
+
+
+

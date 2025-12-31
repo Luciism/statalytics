@@ -3,6 +3,7 @@
 import logging
 from io import StringIO
 from traceback import format_exception
+from typing import Any
 
 import discord
 from discord import app_commands
@@ -23,9 +24,9 @@ logger = logging.getLogger('statalytics')
 
 
 async def log_error_msg(
-    client: discord.Client,
+    client: discord.Client | None,
     error: Exception,
-    metadata: dict=None
+    metadata: dict[str, Any]=None
 ) -> None:
     """
     Logs and sends an error message to the Discord error logs channel.

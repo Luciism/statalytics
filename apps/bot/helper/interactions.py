@@ -10,7 +10,6 @@ from aiohttp import ClientConnectionError, ContentTypeError
 from discord import Embed, Interaction
 from statalib.accounts import Account
 from statalib.accounts.linking import LinkingOutcomeEnum
-from statalib.aliases import PlayerName
 from statalib.common import Mode, ModesEnum
 
 from .tips import random_tip_message
@@ -177,9 +176,9 @@ async def _send_interaction_check_response(interaction: Interaction, embed: Embe
 async def run_interaction_checks(
     interaction: Interaction,
     check_blacklisted: bool = True,
-    permissions: list | str = None,
+    permissions: list[str] | str | None = None,
     allow_star: bool = True,
-):
+) -> None:
     """
     Runs any checks to see if the interaction is allowed to proceed.
     Checks things such as if the user is blacklisted, or requires\
@@ -193,6 +192,8 @@ async def run_interaction_checks(
         permissions are required
     """
     account_data = lib.accounts.Account(interaction.user.id).load(create=True)
+    if not account_data:
+        return
 
     # User is blacklisted
     if check_blacklisted and account_data.blacklisted:
@@ -200,7 +201,7 @@ async def run_interaction_checks(
         await _send_interaction_check_response(interaction, embed)
 
         logger.debug(
-            f"`Blacklisted User`: Denied {interaction.user} "
+            f"`Blacklisted User`: Denied {interaction.user} " +
             f"({interaction.user.id}) access to an interaction"
         )
         raise lib.errors.UserBlacklistedError
@@ -213,7 +214,7 @@ async def run_interaction_checks(
                 await _send_interaction_check_response(interaction, embed)
 
                 logger.debug(
-                    f"`Missing permissions`: Denied {interaction.user} "
+                    f"`Missing permissions`: Denied {interaction.user} " +
                     f"({interaction.user.id}) access to an interaction."
                 )
                 raise lib.errors.MissingPermissionsError

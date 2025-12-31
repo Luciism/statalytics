@@ -10,6 +10,7 @@ from .leveling import Leveling
 from .quests import get_quests_data
 from .ranks import get_rank_info, RankInfo
 from .utils import *
+from . import lbs
 
 __all__ = [
     'BedwarsStats',
@@ -18,5 +19,6 @@ __all__ = [
     'Leveling',
     'get_quests_data',
     'get_rank_info',
-    'RankInfo'
+    'RankInfo',
+    'lbs'
 ]
