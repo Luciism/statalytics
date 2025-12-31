@@ -65,6 +65,10 @@
           "commands.bedwars.rotational.weekly",
           "commands.bedwars.rotational.monthly",
           "commands.bedwars.rotational.yearly",
+          
+          "commands.bedwars.leaderboards.lb_proto",
+          "commands.bedwars.leaderboards.live",
+          "commands.bedwars.leaderboards.update",
 
           "commands.external.denick",
           "commands.external.status"

@@ -1,7 +1,7 @@
 """Main image rendering functionality."""
 
 from io import BytesIO
-from typing import Literal, Sequence, TypedDict
+from typing import Literal, NotRequired, Sequence, TypedDict
 
 from PIL import Image, UnidentifiedImageError
 
@@ -16,13 +16,13 @@ class TextOptions(TypedDict):
     """
     Typed dict for rendered text options.
     """
-    font_size: int
+    font_size: NotRequired[int]
     """The size of the font in pixels."""
-    position: tuple[int, int]
+    position: NotRequired[tuple[int, int]]
     """The (x, y) position of the text on the image."""
-    shadow_offset: tuple[int, int] | None
+    shadow_offset: NotRequired[tuple[int, int] | None]
     """The (x, y) offset of the text shadow relative to the text."""
-    align: Literal["left", "right", "center"]
+    align: NotRequired[Literal["left", "right", "center"]]
     """Whether to align the text left, right, or center."""
 
     @staticmethod

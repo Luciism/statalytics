@@ -1,3 +1,11 @@
+CREATE TABLE IF NOT EXISTS live_leaderboards (
+    guild_id INTEGER,
+    leaderboard_path TEXT,
+    channel_id INTEGER,
+    message_id INTEGER UNIQUE,
+    PRIMARY KEY (guild_id, leaderboard_path)
+);
+
 CREATE TABLE IF NOT EXISTS autofill (
     discord_id INTEGER PRIMARY KEY,
     uuid TEXT,

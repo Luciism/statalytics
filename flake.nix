@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    python-3-11-11-nixpkgs.url =
+    python-3-nixpkgs.url =
       "github:NixOS/nixpkgs/d98abf5cf5914e5e4e9d57205e3af55ca90ffc1d";
   };
 
@@ -9,7 +9,7 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      python = inputs.python-3-11-11-nixpkgs.legacyPackages.${system}.python3;
+      python = inputs.python-3-nixpkgs.legacyPackages.${system}.python3;
     in {
       devShells.${system} = {
         default = pkgs.mkShell {
