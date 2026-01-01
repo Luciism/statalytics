@@ -14,8 +14,6 @@ async def generate_leaderboard_images(
 ) -> AsyncGenerator[tuple[discord.File, int, int], None]:
     players = lib.hypixel.lbs.fetch.fetch_leaderboard_players(lb)
 
-    # files: list[discord.File] = []
-
     entries_per_img = 10
     total_entries = len(lb.leaders)
     total_groups = math.ceil(total_entries / entries_per_img)
@@ -23,7 +21,7 @@ async def generate_leaderboard_images(
     i = 0
     profiles: list[LeaderboardPlayerEntry] = []
     async for profile in players:
-        logging.info(f"Received profile: {profile.username} - {profile.value}")
+        logging.debug(f"Received profile: {profile.username} - {profile.value}")
         profiles.append(profile)
 
         if (i + 1) % entries_per_img == 0 or i + 1 == total_entries:
@@ -42,7 +40,6 @@ async def generate_leaderboard_images(
                 include_header=i + 1 == entries_per_img,
             )
 
-            # files.append(discord.File(lb_img, filename=f"lb-{image_index}.png"))
             file = discord.File(lb_img, filename=f"lb-{image_index}.png")
             yield file, image_index + 1, total_groups
 
@@ -50,7 +47,6 @@ async def generate_leaderboard_images(
 
         i += 1
 
-    # return files
 
 
 async def generate_embeds_for_leaderboard_path(
