@@ -46,8 +46,7 @@ async def fetch_bedwars_leaderboards() -> list[LeaderboardData]:
 
 player_session = SQLiteBackend(
     cache_name=f'{REL_PATH}/database/.cache/hypixel_player_cache',
-    expire_after=60*60*24*7
-    # expire_after=1
+    expire_after=60*60*24
 )
 
 async def fetch_leaderboard_players(
@@ -70,7 +69,6 @@ async def fetch_leaderboard_players(
                 max_sleep = 1.5  # Seconds
                 reduce_by = time.time() - last_req_ts
 
-                # logging.info(f"Cache miss, sleeping for: {max(0, max_sleep - reduce_by)}")
                 await asyncio.sleep(max(0, max_sleep - reduce_by))
 
             res: ClientResponse | CachedResponse = await session.get(
@@ -79,7 +77,6 @@ async def fetch_leaderboard_players(
                 timeout=ClientTimeout(5)
             )
 
-            # logging.info(f"From cache: {res.from_cache}")
             if res.from_cache is False:
                 last_req_ts = time.time()
 
@@ -88,9 +85,4 @@ async def fetch_leaderboard_players(
 
             profile = LeaderboardPlayerEntry.build(player_data, leaderboard)
             yield profile
-
-            # logging.info(f"Retrieved profile: {profile.username}")
-            # logging.info("---------------------------------")
-
-
 
