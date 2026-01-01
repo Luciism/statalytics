@@ -24,6 +24,19 @@ Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and rel
 ## Commands
 
 <details>
+<summary><h4>Leaderboards</h4></summary>
+
+
+| Command            | Function                                                 |
+| ------------------ | -------------------------------------------------------- |
+| `/leaderboard`     | View the top 100 players for stars, wins or final kills. |
+| `/liveleaderboard` | Manage live leaderboards for your Discord server.        |
+
+
+</details>
+
+
+<details>
 <summary><h4>Current Stats</h4></summary>
 
 | Command            | Function                                     |
@@ -110,6 +123,6 @@ Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and rel
 |     <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/resources.png?width=400&height=293"></div> **Resource Stats**     |             <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/practice.png?width=400&height=293"></div> **Practice Stats**             |
 |    <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/milestones.png?width=400&height=293"></div> **Milestone Stats**    |              <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/ratios.png?width=400&height=293"></div> **Average Stats**               |
 | <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/activecosmetics.png?width=400&height=293"></div> **Active Cosmetics** |          <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/mostplayed.png?width=400&height=263"></div> **Most Played Stats**           |
-|      <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/quickbuy.png?width=400&height=243"></div> **QuickBuy Viewer**       | |
+|      <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/quickbuy.png?width=400&height=243"></div> **QuickBuy Viewer**       | <div style="width: 400px; display: flex; flex-direction: column"><img src="https://statalytics.net/image/features/leaderboards.png?width=400&height=355"></div> **Leaderboards** |
 
 </div>
