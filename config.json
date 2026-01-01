@@ -71,8 +71,7 @@
           "commands.bedwars.leaderboards.update",
           "commands.bedwars.leaderboards.lb",
 
-          "commands.external.denick",
-          "commands.external.status"
+          "commands.external.denick"
         ]
       }
     },
