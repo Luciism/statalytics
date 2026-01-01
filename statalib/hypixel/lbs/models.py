@@ -6,7 +6,7 @@ from .values import BedwarsQualifyingValueFormatter
 from ...aliases import HypixelPlayerData
 from ..ranks import RankInfo, get_rank_info
 
-@dataclass
+@dataclass(frozen=True)
 class LeaderboardInfo:
     """The information that describes the leaderboard."""
     path: str
@@ -19,14 +19,14 @@ class LeaderboardInfo:
     "Three random numbers???"
 
 
-@dataclass
+@dataclass(frozen=True)
 class LeaderboardData:
     """Represents the data for a leaderboard."""
     info: LeaderboardInfo
     "The information that describes the leaderboard."
     count: int
     "The amount of leaders."
-    leaders: list[str]
+    leaders: tuple[str, ...]
     "The player UUIDs of the leaderboard players."
 
     @staticmethod
@@ -40,7 +40,7 @@ class LeaderboardData:
                 location=tuple([int(pos) for pos in data["location"].split(",")]),
             ),
             count=data["count"],
-            leaders=data["leaders"]
+            leaders=tuple(data["leaders"])
         )
 
 def extract_data_using_path(data: dict[str, Any], path: str) -> int:  # Could be Any

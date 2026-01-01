@@ -282,6 +282,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cachetools-async"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cachetools" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/59/6d/01404fffea95b33d186a4d921b141918c0daf3ff74b6a715c0ac2de8f42e/cachetools_async-0.0.5.tar.gz", hash = "sha256:e99ec8f3a78e82b4f524e78f01d15b8746531481d862ac4f2d8af2a686e1c571", size = 24837, upload-time = "2025-06-09T08:11:28.925Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/fa/136f97313ab298286725fc8004d44f5fc352ea416c2b874b7a91e83df66a/cachetools_async-0.0.5-py3-none-any.whl", hash = "sha256:8f690c8bc291718a652395832e90afa797195c838e98d6a9e530dc1de66fbc34", size = 4750, upload-time = "2025-06-09T08:11:27.871Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2025.10.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1621,6 +1633,8 @@ source = { virtual = "." }
 dependencies = [
     { name = "aiohttp-client-cache" },
     { name = "aiosqlite" },
+    { name = "cachetools" },
+    { name = "cachetools-async" },
     { name = "colorlog" },
     { name = "discord-py" },
     { name = "matplotlib" },
@@ -1637,6 +1651,8 @@ dependencies = [
 requires-dist = [
     { name = "aiohttp-client-cache", specifier = "==0.8.2" },
     { name = "aiosqlite", specifier = "==0.19.0" },
+    { name = "cachetools", specifier = ">=6.2.1" },
+    { name = "cachetools-async", specifier = ">=0.0.5" },
     { name = "colorlog", specifier = "==6.7.0" },
     { name = "discord-py", specifier = "==2.4.0" },
     { name = "matplotlib", specifier = "==3.10.0" },
