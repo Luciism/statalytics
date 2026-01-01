@@ -60,7 +60,7 @@ Statalytics is a Bedwars stats bot that offers superior accuracy, speed, and rel
 
 | Command       | Function                                                       |
 | ------------- | -------------------------------------------------------------- |
-| `/year 2026`  | View projected next years stats of a player (requires session) |
+| `/year 2027`  | View projected next years stats of a player (requires session) |
 | `/prestige`   | View projected stats of a player (requires session)            |
 | `/milestones` | View milestone stats of any player                             |
 
