@@ -2,7 +2,7 @@
   "apps": {
     "bot": {
       "version": "1.20.0",
-      "loading_message": "Lagging in a block <a:loading1:1062561739989860462>",
+      "loading_message": "Lagging in a block <a:loadingcircle:1456112946575970394>",
       "sync_on_startup": true,
       "embeds": {
         "primary_color": "5865F2",

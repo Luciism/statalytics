@@ -10,9 +10,9 @@ from statalib.hypixel.lbs import LiveLeaderboardsRepo
 from statalib.hypixel.lbs.models import GuildLiveLeaderboard, LEADERBOARD_TYPES
 
 import helper
+from helper import emoji
 
 
-LOADING_EMOJI = "<a:loading1:1062561739989860462>"
 
 @final
 class LiveLeaderboardsCog(commands.Cog):
@@ -84,7 +84,7 @@ class LiveLeaderboardsCog(commands.Cog):
         existing_live_lb = await LiveLeaderboardsRepo.get_guild_live_lb(guild.id, lb.value)
 
         try:
-            new_live_lb_msg = await channel.send(f"Initializing live leaderboard {LOADING_EMOJI}")
+            new_live_lb_msg = await channel.send(f"Initializing live leaderboard {emoji.LOADING}")
         except discord.errors.Forbidden:
             await interaction.followup.send(
                 embed=LeaderboardEmbeds.missing_send_messages_permission(
