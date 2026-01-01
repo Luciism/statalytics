@@ -10,17 +10,17 @@ class ProblemsEmbeds:
     """Problem info embeds."""
 
     @staticmethod
-    def no_premium_2027() -> Embed:
-        """User has no access to 2027 command."""
+    def no_premium_2028() -> Embed:
+        """User has no access to 2028 command."""
         embed = Embed(
             title="That player doesn't have premium!",
-            description="In order to view stats for 2027, a [premium plan]"
+            description="In order to view stats for 2028, a [premium plan]"
             + "(https://statalytics.net/premium) is required!",
             color=config.embed_color("warning"),
         ).add_field(
             name="How does it work?",
-            value="`-` You can view any player's stats for 2027 if you have a premium plan.\n"
-            + "`-` You can view a player's stats for 2027 if they have a premium plan.",
+            value="`-` You can view any player's stats for 2028 if you have a premium plan.\n"
+            + "`-` You can view a player's stats for 2028 if they have a premium plan.",
             inline=True,
         )
         return embed

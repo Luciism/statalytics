@@ -33,8 +33,8 @@ class PremiumEmbeds:
                 name="Past, present, and future stats",
                 value="- Auto Rotational Resets - rotational stats automatically rollover "
                 + "daily/weekly/etc.\n- Yearly Stats - view your own or another player's "
-                + "yearly rotational stats.\n- 2027 Stats - predict your own or another "
-                + "player's stats for the year 2027.\n- Infinite Historical Lookback - view "
+                + "yearly rotational stats.\n- 2028 Stats - predict your own or another "
+                + "player's stats for the year 2028.\n- Infinite Historical Lookback - view "
                 + "historical rotational stats with no limits.\n- Up to 5 Active Sessions - "
                 + "activate up to 5 sessions at one time.",
                 inline=False,
@@ -63,7 +63,7 @@ class PremiumEmbeds:
             .add_field(
                 name="Past, present, and future stats",
                 value="- Yearly Stats - view your own or another player's yearly rotational stats.\n"
-                + "- 2027 Stats - predict your own or another player's stats for the year 2027."
+                + "- 2028 Stats - predict your own or another player's stats for the year 2028."
                 + "\n- 60 Day Historical Lookback - view historical rotational stats with a 60 "
                 + "day limit.\n- Up to 3 Active Sessions - activate up to 3 sessions at one "
                 + "time.",
