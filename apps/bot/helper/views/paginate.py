@@ -1,8 +1,8 @@
 from typing import Self, Callable, Awaitable
 import discord
-from statalib.shared_views import CustomBaseView
 from typing_extensions import override
 
+from ._custom import CustomBaseView
 from .. import emoji
 
 

@@ -17,9 +17,9 @@ class Management(commands.Cog):
 
     @commands.command()
     async def help(self, ctx: commands.Context[helper.Client]):
-        embed = lib.Embeds.help.help()
+        embed = helper.Embeds.help.help()
 
-        _ = await ctx.send(embed=embed, view=lib.shared_views.HelpMenuButtons())
+        _ = await ctx.send(embed=embed, view=helper.views.info.HelpMenuButtons())
 
 
 async def setup(client: helper.Client) -> None:

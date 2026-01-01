@@ -1,15 +1,15 @@
 """Bot error handling functionality."""
 
+import os
 import logging
 from io import StringIO
 from traceback import format_exception
 from typing import Any
 
 import discord
-from discord import app_commands
+from discord import app_commands, Embed
 
 from .cfg import config
-from .embeds import Embeds
 from .errors import (
     UserBlacklistedError,
     MissingPermissionsError,
@@ -22,6 +22,61 @@ from .errors import (
 
 logger = logging.getLogger('statalytics')
 
+
+class Embeds:
+    @staticmethod
+    def command_on_cooldown(retry_after: float) -> Embed:
+        """Command is on cooldown."""
+        embed = Embed(
+            title="Command on cooldown!",
+            description=
+                f"Wait another `{retry_after}s` and try again!\n[Premium supporters]" +
+                "(https://statalytics.net/premium) bypass this restriction.",
+            color=config.embed_color("warning")
+        ).set_thumbnail(url="https://statalytics.net/static/images/cooldown_hourglass.png")
+        return embed
+
+    @staticmethod
+    def error_occured(command_name: str | None, error: str) -> Embed:
+        """Generic error embed."""
+        support_url = config("global.links.support_server")
+        is_dev_mode = os.getenv("ENVIRONMENT").lower() == "development"
+
+        embed = Embed(
+            title=
+                f"An error occured while running /{command_name}!"
+                if command_name else
+                "An error occured while trying to complete your request.",
+            description=
+                "There was an error processing your request. Please try again later.\n" +
+                f"If the problem persists, please [get in touch]({support_url})."
+                + f"\n```{error}```" if is_dev_mode else "",
+            color=config.embed_color("danger")
+        )
+        return embed
+
+    @staticmethod
+    def hypixel_connection_error() -> Embed:
+        """Hypixel API connection error."""
+        embed = Embed(
+            title="Hypixel API Connection Error",
+            description=
+                "There was an issue connecting to Hypixel's API! Please try again later.",
+            color=config.embed_color("danger")
+        )
+        return embed
+
+    @staticmethod
+    def mojang_api_error() -> Embed:
+        """Mojang API error."""
+        embed = Embed(
+            title="Mojang API Error",
+            description=
+                "There was an issue fetching player information from Mojang's API.\n" +
+                "Please try again in a moment!",
+            color=config.embed_color("danger")
+        )
+        return embed
 
 async def log_error_msg(
     client: discord.Client | None,
@@ -63,7 +118,7 @@ async def log_error_msg(
 async def handle_hypixel_error(interaction: discord.Interaction) -> None:
     """Attempt to respond to a Hypixel API error."""
     try:
-        embed = Embeds.problems.hypixel_connection_error()
+        embed = Embeds.hypixel_connection_error()
         button = discord.ui.Button(
             label='API Status',
             url='https://status.hypixel.net/',
@@ -78,7 +133,7 @@ async def handle_hypixel_error(interaction: discord.Interaction) -> None:
 
 async def _handle_mojang_error(interaction: discord.Interaction):
     try:
-        embed = Embeds.problems.mojang_api_error()
+        embed = Embeds.mojang_api_error()
         await interaction.edit_original_response(content=None, embed=embed)
     except discord.errors.NotFound:
         pass
@@ -88,7 +143,7 @@ async def _handle_cooldown_error(
     interaction: discord.Interaction,
     error: discord.app_commands.CommandOnCooldown
 ) -> None:
-    embed = Embeds.problems.command_on_cooldown(round(error.retry_after, 2))
+    embed = Embeds.command_on_cooldown(round(error.retry_after, 2))
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
@@ -97,7 +152,7 @@ async def handle_remaining_tree_errors(
     error: Exception
 ) -> None:
     """Handle slash command tree errors."""
-    embed = Embeds.problems.error_occured(
+    embed = Embeds.error_occured(
         command_name=interaction.data.get("name"), error=error)
     try:
         await interaction.edit_original_response(embed=embed)

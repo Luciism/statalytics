@@ -121,7 +121,7 @@ class Yearly(commands.Cog):
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
 
         if years != 1 and max_lookback is not None and max_lookback < (years * 365):
-            embed = lib.Embeds.problems.max_lookback_exceeded(max_lookback)
+            embed = helper.Embeds.problems.max_lookback_exceeded(max_lookback)
             await interaction.followup.send(embed=embed)
             return
 

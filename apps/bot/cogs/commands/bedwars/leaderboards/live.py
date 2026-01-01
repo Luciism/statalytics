@@ -3,13 +3,13 @@ from datetime import datetime, UTC
 
 import discord
 import statalib as lib
-from statalib.embeds import LeaderboardEmbeds
 from discord import TextChannel, app_commands
 from discord.ext import commands
 from statalib.hypixel.lbs import LiveLeaderboardsRepo
 from statalib.hypixel.lbs.models import GuildLiveLeaderboard, LEADERBOARD_TYPES
 
 import helper
+from helper.embeds import LeaderboardEmbeds
 from helper import emoji
 
 

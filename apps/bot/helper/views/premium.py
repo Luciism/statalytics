@@ -1,7 +1,7 @@
 import discord
 
-import statalib as lib
-
+from ._custom import CustomBaseView
+from ..embeds import Embeds
 
 def _premium_info_button(label: str, package: str) -> discord.ui.Button:
     btn = discord.ui.Button(
@@ -10,9 +10,9 @@ def _premium_info_button(label: str, package: str) -> discord.ui.Button:
     )
 
     if package == "pro":
-        embed = lib.Embeds.premium.pro()
+        embed = Embeds.premium.pro()
     else:
-        embed = lib.Embeds.premium.basic()
+        embed = Embeds.premium.basic()
 
     async def callback(interaction: discord.Interaction) -> None:
         await interaction.response.send_message(embed=embed)
@@ -21,8 +21,8 @@ def _premium_info_button(label: str, package: str) -> discord.ui.Button:
     return btn
 
 
-class PremiumInfoView(lib.shared_views.CustomBaseView):
+class PremiumInfoView(CustomBaseView):
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.add_item(_premium_info_button("Pro", package="pro"))
-        self.add_item(_premium_info_button("Basic", package="basic"))
+        _ = self.add_item(_premium_info_button("Pro", package="pro"))
+        _ = self.add_item(_premium_info_button("Basic", package="basic"))

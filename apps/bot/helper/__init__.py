@@ -1,4 +1,5 @@
-from . import interactions, views, leaderboards, emoji
+from . import interactions, views, leaderboards, emoji, embeds
+from .embeds import Embeds
 from .client import Client
 from .cooldowns import generic_command_cooldown
 from .autocomplete import session_autocompletion, username_autocompletion
@@ -13,5 +14,7 @@ __all__ = [
     "username_autocompletion",
     "app_command",
     "leaderboards",
-    "emoji"
+    "emoji",
+    "embeds",
+    "Embeds"
 ]

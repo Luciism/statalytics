@@ -12,8 +12,10 @@ from statalib.accounts import Account
 from statalib.accounts.linking import LinkingOutcomeEnum
 from statalib.common import Mode, ModesEnum
 
+from .embeds import Embeds
 from .tips import random_tip_message
 from .views import ModesView
+from .views.info import SessionInfoButton
 
 logger = logging.getLogger("statalytics")
 
@@ -116,11 +118,11 @@ async def linking_interaction(
         return await interaction.followup.send(
             f"Successfully linked to **{lib.fmt.fname(name)}**\n"
             + "No sessions where found for this player so one was created.",
-            view=lib.shared_views.SessionInfoButton(),
+            view=SessionInfoButton(),
         )
 
     # Player not linked embed
-    await interaction.followup.send(embed=lib.Embeds.problems.linking_error())
+    await interaction.followup.send(embed=Embeds.problems.linking_error())
 
 
 async def find_dynamic_session_interaction(
@@ -197,7 +199,7 @@ async def run_interaction_checks(
 
     # User is blacklisted
     if check_blacklisted and account_data.blacklisted:
-        embed = lib.Embeds.problems.user_blacklisted()
+        embed = Embeds.problems.user_blacklisted()
         await _send_interaction_check_response(interaction, embed)
 
         logger.debug(
@@ -210,7 +212,7 @@ async def run_interaction_checks(
         # User doesn't have at least one of the required permissions
         if not (allow_star and "*" in account_data.permissions):
             if not set(permissions) & set(account_data.permissions):
-                embed = lib.Embeds.problems.missing_permissions()
+                embed = Embeds.problems.missing_permissions()
                 await _send_interaction_check_response(interaction, embed)
 
                 logger.debug(

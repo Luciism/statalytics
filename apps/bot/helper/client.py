@@ -7,6 +7,7 @@ from discord.ext import commands
 
 import statalib as lib
 from .views import PremiumInfoView
+from .views.info import add_info_view
 
 
 logger = logging.getLogger('statalytics')
@@ -32,7 +33,7 @@ class Client(commands.AutoShardedBot):
             except commands.errors.ExtensionNotFound:
                 logger.info(f"Cog doesn't exist: {ext}")
 
-        lib.shared_views.add_info_view(self)
+        add_info_view(self)
         self.add_view(PremiumInfoView())
 
         if lib.config("apps.bot.sync_on_startup"):

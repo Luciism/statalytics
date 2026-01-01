@@ -13,7 +13,7 @@ from statalib.sessions import SessionManager
 from render.session import render_session
 
 
-class ManageSession(lib.shared_views.CustomBaseView):
+class ManageSession(helper.views.CustomBaseView):
     def __init__(self, session: int, uuid: str, action: str) -> None:
         super().__init__(timeout=20)
         self.action = action

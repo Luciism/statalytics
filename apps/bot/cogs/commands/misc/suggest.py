@@ -7,7 +7,7 @@ import helper
 
 
 class SubmitSuggestion(
-    lib.shared_views.CustomBaseModal, title='Submit Suggestion'
+    helper.views.CustomBaseModal, title='Submit Suggestion'
 ):
     def __init__(self, channel: discord.TextChannel, **kwargs):
         self.channel = channel
@@ -22,7 +22,7 @@ class SubmitSuggestion(
     async def on_submit(self, interaction: discord.Interaction):
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = lib.Embeds.misc.suggestion_message(
+        embed = helper.Embeds.misc.suggestion_message(
             str(interaction.user), interaction.user.id, str(self.suggestion))
 
         await self.channel.send(embed=embed)

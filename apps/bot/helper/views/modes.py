@@ -8,6 +8,8 @@ from discord.interactions import Interaction
 import statalib as lib
 from statalib import Mode, ModesEnum
 
+from ._custom import CustomBaseView
+
 
 class SelectModes(discord.ui.Select):
     def __init__(self, interaction_origin: discord.Interaction, placeholder: str, modes: list[Mode]):
@@ -49,7 +51,7 @@ class SelectModes(discord.ui.Select):
                 attachments=[image], view=view)
 
 
-class ModesView(lib.shared_views.CustomBaseView):
+class ModesView(CustomBaseView):
     def __init__(
         self,
         interaction_origin: discord.Interaction,

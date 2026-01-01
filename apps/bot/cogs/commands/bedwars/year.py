@@ -104,7 +104,7 @@ class Year(commands.Cog):
         condition_2 = Account(interaction.user.id).permissions.has_access('year_2027')
 
         if not condition_1 and not condition_2:
-            embed = lib.Embeds.problems.no_premium_2027()
+            embed = helper.Embeds.problems.no_premium_2027()
             await interaction.followup.send(embed=embed)
             return
 

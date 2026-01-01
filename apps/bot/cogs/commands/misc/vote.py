@@ -25,7 +25,7 @@ class Vote(commands.Cog):
         else:
             last_vote_timestamp = 'N/A'
 
-        embed = lib.Embeds.misc.voting_info(last_vote_timestamp, voting_data.total_votes)
+        embed = helper.Embeds.misc.voting_info(last_vote_timestamp, voting_data.total_votes)
 
         await interaction.followup.send(embed=embed)
         lib.usage.update_command_stats(interaction.user.id, command='vote')
