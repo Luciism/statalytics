@@ -17,8 +17,8 @@ class Help(commands.Cog):
     async def get_help(self, interaction: discord.Interaction):
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = lib.Embeds.help.help()
-        view = lib.shared_views.HelpMenuButtons()
+        embed = helper.Embeds.help.help()
+        view = helper.views.info.HelpMenuButtons()
         await interaction.response.send_message(embed=embed, view=view)
 
         lib.usage.update_command_stats(interaction.user.id, 'help')

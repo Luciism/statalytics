@@ -127,7 +127,7 @@ class Monthly(commands.Cog):
         max_lookback = rotational.get_max_lookback([discord_id, interaction.user.id])
 
         if max_lookback is not None and max_lookback < (months * 30):
-            embed = lib.Embeds.problems.max_lookback_exceeded(max_lookback)
+            embed = helper.Embeds.problems.max_lookback_exceeded(max_lookback)
             await interaction.followup.send(embed=embed)
             return
 

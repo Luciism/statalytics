@@ -2,7 +2,7 @@
 
 from discord import Embed
 
-from ..cfg import config
+from statalib import config
 
 
 class LeaderboardEmbeds:

@@ -36,7 +36,7 @@ class Info(commands.Cog):
         # process_mem = psutil.Process(os.getpid()).memory_info().rss
         # ram_usage = round(process_mem / 1024 ** 2, 2)
 
-        embed = lib.Embeds.misc.services_info({
+        embed = helper.Embeds.misc.services_info({
             'uptime': str(calculate_uptime()),
             'ping': f'{round(self.client.latency * 1000):,}',
             'commands': f'{len(list(self.client.tree.walk_commands())):,}',

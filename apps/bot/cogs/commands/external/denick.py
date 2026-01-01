@@ -76,7 +76,7 @@ class Denick(commands.Cog):
 
         if data is None:
             await interaction.followup.send(
-                embed=lib.Embeds.problems.antisniper_connection_error())
+                embed=helper.Embeds.problems.antisniper_connection_error())
             return
 
         embed_color = lib.config.embed_color('primary')

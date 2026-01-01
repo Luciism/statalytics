@@ -80,7 +80,7 @@ class ResetMinuteSelect(_ResetTimeSelectBase):
         return f'Reset time updated to **{fmted_time}**.'
 
 
-class SettingsSelectView(lib.shared_views.CustomBaseView):
+class SettingsSelectView(helper.views.CustomBaseView):
     def __init__(
         self,
         interaction: discord.Interaction,
@@ -101,7 +101,7 @@ class SettingsSelectView(lib.shared_views.CustomBaseView):
             pass
 
 
-class LinkAccountModal(lib.shared_views.CustomBaseModal, title='Link Account'):
+class LinkAccountModal(helper.views.CustomBaseModal, title='Link Account'):
     player = discord.ui.TextInput(
         label='Player',
         placeholder='Statalytics',
@@ -112,7 +112,7 @@ class LinkAccountModal(lib.shared_views.CustomBaseModal, title='Link Account'):
         await helper.interactions.linking_interaction(interaction, str(self.player))
 
 
-class SettingsButtons(lib.shared_views.CustomBaseView):
+class SettingsButtons(helper.views.CustomBaseView):
     def __init__(self, interaction: discord.Interaction) -> None:
         super().__init__(timeout=300)
         self.interaction = interaction
@@ -135,7 +135,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = lib.Embeds.settings.select_theme()
+        embed = helper.Embeds.settings.select_theme()
 
         owned_themes = Account(interaction.user.id).themes.get_owned_themes()
         theme_packs: dict = lib.config('global.theme_packs')
@@ -167,7 +167,7 @@ class SettingsButtons(lib.shared_views.CustomBaseView):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = lib.Embeds.settings.configure_reset_time()
+        embed = helper.Embeds.settings.configure_reset_time()
 
         timezone_options = [
             discord.SelectOption(label=f'GMT{lib.fmt.prefix_int(i-12)}', value=i-12)
@@ -215,7 +215,7 @@ class Settings(commands.Cog):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = lib.Embeds.settings.settings()
+        embed = helper.Embeds.settings.settings()
         await interaction.followup.send(
             embed=embed, view=SettingsButtons(interaction=interaction))
 
