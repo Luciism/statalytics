@@ -61,14 +61,15 @@
           "commands.bedwars.displayname",
           "commands.bedwars.difference",
           "commands.bedwars.quests",
+
           "commands.bedwars.rotational.daily",
           "commands.bedwars.rotational.weekly",
           "commands.bedwars.rotational.monthly",
           "commands.bedwars.rotational.yearly",
           
-          "commands.bedwars.leaderboards.lb_proto",
           "commands.bedwars.leaderboards.live",
           "commands.bedwars.leaderboards.update",
+          "commands.bedwars.leaderboards.lb",
 
           "commands.external.denick",
           "commands.external.status"
