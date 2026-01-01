@@ -3,14 +3,13 @@ import discord
 from statalib.shared_views import CustomBaseView
 from typing_extensions import override
 
-EMOJI_PREV = "<:previous:1455791209976041627>"
-EMOJI_NEXT = "<:next:1455791123355271218>"
+from .. import emoji
 
 
 class PreviousPageBtn(discord.ui.Button["PaginationView"]):
     def __init__(self) -> None:
         super().__init__(
-            style=discord.ButtonStyle.gray, emoji=EMOJI_PREV, custom_id="prev_btn"
+            style=discord.ButtonStyle.gray, emoji=emoji.PREV, custom_id="prev_btn"
         )
 
     @override
@@ -27,7 +26,7 @@ class PreviousPageBtn(discord.ui.Button["PaginationView"]):
 class NextPageBtn(discord.ui.Button["PaginationView"]):
     def __init__(self) -> None:
         super().__init__(
-            style=discord.ButtonStyle.gray, emoji=EMOJI_NEXT, custom_id="next_btn"
+            style=discord.ButtonStyle.gray, emoji=emoji.NEXT, custom_id="next_btn"
         )
 
     @override

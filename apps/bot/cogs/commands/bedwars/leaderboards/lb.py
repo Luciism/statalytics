@@ -13,8 +13,8 @@ from statalib.hypixel.lbs import LeaderboardData
 import helper
 from helper.views import PaginationView
 from render.leaderboards import render_leaderboard_chunk
+from helper import emoji
 
-LOADING_EMOJI = "<a:loading1:1062561739989860462>"
 PAGE_SIZE = 10
 
 
@@ -55,7 +55,7 @@ class LeaderboardCommandsCog(commands.Cog):
     )
 
     async def compact_lb_command(self, interaction: discord.Interaction, lb_path: str) -> None:
-        await interaction.response.send_message(f"Generating {LOADING_EMOJI}")
+        await interaction.response.send_message(f"Generating {emoji.LOADING}")
 
         bedwars_lbs = await lib.hypixel.lbs.fetch_bedwars_leaderboards()
         lb = [lb for lb in bedwars_lbs if lb.info.path == lb_path][0]
