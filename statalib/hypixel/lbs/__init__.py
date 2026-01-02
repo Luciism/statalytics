@@ -1,3 +1,5 @@
+"""Functionality for fetching and processing Hypixel leaderboard data."""
+
 from .fetch import fetch_bedwars_leaderboards
 from .values import BedwarsQualifyingValueFormatter
 from .models import LeaderboardData, LeaderboardPlayerEntry, LEADERBOARD_TYPES

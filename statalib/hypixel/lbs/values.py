@@ -1,9 +1,13 @@
+"""Functionality for extracting leaderboard qualifying values from hypixel player data."""
+
 from ...aliases import HypixelPlayerData
 from ..leveling import Leveling
 from ...render.prestige_colors import Prestige
 
 
 class BedwarsQualifyingValueFormatter:
+    """Extract a leaderboard qualifying value from hypixel player data."""
+
     def __init__(self, player_data: HypixelPlayerData) -> None:
         self._player_data: HypixelPlayerData = player_data
 
@@ -35,5 +39,6 @@ class BedwarsQualifyingValueFormatter:
         return f"{wins:,}"
 
     def call_formatter(self, name: str) -> str:
+        """Call the appropriate method based on the leaderboard path string."""
         return self.__getattribute__(name)()
 

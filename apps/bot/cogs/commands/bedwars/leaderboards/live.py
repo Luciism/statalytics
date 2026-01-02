@@ -91,11 +91,11 @@ class LiveLeaderboardsCog(commands.Cog):
                     self.client.user.id, channel.id))
             return
 
-        lb_channel = GuildLiveLeaderboard(
+        live_lb = GuildLiveLeaderboard(
             interaction.guild.id, channel.id, lb.value, new_live_lb_msg.id
         )
 
-        _ = await LiveLeaderboardsRepo.set_live_leaderboard(lb_channel)
+        _ = await LiveLeaderboardsRepo.set_live_leaderboard(live_lb)
         await interaction.followup.send(
             embed=LeaderboardEmbeds.channel_initialized(channel.id, lb.name))
 
