@@ -1738,7 +1738,7 @@ requires-dist = [
     { name = "quart", specifier = ">=0.18.3" },
     { name = "quartcord", specifier = ">=1.0.1" },
     { name = "redis", specifier = "==6.4.0" },
-    { name = "werkzeug", specifier = "==2.3" },
+    { name = "werkzeug", specifier = "==3.1.4" },
 ]
 
 [[package]]
@@ -1785,14 +1785,14 @@ wheels = [
 
 [[package]]
 name = "werkzeug"
-version = "2.3.0"
+version = "3.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markupsafe" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/66/1b437603a0300864b0fd1e49b732d45a8a5be615eba5121f7cdfb97668dd/Werkzeug-2.3.0.tar.gz", hash = "sha256:3b6b46926d052b8ebca97c4dc73c12e47bdd07d57ab0600c039c3155450227bc", size = 824640, upload-time = "2023-04-25T18:04:48.767Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/ea/b0f8eeb287f8df9066e56e831c7824ac6bab645dd6c7a8f4b2d767944f9b/werkzeug-3.1.4.tar.gz", hash = "sha256:cd3cd98b1b92dc3b7b3995038826c68097dcb16f9baa63abe35f20eafeb9fe5e", size = 864687, upload-time = "2025-11-29T02:15:22.841Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/a7/2dcb194867fee708cd10217f6d8efeb0ec340c12fd31791129ced5424664/Werkzeug-2.3.0-py3-none-any.whl", hash = "sha256:340335057f72974d9281dbaf52c8090a9f9a59ba304ae814bf0656e6559c0020", size = 233700, upload-time = "2023-04-25T18:04:46.796Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/f9/9e082990c2585c744734f85bec79b5dae5df9c974ffee58fe421652c8e91/werkzeug-3.1.4-py3-none-any.whl", hash = "sha256:2ad50fb9ed09cc3af22c54698351027ace879a0b60a3b5edf5730b2f7d876905", size = 224960, upload-time = "2025-11-29T02:15:21.13Z" },
 ]
 
 [[package]]

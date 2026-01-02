@@ -1,3 +1,5 @@
+"""Hypixel leaderboard data models."""
+
 from dataclasses import dataclass
 from typing import Any 
 
@@ -93,10 +95,15 @@ class LeaderboardPlayerEntry:
 
 @dataclass
 class GuildLiveLeaderboard:
+    """A Discord guild live leaderboard configuration."""
     guild_id: int
+    "The ID of the live leaderboard's Discord guild."
     channel_id: int
+    "The ID of the live leaderboard's Discord channel."
     leaderboard_path: str
+    "The leaderboard path associated with the live leaderboard."
     message_id: int
+    "The ID of the live leaderboard's Discord message."
 
 
 
@@ -105,4 +112,4 @@ LEADERBOARD_TYPES = {
     "wins_new": LeaderboardInfo("wins_new", "Overall", "Wins", (0, 0, 0)),
     "final_kills_new": LeaderboardInfo("final_kills_new", "Overall", "Final Kills", (0, 0, 0))
 }
-
+"A mapping between bedwars leaderboard paths and their associated leaderboard information."

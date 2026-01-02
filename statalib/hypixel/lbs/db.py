@@ -1,3 +1,5 @@
+"""Database respository for live leaderboards."""
+
 from enum import Enum
 
 import aiosqlite
@@ -7,11 +9,16 @@ from .models import GuildLiveLeaderboard
 
 
 class SetLiveLbResult(Enum):
+    """The outcome of a set live leaderboard database operation."""
     ok = 0
-    err_channel_conflict = 1
+    "Success."
+    err_message_conflict = 1
+    "Error: the message ID conflicts with another live leaderboard."
 
 
 class LiveLeaderboardsRepo:
+    """Database respository for live leaderboards."""
+
     @async_ensure_cursor
     @staticmethod
     async def get_live_leaderboard_path(
@@ -19,40 +26,52 @@ class LiveLeaderboardsRepo:
         *,
         cursor: AsyncCursor = None,
     ) -> str | None:
+        """
+        Get the leaderboard path associated with a live leaderboard's message ID.
+
+        :param message_id: The message ID of the live leaderboard.
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards WHERE message_id = ?",
             [message_id],
         )
-        lb_channel_row = await cursor.fetchone()
+        live_lb_row = await cursor.fetchone()
 
-        if lb_channel_row is None:
+        if live_lb_row is None:
             return None
 
-        return lb_channel_row["leaderboard_path"]
+        return live_lb_row["leaderboard_path"]
 
     @async_ensure_cursor
     @staticmethod
     async def set_live_leaderboard(
-        channel: GuildLiveLeaderboard,
+        lb: GuildLiveLeaderboard,
         *,
         cursor: AsyncCursor = None,
     ) -> SetLiveLbResult:
+        """
+        Create or update a live leaderboard.
+        An update will modify the channel and message IDs.
+
+        :param lb: The live leaderboard data to set.
+        :return SetLiveLbResult: An enum detailing whether the operation succeeded.
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards WHERE guild_id = ? AND leaderboard_path = ?",
-            [channel.guild_id, channel.leaderboard_path],
+            [lb.guild_id, lb.leaderboard_path],
         )
-        lb_channel_row = await cursor.fetchone()
+        live_lb_row = await cursor.fetchone()
 
         try:
-            if lb_channel_row is None:
+            if live_lb_row is None:
                 _ = await cursor.execute(
                     "INSERT INTO live_leaderboards "
                     + "(guild_id, leaderboard_path, channel_id, message_id) VALUES (?, ?, ?, ?)",
                     [
-                        channel.guild_id,
-                        channel.leaderboard_path,
-                        channel.channel_id,
-                        channel.message_id,
+                        lb.guild_id,
+                        lb.leaderboard_path,
+                        lb.channel_id,
+                        lb.message_id,
                     ],
                 )
                 return SetLiveLbResult.ok
@@ -61,15 +80,15 @@ class LiveLeaderboardsRepo:
                 "UPDATE live_leaderboards SET channel_id = ?, message_id = ? "
                 + "WHERE guild_id = ? AND leaderboard_path = ?",
                 [
-                    channel.channel_id,
-                    channel.message_id,
-                    channel.guild_id,
-                    channel.leaderboard_path,
+                    lb.channel_id,
+                    lb.message_id,
+                    lb.guild_id,
+                    lb.leaderboard_path,
                 ],
             )
             return SetLiveLbResult.ok
         except aiosqlite.IntegrityError:
-            return SetLiveLbResult.err_channel_conflict
+            return SetLiveLbResult.err_message_conflict
 
     @async_ensure_cursor
     @staticmethod
@@ -79,13 +98,20 @@ class LiveLeaderboardsRepo:
         *,
         cursor: AsyncCursor = None,
     ) -> GuildLiveLeaderboard | None:
+        """
+        Delete a live leaderboard from the database.
+
+        :param guild_id: The Discord guild ID associated with the live leaderboard.
+        :param leaderboard_path: The leaderboard path of the live leaderboard.
+        :return GuildLiveLeaderboard: The live leaderboard that previously existed.
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards WHERE guild_id = ? AND leaderboard_path = ?",
             [guild_id, leaderboard_path],
         )
-        lb_channel_row = await cursor.fetchone()
+        live_lb_row = await cursor.fetchone()
 
-        if lb_channel_row is None:
+        if live_lb_row is None:
             return None
 
         cursor = await cursor.execute(
@@ -93,7 +119,7 @@ class LiveLeaderboardsRepo:
             [guild_id, leaderboard_path],
         )
 
-        return GuildLiveLeaderboard(**dict(lb_channel_row))
+        return GuildLiveLeaderboard(**dict(live_lb_row))
 
     @async_ensure_cursor
     @staticmethod
@@ -102,13 +128,18 @@ class LiveLeaderboardsRepo:
         *,
         cursor: AsyncCursor = None,
     ) -> list[GuildLiveLeaderboard]:
+        """
+        Get all live leaderboards associated with a Discord guild.
+
+        :param guild_id: The ID of the Discord guild.
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards WHERE guild_id = ?",
             [guild_id],
         )
 
-        lb_channel_rows = await cursor.fetchall()
-        return [GuildLiveLeaderboard(**dict(row)) for row in lb_channel_rows]
+        live_lb_rows = await cursor.fetchall()
+        return [GuildLiveLeaderboard(**dict(row)) for row in live_lb_rows]
 
     @async_ensure_cursor
     @staticmethod
@@ -118,17 +149,23 @@ class LiveLeaderboardsRepo:
         *,
         cursor: AsyncCursor = None,
     ) -> GuildLiveLeaderboard | None:
+        """
+        Get a Discord guild's live leaderboard for a given leaderboard path.
+    
+        :param guild_id: The ID of the Discord guild.
+        :param leaderboard_path: The leaderboard path of the live leaderboard. 
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards "
             + "WHERE guild_id = ? AND leaderboard_path = ?",
             [guild_id, leaderboard_path],
         )
 
-        lb_channel_row = await cursor.fetchone()
-        if lb_channel_row is None:
+        live_lb_row = await cursor.fetchone()
+        if live_lb_row is None:
             return None
 
-        return GuildLiveLeaderboard(**dict(lb_channel_row))
+        return GuildLiveLeaderboard(**dict(live_lb_row))
 
     @async_ensure_cursor
     @staticmethod
@@ -137,11 +174,16 @@ class LiveLeaderboardsRepo:
         *,
         cursor: AsyncCursor = None,
     ) -> list[GuildLiveLeaderboard]:
-        """ """
+        """
+        Get all live leaderboards for a given leaderboard path regardless
+        of the Discord guild.
+
+        :param leaderboard_path: The leaderboard path of the live leaderboards.
+        """
         cursor = await cursor.execute(
             "SELECT * FROM live_leaderboards WHERE leaderboard_path = ?",
             [leaderboard_path],
         )
 
-        lb_channel_rows = await cursor.fetchall()
-        return [GuildLiveLeaderboard(**dict(row)) for row in lb_channel_rows]
+        live_lb_rows = await cursor.fetchall()
+        return [GuildLiveLeaderboard(**dict(row)) for row in live_lb_rows]

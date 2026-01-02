@@ -1,3 +1,5 @@
+"""Functions for fetcting leaderboards and leaderboard players."""
+
 import os
 import time
 import asyncio
@@ -35,16 +37,17 @@ async def _fetch_hypixel_leaderboards(attempts: int=3, _attempt: int=1) -> dict[
         return await _fetch_hypixel_leaderboards(attempts, _attempt + 1)
 
 
-def deserialize_bedwars_leaderboard_data(lb_data: dict[str, Any]) -> list[LeaderboardData]:
+def _deserialize_bedwars_leaderboard_data(lb_data: dict[str, Any]) -> list[LeaderboardData]:
     bedwars_leaderboards = lb_data["leaderboards"]["BEDWARS"]
     return [LeaderboardData.build(lb) for lb in bedwars_leaderboards]
 
 
 async def fetch_bedwars_leaderboards() -> list[LeaderboardData]:
+    """Fetch all hypixel leaderboards, extracting just Bedwars ones."""
     data = await _fetch_hypixel_leaderboards()
-    return deserialize_bedwars_leaderboard_data(data)
+    return _deserialize_bedwars_leaderboard_data(data)
 
-player_session = SQLiteBackend(
+_player_session = SQLiteBackend(
     cache_name=f'{REL_PATH}/database/.cache/hypixel_player_cache',
     expire_after=60*60*24
 )
@@ -52,9 +55,18 @@ player_session = SQLiteBackend(
 async def fetch_leaderboard_players(
     leaderboard: LeaderboardData
 ) -> AsyncGenerator[LeaderboardPlayerEntry, None]:
+    """
+    A generator to fetch all players in a given leaderboard,
+    waiting at least 1.5 seconds between each real request.
+    Players are cached for 24 hours.
+
+    :param leaderboard: The Hypixel leaderboard object containing leaders to fetch.
+    :yield LeaderboardPlayerEntry: Relevant data for the leaderboard player, including
+        the associated value that qualifies the player for the leaderboard.
+    """
     last_req_ts = 0
 
-    async with CachedSession(cache=player_session) as session:
+    async with CachedSession(cache=_player_session) as session:
         session: CachedSession
 
         for uuid in leaderboard.leaders:
