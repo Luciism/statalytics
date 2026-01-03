@@ -54,8 +54,6 @@ async def __make_hypixel_request(
     # fetch hypixel data
     res = await session.get(**options)
     hypixel_data = await res.json()
-    logging.info(f"From cache: {res.from_cache}")
-    
 
     # reset trackers using the data if they are due
     asyncio.ensure_future(
