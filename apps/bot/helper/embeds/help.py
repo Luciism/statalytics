@@ -213,3 +213,35 @@ class HelpEmbeds:
             )
         )
         return embed
+
+    @staticmethod
+    def leaderboards() -> Embed:
+        """Leaderboards info embed."""
+        embed = (
+            Embed(
+                title="Leaderboards Page",
+                description="- Statalytics offers both standard leaderboard commands as well as live "
+                + "leaderboards.\n- The `/leaderboard` command group can be used to page through the top 100 "
+                + "players in level, wins, and final kills.\n- The `/liveleaderboard` command group can "
+                + "be used by server admins to manage live leaderboards.\n- Live leaderboards consist of a "
+                + "message in a certain channel that automatically updates periodically to display the top "
+                + "100 players in level, wins, or final kills.",
+                color=config.embed_color("primary"),
+            )
+            .add_field(
+                name="**Leaderboard Commands:**",
+                value="`/leaderboard level` - View the level leaderboard.\n"
+                + "`/leaderboard wins` - View the wins leaderboard.\n"
+                + "`/leaderboard finals` - View the final kills leaderboard\n",
+                inline=False
+            )
+            .add_field(
+                name="**Live Leaderboard Commands:**",
+                value="`/liveleaderboard set <channel> <leaderboard>`- Create or update a live leaderboard.\n"
+                + "`/liveleaderboard unset <leaderboard>` - Terminate a live leaderboard.\n"
+                + "`/liveleaderboard list` - List all live leaderboards in the server.\n",
+                inline=False
+            )
+        )
+
+        return embed
