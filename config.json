@@ -1,7 +1,7 @@
 {
   "apps": {
     "bot": {
-      "version": "1.21.1",
+      "version": "1.21.2",
       "loading_message": "Lagging in a block <a:loadingcircle:1456112946575970394>",
       "sync_on_startup": true,
       "embeds": {
