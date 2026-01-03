@@ -5,7 +5,7 @@
       "loading_message": "Lagging in a block <a:loadingcircle:1456112946575970394>",
       "sync_on_startup": true,
       "embeds": {
-        "primary_color": "5865F2",
+        "primary_color": "BC92FF",
         "danger_color": "FC2B2B",
         "warning_color": "FFE100"
       },
