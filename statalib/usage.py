@@ -1,18 +1,19 @@
 """Usage metrics related functionality."""
 
-import time
 from datetime import datetime, UTC
 from typing import Literal, TypedDict
 
 from .db import ensure_cursor, Cursor
 
+class CommandMetricsRepo:
+    ...
 
 @ensure_cursor
 def insert_growth_data(
     discord_id: int,
     action: Literal['add', 'remove'],
     growth: Literal['guild', 'user', 'linked'],
-    timestamp: float=None,
+    timestamp: float | None=None,
     *, cursor: Cursor=None
 ) -> None:
     """
@@ -26,15 +27,15 @@ def insert_growth_data(
     if timestamp is None:
         timestamp = datetime.now(UTC).timestamp()
 
-    cursor.execute(
-        'INSERT INTO growth_data '
-        '(timestamp, discord_id, action, growth) '
-        'VALUES (?, ?, ?, ?)',
-        (timestamp, discord_id, action, growth)
+    _ = cursor.execute(
+        """
+        INSERT INTO growth_data (timestamp, discord_id, action, growth)
+        VALUES (?, ?, ?, ?)
+        """, (timestamp, discord_id, action, growth)
     )
 
 
-def _update_usage(command, discord_id, cursor: Cursor) -> None:
+def _update_usage(command: str, discord_id, cursor: Cursor) -> None:
     # Check if command column exists
     cursor.execute('SELECT * FROM command_usage WHERE discord_id = 0')
     column_names = [desc[0] for desc in cursor.description]

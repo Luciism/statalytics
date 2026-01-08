@@ -145,7 +145,7 @@ class SettingsButtons(helper.views.CustomBaseView):
 
         # owned exclusive themes
         for owned_theme in owned_themes:
-            available_themes[owned_theme] = theme_packs['exclusive_themes'][owned_theme]
+            available_themes[owned_theme.id] = theme_packs['exclusive_themes'][owned_theme.id]
 
         options = [
             discord.SelectOption(label=properties.get('display_name'), value=name)
@@ -180,10 +180,10 @@ class SettingsButtons(helper.views.CustomBaseView):
             discord.SelectOption(label=f"{min:02d}", value=min) for min in MINUTES
         ]
 
-        view = SettingsSelectView(interaction=interaction)
-        view.add_item(UTCOffsetSelect(timezone_options, "Select a GMT offset"))
-        view.add_item(ResetHourSelect(reset_hour_options, "Select a reset hour"))
-        view.add_item(ResetMinuteSelect(reset_minute_options, "Select a reset minute"))
+        view = SettingsSelectView(interaction=interaction
+            ).add_item(UTCOffsetSelect(timezone_options, "Select a GMT offset")
+            ).add_item(ResetHourSelect(reset_hour_options, "Select a reset hour")
+            ).add_item(ResetMinuteSelect(reset_minute_options, "Select a reset minute"))
 
         await interaction.response.send_message(
             embed=embed,
@@ -202,25 +202,16 @@ class SettingsButtons(helper.views.CustomBaseView):
         await interaction.response.send_modal(LinkAccountModal())
 
 
-class Settings(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-
-    @app_commands.command(
-        name="settings",
-        description="Edit your configuration for statalytics")
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
+class SettingsCommandCog(commands.Cog):
+    @helper.decorators.app_command("settings")
+    @helper.interactions.access_permitted_check()
     async def settings(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         embed = helper.Embeds.settings.settings()
         await interaction.followup.send(
             embed=embed, view=SettingsButtons(interaction=interaction))
 
-        lib.usage.update_command_stats(interaction.user.id, 'settings')
 
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Settings(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(SettingsCommandCog())

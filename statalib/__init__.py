@@ -20,6 +20,7 @@ from . import (
     sessions,
     stats_snapshot,
     usage,
+    commands
 )
 from .aliases import *
 from .assets import ASSET_LOADER
@@ -49,4 +50,5 @@ __all__ = [
     "utc_now",
     "Mode",
     "ModesEnum",
+    "commands"
 ]

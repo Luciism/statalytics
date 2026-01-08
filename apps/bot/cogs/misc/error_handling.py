@@ -3,14 +3,14 @@ from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
-class ErrorHandling(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client: commands.Bot = client
+class ErrorHandlingCog(commands.Cog):
+    def __init__(self, client: helper.Client):
 
         @client.tree.error
-        async def on_tree_error(
+        async def _on_tree_error(
             interaction: discord.Interaction,
             error: app_commands.AppCommandError
         ):
@@ -24,5 +24,5 @@ class ErrorHandling(commands.Cog):
         raise error
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(ErrorHandling(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(ErrorHandlingCog(client))

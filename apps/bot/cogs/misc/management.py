@@ -1,10 +1,9 @@
 from discord.ext import commands
 
-import statalib as lib
 import helper
 
 
-class Management(commands.Cog):
+class ManagementCog(commands.Cog):
     def __init__(self, client: helper.Client):
         self.client: helper.Client = client
         _ = self.client.remove_command("help")
@@ -23,4 +22,4 @@ class Management(commands.Cog):
 
 
 async def setup(client: helper.Client) -> None:
-    await client.add_cog(Management(client))
+    await client.add_cog(ManagementCog(client))

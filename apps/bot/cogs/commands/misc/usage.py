@@ -1,17 +1,12 @@
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
 import helper
 
 
-class Usage(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-
-
-    def build_embed(self, command_usage, column_names) -> discord.Embed:
+class UsageCommandCog(commands.Cog):
+    def build_embed(self, command_usage, column_names: list[str]) -> discord.Embed:
         if not command_usage:
             return discord.Embed(
                 title='No Command Usage!',
@@ -53,12 +48,11 @@ class Usage(commands.Cog):
         return embed
 
 
-    @app_commands.command(name="usage", description="View Command Usage")
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
+
+    @helper.decorators.app_command("usage")
+    @helper.interactions.access_permitted_check()
     async def usage_stats(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         discord_id = interaction.user.id
 
@@ -74,8 +68,6 @@ class Usage(commands.Cog):
         embed = self.build_embed(command_usage, column_names)
         await interaction.followup.send(embed=embed)
 
-        lib.usage.update_command_stats(discord_id, 'usage')
 
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Usage(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(UsageCommandCog())

@@ -1,38 +1,24 @@
 import discord
-from discord import app_commands
 from discord.ext import commands
 
-import statalib as lib
 import helper
 
 
-class Who(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-
-
-    @app_commands.command(
-        name="who",
-        description="Convert the name of uuid of a player")
-    @app_commands.describe(
-        player='The player whos username / uuid you want to view')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    async def who(self, interaction: discord.Interaction,
-                  player: str=None):
-        await helper.interactions.run_interaction_checks(interaction)
-
+class WhoCommandCog(commands.Cog):
+    @helper.decorators.app_command("who")
+    @helper.interactions.access_permitted_check()
+    async def who(self, interaction: discord.Interaction, player: str=None):
         name, uuid = await helper.interactions.fetch_player_info(player, interaction, eph=True)
+
+        dashed_uuid = "-".join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])
 
         if player is None or len(player) <= 16:
             await interaction.response.send_message(
-                f'UUID for **{name}** -> `{uuid}`', ephemeral=True)
+                f'UUID for **{name}** -> `{uuid}` (`{dashed_uuid}`)', ephemeral=True)
         else:
             await interaction.response.send_message(
-                f'Name for **{uuid}** -> `{name}`', ephemeral=True)
-
-        lib.usage.update_command_stats(interaction.user.id, 'who')
+                f'Username for **{uuid}** -> `{name}`', ephemeral=True)
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Who(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(WhoCommandCog())

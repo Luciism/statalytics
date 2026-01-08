@@ -54,7 +54,11 @@ class LeaderboardCommandsCog(commands.Cog):
         allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
     )
 
-    async def compact_lb_command(self, interaction: discord.Interaction, lb_path: str) -> None:
+    async def compact_lb_command(
+        self,
+        interaction: discord.Interaction,
+        lb_path: str
+    ) -> None:
         await interaction.response.send_message(f"Generating {emoji.LOADING}")
 
         bedwars_lbs = await lib.hypixel.lbs.fetch_bedwars_leaderboards()
@@ -83,23 +87,21 @@ class LeaderboardCommandsCog(commands.Cog):
         )
 
 
-    @lb_group.command(name="level", description="View the Bedwars level leaderboard.")
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    @helper.decorators.app_command("bedwars_level_lb", group=lb_group)
+    @helper.interactions.access_permitted_check()
     async def stars_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "bedwars_level")
-        lib.usage.update_command_stats(interaction.user.id, "bedwars_level_lb")
 
-    @lb_group.command(name="wins", description="View the Bedwars overall wins leaderboard.")
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    @helper.decorators.app_command("bedwars_wins_lb", group=lb_group)
+    @helper.interactions.access_permitted_check()
     async def wins_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "wins_new")
-        lib.usage.update_command_stats(interaction.user.id, "bedwars_wins_lb")
 
-    @lb_group.command(name="finals", description="View the Bedwars overall final kills leaderboard.")
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+    @helper.decorators.app_command("bedwars_final_kills_lb", group=lb_group)
+    @helper.interactions.access_permitted_check()
     async def final_kills_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "final_kills_new")
-        lib.usage.update_command_stats(interaction.user.id, "bedwars_final_kills_lb")
 
 async def setup(client: helper.Client) -> None:
     await client.add_cog(LeaderboardCommandsCog(client))
+

@@ -7,7 +7,7 @@ import discord
 import mcfetch
 import statalib as lib
 from aiohttp import ClientConnectionError, ContentTypeError
-from discord import Embed, Interaction
+from discord import Embed, Interaction, app_commands
 from statalib.accounts import Account
 from statalib.accounts.linking import LinkingOutcomeEnum
 from statalib.common import Mode, ModesEnum
@@ -220,6 +220,22 @@ async def run_interaction_checks(
                     f"({interaction.user.id}) access to an interaction."
                 )
                 raise lib.errors.MissingPermissionsError
+
+def access_permitted_check(
+    allowed_permissions: list[str] | None=None,
+    check_blacklisted: bool = True,
+    allow_star: bool=True
+):
+    async def predicate(interaction: Interaction) -> bool:
+        await run_interaction_checks(
+            interaction,
+            check_blacklisted=check_blacklisted,
+            permissions=allowed_permissions,
+            allow_star=allow_star
+        )
+        return True
+
+    return app_commands.check(predicate)
 
 
 async def handle_modes_renders(

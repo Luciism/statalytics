@@ -2,7 +2,6 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import helper
@@ -11,27 +10,15 @@ from statalib import rotational_stats as rotational
 from render.rotational import render_rotational
 
 
-class Weekly(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-        self.LOADING_MSG = lib.config.loading_message()
-
-
-    @app_commands.command(
-        name="weekly",
-        description="View the weekly stats of a player")
-    @app_commands.describe(player='The player you want to view')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+class WeeklyCommandsCog(commands.Cog):
+    @helper.decorators.app_command("weekly")
+    @helper.interactions.access_permitted_check()
     async def weekly(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 144),
@@ -47,7 +34,7 @@ class Weekly(commands.Cog):
         if not rotational_data:
             manager.initialize_rotational_tracking(hypixel_data)
 
-            await interaction.edit_original_response(
+            _ = await interaction.edit_original_response(
                 content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
@@ -72,42 +59,34 @@ class Weekly(commands.Cog):
                 lib.timezone_relative_timestamp(rotational_data.last_reset_timestamp))
             message = f':alarm_clock: Last reset <t:{timestamp}:R>'
 
-
-        kwargs = {
-            "name": name,
-            "uuid": uuid,
-            "tracker": "weekly",
-            "relative_date": formatted_date,
-            "title": "Weekly Stats",
-            "hypixel_data": hypixel_data,
-            "skin_model": skin_model,
-            "save_dir": interaction.id
-        }
-
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
             func=render_rotational,
-            kwargs=kwargs,
+            kwargs={
+                "name": name,
+                "uuid": uuid,
+                "tracker": "weekly",
+                "relative_date": formatted_date,
+                "title": "Weekly Stats",
+                "hypixel_data": hypixel_data,
+                "skin_model": skin_model,
+                "save_dir": interaction.id
+            },
             message=message,
             custom_view=helper.views.tracker_view()
         )
-        lib.usage.update_command_stats(interaction.user.id, 'weekly')
 
 
-    @app_commands.command(
-        name="lastweek",
-        description="View last weeks stats of a player")
-    @app_commands.describe(
-        player='The player you want to view',
-        weeks='The lookback amount in weeks')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def lastweek(self, interaction: discord.Interaction,
-                       player: str=None, weeks: int=1):
+
+    @helper.decorators.app_command("lastweek")
+    @helper.interactions.access_permitted_check()
+    async def lastweek(
+        self,
+        interaction: discord.Interaction,
+        player: str=None,
+        weeks: int=1
+    ):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
         discord_id = lib.accounts.uuid_to_discord_id(uuid=uuid)
@@ -146,18 +125,18 @@ class Weekly(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fmt.fname(name)} has no tracked data for {weeks} '
+                f'{lib.fmt.fname(name)} has no tracked data for {weeks} ' +
                 f'{lib.fmt.pluralize(weeks, "week")} ago!')
             return
 
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 144),
             lib.network.fetch_hypixel_data(uuid)
         )
 
-        kwargs = {
+        await helper.interactions.handle_modes_renders(interaction, render_rotational, {
             "name": name,
             "uuid": uuid,
             "tracker": "lastweek",
@@ -167,11 +146,8 @@ class Weekly(commands.Cog):
             "skin_model": skin_model,
             "save_dir": interaction.id,
             "period_id": period_id
-        }
-
-        await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.usage.update_command_stats(interaction.user.id, 'lastweek')
+        })
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Weekly(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(WeeklyCommandsCog())

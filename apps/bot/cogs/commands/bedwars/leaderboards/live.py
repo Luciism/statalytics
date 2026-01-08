@@ -2,7 +2,6 @@ from typing import final
 from datetime import datetime, UTC
 
 import discord
-import statalib as lib
 from discord import TextChannel, app_commands
 from discord.ext import commands
 from statalib.hypixel.lbs import LiveLeaderboardsRepo
@@ -62,9 +61,9 @@ class LiveLeaderboardsCog(commands.Cog):
         content = f"Last updated <t:{int(datetime.now(UTC).timestamp())}:R>"
         _ = await message.edit(content=content, embeds=embeds, attachments=files)
 
-    @lb_channel_group.command(
-        name="set",
-        description="Set the leaderboard channels.")
+    
+    @helper.decorators.app_command("set_live_lb", group=lb_channel_group)
+    @helper.interactions.access_permitted_check()
     @app_commands.choices(leaderboard=[
         app_commands.Choice(name=lb.title, value=lb.path)
         for lb in LEADERBOARD_TYPES.values()])
@@ -76,7 +75,6 @@ class LiveLeaderboardsCog(commands.Cog):
     ) -> None:
         lb = leaderboard
         await interaction.response.defer(ephemeral=True)
-        await helper.interactions.run_interaction_checks(interaction)
 
         if not (guild := interaction.guild):
             return
@@ -105,11 +103,9 @@ class LiveLeaderboardsCog(commands.Cog):
 
         await self.initialize_live_leaderboard_message(new_live_lb_msg, lb.value)
 
-        lib.usage.update_command_stats(interaction.user.id, "set_live_lb")
 
-    @lb_channel_group.command(
-        name="unset",
-        description="Unset the leaderboard channels.",)
+    @helper.decorators.app_command("unset_live_lb", group=lb_channel_group)
+    @helper.interactions.access_permitted_check()
     @app_commands.choices(leaderboard=[
         app_commands.Choice(name=lb.title, value=lb.path)
         for lb in LEADERBOARD_TYPES.values()])
@@ -120,7 +116,6 @@ class LiveLeaderboardsCog(commands.Cog):
     ) -> None:
         lb_path = leaderboard.value
         await interaction.response.defer(ephemeral=True)
-        await helper.interactions.run_interaction_checks(interaction)
 
         if not (guild := interaction.guild):
             return
@@ -141,17 +136,14 @@ class LiveLeaderboardsCog(commands.Cog):
                 channel.id if channel else None, leaderboard.name)
         )
 
-        lib.usage.update_command_stats(interaction.user.id, "unset_live_lb")
 
-    @lb_channel_group.command(
-        name="list",
-        description="List the leaderboard channels.",)
+    @helper.decorators.app_command("list_live_lbs", group=lb_channel_group)
+    @helper.interactions.access_permitted_check()
     async def list_leaderboard_channels(
         self,
         interaction: discord.Interaction,
     ) -> None:
         await interaction.response.defer(ephemeral=True)
-        await helper.interactions.run_interaction_checks(interaction)
 
         if not interaction.guild:
             return
@@ -175,10 +167,7 @@ class LiveLeaderboardsCog(commands.Cog):
 
             channels[lb_info.title] = c.mention
 
-        
         await interaction.followup.send(embed=LeaderboardEmbeds.list_live_leaderboards(channels))
-
-        lib.usage.update_command_stats(interaction.user.id, "list_live_lbs")
 
 
 async def setup(client: helper.Client) -> None:
