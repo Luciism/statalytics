@@ -4,45 +4,56 @@ from typing import Any, Awaitable, Callable, Literal, TypeVar
 from discord import app_commands, Interaction
 from discord.app_commands import Cooldown
 
-from helper.autocomplete import username_autocompletion
+import statalib as lib
+from statalib.commands import get_command
+from helper.autocomplete import Autocomplete 
 from helper.cooldowns import generic_command_cooldown
 
 
 T = TypeVar('T', bound=Callable[..., Awaitable[Any]])
+CooldownT = Callable[[Interaction], Cooldown | None]
+
+def update_command_usage_check(command_id: str, should_update: bool=True):
+    if should_update is False:
+        fake: Callable[[Interaction], Literal[True]] = lambda interaction: True
+        return fake 
+
+    def predicate(interaction: Interaction) -> Literal[True]:
+        lib.usage.update_command_stats(interaction.user.id, command_id)
+        return True
+
+    return predicate
+
 
 def app_command(
-    name: str,
-    description: str,
-    params: dict[str, str],
-    allow_user_installs: bool = True,
-    command_cooldown: Literal["generic", None] = "generic",
-    autocompletes: dict[
-        str,
-        Callable[[Interaction, str], Awaitable[list[app_commands.Choice[str]]]]
-    ] | None = None
+    command_id: str,
+    update_command_usage: bool=True,
+    group: app_commands.Group | None=None
 ) -> Callable[[T], T]:
     """Decorator factory for creating app commands with common configurations."""
     
     def decorator(command: T) -> T:
-        cooldown_func: Callable[[Interaction], Cooldown | None] = {
-            "generic": generic_command_cooldown,
-            None: lambda _: None
-        }.get(command_cooldown)
+        cmd = get_command(command_id)
 
-        autocomplete_fns = autocompletes
+        autocompletes = {
+            arg.name: Autocomplete.by_name(arg.autocomplete)
+            for arg in cmd.arguments if arg.autocomplete
+        }
 
-        if autocomplete_fns is None:
-            autocomplete_fns = {}
+        if cmd.cooldown:
+            cooldown_fn: CooldownT = generic_command_cooldown
+        else:
+            cooldown_fn = lambda _: None
 
-        if params.get("player") and not autocomplete_fns.get("player"):
-            autocomplete_fns["player"] = username_autocompletion
+        init = group if group else app_commands
 
-        @app_commands.command(name=name, description=description)
-        @app_commands.describe(**params)
-        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-        @app_commands.allowed_installs(guilds=True, users=allow_user_installs)
-        @app_commands.autocomplete(**(autocomplete_fns or {}))
-        @app_commands.checks.dynamic_cooldown(cooldown_func)
+        @init.command(name=cmd.name, description=cmd.description)
+        @app_commands.describe(**cmd.argument_map())
+        @app_commands.allowed_contexts(**cmd.contexts.dict)
+        @app_commands.allowed_installs(**cmd.installs.dict)
+        @app_commands.checks.dynamic_cooldown(cooldown_fn)
+        @app_commands.check(update_command_usage_check(cmd.id, update_command_usage))
+        @app_commands.autocomplete(**autocompletes)
         @functools.wraps(command)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             return await command(*args, **kwargs)
@@ -50,3 +61,4 @@ def app_command(
         return wrapper  # type: ignore
     
     return decorator
+

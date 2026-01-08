@@ -1,9 +1,11 @@
 from discord.ext import commands
 
+import helper
 
-class ManageCogs(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
+
+class ManageCogsCog(commands.Cog):
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
 
 
     async def _check_cog(self, cog: str):
@@ -17,7 +19,7 @@ class ManageCogs(commands.Cog):
     @commands.is_owner()
     async def load(self, ctx: commands.context.Context, cog: str):
         if not await self._check_cog(cog):
-            await ctx.send('That cog cannot be managed!')
+            _ = await ctx.send('That cog cannot be managed!')
             return
 
         try:
@@ -27,14 +29,14 @@ class ManageCogs(commands.Cog):
             msg = f"Couldn't find cog: `{cog}`"
         except commands.errors.ExtensionAlreadyLoaded:
             msg = f"Cog already loaded: `{cog}`"
-        await ctx.send(msg)
+        _ = await ctx.send(msg)
 
 
     @commands.command()
     @commands.is_owner()
     async def unload(self, ctx: commands.context.Context, cog: str):
         if not await self._check_cog(cog):
-            await ctx.send('That cog cannot be managed!')
+            _ = await ctx.send('That cog cannot be managed!')
             return
 
         try:
@@ -44,14 +46,14 @@ class ManageCogs(commands.Cog):
             msg = f"Couldn't find cog: `{cog}`"
         except commands.errors.ExtensionNotLoaded:
             msg = f"Cog not loaded: `{cog}`"
-        await ctx.send(msg)
+        _ = await ctx.send(msg)
 
 
     @commands.command()
     @commands.is_owner()
     async def reload(self, ctx: commands.context.Context, cog: str):
         if not await self._check_cog(cog):
-            await ctx.send('That cog cannot be managed!')
+            _ = await ctx.send('That cog cannot be managed!')
             return
 
         try:
@@ -61,8 +63,8 @@ class ManageCogs(commands.Cog):
             msg = f"Couldn't find cog: `{cog}`"
         except commands.errors.ExtensionNotLoaded:
             msg = f"Cog not loaded: `{cog}`"
-        await ctx.send(msg)
+        _ = await ctx.send(msg)
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(ManageCogs(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(ManageCogsCog(client))

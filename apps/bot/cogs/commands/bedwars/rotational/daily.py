@@ -2,7 +2,6 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import helper
@@ -11,27 +10,15 @@ from statalib import rotational_stats as rotational
 from render.rotational import render_rotational
 
 
-class Daily(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-        self.LOADING_MSG = lib.config.loading_message()
-
-
-    @app_commands.command(
-        name="daily",
-        description="View the daily stats of a player")
-    @app_commands.describe(player='The player you want to view')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
+class DailyCommandsCog(commands.Cog):
+    @helper.decorators.app_command("daily")
+    @helper.interactions.access_permitted_check()
     async def daily(self, interaction: discord.Interaction, player: str=None):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 144),
@@ -47,23 +34,12 @@ class Daily(commands.Cog):
         if not rotational_data:
             manager.initialize_rotational_tracking(hypixel_data)
 
-            await interaction.edit_original_response(
+            _ = await interaction.edit_original_response(
                 content=f'Historical stats for {lib.fmt.fname(name)} will now be tracked.')
             return
 
         now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
         formatted_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
-
-        kwargs = {
-            "name": name,
-            "uuid": uuid,
-            "tracker": "daily",
-            "relative_date": formatted_date,
-            "title": "Daily Stats",
-            "hypixel_data": hypixel_data,
-            "skin_model": skin_model,
-            "save_dir": interaction.id
-        }
 
         if lib.rotational_stats.has_auto_reset_access(uuid):
             # i dont know why this works but it does so dont touch it
@@ -88,27 +64,30 @@ class Daily(commands.Cog):
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
             func=render_rotational,
-            kwargs=kwargs,
+            kwargs={
+                "name": name,
+                "uuid": uuid,
+                "tracker": "daily",
+                "relative_date": formatted_date,
+                "title": "Daily Stats",
+                "hypixel_data": hypixel_data,
+                "skin_model": skin_model,
+                "save_dir": interaction.id
+            },
             message=message,
             custom_view=helper.views.tracker_view()
         )
-        lib.usage.update_command_stats(interaction.user.id, 'daily')
 
 
-    @app_commands.command(
-        name="lastday",
-        description="View yesterdays stats of a player")
-    @app_commands.describe(
-        player='The player you want to view',
-        days='The lookback amount in days')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(player=helper.username_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def lastday(self, interaction: discord.Interaction,
-                      player: str=None, days: int=1):
+    @helper.decorators.app_command("lastday")
+    @helper.interactions.access_permitted_check()
+    async def lastday(
+        self,
+        interaction: discord.Interaction,
+        player: str=None,
+        days: int=1
+    ):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
         discord_id = lib.accounts.uuid_to_discord_id(uuid=uuid)
@@ -148,18 +127,18 @@ class Daily(commands.Cog):
 
         if not historical_data:
             await interaction.followup.send(
-                f'{lib.fmt.fname(name)} has no tracked data for {days} '
+                f'{lib.fmt.fname(name)} has no tracked data for {days} ' +
                 f'{lib.fmt.pluralize(days, "day")} ago!')
             return
 
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 144),
             lib.network.fetch_hypixel_data(uuid)
         )
 
-        kwargs = {
+        await helper.interactions.handle_modes_renders(interaction, render_rotational, {
             "name": name,
             "uuid": uuid,
             "tracker": "lastday",
@@ -169,11 +148,8 @@ class Daily(commands.Cog):
             "skin_model": skin_model,
             "save_dir": interaction.id,
             "period_id": period_id
-        }
-
-        await helper.interactions.handle_modes_renders(interaction, render_rotational, kwargs)
-        lib.usage.update_command_stats(interaction.user.id, 'lastday')
+        })
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Daily(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(DailyCommandsCog())

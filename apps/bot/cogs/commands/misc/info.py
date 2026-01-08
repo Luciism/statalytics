@@ -4,7 +4,6 @@ import datetime
 from json import load as load_json
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
@@ -19,22 +18,14 @@ def calculate_uptime() -> datetime.timedelta:
     return datetime.timedelta(seconds=time_since_started)
 
 
-class Info(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
+class InfoCommandCog(commands.Cog):
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
 
-
-    @app_commands.command(
-        name="info",
-        description="View information and stats for Statalytics")
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
+    @helper.decorators.app_command("info")
+    @helper.interactions.access_permitted_check()
     async def info(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
-
-        # process_mem = psutil.Process(os.getpid()).memory_info().rss
-        # ram_usage = round(process_mem / 1024 ** 2, 2)
 
         embed = helper.Embeds.misc.services_info({
             'uptime': str(calculate_uptime()),
@@ -51,8 +42,6 @@ class Info(commands.Cog):
         })
         await interaction.followup.send(embed=embed)
 
-        lib.usage.update_command_stats(discord_id=interaction.user.id, command='info')
 
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Info(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(InfoCommandCog(client))

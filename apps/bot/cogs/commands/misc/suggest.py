@@ -1,5 +1,4 @@
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
@@ -30,26 +29,19 @@ class SubmitSuggestion(
             'Successfully submitted suggestion!', ephemeral=True)
 
 
-class Suggest(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
+class SuggestCommandCog(commands.Cog):
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
 
 
-    @app_commands.command(
-        name='suggest',
-        description='Suggest a feature you would like to see added!')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
+    @helper.decorators.app_command("suggest")
+    @helper.interactions.access_permitted_check()
     async def suggest(self, interaction: discord.Interaction):
-        await helper.interactions.run_interaction_checks(interaction)
-
         channel_id = lib.config(
             'global.support_server.channels.suggestions_channel_id')
         channel = self.client.get_channel(channel_id)
         await interaction.response.send_modal(SubmitSuggestion(channel))
 
-        lib.usage.update_command_stats(interaction.user.id, 'suggest')
 
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Suggest(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(SuggestCommandCog(client))

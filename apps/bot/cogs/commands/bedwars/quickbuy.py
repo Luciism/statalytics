@@ -5,29 +5,23 @@ import statalib as lib
 from discord.ext import commands
 
 import helper
-from helper import app_command
 from render.quickbuy import render_quickbuy
 
 
-class QuickBuy(commands.Cog):
-    def __init__(self, client: helper.Client):
-        self.client: helper.Client = client
-        self.LOADING_MSG: str = lib.config.loading_message()
-
-        self.deprecation_warning: str = (
-            "<:docs:1325495671272374272> **Warning:** "
-            + "this command is deprecated. Please use `/quickbuy` instead."
-        )
+class QuickBuyCommandCog(commands.Cog):
+    DEPRECATION_WARNING: str = (
+        "<:docs:1325495671272374272> **Warning:** "
+        + "this command is deprecated. Please use `/quickbuy` instead."
+    )
 
     async def quickbuy_command(
         self, interaction: discord.Interaction, player: str
     ) -> None:
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 252, style="full"),
@@ -40,28 +34,27 @@ class QuickBuy(commands.Cog):
             content=None, attachments=[discord.File(rendered, filename="quickbuy.png")]
         )
 
-    @app_command("shop", "[DEPRECATED] View the shopkeeper layout of a player", {
-        "player": "The player you want to view"})
+
+    @helper.decorators.app_command("shop")
+    @helper.interactions.access_permitted_check()
     async def shop(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
-        _ = await interaction.edit_original_response(content=self.deprecation_warning)
-        lib.usage.update_command_stats(interaction.user.id, "shop")
+        _ = await interaction.edit_original_response(content=self.DEPRECATION_WARNING)
 
-    @app_command("hotbar", "[DEPRECATED] View the hotbar layout of a player", {
-        "player": "The player you want to view"})
+
+    @helper.decorators.app_command("hotbar")
+    @helper.interactions.access_permitted_check()
     async def hotbar(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
-        _ = await interaction.edit_original_response(content=self.deprecation_warning)
-        lib.usage.update_command_stats(interaction.user.id, "hotbar")
+        _ = await interaction.edit_original_response(content=self.DEPRECATION_WARNING)
 
 
-    @app_command("quickbuy", "View the quickbuy layout of a player", {
-        "player": "The player you would like to lookup"})
+    @helper.decorators.app_command("quickbuy")
+    @helper.interactions.access_permitted_check()
     async def quickbuy(self, interaction: discord.Interaction, player: str = None):
         await self.quickbuy_command(interaction, player)
-        lib.usage.update_command_stats(interaction.user.id, "quickbuy")
 
 
 async def setup(client: helper.Client) -> None:
-    await client.add_cog(QuickBuy(client))
+    await client.add_cog(QuickBuyCommandCog())
 

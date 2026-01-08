@@ -1,13 +1,12 @@
 # api.antisniper.net
 
+import os
 import asyncio
-import typing
 import discord
 from http.client import RemoteDisconnected
 from json import JSONDecodeError
-from os import getenv
 
-from aiohttp import ClientSession, ContentTypeError, ClientConnectionError
+from aiohttp import ClientSession, ClientTimeout, ContentTypeError, ClientConnectionError
 from discord import app_commands
 from discord.ext import commands
 from requests import ReadTimeout, ConnectTimeout
@@ -16,63 +15,40 @@ import statalib as lib
 import helper
 
 
-class Denick(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-
-
-    async def number_autocomplete(
-        self,
-        interaction: discord.Interaction,
-        current: str
-    ) -> typing.List[app_commands.Choice[str]]:
-        data = [
-            app_commands.Choice(name="finals", value="finals"),
-            app_commands.Choice(name="beds", value="beds")
-        ]
-        return data
-
-
+class NumberDenickCommandCog(commands.Cog):
     async def fetch_denick_data(self, mode: str, count: int):
-        api_key = getenv('API_KEY_ANTISNIPER')
-
-        options = {
-            'url': 'https://api.antisniper.net/v2/other/'
-                    f'denick/number/{mode}?value={count}',
-            'headers': {'Apikey': api_key},
-            'timeout': 10
-        }
-
         try:
             async with ClientSession() as session:
-                return await (await session.get(**options)).json()
+                res = await session.get(
+                    url=f"https://api.antisniper.net/v2/other/denick/number/{mode}?value={count}",
+                    headers={"Apikey": os.getenv('API_KEY_ANTISNIPER') or ""},
+                    timeout=ClientTimeout(total=10)
+                )
+                return await res.json()
         except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError,
                 JSONDecodeError, RemoteDisconnected, ContentTypeError, ClientConnectionError):
             return None
 
 
-    @app_commands.command(
-        name="numberdenick",
-        description="Find the ign of a nick based on their"
-                    "kill messages (powered by antisniper)")
-    @app_commands.describe(
-        mode='The stat to denick with (finals / beds)',
-        count='The count of the chosen stat')
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.autocomplete(mode=number_autocomplete)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def numberdenick(self, interaction: discord.Interaction,
-                           mode: str, count: int):
+    @helper.decorators.app_command("numberdenick")
+    @helper.interactions.access_permitted_check()
+    @app_commands.choices(mode=[
+        app_commands.Choice(name="Finals", value="finals"),
+        app_commands.Choice(name="Beds", value="beds")
+    ])
+    async def numberdenick(
+        self,
+        interaction: discord.Interaction,
+        mode: app_commands.Choice[str],
+        count: int
+    ):
         await interaction.response.defer()
-        await helper.interactions.run_interaction_checks(interaction)
 
-        mode = mode.lower()
-        if mode not in ('finals', 'beds'):
+        if mode.value not in ('finals', 'beds'):
             await interaction.followup.send('Invalid mode! Valid options: (finals / beds)')
             return
 
-        data = await self.fetch_denick_data(mode, count)
+        data = await self.fetch_denick_data(mode.value, count)
 
         if data is None:
             await interaction.followup.send(
@@ -83,10 +59,13 @@ class Denick(commands.Cog):
         embed = discord.Embed(
             title='Number Denicker',
             description=
-                f'Mode: {mode}\n'
-                f'Count: {count}\n'
+                f'Mode: {mode}\n' +
+                f'Count: {count}\n' +
                 f'Results: {len(data["data"])}',
             color=embed_color
+        ).set_footer(
+            text="Powered by antisniper.net",
+            icon_url='https://statalytics.net/image/antisniper.png'
         )
 
         if data['data']:
@@ -102,21 +81,16 @@ class Denick(commands.Cog):
             for player in data['data']:
                 beds_broken.append(f'{player["beds_broken"]:,}')
 
-            embed.add_field(name='Username', value='\n\n'.join(usernames))
-            embed.add_field(name='Finals', value='\n\n'.join(final_kills))
-            embed.add_field(name='Beds', value='\n\n'.join(beds_broken))
+            _ = (embed
+                .add_field(name='Username', value='\n\n'.join(usernames))
+                .add_field(name='Finals', value='\n\n'.join(final_kills))
+                .add_field(name='Beds', value='\n\n'.join(beds_broken))
+            )
         else:
             embed.description = "No data."
 
-        embed.set_footer(
-            text="Powered by antisniper.net",
-            icon_url='https://statalytics.net/image/antisniper.png'
-        )
-
         await interaction.followup.send(embed=embed)
 
-        lib.usage.update_command_stats(interaction.user.id, 'numberdenick')
 
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Denick(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(NumberDenickCommandCog(client))

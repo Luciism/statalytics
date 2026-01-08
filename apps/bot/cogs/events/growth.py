@@ -4,11 +4,12 @@ import discord
 from discord.ext import commands
 
 import statalib as lib
+import helper
 
 
-class Growth(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
+class GrowthTrackingCog(commands.Cog):
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
 
 
     def update_server_count_file(self):
@@ -33,5 +34,5 @@ class Growth(commands.Cog):
         self.update_server_count_file()
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Growth(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(GrowthTrackingCog(client))

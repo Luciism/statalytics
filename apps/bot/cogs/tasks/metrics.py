@@ -1,15 +1,17 @@
-from os import getenv
+from typing_extensions import override
 
+import discord
 from discord.ext import commands, tasks
 
 import statalib as lib
+import helper
 
 
-class Metrics(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
+class MetricsChannelsCog(commands.Cog):
+    def __init__(self, client: helper.Client):
+        self.client: helper.Client = client
 
-        self.channels = {}
+        self.channels: dict[int, discord.VoiceChannel] = {}
 
 
     async def get_channel(self, channel_id: int):
@@ -61,14 +63,15 @@ class Metrics(commands.Cog):
         self.update_metrics_loop.restart()
 
 
+    @override
     async def cog_load(self):
-        if getenv('ENVIRONMENT') == 'production':
-            self.update_metrics_loop.start()
+        _ = self.update_metrics_loop.start()
 
 
+    @override
     async def cog_unload(self):
         self.update_metrics_loop.cancel()
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Metrics(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(MetricsChannelsCog(client))

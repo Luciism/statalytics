@@ -35,6 +35,14 @@ CREATE TABLE IF NOT EXISTS command_usage (
     overall INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS command_metrics (
+    command_id TEXT NOT NULL,
+    discord_id INTEGER NOT NULL,
+    times_used INTEGER NOT NULL,
+    -- last_used REAL DEFAULT (strftime('%s', 'now', 'utc')),
+    PRIMARY KEY (command_id, discord_id)
+);
+
 CREATE TABLE IF NOT EXISTS configured_reset_times (
     discord_id INTEGER PRIMARY KEY,
     timezone INTEGER,
@@ -85,8 +93,9 @@ CREATE TABLE IF NOT EXISTS gift_redemptions (
     redeemer_id INTEGER,
     redeemer_name TEXT DEFAULT 'unknown',
     redeemer_avatar TEXT DEFAULT 'https://cdn.discordapp.com/embed/avatars/0.png',
-    FOREIGN KEY (gift_id) REFERENCES gifts(gift_id)
+    FOREIGN KEY (gift_id) REFERENCES gifts (gift_id)
 );
+
 
 -- Adds dynamic redemptions id on a per gift basis
 CREATE TRIGGER IF NOT EXISTS redemption_id_trigger

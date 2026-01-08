@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, UTC
 
 import discord
 from discord import app_commands
@@ -10,13 +11,8 @@ from statalib.accounts import Account
 from render.year import render_year
 
 
-class Year(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.Bot = client
-        self.LOADING_MSG = lib.config.loading_message()
-
-
-    year_group = app_commands.Group(
+class YearCommandCog(commands.Cog):
+    year_group: app_commands.Group = app_commands.Group(
         name='year',
         description='View the a players projected stats for a future year',
         allowed_contexts=app_commands.AppCommandContext(
@@ -33,8 +29,7 @@ class Year(commands.Cog):
         session: int,
         year: int
     ) -> None:
-        await helper.interactions.run_interaction_checks(interaction)
-        await interaction.followup.send(self.LOADING_MSG)
+        await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, 144),
@@ -49,7 +44,7 @@ class Year(commands.Cog):
             session=session
         )
 
-        kwargs = {
+        await helper.interactions.handle_modes_renders(interaction, render_year, {
             "name": name,
             "uuid": uuid,
             "session_info": session_info,
@@ -57,41 +52,24 @@ class Year(commands.Cog):
             "hypixel_data": hypixel_data,
             "skin_model": skin_model,
             "save_dir": interaction.id
-        }
+        })
 
-        await helper.interactions.handle_modes_renders(interaction, render_year, kwargs)
-        lib.usage.update_command_stats(interaction.user.id, f'year_{year}')
+    YEAR1: int = datetime.now(UTC).year + 1
+    YEAR2: int = datetime.now(UTC).year + 2
 
-
-    @year_group.command(
-        name="2027",
-        description="View the a players projected stats for 2027")
-    @app_commands.describe(
-        player='The player you want to view',
-        session='The session you want to use')
-    @app_commands.autocomplete(
-        player=helper.username_autocompletion,
-        session=helper.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def year_2027(
+    @helper.decorators.app_command(f"year_{YEAR1}", group=year_group)
+    @helper.interactions.access_permitted_check()
+    async def year_1(
         self, interaction: discord.Interaction, player: str=None, session: int=None
     ) -> None:
         await interaction.response.defer()
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
-        await self.year_command(interaction, name, uuid, session, 2027)
+        await self.year_command(interaction, name, uuid, session, self.YEAR1)
 
 
-    @year_group.command(
-        name="2028",
-        description="View the a players projected stats for 2028")
-    @app_commands.describe(
-        player='The player you want to view',
-        session='The session you want to use')
-    @app_commands.autocomplete(
-        player=helper.username_autocompletion,
-        session=helper.session_autocompletion)
-    @app_commands.checks.dynamic_cooldown(helper.generic_command_cooldown)
-    async def year_2028(
+    @helper.decorators.app_command(f"year_{YEAR2}", group=year_group)
+    @helper.interactions.access_permitted_check()
+    async def year_2(
         self, interaction: discord.Interaction, player: str=None, session: int=None
     ) -> None:
         await interaction.response.defer()
@@ -100,16 +78,17 @@ class Year(commands.Cog):
         discord_id = lib.accounts.uuid_to_discord_id(uuid)
 
         # Either command user or checked player has access
-        condition_1 = Account(discord_id).permissions.has_access('year_2028')
-        condition_2 = Account(interaction.user.id).permissions.has_access('year_2028')
+        condition_1 = Account(discord_id).permissions.has_access(f'year_{self.YEAR2}')
+        condition_2 = Account(interaction.user.id).permissions.has_access(f'year_{self.YEAR2}')
 
         if not condition_1 and not condition_2:
-            embed = helper.Embeds.problems.no_premium_2028()
+            embed = helper.Embeds.problems.no_premium_2028()  # TODO: update embed fn name
             await interaction.followup.send(embed=embed)
             return
 
-        await self.year_command(interaction, name, uuid, session, 2028)
+        await self.year_command(interaction, name, uuid, session, self.YEAR2)
 
 
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Year(client))
+async def setup(client: helper.Client) -> None:
+    await client.add_cog(YearCommandCog())
+
