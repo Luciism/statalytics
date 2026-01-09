@@ -14,10 +14,18 @@
       devShells.${system} = {
         default = pkgs.mkShell {
           packages = [ python ];
+
           shellHook = ''
               # Set the PS1 variable to indicate dev environment
               PS1='\[\e[38;5;147m\][\u@\h\[\e[38;5;250m\]:\[\e[38;5;75m\]\w\[\e[38;5;147m\]]\[\e[38;5;250m\]\$ \[\e[0m\]'
-              source .venv/bin/activate
+
+              # Find the topmost git directory (not submodule)
+              PRJ_ROOT="$(git rev-parse --show-superproject-working-tree 2>/dev/null)"
+              if [ -z "$PRJ_ROOT" ]; then
+                PRJ_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+              fi
+              source $PRJ_ROOT/.venv/bin/activate
+
               uv sync
               clear
 

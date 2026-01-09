@@ -34,7 +34,7 @@ class InfoCommandCog(commands.Cog):
 
             'servers': f'{len(self.client.guilds):,}',
             'users': f'{lib.usage.get_user_total():,}',
-            'commands_ran': f'{lib.usage.get_commands_total():,}',
+            'commands_ran': f'{lib.usage.CommandMetricsRepo.get_usage():,}',
             'linked_users': f'{lib.accounts.get_total_linked_accounts():,}',
 
             'python_ver': '.'.join(str(ver) for ver in sys.version_info[0:3]),

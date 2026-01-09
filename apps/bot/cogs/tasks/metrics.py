@@ -39,7 +39,7 @@ class MetricsChannelsCog(commands.Cog):
         metrics = {
             'linked': lib.accounts.get_total_linked_accounts(),
             'users': lib.usage.get_user_total(),
-            'commands': lib.usage.get_commands_total(),
+            'commands': lib.usage.CommandMetricsRepo.get_usage(),
             'servers': len(self.client.guilds)
         }
 

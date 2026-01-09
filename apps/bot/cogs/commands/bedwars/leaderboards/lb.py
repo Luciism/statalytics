@@ -87,17 +87,17 @@ class LeaderboardCommandsCog(commands.Cog):
         )
 
 
-    @helper.decorators.app_command("bedwars_level_lb", group=lb_group)
+    @helper.decorators.app_command("leaderboard_level", group=lb_group)
     @helper.interactions.access_permitted_check()
     async def stars_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "bedwars_level")
 
-    @helper.decorators.app_command("bedwars_wins_lb", group=lb_group)
+    @helper.decorators.app_command("leaderboard_wins", group=lb_group)
     @helper.interactions.access_permitted_check()
     async def wins_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "wins_new")
 
-    @helper.decorators.app_command("bedwars_final_kills_lb", group=lb_group)
+    @helper.decorators.app_command("leaderboard_final_kills", group=lb_group)
     @helper.interactions.access_permitted_check()
     async def final_kills_lb(self, interaction: discord.Interaction):
         await self.compact_lb_command(interaction, "final_kills_new")

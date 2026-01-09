@@ -131,7 +131,8 @@
       ]
     },
     {
-      "id": "mostplayed",
+      "id": "gamemode_distributions",
+      "name": "mostplayed",
       "description": "View the mode playtime distribution for a player.",
       "arguments": [
         {
@@ -153,8 +154,7 @@
       ]
     },
     {
-      "id": "projection",
-      "name": "prestige",
+      "id": "prestige",
       "description": "View the projected stats of a player.",
       "arguments": [
         {
@@ -229,7 +229,7 @@
       ]
     },
     {
-      "id": "session",
+      "id": "session_stats",
       "name": "stats",
       "description": "View the session stats of a player.",
       "parent": "session",
@@ -247,13 +247,13 @@
       ]
     },
     {
-      "id": "startsession",
+      "id": "session_start",
       "name": "start",
       "description": "Create a new session.",
       "parent": "session"
     },
     {
-      "id": "endsession",
+      "id": "session_end",
       "name": "end",
       "description": "Terminate an active session.",
       "parent": "session",
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "id": "resetsession",
+      "id": "session_reset",
       "name": "reset",
       "description": "Reset an active session.",
       "parent": "session",
@@ -279,13 +279,13 @@
       ]
     },
     {
-      "id": "activesessions",
+      "id": "session_list_active",
       "name": "active",
       "description": "Check which sessions you have active.",
       "parent": "session"
     },
     {
-      "id": "generic",
+      "id": "bedwars_general",
       "name": "bedwars",
       "description": "View the overall Bedwars stats of a player.",
       "arguments": [
@@ -297,7 +297,8 @@
       ]
     },
     {
-      "id": "pointless",
+      "id": "bedwars_pointless",
+      "name": "pointless",
       "description": "View the random pointless Bedwars stats of a player.",
       "arguments": [
         {
@@ -381,25 +382,25 @@
       ]
     },
     {
-      "id": "bedwars_level_lb",
+      "id": "leaderboard_level",
       "name": "level",
-      "description": "View the Bedawrs level leaderboard.",
+      "description": "View the Bedwars level leaderboard.",
       "parent": "leaderboard"
     },
     {
-      "id": "bedwars_wins_lb",
+      "id": "leaderboard_wins",
       "name": "wins",
       "description": "View the Bedwars overall wins leaderboard.",
       "parent": "leaderboard"
     },
     {
-      "id": "bedwars_final_kills_lb",
+      "id": "leaderboard_final_kills",
       "name": "finals",
       "description": "View the Bedwars overall final kills leaderboard.",
       "parent": "leaderboard"
     },
     {
-      "id": "set_live_lb",
+      "id": "live_leaderboard_set",
       "name": "set",
       "description": "Set a live leaderboard channel.",
       "parent": "liveleaderboard channel",
@@ -415,7 +416,7 @@
       ]
     },
     {
-      "id": "unset_live_lb",
+      "id": "live_leaderboard_unset",
       "name": "unset",
       "description": "Unset a live leaderboard channel.",
       "parent": "liveleaderboard channel",
@@ -427,7 +428,7 @@
       ]
     },
     {
-      "id": "list_live_lbs",
+      "id": "live_leaderboard_list",
       "name": "list",
       "description": "List the live leaderboard channels.",
       "parent": "liveleaderboard channel"
@@ -620,6 +621,12 @@
           "description": "The username or UUID of the player to lookup."
         }
       ]
+    },
+    {
+      "id": "status_hypixel",
+      "name": "hypixel",
+      "description": "View the live status of hypixel as well as latency metrics.",
+      "parent": "status"
     }
   ]
 }

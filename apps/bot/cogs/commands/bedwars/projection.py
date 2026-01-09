@@ -9,7 +9,7 @@ from render.projection import render_projection
 
 
 class ProjectionCommandCog(commands.Cog):
-    @helper.decorators.app_command("projection")
+    @helper.decorators.app_command("prestige")
     @helper.interactions.access_permitted_check()
     async def projected_stats(
         self,

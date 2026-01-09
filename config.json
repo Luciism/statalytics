@@ -44,6 +44,7 @@
           "commands.misc.suggest",
           "commands.misc.vote",
           "commands.misc.premium",
+          "commands.misc.usage",
 
           "commands.bedwars.year",
           "commands.bedwars.winstreaks",
