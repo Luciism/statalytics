@@ -4,6 +4,21 @@ from typing import Any, Literal, overload
 
 from .common import REL_PATH
 
+class InvalidCommandsFileError(Exception):
+    ...
+
+class CommandNotFoundError(Exception):
+    ...
+
+try:
+    with open(f"{REL_PATH}/commands.json") as cmd_file:
+        data: dict[str, Any] = json.load(cmd_file)
+
+        ARG_DEFAULTS: dict[str, dict[str, str]] = data["argument_defaults"]
+        COMMANDS: list[dict[str, Any]] = data["commands"]
+except (KeyError, json.JSONDecodeError, FileNotFoundError) as e:
+    raise InvalidCommandsFileError("commands.json file missing or invalid") from e
+
 
 @dataclass
 class CommandArgument:
@@ -11,13 +26,41 @@ class CommandArgument:
     description: str | None
     autocomplete: str | None
 
+    def as_dict(self) -> dict[str, str | None]:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "autocomplete": self.autocomplete
+        }
+
+    @staticmethod
+    def build(arg: str | dict[str, str]) -> 'CommandArgument':
+        if isinstance(arg, str):
+            # Defaults may or may not exist
+            defaults = ARG_DEFAULTS.get(arg, {})
+
+            return CommandArgument(
+                arg,
+                defaults.get("description"),
+                defaults.get("autocomplete")
+            )
+
+
+        defaults = ARG_DEFAULTS.get(arg["name"], {})
+
+        return CommandArgument(
+            arg["name"],
+            arg.get("description", defaults.get("description")),
+            arg.get("autocomplete", defaults.get("autocomplete")),
+        )
+
+
 @dataclass
 class CommandAllowedInstalls:
     guilds: bool
     users: bool
 
-    @property
-    def dict(self) -> dict[str, bool]:
+    def as_dict(self) -> dict[str, bool]:
         return {
             "guilds": self.guilds,
             "users": self.users
@@ -30,8 +73,7 @@ class CommandAllowedContexts:
     dms: bool
     private_channels: bool
 
-    @property
-    def dict(self) -> dict[str, bool]:
+    def as_dict(self) -> dict[str, bool]:
         return {
             "guilds": self.guilds,
             "dms": self.dms,
@@ -51,7 +93,7 @@ class Command:
  
     def argument_map(self) -> dict[str, str]:
         return {
-            arg.name: arg.description or "" for arg in self.arguments
+            arg.name: arg.description for arg in self.arguments if arg.description
         }
 
     def format(self) -> str:
@@ -59,6 +101,18 @@ class Command:
             return f"/{self.parent} {self.name}"
 
         return f"/{self.name}"
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "parent": self.parent,
+            "cooldown": self.cooldown,
+            "installs": self.installs.as_dict(),
+            "contexts": self.contexts.as_dict(),
+            "arguments": [arg.as_dict() for arg in self.arguments]
+        }
 
     @staticmethod
     @overload
@@ -88,11 +142,7 @@ class Command:
                 parent=cmd.get("parent"),
                 cooldown=cmd.get("cooldown", True),
                 arguments=[
-                    CommandArgument(
-                        name=arg["name"],
-                        description=arg.get("description"),
-                        autocomplete=arg.get("autocomplete")
-                    )
+                    CommandArgument.build(arg)
                     for arg in cmd.get("arguments", [])
                 ],
                 installs=CommandAllowedInstalls(
@@ -109,18 +159,6 @@ class Command:
             if silent_fail:
                 return
             raise InvalidCommandsFileError from exc
-
-class InvalidCommandsFileError(Exception):
-    ...
-
-class CommandNotFoundError(Exception):
-    ...
-
-try:
-    with open(f"{REL_PATH}/commands.json") as cmd_file:
-        COMMANDS: list[dict[str, Any]] = json.load(cmd_file)["commands"]
-except (KeyError, json.JSONDecodeError, FileNotFoundError) as e:
-    raise InvalidCommandsFileError("commands.json file missing or invalid") from e
 
 
 def get_command(command_id: str) -> Command:

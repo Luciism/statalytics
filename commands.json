@@ -1,4 +1,14 @@
 {
+  "argument_defaults": {
+    "player": {
+      "description": "The player you want to view.",
+      "autocomplete": "username"
+    },
+    "session": {
+      "description": "The session you want to use.",
+      "autocomplete": "session"
+    }
+  },
   "commands": [
     {
       "id": "average",
@@ -15,13 +25,7 @@
         "dms": true,
         "private_channels": true
       },
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "compare",
@@ -43,65 +47,35 @@
       "id": "cosmetics",
       "name": "activecosmetics",
       "description": "View the currently active cosmetics of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "difference_daily",
       "name": "daily",
       "description": "View the daily stat difference of a player.",
       "parent": "difference",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "difference_weekly",
       "name": "weekly",
       "description": "View the weekly stat difference of a player.",
       "parent": "difference",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "difference_monthly",
       "name": "monthly",
       "description": "View the monthly stat difference of a player.",
       "parent": "difference",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "difference_yearly",
       "name": "yearly",
       "description": "View the yearly stat difference of a player.",
       "parent": "difference",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "displayname",
@@ -109,8 +83,7 @@
       "arguments": [
         {
           "name": "player",
-          "description": "The player who's display name to generate.",
-          "autocomplete": "username"
+          "description": "The player who's display name to generate."
         }
       ]
     },
@@ -118,15 +91,10 @@
       "id": "milestones",
       "description": "View the milestone stats of a player.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "session",
-          "description": "The session you want to use (0 for none).",
-          "autocomplete": "session"
+          "description": "The session you want to use (0 for none)."
         }
       ]
     },
@@ -134,117 +102,59 @@
       "id": "gamemode_distributions",
       "name": "mostplayed",
       "description": "View the mode playtime distribution for a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "practice",
       "description": "View the practice stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "prestige",
       "description": "View the projected stats of a player.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "prestige",
           "description": "The prestige level you want to view."
         },
         {
           "name": "session",
-          "description": "The session you want to use as a benchmark (Default: 1).",
-          "autocomplete": "session"
+          "description": "The session you want to use as a benchmark (Default: 1)."
         }
       ]
     },
     {
       "id": "quests",
       "description": "View the quests stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "quickbuy",
       "description": "View the quickbuy layout of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "hotbar",
       "description": "[DEPRECATED] View the quickbuy layout of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "shop",
       "description": "[DEPRECATED] View the quickbuy layout of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "resources",
       "description": "View the resources collected stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "session_stats",
       "name": "stats",
       "description": "View the session stats of a player.",
       "parent": "session",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
-        {
-          "name": "session",
-          "description": "The session you want to view.",
-          "autocomplete": "session"
-        }
-      ]
+      "arguments": ["player", "session"]
     },
     {
       "id": "session_start",
@@ -260,8 +170,7 @@
       "arguments": [
         {
           "name": "session",
-          "description": "The session you want to delete.",
-          "autocomplete": "session"
+          "description": "The session you want to delete."
         }
       ]
     },
@@ -273,8 +182,7 @@
       "arguments": [
         {
           "name": "session",
-          "description": "The session you want to reset.",
-          "autocomplete": "session"
+          "description": "The session you want to reset."
         }
       ]
     },
@@ -288,47 +196,23 @@
       "id": "bedwars_general",
       "name": "bedwars",
       "description": "View the overall Bedwars stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "bedwars_pointless",
       "name": "pointless",
       "description": "View the random pointless Bedwars stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "dreams",
       "description": "View the dream mode stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "winstreaks",
       "description": "View the Bedwars winstreaks of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "year_2024",
@@ -351,15 +235,10 @@
       "description": "View the a players projected stats for 2027.",
       "parent": "year",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "session",
-          "description": "The session you want to use as a benchmark.",
-          "autocomplete": "session"
+          "description": "The session you want to use as a benchmark."
         }
       ]
     },
@@ -369,15 +248,10 @@
       "description": "View the a players projected stats for 2028.",
       "parent": "year",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "session",
-          "description": "The session you want to use as a benchmark.",
-          "autocomplete": "session"
+          "description": "The session you want to use as a benchmark."
         }
       ]
     },
@@ -436,23 +310,13 @@
     {
       "id": "daily",
       "description": "View the daily stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "lastday",
       "description": "View the previous daily stats of a player for x days ago.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "days",
           "description": "The amount of days in the past."
@@ -462,23 +326,13 @@
     {
       "id": "weekly",
       "description": "View the weekly stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "lastweek",
       "description": "View the previous weekly stats of a player for x weeks ago.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "weeks",
           "description": "The amount of weeks in the past."
@@ -488,23 +342,13 @@
     {
       "id": "monthly",
       "description": "View the monthly stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "lastmonth",
       "description": "View the previous monthly stats of a player for x months ago.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "months",
           "description": "The amount of months in the past."
@@ -514,23 +358,13 @@
     {
       "id": "yearly",
       "description": "View the yearly stats of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "lastyear",
       "description": "View the previous yearly stats of a player for x years ago.",
       "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        },
+        "player",
         {
           "name": "years",
           "description": "The amount of years in the past."
@@ -589,7 +423,8 @@
       "arguments": [
         {
           "name": "player",
-          "description": "The player you want to link to."
+          "description": "The player you want to link to.",
+          "autocomplete": null
         }
       ]
     },
@@ -604,13 +439,7 @@
     {
       "id": "skin",
       "description": "View the 3D skin model of a player.",
-      "arguments": [
-        {
-          "name": "player",
-          "description": "The player you want to view.",
-          "autocomplete": "username"
-        }
-      ]
+      "arguments": ["player"]
     },
     {
       "id": "who",
