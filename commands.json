@@ -12,19 +12,7 @@
   "commands": [
     {
       "id": "average",
-      "name": "average",
       "description": "View the average stats of a player.",
-      "parent": null,
-      "cooldown": true,
-      "installs": {
-        "guilds": true,
-        "users": true
-      },
-      "contexts": {
-        "guilds": true,
-        "dms": true,
-        "private_channels": true
-      },
       "arguments": ["player"]
     },
     {
