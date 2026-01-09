@@ -3,8 +3,6 @@
 from dataclasses import dataclass
 from typing import Any, TypeVar
 
-from typing_extensions import deprecated
-
 from ..cfg import config
 from ..db import Cursor, ensure_cursor
 from ..errors import ThemeNotFoundError
@@ -66,28 +64,6 @@ def get_exclusive_themes() -> list[Theme]:
 
 def get_exclusive_theme_ids() -> list[str]:
     return [theme.id for theme in get_exclusive_themes()]
-
-
-# TODO: remove
-@deprecated("Use get_theme_by_id() instead")
-def get_theme_properties(theme_name: str) -> dict[str, Any]:
-    """
-    Get the properties of a specified theme.
-    Works for both voter and exclusive themes.
-
-    :param theme_name: The name of the theme to get the properties of.
-    """
-    theme_packs: dict = config("global.theme_packs")
-
-    theme_properties = theme_packs.get("voter_themes", {}).get(theme_name)
-
-    if theme_properties is None:
-        theme_properties = theme_packs.get("exclusive_themes", {}).get(theme_name)
-
-        if theme_properties is None:
-            raise ThemeNotFoundError("The specified theme does not exist!")
-
-    return theme_properties
 
 
 @dataclass
