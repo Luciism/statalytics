@@ -49,8 +49,8 @@ def app_command(
 
         @init.command(name=cmd.name, description=cmd.description)
         @app_commands.describe(**cmd.argument_map())
-        @app_commands.allowed_contexts(**cmd.contexts.dict)
-        @app_commands.allowed_installs(**cmd.installs.dict)
+        @app_commands.allowed_contexts(**cmd.contexts.as_dict())
+        @app_commands.allowed_installs(**cmd.installs.as_dict())
         @app_commands.checks.dynamic_cooldown(cooldown_fn)
         @app_commands.check(update_command_usage_check(cmd.id, update_command_usage))
         @app_commands.autocomplete(**autocompletes)
