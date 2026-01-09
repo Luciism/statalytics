@@ -62,7 +62,7 @@ class LiveLeaderboardsCog(commands.Cog):
         _ = await message.edit(content=content, embeds=embeds, attachments=files)
 
     
-    @helper.decorators.app_command("set_live_lb", group=lb_channel_group)
+    @helper.decorators.app_command("live_leaderboard_set", group=lb_channel_group)
     @helper.interactions.access_permitted_check()
     @app_commands.choices(leaderboard=[
         app_commands.Choice(name=lb.title, value=lb.path)
@@ -104,7 +104,7 @@ class LiveLeaderboardsCog(commands.Cog):
         await self.initialize_live_leaderboard_message(new_live_lb_msg, lb.value)
 
 
-    @helper.decorators.app_command("unset_live_lb", group=lb_channel_group)
+    @helper.decorators.app_command("live_leaderboard_unset", group=lb_channel_group)
     @helper.interactions.access_permitted_check()
     @app_commands.choices(leaderboard=[
         app_commands.Choice(name=lb.title, value=lb.path)
@@ -137,7 +137,7 @@ class LiveLeaderboardsCog(commands.Cog):
         )
 
 
-    @helper.decorators.app_command("list_live_lbs", group=lb_channel_group)
+    @helper.decorators.app_command("live_leaderboard_list", group=lb_channel_group)
     @helper.interactions.access_permitted_check()
     async def list_leaderboard_channels(
         self,

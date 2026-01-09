@@ -30,17 +30,11 @@ CREATE TABLE IF NOT EXISTS themes_data (
     selected_theme TEXT
 );
 
-CREATE TABLE IF NOT EXISTS command_usage (
-    discord_id INTEGER PRIMARY KEY,
-    overall INTEGER
-);
-
 CREATE TABLE IF NOT EXISTS command_metrics (
     command_id TEXT NOT NULL,
-    discord_id INTEGER NOT NULL,
+    discord_user_id INTEGER NOT NULL,
     times_used INTEGER NOT NULL,
-    -- last_used REAL DEFAULT (strftime('%s', 'now', 'utc')),
-    PRIMARY KEY (command_id, discord_id)
+    PRIMARY KEY (command_id, discord_user_id)
 );
 
 CREATE TABLE IF NOT EXISTS configured_reset_times (
@@ -57,10 +51,6 @@ CREATE TABLE IF NOT EXISTS default_reset_times (
     reset_minute INTEGER DEFAULT 0
 );
 
--- CREATE TABLE IF NOT EXISTS permissions (
---     discord_id INTEGER PRIMARY KEY,
---     permissions TEXT
--- );
 
 CREATE TABLE IF NOT EXISTS growth_data (
     timestamp REAL,

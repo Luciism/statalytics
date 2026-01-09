@@ -3,6 +3,7 @@
 import sqlite3
 from datetime import datetime, UTC
 
+from ..usage import insert_growth_data
 from ..db import ensure_cursor
 
 
@@ -16,6 +17,13 @@ def create_account(
     *, cursor: sqlite3.Cursor=None
 ) -> None:
     """Create an account in the database if it doesn't exist."""
+    existing_row = cursor.execute(
+        "SELECT account_id FROM accounts WHERE discord_id = ?", [discord_user_id]
+    ).fetchone()
+
+    if existing_row is not None:
+        return  # Account exists
+
     if creation_timestamp is None:
         creation_timestamp = datetime.now(UTC).timestamp()
 
@@ -33,7 +41,10 @@ def create_account(
     column_names = ', '.join(account_data.keys())
     question_marks = ', '.join('?'*len(account_data.keys()))
 
-    cursor.execute(
-        f'INSERT OR IGNORE INTO accounts ({column_names}) VALUES ({question_marks})',
+    _ = cursor.execute(
+        f'INSERT INTO accounts ({column_names}) VALUES ({question_marks})',
         tuple(account_data.values())
     )
+ 
+    insert_growth_data(discord_user_id, action='add', growth='user', cursor=cursor)
+

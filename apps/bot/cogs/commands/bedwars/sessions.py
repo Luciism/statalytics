@@ -72,7 +72,7 @@ class SessionsCommandCog(commands.Cog):
     )
 
 
-    @helper.decorators.app_command("session", group=session_group)
+    @helper.decorators.app_command("session_stats", group=session_group)
     @helper.interactions.access_permitted_check()
     async def session(
         self,
@@ -109,7 +109,7 @@ class SessionsCommandCog(commands.Cog):
         })
 
 
-    @helper.decorators.app_command("startsession", group=session_group)
+    @helper.decorators.app_command("session_start", group=session_group)
     @helper.interactions.access_permitted_check()
     async def session_start(self, interaction: discord.Interaction):
         await interaction.response.defer()
@@ -151,7 +151,7 @@ class SessionsCommandCog(commands.Cog):
             f'A new session was successfully created! Session ID: `{session_id}`')
 
 
-    @helper.decorators.app_command("endsession", group=session_group)
+    @helper.decorators.app_command("session_end", group=session_group)
     @helper.interactions.access_permitted_check()
     async def end_session(self, interaction: discord.Interaction, session: int=1):
         uuid = Account(interaction.user.id).linking.get_linked_player_uuid()
@@ -175,7 +175,7 @@ class SessionsCommandCog(commands.Cog):
                 f"You don't have an active session with ID: `{session}`!")
 
 
-    @helper.decorators.app_command("resetsession", group=session_group)
+    @helper.decorators.app_command("session_reset", group=session_group)
     @helper.interactions.access_permitted_check()
     async def reset_session(
         self,
@@ -201,7 +201,7 @@ class SessionsCommandCog(commands.Cog):
         view.message = await interaction.original_response()
 
 
-    @helper.decorators.app_command("activesessions", group=session_group)
+    @helper.decorators.app_command("session_list_active", group=session_group)
     @helper.interactions.access_permitted_check()
     async def active_sessions(self, interaction: discord.Interaction):
         await interaction.response.defer()

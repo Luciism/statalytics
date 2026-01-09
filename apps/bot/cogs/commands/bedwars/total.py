@@ -41,7 +41,7 @@ class GenericStatsCommandCog(commands.Cog):
             interaction, render_func, kwargs, dreams=dreams
         )
 
-    @helper.decorators.app_command("generic")
+    @helper.decorators.app_command("bedwars_general")
     @helper.interactions.access_permitted_check()
     async def total(self, interaction: discord.Interaction, player: str = None):
         await self.total_command(
@@ -49,7 +49,7 @@ class GenericStatsCommandCog(commands.Cog):
         )
 
 
-    @helper.decorators.app_command("pointless")
+    @helper.decorators.app_command("bedwars_pointless")
     @helper.interactions.access_permitted_check()
     async def pointless(self, interaction: discord.Interaction, player: str = None):
         await self.total_command(

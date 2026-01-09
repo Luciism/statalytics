@@ -19,7 +19,7 @@ def update_command_usage_check(command_id: str, should_update: bool=True):
         return fake 
 
     def predicate(interaction: Interaction) -> Literal[True]:
-        lib.usage.update_command_stats(interaction.user.id, command_id)
+        lib.usage.CommandMetricsRepo.update_command_usage(command_id, interaction.user.id)
         return True
 
     return predicate

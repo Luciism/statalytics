@@ -18,7 +18,7 @@ FROM deps AS builder
 
 COPY ./assets/ assets/
 COPY ./statalib/ statalib/
-COPY ./config.json ./config.dev.json ./schema.sql ./
+COPY ./config.json ./config.dev.json ./schema.sql ./commands.json ./
 
 COPY ./apps/trackers/main.py trackers/main.py
 

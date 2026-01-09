@@ -13,18 +13,6 @@ from .errors import BackgroundPropertiesNotFoundError
 
 class _AssetLoader:
     """Global lazy asset loader class."""
-
-    def __init__(self) -> None:
-        self.__command_map = None
-
-    @property
-    def command_map(self) -> dict[str, str]:
-        """Command ID to command name mappings."""
-        if self.__command_map is None:
-            with open(f"{REL_PATH}/assets/command_map.json", encoding="utf-8") as file:
-                self.__command_map = json.load(file)
-        return self.__command_map
-
     def image_file_exists(self, image_path: str) -> bool:
         """
         Check whether an image file exists on the disk.

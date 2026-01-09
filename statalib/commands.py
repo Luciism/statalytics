@@ -54,6 +54,12 @@ class Command:
             arg.name: arg.description or "" for arg in self.arguments
         }
 
+    def format(self) -> str:
+        if self.parent:
+            return f"/{self.parent} {self.name}"
+
+        return f"/{self.name}"
+
     @staticmethod
     @overload
     def build(cmd: dict[str, Any]) -> 'Command':
