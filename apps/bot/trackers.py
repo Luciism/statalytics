@@ -1,26 +1,30 @@
+import os
 import asyncio
 import logging
-import time
 import sqlite3
-from datetime import datetime, timedelta, timezone, UTC
-from os import getenv
+import time
+from datetime import UTC, datetime, timedelta, timezone
+from typing_extensions import override
 
+import dotenv
 from discord.ext import commands, tasks
-from dotenv import load_dotenv
 
-load_dotenv()
 
 import statalib
 from statalib import rotational_stats as rotational
+import helper
 
+_ = dotenv.load_dotenv()
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
-root_logger.addHandler(statalib.loggers.CustomTimedRotatingFileHandler(
-    logs_dir=f"{statalib.REL_PATH}/logs/bot"
-))
+root_logger.addHandler(
+    statalib.loggers.CustomTimedRotatingFileHandler(
+        logs_dir=f"{statalib.REL_PATH}/logs/bot"
+    )
+)
 
-logger = logging.getLogger('statalytics.trackers')
+logger = logging.getLogger("statalytics.trackers")
 logger.setLevel(logging.DEBUG)
 
 
@@ -83,15 +87,18 @@ WHERE ROUND(reset_time - 24 * CAST(reset_time / 24 AS INTEGER), 3) = ?;
 
 class Client(commands.AutoShardedBot):
     def __init__(self):
-        super().__init__(intents=None, command_prefix='$')
+        super().__init__(intents=None, command_prefix="$")
 
     async def on_ready(self):
-        logger.info(f'Logged in as {client.user} (ID: {client.user.id})\n------')
+        logger.info(f"Logged in as {client.user} (ID: {client.user.id})\n------")
 
+    @override
     async def setup_hook(self) -> None:
-        reset_trackers_loop.start()
+        _ = reset_trackers_loop.start()
+
 
 client = Client()
+
 
 # Bounce all command errors
 @client.event
@@ -101,10 +108,11 @@ async def on_command_error(_, __):
 
 
 async def reset_trackers():
-    fetched_players = []
+    fetched_players: list[str] = []
 
-    auto_reset_config: dict = \
-        statalib.config('apps.bot.tracker_resetting.automatic') or {}
+    auto_reset_config: dict = (
+        statalib.config("apps.bot.tracker_resetting.automatic") or {}
+    )
 
     utc_now = datetime.now(UTC)
 
@@ -116,10 +124,11 @@ async def reset_trackers():
             f"SELECT ROUND({utc_now.hour} + {utc_now.minute} / 60.0, 3)"
         ).fetchone()[0]
 
-        cursor.execute(query, (calculated_time,))
-        players_to_reset = cursor.fetchall()
+        players_to_reset: list[tuple[str]] = cursor.execute(
+            query, (calculated_time,)
+        ).fetchall()
 
-    logger.info(f'Total trackers to reset: {len(players_to_reset) // 4}')
+    logger.info(f"Total trackers to reset: {len(players_to_reset) // 4}")
 
     for uuid in players_to_reset:
         uuid = uuid[0]
@@ -135,31 +144,30 @@ async def reset_trackers():
             if not rotational.has_auto_reset_access(uuid, auto_reset_config):
                 continue
 
-            logger.info(f'Resetting trackers for: {uuid}')
+            logger.info(f"Resetting trackers for: {uuid}")
             reset_time = rotational.get_dynamic_reset_time(uuid)
 
             # Get respective datatime object
-            tz_now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
-            tz_now.replace(hour=reset_time.reset_hour % 24)
+            tz_now = datetime.now(
+                timezone(timedelta(hours=reset_time.utc_offset))
+            ).replace(hour=reset_time.reset_hour % 24)
 
             fetched_players.append(uuid)  # Prevent duplicate fetching
 
             hypixel_data = await statalib.network.fetch_hypixel_data_rate_limit_safe(
-                uuid, attempts=15)  # Mildly important that it succeeds
+                uuid, attempts=15
+            )  # Mildly important that it succeeds
 
-            if not hypixel_data.get('success'):
+            if not hypixel_data.get("success"):
                 logger.warning(f"Hypixel request unsuccessful: {hypixel_data}")
                 continue
 
             client.dispatch(
-                'tracker_reset',
-                uuid=uuid,
-                hypixel_data=hypixel_data,
-                timezone=tz_now
+                "tracker_reset", uuid=uuid, hypixel_data=hypixel_data, timezone=tz_now
             )
 
         except Exception as error:
-            await statalib.handlers.log_error_msg(client, error)
+            await helper.handlers.log_error_msg(client, error)
 
         # limit requests to 1 per 2 seconds
         time_elapsed = time.time() - start_time
@@ -168,15 +176,13 @@ async def reset_trackers():
 
 @tasks.loop(minutes=1)
 async def reset_trackers_loop():
-    logger.info('Scheduled tracker reset event starting...')
+    logger.info("Scheduled tracker reset event starting...")
     await reset_trackers()
 
 
 @client.event
 async def on_tracker_reset(
-    uuid: statalib.PlayerUUID,
-    hypixel_data: dict,
-    timezone: datetime
+    uuid: statalib.PlayerUUID, hypixel_data: dict, timezone: datetime
 ) -> None:
     """
     :param uuid: the uuid of the player whos trackers are being reset
@@ -184,25 +190,29 @@ async def on_tracker_reset(
     :param timezone: the current time of the player's configured timezone
     """
     resetting = rotational.RotationalResetting(uuid)
-    yesterday_dt = (timezone - timedelta(days=1))
+    yesterday_dt = timezone - timedelta(days=1)
 
     def reset_rotational(rotation_type: rotational.RotationType) -> None:
         try:
             snapshot_id = resetting.archive_rotational_data(
                 period_id=rotational.HistoricalRotationPeriodID(
-                    rotation_type, datetime_info=yesterday_dt),
-                current_hypixel_data=hypixel_data
+                    rotation_type, datetime_info=yesterday_dt
+                ),
+                current_hypixel_data=hypixel_data,
             )
             resetting.refresh_rotational_data(
-                rotation_type=rotation_type, current_hypixel_data=hypixel_data)
+                rotation_type=rotation_type, current_hypixel_data=hypixel_data
+            )
         except sqlite3.IntegrityError:
             return logger.warning(
-                f'Auto reset for {rotation_type.value} tracker failed. '
-                f'UUID: {uuid} / Reason: historical data exists')
+                f"Auto reset for {rotation_type.value} tracker failed. "
+                + f"UUID: {uuid} / Reason: historical data exists"
+            )
 
         logger.debug(
-            f'Auto reset {rotation_type.value} tracker. '
-            f'UUID: {uuid} / Snapshot ID: {snapshot_id}')
+            f"Auto reset {rotation_type.value} tracker. "
+            + f"UUID: {uuid} / Snapshot ID: {snapshot_id}"
+        )
 
     reset_rotational(rotational.RotationType.DAILY)  # Reset daily
 
@@ -223,10 +233,12 @@ async def before_reset_trackers_loop():
 
 
 @reset_trackers_loop.error
-async def on_reset_trackers_loop_error(error):
+async def on_reset_trackers_loop_error(_, error: BaseException):
     reset_trackers_loop.restart()
-    await statalib.handlers.log_error_msg(client, error)
+
+    if isinstance(error, Exception):
+        await helper.handlers.log_error_msg(client, error)
 
 
-if __name__ == '__main__':
-    client.run(getenv('DISCORD_BOT_TOKEN'), root_logger=True)
+if __name__ == "__main__":
+    client.run(os.getenv("DISCORD_BOT_TOKEN") or '', root_logger=True)

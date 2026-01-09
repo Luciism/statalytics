@@ -100,7 +100,7 @@ class UpdateLiveLeaderboardsCog(commands.Cog):
         if not isinstance(error, Exception):
             return
 
-        await lib.handlers.log_error_msg(self.client, error)
+        await helper.handlers.log_error_msg(self.client, error)
         self.update_live_leaderboards_loop.restart()
 
     @override

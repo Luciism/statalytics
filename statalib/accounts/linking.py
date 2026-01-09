@@ -207,7 +207,7 @@ class AccountLinking:
 
         return LinkingOutcomeEnum.SUCCESS
 
-    # FIXME
+    # FIXME: non-async request
     @ensure_cursor
     def fetch_linked_player_name(self, *, cursor: Cursor = None) -> str | None:
         """Fetch the player username that corresponding with the linked player UUID."""

@@ -3,6 +3,7 @@
 from typing import final
 from .help import HelpEmbeds
 from .misc import MiscEmbeds
+from .errors import ErrorEmbeds
 from .premium import PremiumEmbeds
 from .settings import SettingsEmbeds
 from .problems import ProblemsEmbeds
@@ -18,6 +19,7 @@ class Embeds:  # pylint: disable=too-few-public-methods
     settings = SettingsEmbeds
     problems = ProblemsEmbeds
     leaderboard = LeaderboardEmbeds
+    errors = ErrorEmbeds
 
 __all__ = [
     "Embeds",
@@ -26,5 +28,6 @@ __all__ = [
     "PremiumEmbeds",
     "SettingsEmbeds",
     "ProblemsEmbeds",
-    "LeaderboardEmbeds"
+    "LeaderboardEmbeds",
+    "ErrorEmbeds"
 ]

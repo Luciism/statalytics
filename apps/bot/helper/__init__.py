@@ -1,4 +1,4 @@
-from . import interactions, views, leaderboards, emoji, embeds
+from . import interactions, views, leaderboards, emoji, embeds, handlers
 from .embeds import Embeds
 from .client import Client
 from .cooldowns import generic_command_cooldown
@@ -16,5 +16,6 @@ __all__ = [
     "leaderboards",
     "emoji",
     "embeds",
-    "Embeds"
+    "Embeds",
+    "handlers"
 ]

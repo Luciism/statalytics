@@ -1,7 +1,7 @@
 {
   "apps": {
     "bot": {
-      "sync_on_startup": true
+      "sync_on_startup": false 
     },
     "website": {
       "logging": {

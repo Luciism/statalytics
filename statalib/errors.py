@@ -1,53 +1,40 @@
 """Common error classes."""
 
-from discord.app_commands import AppCommandError
 
-
-class PlayerNotFoundError(AppCommandError):
+class PlayerNotFoundError(Exception):
     """
     Minecraft user not found exception class.
     Used for returning out of nested functions.
     """
 
 
-class SessionNotFoundError(AppCommandError):
+class SessionNotFoundError(Exception):
     """
     Session not found exception class.
     Used for returning out of nested functions.
     """
 
 
-class HypixelInvalidResponseError(AppCommandError):
+class HypixelInvalidResponseError(Exception):
     """Hypixel request timeout exception class."""
 
 
-class HypixelRateLimitedError(AppCommandError):
+class HypixelRateLimitedError(Exception):
     """Hypixel rate limit exception class."""
 
 
 class ThemeNotFoundError(Exception):
     """Theme not found exception class."""
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
 
-    def __str__(self):
-        return self.message
 
 class ThemeUnavailableError(Exception):
     """The theme not available to a user."""
 
 class NoLinkedAccountError(Exception):
     """No linked account exception class."""
-    def __init__(self, message):
-        super().__init__(message)
-        self.message = message
-
-    def __str__(self):
-        return self.message
 
 
-class MojangInvalidResponseError(AppCommandError):
+class MojangInvalidResponseError(Exception):
     """Mojang invalid response error."""
 
 
@@ -55,10 +42,10 @@ class MojangRateLimitError(MojangInvalidResponseError):
     """Mojang rate limit error."""
 
 
-class UserBlacklistedError(AppCommandError):
+class UserBlacklistedError(Exception):
     """User is blacklisted error."""
 
-class MissingPermissionsError(AppCommandError):
+class MissingPermissionsError(Exception):
     """User is missing required error."""
 
 class DataNotFoundError(Exception):
