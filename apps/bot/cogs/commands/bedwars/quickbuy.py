@@ -15,7 +15,7 @@ class QuickBuyCommandCog(commands.Cog):
     )
 
     async def quickbuy_command(
-        self, interaction: discord.Interaction, player: str
+        self, interaction: discord.Interaction, player: str | None
     ) -> None:
         await interaction.response.defer()
 
@@ -37,21 +37,21 @@ class QuickBuyCommandCog(commands.Cog):
 
     @helper.decorators.app_command("shop")
     @helper.interactions.access_permitted_check()
-    async def shop(self, interaction: discord.Interaction, player: str = None):
+    async def shop(self, interaction: discord.Interaction, player: str | None=None):
         await self.quickbuy_command(interaction, player)
         _ = await interaction.edit_original_response(content=self.DEPRECATION_WARNING)
 
 
     @helper.decorators.app_command("hotbar")
     @helper.interactions.access_permitted_check()
-    async def hotbar(self, interaction: discord.Interaction, player: str = None):
+    async def hotbar(self, interaction: discord.Interaction, player: str | None=None):
         await self.quickbuy_command(interaction, player)
         _ = await interaction.edit_original_response(content=self.DEPRECATION_WARNING)
 
 
     @helper.decorators.app_command("quickbuy")
     @helper.interactions.access_permitted_check()
-    async def quickbuy(self, interaction: discord.Interaction, player: str = None):
+    async def quickbuy(self, interaction: discord.Interaction, player: str | None=None):
         await self.quickbuy_command(interaction, player)
 
 

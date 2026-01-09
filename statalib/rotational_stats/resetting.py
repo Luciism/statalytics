@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 @ensure_cursor
 def has_auto_reset_access(
     uuid: PlayerUUID,
-    auto_reset_config: dict | None=None,
+    auto_reset_config: dict[str, bool | list[str]] | None=None,
     *, cursor: Cursor=None
 ) -> bool:
     """

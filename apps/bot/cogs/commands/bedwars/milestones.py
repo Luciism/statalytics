@@ -15,8 +15,8 @@ class MilestonesCommandCog(commands.Cog):
     async def milestones(
         self,
         interaction: discord.Interaction,
-        player: str=None,
-        session: int=None
+        player: str | None=None,
+        session: int | None=None
     ) -> None:
         await interaction.response.defer()
 

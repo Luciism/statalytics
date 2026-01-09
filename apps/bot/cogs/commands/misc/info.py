@@ -12,7 +12,7 @@ import helper
 
 def calculate_uptime() -> datetime.timedelta:
     with open(f'{lib.REL_PATH}/database/uptime.json') as datafile:
-        start_time = load_json(datafile)['start_time']
+        start_time: float = load_json(datafile)['start_time']
 
     time_since_started = int(round(time.time() - start_time))
     return datetime.timedelta(seconds=time_since_started)

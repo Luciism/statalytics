@@ -11,7 +11,7 @@ from render.quests import render_quests
 class QuestsCommandCog(commands.Cog):
     @helper.decorators.app_command("quests")
     @helper.interactions.access_permitted_check()
-    async def quests(self, interaction: discord.Interaction, player: str=None):
+    async def quests(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)

@@ -14,7 +14,7 @@ from render.rotational import render_rotational
 class YearlyCommandsCog(commands.Cog):
     @helper.decorators.app_command("yearly")
     @helper.interactions.access_permitted_check()
-    async def yearly(self, interaction: discord.Interaction, player: str=None):
+    async def yearly(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
@@ -63,7 +63,7 @@ class YearlyCommandsCog(commands.Cog):
 
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
-            func=render_rotational,
+            render_fn=render_rotational,
             kwargs={
                 "name": name,
                 "uuid": uuid,

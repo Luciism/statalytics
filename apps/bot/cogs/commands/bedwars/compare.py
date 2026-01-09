@@ -13,7 +13,7 @@ class CompareCommandCog(commands.Cog):
         self,
         interaction: discord.Interaction,
         player_1: str,
-        player_2: str=None
+        player_2: str | None=None
     ):
         await interaction.response.defer()
 

@@ -9,7 +9,7 @@ from render.resources import render_resources
 class ResourcesCommandCog(commands.Cog):
     @helper.decorators.app_command("resources")
     @helper.interactions.access_permitted_check()
-    async def resources(self, interaction: discord.Interaction, player: str=None):
+    async def resources(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)

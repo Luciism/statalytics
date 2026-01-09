@@ -35,7 +35,9 @@ def interaction_send_object(interaction: Interaction) -> Callable:
 
 
 async def fetch_player_info(
-    player: lib.aliases.PlayerDynamic, interaction: Interaction, eph=False
+    player: lib.aliases.PlayerDynamic | None,
+    interaction: Interaction,
+    eph: bool=False
 ) -> tuple[lib.aliases.PlayerName, lib.aliases.PlayerUUID]:
     """
     Get formatted username & uuid of a user from their minecraft ign / uuid
@@ -240,7 +242,7 @@ def access_permitted_check(
 
 async def handle_modes_renders(
     interaction: discord.Interaction,
-    func: Callable[[Mode], Coroutine[None, None, None]],
+    render_fn: Callable[..., Coroutine[None, Any, Any]],
     kwargs: dict[str, Any],
     message: str | None = None,
     custom_view: discord.ui.View | None = None,
@@ -265,7 +267,7 @@ async def handle_modes_renders(
     else:
         modes = ModesEnum.dream_modes()
 
-    await func(mode=modes[0], **kwargs)
+    await render_fn(mode=modes[0], **kwargs)
     view = ModesView(
         interaction_origin=interaction, placeholder="Select a mode", modes=modes
     )
@@ -284,4 +286,4 @@ async def handle_modes_renders(
     except discord.errors.NotFound:
         return
 
-    await asyncio.gather(*[func(mode=mode, **kwargs) for mode in modes[1:]])
+    _ = await asyncio.gather(*[render_fn(mode=mode, **kwargs) for mode in modes[1:]])

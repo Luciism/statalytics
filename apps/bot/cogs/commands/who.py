@@ -7,7 +7,7 @@ import helper
 class WhoCommandCog(commands.Cog):
     @helper.decorators.app_command("who")
     @helper.interactions.access_permitted_check()
-    async def who(self, interaction: discord.Interaction, player: str=None):
+    async def who(self, interaction: discord.Interaction, player: str | None=None):
         name, uuid = await helper.interactions.fetch_player_info(player, interaction, eph=True)
 
         dashed_uuid = "-".join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])

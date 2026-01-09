@@ -22,7 +22,7 @@ class DifferenceCommandCog(commands.Cog):
 
 
     async def difference_command(
-        self, interaction: discord.Interaction, player: str, tracker: str
+        self, interaction: discord.Interaction, player: str | None, tracker: str
     ) -> None:
         await interaction.response.defer()
 
@@ -64,22 +64,22 @@ class DifferenceCommandCog(commands.Cog):
 
     @helper.decorators.app_command("difference_daily", group=difference_group)
     @helper.interactions.access_permitted_check()
-    async def daily(self, interaction: discord.Interaction, player: str=None):
+    async def daily(self, interaction: discord.Interaction, player: str | None=None):
         await self.difference_command(interaction, player, 'daily')
 
     @helper.decorators.app_command("difference_weekly", group=difference_group)
     @helper.interactions.access_permitted_check()
-    async def weekly(self, interaction: discord.Interaction, player: str=None):
+    async def weekly(self, interaction: discord.Interaction, player: str | None=None):
         await self.difference_command(interaction, player, 'weekly')
 
     @helper.decorators.app_command("difference_monthly", group=difference_group)
     @helper.interactions.access_permitted_check()
-    async def monthly(self, interaction: discord.Interaction, player: str=None):
+    async def monthly(self, interaction: discord.Interaction, player: str | None=None):
         await self.difference_command(interaction, player, 'monthly')
 
     @helper.decorators.app_command("difference_yearly", group=difference_group)
     @helper.interactions.access_permitted_check()
-    async def yearly(self, interaction: discord.Interaction, player: str=None):
+    async def yearly(self, interaction: discord.Interaction, player: str | None=None):
         await self.difference_command(interaction, player, 'yearly')
 
 

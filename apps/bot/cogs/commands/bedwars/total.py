@@ -1,5 +1,7 @@
 import asyncio
-from typing import Callable
+import typing
+from typing import Callable 
+from collections.abc import Coroutine
 
 import discord
 import statalib as lib
@@ -14,8 +16,8 @@ class GenericStatsCommandCog(commands.Cog):
     async def total_command(
         self,
         interaction: discord.Interaction,
-        player: str,
-        render_func: Callable,
+        player: str | None,
+        render_fn: Callable[..., Coroutine[None, typing.Any, typing.Any]],
         dreams: bool = False,
     ):
         await interaction.response.defer()
@@ -38,30 +40,26 @@ class GenericStatsCommandCog(commands.Cog):
         }
 
         await helper.interactions.handle_modes_renders(
-            interaction, render_func, kwargs, dreams=dreams
+            interaction, render_fn, kwargs, dreams=dreams
         )
 
     @helper.decorators.app_command("bedwars_general")
     @helper.interactions.access_permitted_check()
-    async def total(self, interaction: discord.Interaction, player: str = None):
-        await self.total_command(
-            interaction, player, render_func=render_total
-        )
-
+    async def total(self, interaction: discord.Interaction, player: str | None = None):
+        await self.total_command(interaction, player, render_fn=render_total)
 
     @helper.decorators.app_command("bedwars_pointless")
     @helper.interactions.access_permitted_check()
-    async def pointless(self, interaction: discord.Interaction, player: str = None):
-        await self.total_command(
-            interaction, player, render_func=render_pointless
-        )
-
+    async def pointless(
+        self, interaction: discord.Interaction, player: str | None = None
+    ):
+        await self.total_command(interaction, player, render_fn=render_pointless)
 
     @helper.decorators.app_command("dreams")
     @helper.interactions.access_permitted_check()
-    async def dreams(self, interaction: discord.Interaction, player: str = None):
+    async def dreams(self, interaction: discord.Interaction, player: str | None = None):
         await self.total_command(
-            interaction, player, render_func=render_total, dreams=True
+            interaction, player, render_fn=render_total, dreams=True
         )
 
 

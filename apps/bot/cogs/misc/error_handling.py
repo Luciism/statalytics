@@ -2,7 +2,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import statalib as lib
 import helper
 
 
@@ -10,7 +9,7 @@ class ErrorHandlingCog(commands.Cog):
     def __init__(self, client: helper.Client):
 
         @client.tree.error
-        async def _on_tree_error(
+        async def _(
             interaction: discord.Interaction,
             error: app_commands.AppCommandError
         ):
@@ -18,7 +17,7 @@ class ErrorHandlingCog(commands.Cog):
 
 
     @commands.Cog.listener()
-    async def on_command_error(self, _, error):
+    async def on_command_error(self, _, error: commands.errors.CommandError):
         if isinstance(error, commands.errors.CommandNotFound):
             return
         raise error

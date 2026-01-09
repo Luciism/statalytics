@@ -33,3 +33,6 @@ members = [
     "apps/website",
 ]
 
+[tool.pyright]
+reportMissingTypeStubs = false
+

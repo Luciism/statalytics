@@ -13,7 +13,7 @@ from render.rotational import render_rotational
 class WeeklyCommandsCog(commands.Cog):
     @helper.decorators.app_command("weekly")
     @helper.interactions.access_permitted_check()
-    async def weekly(self, interaction: discord.Interaction, player: str=None):
+    async def weekly(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
@@ -61,7 +61,7 @@ class WeeklyCommandsCog(commands.Cog):
 
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
-            func=render_rotational,
+            render_fn=render_rotational,
             kwargs={
                 "name": name,
                 "uuid": uuid,
@@ -83,7 +83,7 @@ class WeeklyCommandsCog(commands.Cog):
     async def lastweek(
         self,
         interaction: discord.Interaction,
-        player: str=None,
+        player: str | None=None,
         weeks: int=1
     ):
         await interaction.response.defer()

@@ -14,9 +14,9 @@ class ProjectionCommandCog(commands.Cog):
     async def projected_stats(
         self,
         interaction: discord.Interaction,
-        prestige: int=None,
-        player: str=None,
-        session: int=None
+        prestige: int | None=None,
+        player: str | None=None,
+        session: int | None=None
     ) -> None:
         await interaction.response.defer()
 
