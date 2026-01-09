@@ -179,7 +179,7 @@ class LeaderboardsInfoButton(CustomBaseView):
         return InfoButton(
             "Leaderboards",
             Embeds.help.leaderboards(),
-            "https://docs.statalytics.net/features/leaderboards/",  # TODO
+            "https://docs.statalytics.net/features/leaderboards/"
         )
 
     def __init__(self) -> None:

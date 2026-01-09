@@ -82,7 +82,7 @@ class YearCommandCog(commands.Cog):
         condition_2 = Account(interaction.user.id).permissions.has_access(f'year_{self.YEAR2}')
 
         if not condition_1 and not condition_2:
-            embed = helper.Embeds.problems.no_premium_2028()  # TODO: update embed fn name
+            embed = helper.Embeds.problems.no_premium__year_projection()
             await interaction.followup.send(embed=embed)
             return
 

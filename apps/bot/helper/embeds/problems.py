@@ -1,7 +1,5 @@
 """Problem info embeds."""
 
-import os
-
 from discord import Embed
 from statalib import config
 
@@ -10,7 +8,7 @@ class ProblemsEmbeds:
     """Problem info embeds."""
 
     @staticmethod
-    def no_premium_2028() -> Embed:
+    def no_premium__year_projection() -> Embed:
         """User has no access to 2028 command."""
         embed = Embed(
             title="That player doesn't have premium!",
