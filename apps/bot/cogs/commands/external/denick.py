@@ -69,15 +69,15 @@ class NumberDenickCommandCog(commands.Cog):
         )
 
         if data['data']:
-            usernames = []
+            usernames: list[str] = []
             for player in data['data']:
                 usernames.append(f'**[{player["star"]}✫] {player["ign"]}**')
 
-            final_kills = []
+            final_kills: list[str] = []
             for player in data['data']:
                 final_kills.append(f'{player["final_kills"]:,}')
 
-            beds_broken = []
+            beds_broken: list[str] = []
             for player in data['data']:
                 beds_broken.append(f'{player["beds_broken"]:,}')
 

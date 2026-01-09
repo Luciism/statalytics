@@ -13,7 +13,7 @@ from render.rotational import render_rotational
 class DailyCommandsCog(commands.Cog):
     @helper.decorators.app_command("daily")
     @helper.interactions.access_permitted_check()
-    async def daily(self, interaction: discord.Interaction, player: str=None):
+    async def daily(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
@@ -63,7 +63,7 @@ class DailyCommandsCog(commands.Cog):
 
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
-            func=render_rotational,
+            render_fn=render_rotational,
             kwargs={
                 "name": name,
                 "uuid": uuid,
@@ -84,7 +84,7 @@ class DailyCommandsCog(commands.Cog):
     async def lastday(
         self,
         interaction: discord.Interaction,
-        player: str=None,
+        player: str | None=None,
         days: int=1
     ):
         await interaction.response.defer()

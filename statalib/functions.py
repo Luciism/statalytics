@@ -1,16 +1,24 @@
 """A handful of useful loose functions."""
 
-import typing
 import asyncio
 import functools
-from datetime import datetime, UTC
+import typing
+from datetime import UTC, datetime
+from typing import ParamSpec, TypeVar, Callable, Coroutine, Any
+
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
-def to_thread(func: typing.Callable) -> typing.Coroutine:
+def to_thread(
+    func: typing.Callable[P, T],
+) -> Callable[P, Coroutine[typing.Any, typing.Any, T]]:
     """Converts a function to run on a separate thread."""
+
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         return await asyncio.to_thread(func, *args, **kwargs)
+
     return wrapper
 
 

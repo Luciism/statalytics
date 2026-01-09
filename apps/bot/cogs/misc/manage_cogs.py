@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import Context
 
 import helper
 
@@ -17,7 +18,7 @@ class ManageCogsCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx: commands.context.Context, cog: str):
+    async def load(self, ctx: Context[helper.Client], cog: str):
         if not await self._check_cog(cog):
             _ = await ctx.send('That cog cannot be managed!')
             return
@@ -34,7 +35,7 @@ class ManageCogsCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx: commands.context.Context, cog: str):
+    async def unload(self, ctx: Context[helper.Client], cog: str):
         if not await self._check_cog(cog):
             _ = await ctx.send('That cog cannot be managed!')
             return
@@ -51,7 +52,7 @@ class ManageCogsCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx: commands.context.Context, cog: str):
+    async def reload(self, ctx: Context[helper.Client], cog: str):
         if not await self._check_cog(cog):
             _ = await ctx.send('That cog cannot be managed!')
             return

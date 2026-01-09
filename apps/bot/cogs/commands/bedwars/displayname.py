@@ -12,7 +12,7 @@ class DisplayNameCommandCog(commands.Cog):
     async def displayname(
         self,
         interaction: discord.Interaction,
-        player: str=None
+        player: str | None=None
     ):
         await interaction.response.defer()
 
@@ -24,7 +24,6 @@ class DisplayNameCommandCog(commands.Cog):
 
         rendered = await render_displayname(name, hypixel_data)
         await interaction.followup.send(
-            content=None,
             files=[discord.File(rendered, filename="displayname.png")]
         )
 

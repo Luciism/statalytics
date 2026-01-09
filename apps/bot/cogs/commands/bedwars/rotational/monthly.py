@@ -14,7 +14,7 @@ from render.rotational import render_rotational
 class MonthlyCommandsCog(commands.Cog):
     @helper.decorators.app_command("monthly")
     @helper.interactions.access_permitted_check()
-    async def monthly(self, interaction: discord.Interaction, player: str=None):
+    async def monthly(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
 
@@ -76,7 +76,7 @@ class MonthlyCommandsCog(commands.Cog):
 
         await helper.interactions.handle_modes_renders(
             interaction=interaction,
-            func=render_rotational,
+            render_fn=render_rotational,
             kwargs={
                 "name": name,
                 "uuid": uuid,
@@ -97,7 +97,7 @@ class MonthlyCommandsCog(commands.Cog):
     async def lastmonth(
         self,
         interaction: discord.Interaction,
-        player: str=None,
+        player: str | None=None,
         months: int=1
     ):
         await interaction.response.defer()

@@ -13,11 +13,10 @@ from render.average import render_average
 class AverageCommandCog(commands.Cog):
     @app_command(command_id="average")
     @helper.interactions.access_permitted_check()
-    async def average(self, interaction: discord.Interaction, player: str=None):
+    async def average(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
-
         await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(

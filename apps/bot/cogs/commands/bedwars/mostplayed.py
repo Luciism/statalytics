@@ -9,7 +9,7 @@ from render.mostplayed import render_mostplayed
 class MostPlayedCommandCog(commands.Cog):
     @helper.decorators.app_command("gamemode_distributions")
     @helper.interactions.access_permitted_check()
-    async def most_played(self, interaction: discord.Interaction, player: str=None):
+    async def most_played(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)

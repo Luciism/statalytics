@@ -12,7 +12,7 @@ class CosmeticsCommandCog(commands.Cog):
     async def active_cosmetics(
         self,
         interaction: discord.Interaction,
-        player: str=None
+        player: str | None=None
     ):
         await interaction.response.defer()
 

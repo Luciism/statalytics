@@ -11,7 +11,7 @@ from render.winstreaks import render_winstreaks
 class WinstreaksCommandCog(commands.Cog):
     @helper.decorators.app_command("winstreaks")
     @helper.interactions.access_permitted_check()
-    async def winstreaks(self, interaction: discord.Interaction, player: str=None):
+    async def winstreaks(self, interaction: discord.Interaction, player: str | None=None):
         await interaction.response.defer()
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)

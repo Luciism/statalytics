@@ -1,25 +1,27 @@
 """Type aliases."""
 
-from typing import NewType
+import typing
+from typing import TypeAlias
 
 
-PlayerName = NewType('PlayerName', str)
+PlayerName: TypeAlias = str
 "Username of a minecraft player."
 
-PlayerUUID = NewType('PlayerUUID', str)
+PlayerUUID: TypeAlias = str
 "UUID of a minecraft player."
 
-PlayerDynamic = NewType('PlayerDynamic', str)
+PlayerDynamic: TypeAlias = str | int
 "Dynamic identifier of a player (username, UUID, or linked Discord ID)."
 
-HypixelData = NewType('HypixelData', dict)
+HypixelData: TypeAlias = dict[str, typing.Any]
 "Raw data fetched from the Hypixel API."
 
-HypixelPlayerData = NewType('HypixelPlayerData', dict)
+HypixelPlayerData: TypeAlias = dict[str, typing.Any]
 "'player' key of raw data fetched from the Hypixel API."
 
-BedwarsData = NewType('BedwarsData', dict)
+BedwarsData: TypeAlias = dict[str, typing.Any]
 "'player'>'stats'>'Bedwars' key of raw data fetched from the Hypixel API."
+
 
 
 __all__ = [
