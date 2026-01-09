@@ -3,7 +3,7 @@
 from typing import Any
 import discord
 
-from statalib.handlers import handle_interaction_errors
+from ..handlers import handle_interaction_errors
 
 
 class CustomBaseView(discord.ui.View):

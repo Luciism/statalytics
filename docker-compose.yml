@@ -13,7 +13,7 @@ services:
   trackers:
     build:
       context: ./
-      dockerfile: ./apps/trackers/Dockerfile
+      dockerfile: ./apps/bot/trackers.dockerfile
     env_file:
       - ./.env
     volumes:
