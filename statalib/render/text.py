@@ -6,7 +6,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 from ..assets import ASSET_LOADER
 from .splitting import split_string
-from ..color import ColorMappings
+from ..color import COLOR_CODE_MAP, Color, ColorString
 
 
 dummy_img = Image.new('RGBA', (0, 0))
@@ -39,7 +39,7 @@ def get_actual_text(text: str) -> str:
     :param text: The text to remove color codes from.
     :return str: The text without color codes.
     """
-    split_chars = tuple(ColorMappings.color_codes)
+    split_chars = tuple(COLOR_CODE_MAP.keys())
     bits = tuple(split_string(text, split_chars))
 
     actual_text = ''.join([bit[0] for bit in bits])
@@ -113,7 +113,7 @@ def render_mc_text(
     if font is None:
         font = ASSET_LOADER.load_font("main.ttf", font_size)
 
-    split_chars = tuple(ColorMappings.color_codes)
+    split_chars = tuple(COLOR_CODE_MAP.keys())
     bits = tuple(split_string(text, split_chars))
 
     actual_text = ''.join([bit[0] for bit in bits])
@@ -129,7 +129,10 @@ def render_mc_text(
     )
 
     for text, color_code in bits:
-        color = ColorMappings.color_codes.get(color_code, ColorMappings.white)
+        try:
+            color = Color.from_color_code(color_code).rgb
+        except KeyError:
+            color = ColorString.WHITE.value.rgb
 
         if shadow_offset is not None:
             off_x, off_y = shadow_offset

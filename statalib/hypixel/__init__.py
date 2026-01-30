@@ -8,7 +8,7 @@ from .cumulative_stats import CumulativeStats
 from .projected_stats import ProjectedStats
 from .leveling import Leveling
 from .quests import get_quests_data
-from .ranks import get_rank_info, RankInfo
+from .ranks import get_rank_info, RankInfo, PlayerRank
 from .utils import *
 from . import lbs
 
@@ -20,5 +20,6 @@ __all__ = [
     'get_quests_data',
     'get_rank_info',
     'RankInfo',
+    'PlayerRank',
     'lbs'
 ]

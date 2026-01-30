@@ -2,71 +2,74 @@
 
 from dataclasses import dataclass
 from enum import Enum
+import logging
+from typing import final
 
-from ..color import ColorMappings
+from ..color import Color, ColorString
 
 
+@final
 class PrestigeColorMaps:
     """Bedwars prestige color maps."""
-    c = ColorMappings.str_to_color_code
+    c = ColorString
 
     prestige_map = {
-        10000: c['red'],
-        900: c['dark_purple'],
-        800: c['blue'],
-        700: c['light_purple'],
-        600: c['dark_red'],
-        500: c['dark_aqua'],
-        400: c['dark_green'],
-        300: c['aqua'],
-        200: c['gold'],
-        100: c['white'],
-        0: c['gray'],
+        10000: c.RED,
+        900: c.DARK_PURPLE,
+        800: c.BLUE,
+        700: c.LIGHT_PURPLE,
+        600: c.DARK_RED,
+        500: c.DARK_AQUA,
+        400: c.DARK_GREEN,
+        300: c.AQUA,
+        200: c.GOLD,
+        100: c.WHITE,
+        0: c.GRAY,
     }
     "Prestige colors for levels 0-900 & 10000+."
 
     prestige_map_2 = {
-        5000: (c['dark_red'], c['dark_red'], c['dark_purple'], c['blue'], c['blue'], c['dark_blue'], c['black']),
-        4900: (c['dark_green'], c['green'], c['white'], c['white'], c['green'], c['green'], c['dark_green']),
-        4800: (c['dark_purple'], c['dark_purple'], c['red'], c['gold'], c['yellow'], c['aqua'], c['dark_aqua']),
-        4700: (c['white'], c['dark_red'], c['red'], c['red'], c['blue'], c['dark_blue'], c['blue']),
-        4600: (c['dark_aqua'], c['aqua'], c['yellow'], c['yellow'], c['gold'], c['light_purple'], c['dark_purple']),
-        4500: (c['white'], c['white'], c['aqua'], c['aqua'], c['dark_aqua'], c['dark_aqua'], c['dark_aqua']),
-        4400: (c['dark_green'], c['dark_green'], c['green'], c['yellow'], c['gold'], c['dark_purple'], c['light_purple']),
-        4300: (c['black'], c['dark_purple'], c['dark_gray'], c['dark_gray'], c['dark_purple'], c['dark_purple'], c['black']),
-        4200: (c['dark_blue'], c['blue'], c['dark_aqua'], c['aqua'], c['white'], c['gray'], c['gray']),
-        4100: (c['yellow'], c['yellow'], c['gold'], c['red'], c['light_purple'], c['light_purple'], c['dark_purple']),
-        4000: (c['dark_purple'], c['dark_purple'], c['red'], c['red'], c['gold'], c['gold'], c['yellow']),
-        3900: (c['red'], c['red'], c['green'], c['green'], c['dark_aqua'], c['blue'], c['blue']),
-        3800: (c['dark_blue'], c['dark_blue'], c['blue'], c['dark_purple'], c['dark_purple'], c['light_purple'], c['dark_blue']),
-        3700: (c['dark_red'], c['dark_red'], c['red'], c['red'], c['aqua'], c['dark_aqua'], c['dark_aqua']),
-        3600: (c['green'], c['green'], c['green'], c['aqua'], c['blue'], c['blue'], c['dark_blue']),
-        3500: (c['red'], c['red'], c['dark_red'], c['dark_red'], c['dark_green'], c['green'], c['green']),
-        3400: (c['dark_green'], c['green'], c['light_purple'], c['light_purple'], c['dark_purple'], c['dark_purple'], c['green']),
-        3300: (c['blue'], c['blue'], c['blue'], c['light_purple'], c['red'], c['red'], c['dark_red']),
-        3200: (c['red'], c['dark_red'], c['gray'], c['gray'], c['dark_red'], c['red'], c['red']),
-        3100: (c['blue'], c['blue'], c['dark_aqua'], c['dark_aqua'], c['gold'], c['gold'], c['yellow']),
-        3000: (c['yellow'], c['yellow'], c['gold'], c['gold'], c['red'], c['red'], c['dark_red']),
-        2900: (c['aqua'], c['aqua'], c['dark_aqua'], c['dark_aqua'], c['blue'], c['blue'], c['blue']),
-        2800: (c['green'], c['green'], c['dark_green'], c['dark_green'], c['gold'], c['gold'], c['yellow']),
-        2700: (c['yellow'], c['yellow'], c['white'], c['white'], c['dark_gray'], c['dark_gray'], c['dark_gray']),
-        2600: (c['dark_red'], c['dark_red'], c['red'], c['red'], c['light_purple'], c['light_purple'], c['dark_purple']),
-        2500: (c['white'], c['white'], c['green'], c['green'], c['dark_green'], c['dark_green'], c['dark_green']),
-        2400: (c['aqua'], c['aqua'], c['white'], c['white'], c['gray'], c['gray'], c['dark_gray']),
-        2300: (c['dark_purple'], c['dark_purple'], c['light_purple'], c['light_purple'], c['gold'], c['yellow'], c['yellow']),
-        2200: (c['gold'], c['gold'], c['white'], c['white'], c['aqua'], c['dark_aqua'], c['dark_aqua']),
-        2100: (c['white'], c['white'], c['yellow'], c['yellow'], c['gold'], c['gold'], c['gold']),
-        2000: (c['dark_gray'], c['gray'], c['white'], c['white'], c['gray'], c['gray'], c['dark_gray']),
-        1900: (c['gray'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['dark_purple'], c['dark_gray'], c['gray']),
-        1800: (c['gray'], c['blue'], c['blue'], c['blue'], c['blue'], c['dark_blue'], c['gray']),
-        1700: (c['gray'], c['light_purple'], c['light_purple'], c['light_purple'], c['light_purple'], c['dark_purple'], c['gray']),
-        1600: (c['gray'], c['red'], c['red'], c['red'], c['red'], c['dark_red'], c['gray']),
-        1500: (c['gray'], c['dark_aqua'], c['dark_aqua'], c['dark_aqua'], c['dark_aqua'], c['blue'], c['gray']),
-        1400: (c['gray'], c['green'], c['green'], c['green'], c['green'], c['dark_green'], c['gray']),
-        1300: (c['gray'], c['aqua'], c['aqua'], c['aqua'], c['aqua'], c['dark_aqua'], c['gray']),
-        1200: (c['gray'], c['yellow'], c['yellow'], c['yellow'], c['yellow'], c['gold'], c['gray']),
-        1100: (c['gray'], c['white'], c['white'], c['white'], c['white'], c['gray'], c['gray']),
-        1000: (c['red'], c['gold'], c['yellow'], c['green'], c['aqua'], c['light_purple'], c['dark_purple']),
+        5000: (c.DARK_RED, c.DARK_RED, c.DARK_PURPLE, c.BLUE, c.BLUE, c.DARK_BLUE, c.BLACK),
+        4900: (c.DARK_GREEN, c.GREEN, c.WHITE, c.WHITE, c.GREEN, c.GREEN, c.DARK_GREEN),
+        4800: (c.DARK_PURPLE, c.DARK_PURPLE, c.RED, c.GOLD, c.YELLOW, c.AQUA, c.DARK_AQUA),
+        4700: (c.WHITE, c.DARK_RED, c.RED, c.RED, c.BLUE, c.DARK_BLUE, c.BLUE),
+        4600: (c.DARK_AQUA, c.AQUA, c.YELLOW, c.YELLOW, c.GOLD, c.LIGHT_PURPLE, c.DARK_PURPLE),
+        4500: (c.WHITE, c.WHITE, c.AQUA, c.AQUA, c.DARK_AQUA, c.DARK_AQUA, c.DARK_AQUA),
+        4400: (c.DARK_GREEN, c.DARK_GREEN, c.GREEN, c.YELLOW, c.GOLD, c.DARK_PURPLE, c.LIGHT_PURPLE),
+        4300: (c.BLACK, c.DARK_PURPLE, c.DARK_GRAY, c.DARK_GRAY, c.DARK_PURPLE, c.DARK_PURPLE, c.BLACK),
+        4200: (c.DARK_BLUE, c.BLUE, c.DARK_AQUA, c.AQUA, c.WHITE, c.GRAY, c.GRAY),
+        4100: (c.YELLOW, c.YELLOW, c.GOLD, c.RED, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.DARK_PURPLE),
+        4000: (c.DARK_PURPLE, c.DARK_PURPLE, c.RED, c.RED, c.GOLD, c.GOLD, c.YELLOW),
+        3900: (c.RED, c.RED, c.GREEN, c.GREEN, c.DARK_AQUA, c.BLUE, c.BLUE),
+        3800: (c.DARK_BLUE, c.DARK_BLUE, c.BLUE, c.DARK_PURPLE, c.DARK_PURPLE, c.LIGHT_PURPLE, c.DARK_BLUE),
+        3700: (c.DARK_RED, c.DARK_RED, c.RED, c.RED, c.AQUA, c.DARK_AQUA, c.DARK_AQUA),
+        3600: (c.GREEN, c.GREEN, c.GREEN, c.AQUA, c.BLUE, c.BLUE, c.DARK_BLUE),
+        3500: (c.RED, c.RED, c.DARK_RED, c.DARK_RED, c.DARK_GREEN, c.GREEN, c.GREEN),
+        3400: (c.DARK_GREEN, c.GREEN, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.DARK_PURPLE, c.DARK_PURPLE, c.GREEN),
+        3300: (c.BLUE, c.BLUE, c.BLUE, c.LIGHT_PURPLE, c.RED, c.RED, c.DARK_RED),
+        3200: (c.RED, c.DARK_RED, c.GRAY, c.GRAY, c.DARK_RED, c.RED, c.RED),
+        3100: (c.BLUE, c.BLUE, c.DARK_AQUA, c.DARK_AQUA, c.GOLD, c.GOLD, c.YELLOW),
+        3000: (c.YELLOW, c.YELLOW, c.GOLD, c.GOLD, c.RED, c.RED, c.DARK_RED),
+        2900: (c.AQUA, c.AQUA, c.DARK_AQUA, c.DARK_AQUA, c.BLUE, c.BLUE, c.BLUE),
+        2800: (c.GREEN, c.GREEN, c.DARK_GREEN, c.DARK_GREEN, c.GOLD, c.GOLD, c.YELLOW),
+        2700: (c.YELLOW, c.YELLOW, c.WHITE, c.WHITE, c.DARK_GRAY, c.DARK_GRAY, c.DARK_GRAY),
+        2600: (c.DARK_RED, c.DARK_RED, c.RED, c.RED, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.DARK_PURPLE),
+        2500: (c.WHITE, c.WHITE, c.GREEN, c.GREEN, c.DARK_GREEN, c.DARK_GREEN, c.DARK_GREEN),
+        2400: (c.AQUA, c.AQUA, c.WHITE, c.WHITE, c.GRAY, c.GRAY, c.DARK_GRAY),
+        2300: (c.DARK_PURPLE, c.DARK_PURPLE, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.GOLD, c.YELLOW, c.YELLOW),
+        2200: (c.GOLD, c.GOLD, c.WHITE, c.WHITE, c.AQUA, c.DARK_AQUA, c.DARK_AQUA),
+        2100: (c.WHITE, c.WHITE, c.YELLOW, c.YELLOW, c.GOLD, c.GOLD, c.GOLD),
+        2000: (c.DARK_GRAY, c.GRAY, c.WHITE, c.WHITE, c.GRAY, c.GRAY, c.DARK_GRAY),
+        1900: (c.GRAY, c.DARK_PURPLE, c.DARK_PURPLE, c.DARK_PURPLE, c.DARK_PURPLE, c.DARK_GRAY, c.GRAY),
+        1800: (c.GRAY, c.BLUE, c.BLUE, c.BLUE, c.BLUE, c.DARK_BLUE, c.GRAY),
+        1700: (c.GRAY, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.LIGHT_PURPLE, c.DARK_PURPLE, c.GRAY),
+        1600: (c.GRAY, c.RED, c.RED, c.RED, c.RED, c.DARK_RED, c.GRAY),
+        1500: (c.GRAY, c.DARK_AQUA, c.DARK_AQUA, c.DARK_AQUA, c.DARK_AQUA, c.BLUE, c.GRAY),
+        1400: (c.GRAY, c.GREEN, c.GREEN, c.GREEN, c.GREEN, c.DARK_GREEN, c.GRAY),
+        1300: (c.GRAY, c.AQUA, c.AQUA, c.AQUA, c.AQUA, c.DARK_AQUA, c.GRAY),
+        1200: (c.GRAY, c.YELLOW, c.YELLOW, c.YELLOW, c.YELLOW, c.GOLD, c.GRAY),
+        1100: (c.GRAY, c.WHITE, c.WHITE, c.WHITE, c.WHITE, c.GRAY, c.GRAY),
+        1000: (c.RED, c.GOLD, c.YELLOW, c.GREEN, c.AQUA, c.LIGHT_PURPLE, c.DARK_PURPLE),
     }
     "Prestige colors for levels 1000 - 9900 (unique coloring stops at level 5000)."
 
@@ -78,13 +81,17 @@ class PrestigeColorEnum(Enum):
     MULTI = 1
     "Multiple RGB colors."
 
+PrestigeColorSingle = ColorString
+PrestigeColorMulti = tuple[ColorString, ColorString, ColorString, ColorString, ColorString, ColorString, ColorString]
+
 @dataclass
 class PrestigeColorType:
     "A prestige color type."
     type: PrestigeColorEnum
     "Whether the prestige is a single color or multiple."
-    color: tuple[int, int, int] | tuple[tuple[int, int, int]]
+    color: PrestigeColorSingle | PrestigeColorMulti
     "The color(s) of the prestige."
+
 
 class PrestigeColors:
     """Class for determining prestige colors."""
@@ -124,14 +131,36 @@ class PrestigeColors:
     def primary_prestige_color(self) -> tuple[int, int, int]:
         """The primary color of the prestige as RGB."""
         if self.__prestige_primary_rgb is None:
-            pres_color_code = self.prestige_colors.color
 
-            if self.prestige_colors.type == PrestigeColorEnum.MULTI:
-                pres_color_code = pres_color_code[0]
+            prestige_colors = self.prestige_colors.color
+            if type(prestige_colors) != PrestigeColorSingle:
+                pres_color = prestige_colors[0]
+            else:
+                pres_color = prestige_colors
 
-            self.__prestige_primary_rgb = ColorMappings.color_codes.get(pres_color_code)
+            self.__prestige_primary_rgb = pres_color.value.rgb
         return self.__prestige_primary_rgb
 
+    @staticmethod
+    def _single_prestige_color_gradient(color: PrestigeColorSingle):
+        rgbs = [
+            tuple([int(c * (1 - 0.125 * 6)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 5)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 4)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 3)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 2)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 1)) for c in color.value.rgb]),
+            color.value.rgb
+        ]
+
+        return tuple([Color(rgb) for rgb in rgbs])
+
+    @property
+    def seven_step_gradient(self) -> tuple[Color, Color, Color, Color, Color, Color, Color]:
+        if type(self.prestige_colors.color) != PrestigeColorSingle:
+            return tuple([c.value for c in self.prestige_colors.color])
+        
+        return self._single_prestige_color_gradient(self.prestige_colors.color)
 
 class Prestige:
     """Class for determining and formatting prestige levels."""
@@ -183,12 +212,20 @@ class Prestige:
 
             if prestige_colors.type == PrestigeColorEnum.MULTI:
                 self.__formatted_level_str = ''.join([
-                    f'{prestige_colors.color[i]}{char}' for i, char in enumerate(level_string)
+                    f'{prestige_colors.color[i].to_color_code()}{char}' for i, char in enumerate(level_string)
                 ])
             else:
-                self.__formatted_level_str = f'{prestige_colors.color}{level_string}'
+                self.__formatted_level_str = f'{prestige_colors.color.to_color_code()}{level_string}'
 
         return self.__formatted_level_str
+
+    def char_to_color_map(self) -> list[tuple[str, Color]]:
+        level_str = f"[{self._level}{self.star_symbol}]"
+
+        if type(self.colors.prestige_colors.color) != PrestigeColorSingle:
+            return list(zip(level_str, [c.value for c in self.colors.prestige_colors.color]))
+
+        return [(level_str, self.colors.prestige_colors.color.value)]
 
     @staticmethod
     def format_level(level: int) -> str:

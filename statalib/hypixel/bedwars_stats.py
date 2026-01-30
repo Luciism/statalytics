@@ -96,6 +96,8 @@ class BedwarsStats:
 
         self.coins: int = self._bedwars_data.get("coins", 0)
 
+        self.slumber_tickets: int = self._bedwars_data.get("slumber", {}).get("tickets", 0)
+
         self.winstreak: int = self._get_mode_stats("winstreak")
         if self.winstreak is not None:
             self.winstreak_str = f"{self.winstreak:,}"
@@ -107,6 +109,10 @@ class BedwarsStats:
 
         self._wins_xp_data = None
         self._wins_xp = None
+
+    @property
+    def hypixel_player_data(self) -> HypixelPlayerData:
+        return self._hypixel_player_data
 
     @property
     def quests_data(self) -> QuestsDataDict:

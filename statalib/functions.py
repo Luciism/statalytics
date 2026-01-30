@@ -4,7 +4,8 @@ import asyncio
 import functools
 import typing
 from datetime import UTC, datetime
-from typing import ParamSpec, TypeVar, Callable, Coroutine, Any
+from typing import ParamSpec, TypeVar, Callable
+from collections.abc import Coroutine
 
 P = ParamSpec("P")
 T = TypeVar("T")
