@@ -46,6 +46,7 @@
           "commands.misc.premium",
           "commands.misc.usage",
 
+          "commands.bedwars.general_proto",
           "commands.bedwars.year",
           "commands.bedwars.winstreaks",
           "commands.bedwars.sessions",
@@ -303,65 +304,80 @@
     "ranks": {
       "default": {
         "ADMIN": {
-          "prefix": "&c[ADMIN] ",
+          "prefix": "[ADMIN] ",
+          "colored_prefix": "&c[ADMIN] ",
           "color": "&c"
         },
         "GAME_MASTER": {
-          "prefix": "&2[GM] ",
+          "prefix": "[GM] ",
+          "colored_prefix": "&2[GM] ",
           "color": "&2"
         },
         "YOUTUBER": {
-          "prefix": "&c[&fYOUTUBE&c] ",
+          "prefix": "[YOUTUBE] ",
+          "colored_prefix": "&c[&fYOUTUBE&c] ",
           "color": "&c"
         },
         "MVP_PLUS_PLUS": {
-          "prefix": "&6[MVP{plus_color}++&6] ",
+          "prefix": "[MVP++] ",
+          "colored_prefix": "&6[MVP{plus_color}++&6] ",
           "color": "&6"
         },
         "MVP_PLUS": {
-          "prefix": "&b[MVP{plus_color}+&b] ",
+          "prefix": "[MVP+] ",
+          "colored_prefix": "&b[MVP{plus_color}+&b] ",
           "color": "&b"
         },
         "MVP": {
-          "prefix": "&b[MVP] ",
+          "prefix": "[MVP] ",
+          "colored_prefix": "&b[MVP] ",
           "color": "&b"
         },
         "VIP_PLUS": {
-          "prefix": "&a[VIP&6+&a] ",
+          "prefix": "[VIP+] ",
+          "colored_prefix": "&a[VIP&6+&a] ",
           "color": "&a"
         },
         "VIP": {
-          "prefix": "&a[VIP] ",
+          "prefix": "[VIP] ",
+          "colored_prefix": "&a[VIP] ",
           "color": "&a"
         },
         "NONE": {
-          "prefix": "&7",
+          "prefix": "",
+          "colored_prefix": "&7",
           "color": "&7"
         }
       },
       "custom": {
         "f7c77d999f154a66a87dc4a51ef30d19": {
-          "prefix": "&c[OWNER] ",
+          "prefix": "[OWNER] ",
+          "colored_prefix": "&c[OWNER] ",
           "color": "&c"
         },
         "9b2a30ecf8b34dfebf499c5c367383f8": {
-          "prefix": "&c[OWNER] ",
+          "prefix": "[OWNER] ",
+          "colored_prefix": "&c[OWNER] ",
           "color": "&c"
         },
         "b876ec32e396476ba1158438d83c67d4": {
-          "prefix": "&d[PIG&b+++&d] ",
+          "prefix": "[PIG+++] ",
+          "colored_prefix": "&d[PIG&b+++&d] ",
           "color": "&d"
         },
         "e80e8194323e414298515e1bcb8a3508": {
-          "prefix": "&d[INNIT] ",
+          "prefix": "[INNIT] ",
+          "colored_prefix": "&d[INNIT] ",
           "color": "&d"
         },
         "bcc52cc103a3486aa822cc0853d60b3e": {
-          "prefix": "&9[DEV] ",
+          "prefix": "[DEV] ",
+          "colored_prefix": "&9[DEV] ",
           "color": "&9"
         },
         "a4830d78d9214d958f335fe6b4cf9467": {
-          "prefix": "&9[CAS] ",
+          "prefix": "[CAS] ",
+          "colored_prefix": "&9[CAS] ",
           "color": "&9"
         }
       }
