@@ -1,4 +1,13 @@
 services:
+  renderer:
+    build:
+      context: ./
+      dockerfile: ./apps/renderer/Dockerfile
+    volumes:
+      - logs:/app/logs
+    restart: unless-stopped
+
+
   bot:
     build:
       context: ./
