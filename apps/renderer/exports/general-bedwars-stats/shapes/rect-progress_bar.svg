@@ -1,0 +1,6 @@
+<svg width="{progress_bar#width}" height="31" viewBox="0 0 {progress_bar#width} 31" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="gradient-xhrdllg" x1="0" y1="0.5" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="{progress_bar#gradientStop.0}" /><stop offset="0.16699999570846558" stop-color="{progress_bar#gradientStop.1}" /><stop offset="0.33000001311302185" stop-color="{progress_bar#gradientStop.2}" /><stop offset="0.5" stop-color="{progress_bar#gradientStop.3}" /><stop offset="0.6600000262260437" stop-color="{progress_bar#gradientStop.4}" /><stop offset="0.8299999833106995" stop-color="{progress_bar#gradientStop.5}" /><stop offset="1" stop-color="{progress_bar#gradientStop.6}" />
+  </linearGradient></defs>
+  <rect x="0" y="0" width="{progress_bar#width}" height="31" rx="15.5" fill="url(#gradient-xhrdllg)" stroke="rgba(255, 255, 255, 0.05000000074505806)" stroke-width="1" />
+</svg>

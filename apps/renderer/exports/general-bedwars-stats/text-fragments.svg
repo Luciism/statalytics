@@ -1,0 +1,68 @@
+<svg width="1191" height="755" viewBox="0 0 1191 755" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <text fractyl-id="displayname" x="185" y="110" text-anchor="middle" dominant-baseline="hanging" font-family="IBM Plex Sans" font-size="26" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text fractyl-id="gamemode" x="340" y="537.5" text-anchor="end" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="24" font-weight="400" fill="#ffffff">
+        {gamemode#text}
+    </text>
+    <text fractyl-id="bedwars_tokens" x="340" y="578.5" text-anchor="end" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="24" font-weight="400" fill="#ffffff">
+        {bedwars_tokens#text}
+    </text>
+    <text fractyl-id="slumber_tickets" x="340" y="619.5" text-anchor="end" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="24" font-weight="400" fill="#ffffff">
+        {slumber_tickets#text}
+    </text>
+    <text fractyl-id="level_current" x="420" y="38" text-anchor="start" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text fractyl-id="xp_progress" x="790" y="38" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="20" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text fractyl-id="level_next" x="1160" y="38" text-anchor="end" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="400" fill="#00aa00">
+        {level_next#text}
+    </text>
+    <text fractyl-id="stat_wins" x="538.6666870117188" y="225" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56db6e">
+        {stat_wins#text}
+    </text>
+    <text fractyl-id="stat_losses" x="790" y="225" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#db5656">
+        {stat_losses#text}
+    </text>
+    <text fractyl-id="stat_wlr" x="1041.3333740234375" y="225" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56d0db">
+        {stat_wlr#text}
+    </text>
+    <text fractyl-id="stat_final_kills" x="538.6666870117188" y="321" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56db6e">
+        {stat_final_kills#text}
+    </text>
+    <text fractyl-id="stat_final_deaths" x="790" y="321" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#db5656">
+        {stat_final_deaths#text}
+    </text>
+    <text fractyl-id="stat_fkdr" x="1041.3333740234375" y="321" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56d0db">
+        {stat_fkdr#text}
+    </text>
+    <text fractyl-id="stat_beds_broken" x="538.6666870117188" y="417" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56db6e">
+        {stat_beds_broken#text}
+    </text>
+    <text fractyl-id="stat_beds_lost" x="790" y="417" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#db5656">
+        {stat_beds_lost#text}
+    </text>
+    <text fractyl-id="stat_bblr" x="1041.3333740234375" y="417" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56d0db">
+        {stat_bblr#text}
+    </text>
+    <text fractyl-id="stat_kills" x="538.6666870117188" y="513" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56db6e">
+        {stat_kills#text}
+    </text>
+    <text fractyl-id="stat_deaths" x="790" y="513" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#db5656">
+        {stat_deaths#text}
+    </text>
+    <text fractyl-id="stat_kdr" x="1041.3333740234375" y="513" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#56d0db">
+        {stat_kdr#text}
+    </text>
+    <text fractyl-id="stat_games_played" x="601.5" y="609" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#dbb356">
+        {stat_games_played#text}
+    </text>
+    <text fractyl-id="stat_most_played" x="978.5" y="609" text-anchor="middle" dominant-baseline="middle" font-family="IBM Plex Sans" font-size="28" font-weight="500" fill="#dbb356">
+        {stat_most_played#text}
+    </text>
+    <text fractyl-id="footer_info" x="354" y="720" text-anchor="start" dominant-baseline="middle" font-family="IBM Plex Sans, Inter, Arial, system-ui" font-size="24" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

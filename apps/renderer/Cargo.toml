@@ -1,0 +1,10 @@
+[package]
+name = "statalytics-renderer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fractyl-renderer = { git="https://github.com/luciism/fractyl-renderer.git", branch="main" }
+tokio = {version="1.49.0", features=["full"]}
+log = "0.4.29"
+colog = "1.4.0"
