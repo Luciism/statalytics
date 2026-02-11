@@ -1,12 +1,12 @@
 """Wrapper for generic hypixel bedwars stats."""
 
-from typing import final
 
 from ..aliases import BedwarsData, HypixelData, HypixelPlayerData
 from ..common import Mode
 from .leveling import Leveling
 from .quests import QuestsDataDict, get_quests_data
 from .utils import calc_xp_from_wins, get_most_played_mode, get_player_dict, rround
+from .ranks import PlayerRank
 
 
 class BedwarsStats:
@@ -109,6 +109,9 @@ class BedwarsStats:
 
         self._wins_xp_data = None
         self._wins_xp = None
+
+    def rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)
 
     @property
     def hypixel_player_data(self) -> HypixelPlayerData:
