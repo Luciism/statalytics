@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 import json
 import typing
 from base64 import b64encode
@@ -29,25 +30,35 @@ class TSpan:
 class PlaceholderValues:
     images: dict[str, str]
     shapes: dict[str, str]
-    text: dict[str, list[TSpan]]
+    text: dict[str, str | TSpan | list[TSpan]]
 
     @staticmethod
     def new(
-        text: dict[str, list[TSpan]] | None=None,
+        text: Mapping[str, str | TSpan | list[TSpan]] | None=None,
         images: dict[str, str] | None=None,
         shapes: dict[str, str] | None=None,
     ) -> "PlaceholderValues":
         return PlaceholderValues(
-            text=text or {},
+            text=dict(text or {}),
             shapes=shapes or {},
             images=images or {},
         )
 
     def as_dict(self) -> dict[str, typing.Any]:
+        text = {}
+
+        for k, v in self.text.items():
+            if type(v) == str:
+                text[k] = v
+            elif type(v) == list:
+                text[k] = [t.as_dict() for t in v]
+            elif type(v) == TSpan:
+                text[k] = v.as_dict()
+
         return {
             "images": self.images,
             "shapes": self.shapes,
-            "text": {k: [t.as_dict() for t in v] for k, v in self.text.items()}
+            "text": text
         }
 
     def add_progress_bar(

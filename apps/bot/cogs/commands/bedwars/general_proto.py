@@ -1,12 +1,10 @@
 import asyncio
-from io import BytesIO
 from typing import final
 from typing_extensions import override
 
 import discord
 import statalib as lib
 from statalib import render2
-from statalib.render2 import TSpan
 from discord.ext import commands
 
 import helper
@@ -39,25 +37,24 @@ class GeneralStatsRenderer(render2.RenderingClient):
         prestige = lib.render.Prestige(int(bw_stats.level))
         prestige_gradient = prestige.colors.seven_step_gradient
 
-        text_placeholders: dict[str, list[TSpan]] = {
-            "stat_final_kills#text": [TSpan(f"{bw_stats.final_kills:,}")],
-            "stat_final_deaths#text": [TSpan(f"{bw_stats.final_kills:,}")],
-            "stat_fkdr#text": [TSpan(f"{bw_stats.fkdr:,}")],
-            "stat_wins#text": [TSpan(f"{bw_stats.wins:,}")],
-            "stat_losses#text": [TSpan(f"{bw_stats.losses:,}")],
-            "stat_wlr#text": [TSpan(f"{bw_stats.wlr:,}")],
-            "stat_beds_broken#text": [TSpan(f"{bw_stats.beds_broken:,}")],
-            "stat_beds_lost#text": [TSpan(f"{bw_stats.beds_lost:,}")],
-            "stat_bblr#text": [TSpan(f"{bw_stats.bblr:,}")],
-            "stat_kills#text": [TSpan(f"{bw_stats.kills:,}")],
-            "stat_deaths#text": [TSpan(f"{bw_stats.deaths:,}")],
-            "stat_kdr#text": [TSpan(f"{bw_stats.kdr:,}")],
-            "stat_games_played#text": [TSpan(f"{bw_stats.games_played:,}")],
-            "stat_most_played#text": [TSpan(f"{bw_stats.most_played}")],
-
-            "gamemode#text": [TSpan(f"{self._mode.name}")],
-            "bedwars_tokens#text": [TSpan(f"{bw_stats.coins:,}")],
-            "slumber_tickets#text": [TSpan(f"{bw_stats.slumber_tickets:,}")],
+        text_placeholders = {
+            "stat_final_kills#text": f"{bw_stats.final_kills:,}",
+            "stat_final_deaths#text": f"{bw_stats.final_kills:,}",
+            "stat_fkdr#text": f"{bw_stats.fkdr:,}",
+            "stat_wins#text": f"{bw_stats.wins:,}",
+            "stat_losses#text": f"{bw_stats.losses:,}",
+            "stat_wlr#text": f"{bw_stats.wlr:,}",
+            "stat_beds_broken#text": f"{bw_stats.beds_broken:,}",
+            "stat_beds_lost#text": f"{bw_stats.beds_lost:,}",
+            "stat_bblr#text": f"{bw_stats.bblr:,}",
+            "stat_kills#text": f"{bw_stats.kills:,}",
+            "stat_deaths#text": f"{bw_stats.deaths:,}",
+            "stat_kdr#text": f"{bw_stats.kdr:,}",
+            "stat_games_played#text": f"{bw_stats.games_played:,}",
+            "stat_most_played#text": f"{bw_stats.most_played}",
+            "gamemode#text": f"{self._mode.name}",
+            "bedwars_tokens#text": f"{bw_stats.coins:,}",
+            "slumber_tickets#text": f"{bw_stats.slumber_tickets:,}",
         }
 
         placeholder_values = render2.PlaceholderValues.new(text=text_placeholders)
