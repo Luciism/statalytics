@@ -906,8 +906,8 @@ dependencies = [
 
 [[package]]
 name = "fractyl-renderer"
-version = "0.1.1"
-source = "git+https://github.com/luciism/fractyl-renderer.git?branch=main#35b3992ef5d4da7c0bdad8c860a25a8662856850"
+version = "0.1.2"
+source = "git+https://github.com/luciism/fractyl-renderer.git?branch=main#77cf90a60e3f8049c9d4854d6475efb8fff66b91"
 dependencies = [
  "axum",
  "axum_typed_multipart",
@@ -917,6 +917,7 @@ dependencies = [
  "imageproc",
  "lazy_static",
  "log",
+ "regex",
  "reqwest",
  "resvg",
  "serde",

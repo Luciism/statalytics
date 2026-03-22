@@ -1,0 +1,143 @@
+<svg width="1191" height="832" viewBox="0 0 1191 832" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow--933100477" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="4" dy="4" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1349600516">
+            <feDropShadow dx="3" dy="3" stdDeviation="0" flood-opacity="1" flood-color="#404040"/>
+        </filter>
+        <filter id="shadow-219469091" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="3" dy="3" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1992317886">
+            <feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="1" flood-color="#15371c"/>
+        </filter>
+        <filter id="shadow-263145898">
+            <feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="1" flood-color="#371616"/>
+        </filter>
+        <filter id="shadow--382997908">
+            <feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="1" flood-color="#402b00"/>
+        </filter>
+        <filter id="shadow--375336644">
+            <feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="1" flood-color="#401540"/>
+        </filter>
+    </defs>
+    <text filter="url(#shadow--933100477)" fractyl-id="displayname" x="185" y="109" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="26" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1349600516)" fractyl-id="success_rate" x="340" y="537" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="#ffffff">
+        {success_rate#text}
+    </text>
+    <text filter="url(#shadow-1349600516)" fractyl-id="total_attempts" x="340" y="577" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="#ffffff">
+        {total_attempts#text}
+    </text>
+    <text filter="url(#shadow-1349600516)" fractyl-id="blocks_placed" x="340" y="617" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="#ffffff">
+        {blocks_placed#text}
+    </text>
+    <text filter="url(#shadow-1349600516)" fractyl-id="straight_avg_speed" x="340" y="657" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="#ffffff">
+        {straight_avg_speed#text}
+    </text>
+    <text filter="url(#shadow-1349600516)" fractyl-id="diagonal_avg_speed" x="340" y="697" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="#ffffff">
+        {diagonal_avg_speed#text}
+    </text>
+    <text filter="url(#shadow--933100477)" fractyl-id="level_current" x="420" y="37.5" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow-219469091)" fractyl-id="xp_progress" x="790" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="20" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text filter="url(#shadow--933100477)" fractyl-id="level_next" x="1160" y="37.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#00aa00">
+        {level_next#text}
+    </text>
+    <text filter="url(#shadow-1992317886)" fractyl-id="stat_bridging_success" x="538.6669921875" y="222" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#56db6e">
+        {stat_bridging_success#text}
+    </text>
+    <text filter="url(#shadow-263145898)" fractyl-id="stat_bridging_fails" x="790" y="222" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#db5656">
+        {stat_bridging_fails#text}
+    </text>
+    <text filter="url(#shadow--382997908)" fractyl-id="stat_bridging_ratio" x="1041.333984375" y="222" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ffaa00">
+        {stat_bridging_ratio#text}
+    </text>
+    <text filter="url(#shadow-1992317886)" fractyl-id="stat_tnt_success" x="538.6669921875" y="315" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#56db6e">
+        {stat_tnt_success#text}
+    </text>
+    <text filter="url(#shadow-263145898)" fractyl-id="stat_tnt_fails" x="790" y="315" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#db5656">
+        {stat_tnt_fails#text}
+    </text>
+    <text filter="url(#shadow--382997908)" fractyl-id="stat_tnt_ratio" x="1041.333984375" y="315" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ffaa00">
+        {stat_tnt_ratio#text}
+    </text>
+    <text filter="url(#shadow-1992317886)" fractyl-id="stat_mlg_success" x="538.6669921875" y="408" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#56db6e">
+        {stat_mlg_success#text}
+    </text>
+    <text filter="url(#shadow-263145898)" fractyl-id="stat_mlg_fails" x="790" y="408" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#db5656">
+        {stat_mlg_fails#text}
+    </text>
+    <text filter="url(#shadow--382997908)" fractyl-id="stat_mlg_ratio" x="1041.333984375" y="408" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ffaa00">
+        {stat_mlg_ratio#text}
+    </text>
+    <text filter="url(#shadow-1992317886)" fractyl-id="stat_pearl_success" x="538.6669921875" y="501" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#56db6e">
+        {stat_pearl_success#text}
+    </text>
+    <text filter="url(#shadow-263145898)" fractyl-id="stat_pearl_fails" x="790" y="501" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#db5656">
+        {stat_pearl_fails#text}
+    </text>
+    <text filter="url(#shadow--382997908)" fractyl-id="stat_pearl_ratio" x="1041.333984375" y="501" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ffaa00">
+        {stat_pearl_ratio#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_straight_short_pb" x="538.6669921875" y="594" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_straight_short_pb#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_straight_medium_pb" x="790" y="594" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_straight_medium_pb#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_straight_long_pb" x="1041.333984375" y="594" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_straight_long_pb#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_diagonal_short_pb" x="538.6669921875" y="687" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_diagonal_short_pb#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_diagonal_medium_pb" x="790" y="687" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_diagonal_medium_pb#text}
+    </text>
+    <text filter="url(#shadow--375336644)" fractyl-id="stat_diagonal_long_pb" x="1041.333984375" y="687" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="28" font-weight="400" fill="#ff55ff">
+        {stat_diagonal_long_pb#text}
+    </text>
+    <text filter="url(#shadow-219469091)" fractyl-id="footer_info" x="264.5" y="797" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

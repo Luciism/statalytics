@@ -1,0 +1,101 @@
+<svg width="2382" height="1584" viewBox="0 0 2382 1584" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow--1248411453" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="8" dy="8" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1056727683" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="6" dy="6" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <text filter="url(#shadow--1248411453)" fractyl-id="displayname" x="370" y="217" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="52" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="quests_completed" x="680" y="1074" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {quests_completed#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="hours_per_star_without_quests" x="680" y="1154" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {hours_per_star_without_quests#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="hours_per_star_with_quests" x="680" y="1234" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {hours_per_star_with_quests#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="estimated_playtime" x="680" y="1314" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {estimated_playtime#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="level_current" x="840" y="75" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="xp_progress" x="1580" y="75" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="40" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="level_next" x="2320" y="75" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#00aa00">
+        {level_next#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="stars_without_quests" x="1203" y="454.5999755859375" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ffff">
+        {stars_without_quests#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="stars_from_quests" x="1957" y="454.5999755859375" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#aaaaaa">
+        {stars_from_quests#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_first_win_of_the_day" x="1203" y="661.8000183105469" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_first_win_of_the_day#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_bed_removal_co" x="1957" y="661.8000183105469" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_bed_removal_co#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_one_more_game" x="1203" y="869.0000305175781" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_one_more_game#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_sleep_tight" x="1957" y="869.0000305175781" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_sleep_tight#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_painsomnia" x="1203" y="1076.2000274658203" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_painsomnia#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_challenger" x="1957" y="1076.2000274658203" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_challenger#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_head_hunter" x="1203" y="1283.4000396728516" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_head_hunter#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="quest_finishing_the_job" x="1957" y="1283.4000396728516" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {quest_finishing_the_job#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="footer_info" x="529.5" y="1514" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

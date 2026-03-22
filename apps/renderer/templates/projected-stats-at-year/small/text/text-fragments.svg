@@ -1,0 +1,125 @@
+<svg width="595.5" height="376" viewBox="0 0 595.5 376" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow-1372038659" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="2" dy="2" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1449630659" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="1.5" dy="1.5" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-785169918">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="1" flood-color="#15371c"/>
+        </filter>
+        <filter id="shadow--944002070">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="1" flood-color="#371616"/>
+        </filter>
+        <filter id="shadow--1590145876">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="1" flood-color="#402b00"/>
+        </filter>
+        <filter id="shadow--1582484612">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="1" flood-color="#401540"/>
+        </filter>
+    </defs>
+    <text filter="url(#shadow-1372038659)" fractyl-id="displayname" x="92.5" y="54.5" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="13" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="gamemode" x="170" y="268.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#ffffff">
+        {gamemode#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="target_year" x="170" y="288.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#ffffff">
+        {target_year#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="days_to_go" x="170" y="308.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#ffffff">
+        {days_to_go#text}
+    </text>
+    <text filter="url(#shadow-1372038659)" fractyl-id="level_current" x="210" y="19" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="xp_progress" x="395" y="19" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="10" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text filter="url(#shadow-1372038659)" fractyl-id="level_next" x="580" y="19" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#00aaaa">
+        {level_next#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="stat_wins" x="269.33349609375" y="112.4000244140625" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {stat_wins#text}
+    </text>
+    <text filter="url(#shadow--944002070)" fractyl-id="stat_losses" x="395" y="112.4000244140625" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#db5656">
+        {stat_losses#text}
+    </text>
+    <text filter="url(#shadow--1590145876)" fractyl-id="stat_wlr" x="520.6669921875" y="112.4000244140625" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ffaa00">
+        {stat_wlr#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="stat_final_kills" x="269.33349609375" y="160.10003662109375" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {stat_final_kills#text}
+    </text>
+    <text filter="url(#shadow--944002070)" fractyl-id="stat_final_deaths" x="395" y="160.10003662109375" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#db5656">
+        {stat_final_deaths#text}
+    </text>
+    <text filter="url(#shadow--1590145876)" fractyl-id="stat_fkdr" x="520.6669921875" y="160.10003662109375" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ffaa00">
+        {stat_fkdr#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="stat_beds_broken" x="269.33349609375" y="207.800048828125" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {stat_beds_broken#text}
+    </text>
+    <text filter="url(#shadow--944002070)" fractyl-id="stat_beds_lost" x="395" y="207.800048828125" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#db5656">
+        {stat_beds_lost#text}
+    </text>
+    <text filter="url(#shadow--1590145876)" fractyl-id="stat_bblr" x="520.6669921875" y="207.800048828125" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ffaa00">
+        {stat_bblr#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="stat_kills" x="269.33349609375" y="255.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {stat_kills#text}
+    </text>
+    <text filter="url(#shadow--944002070)" fractyl-id="stat_deaths" x="395" y="255.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#db5656">
+        {stat_deaths#text}
+    </text>
+    <text filter="url(#shadow--1590145876)" fractyl-id="stat_kdr" x="520.6669921875" y="255.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ffaa00">
+        {stat_kdr#text}
+    </text>
+    <text filter="url(#shadow--1582484612)" fractyl-id="stat_wins_per_star" x="269.33349609375" y="303.2000732421875" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ff55ff">
+        {stat_wins_per_star#text}
+    </text>
+    <text filter="url(#shadow--1582484612)" fractyl-id="stat_final_kills_per_star" x="395" y="303.2000732421875" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ff55ff">
+        {stat_final_kills_per_star#text}
+    </text>
+    <text filter="url(#shadow--1582484612)" fractyl-id="stat_stars_per_day" x="520.6669921875" y="303.2000732421875" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#ff55ff">
+        {stat_stars_per_day#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="footer_info" x="132" y="358.5" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

@@ -1,0 +1,95 @@
+<svg width="2984" height="1424" viewBox="0 0 2984 1424" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow--1248411453" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="8" dy="8" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1056727683" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="6" dy="6" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow--1134644828">
+            <feDropShadow dx="6" dy="6" stdDeviation="0" flood-opacity="1" flood-color="#404040"/>
+        </filter>
+        <filter id="shadow-831811324">
+            <feDropShadow dx="6" dy="6" stdDeviation="0" flood-opacity="1" flood-color="#401540"/>
+        </filter>
+    </defs>
+    <text filter="url(#shadow--1248411453)" fractyl-id="displayname" x="370" y="217" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="52" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="level_current" x="680" y="1074" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow--1134644828)" fractyl-id="total_cosmetics_owned" x="680" y="1154" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {total_cosmetics_owned#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_kill_message" x="1808" y="334" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_kill_message#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_wood_skin" x="2864" y="334" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_wood_skin#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_shopkeeper_skin" x="2864" y="526" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_shopkeeper_skin#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_death_cry" x="2864" y="718" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_death_cry#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_spray" x="1808" y="142" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_spray#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_bed_destroy" x="1808" y="526" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_bed_destroy#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_final_kill_effect" x="1808" y="718" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_final_kill_effect#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_glyph" x="2864" y="142" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_glyph#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_island_topper" x="2864" y="910" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_island_topper#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_victory_dance" x="2864" y="1102" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_victory_dance#text}
+    </text>
+    <text filter="url(#shadow-831811324)" fractyl-id="cosmetic_projectile_trail" x="1808" y="910" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ff55ff">
+        {cosmetic_projectile_trail#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="footer_info" x="831.5" y="1354" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

@@ -1,0 +1,116 @@
+<svg width="2380" height="1428" viewBox="0 0 2380 1428" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow--1248411453" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="8" dy="8" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1056727683" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="6" dy="6" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow--1134644828">
+            <feDropShadow dx="6" dy="6" stdDeviation="0" flood-opacity="1" flood-color="#404040"/>
+        </filter>
+        <filter id="shadow-72503140">
+            <feDropShadow dx="8" dy="8" stdDeviation="0" flood-opacity="1" flood-color="#404040"/>
+        </filter>
+        <filter id="shadow-2031298028">
+            <feDropShadow dx="8" dy="8" stdDeviation="0" flood-opacity="1" flood-color="#402b00"/>
+        </filter>
+        <filter id="shadow-51254972">
+            <feDropShadow dx="8" dy="8" stdDeviation="0" flood-opacity="1" flood-color="#154040"/>
+        </filter>
+        <filter id="shadow-281233940">
+            <feDropShadow dx="8" dy="8" stdDeviation="0" flood-opacity="1" flood-color="#154015"/>
+        </filter>
+    </defs>
+    <text filter="url(#shadow--1248411453)" fractyl-id="displayname" x="370" y="217" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="52" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="gamemode" x="680" y="1074" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {gamemode#text}
+    </text>
+    <text filter="url(#shadow--1134644828)" fractyl-id="total_resources_collected" x="680" y="1154" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="#ffffff">
+        {total_resources_collected#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="level_current" x="840" y="75" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="xp_progress" x="1580" y="75" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="40" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text filter="url(#shadow--1248411453)" fractyl-id="level_next" x="2320" y="75" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#00aa00">
+        {level_next#text}
+    </text>
+    <text filter="url(#shadow-72503140)" fractyl-id="stat_iron_collected" x="1100" y="461" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffffff">
+        {stat_iron_collected#text}
+    </text>
+    <text filter="url(#shadow-72503140)" fractyl-id="stat_iron_per_game" x="1624" y="461" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffffff">
+        {stat_iron_per_game#text}
+    </text>
+    <text filter="url(#shadow-72503140)" fractyl-id="stat_iron_per_star" x="2104" y="461" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffffff">
+        {stat_iron_per_star#text}
+    </text>
+    <text filter="url(#shadow-2031298028)" fractyl-id="stat_gold_collected" x="1100" y="681" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffaa00">
+        {stat_gold_collected#text}
+    </text>
+    <text filter="url(#shadow-2031298028)" fractyl-id="stat_gold_per_game" x="1624" y="681" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffaa00">
+        {stat_gold_per_game#text}
+    </text>
+    <text filter="url(#shadow-2031298028)" fractyl-id="stat_gold_per_star" x="2104" y="681" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#ffaa00">
+        {stat_gold_per_star#text}
+    </text>
+    <text filter="url(#shadow-51254972)" fractyl-id="stat_diamonds_collected" x="1100" y="901" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ffff">
+        {stat_diamonds_collected#text}
+    </text>
+    <text filter="url(#shadow-51254972)" fractyl-id="stat_diamonds_per_game" x="1624" y="901" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ffff">
+        {stat_diamonds_per_game#text}
+    </text>
+    <text filter="url(#shadow-51254972)" fractyl-id="stat_diamonds_per_star" x="2104" y="901" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ffff">
+        {stat_diamonds_per_star#text}
+    </text>
+    <text filter="url(#shadow-281233940)" fractyl-id="stat_emeralds_collected" x="1100" y="1121" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ff55">
+        {stat_emeralds_collected#text}
+    </text>
+    <text filter="url(#shadow-281233940)" fractyl-id="stat_emeralds_per_game" x="1624" y="1121" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ff55">
+        {stat_emeralds_per_game#text}
+    </text>
+    <text filter="url(#shadow-281233940)" fractyl-id="stat_emeralds_per_star" x="2104" y="1121" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="56" font-weight="400" fill="#55ff55">
+        {stat_emeralds_per_star#text}
+    </text>
+    <text filter="url(#shadow-1056727683)" fractyl-id="footer_info" x="529.5" y="1358" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="48" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

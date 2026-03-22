@@ -1,0 +1,27 @@
+<svg width="1480" height="62" viewBox="0 0 1480 62" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+        <filter id="shadow-progress_bar" color-interpolation-filters="sRGB">
+          <!-- Offset the colored text -->
+          <feOffset dx="0" dy="0" in="SourceGraphic" result="offsetColor"/>
+          <!-- Blur it -->
+          <feGaussianBlur in="offsetColor" stdDeviation="8" result="blurredColor"/>
+          <!-- Darken by 75% (multiply RGB by 0.25) -->
+          <feColorMatrix in="blurredColor" result="darkenedShadow"
+             type="matrix"
+             values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+          <!-- Fade it -->
+          <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+            <feFuncA type="linear" slope="1"/>
+          </feComponentTransfer>
+          <!-- Put original text on top -->
+          <feMerge>
+            <feMergeNode in="fadedShadow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+    </defs>
+        <rect x="0" y="0" width="{progress_bar#width}" height="62" rx="8" fill="{progress_bar#fill}" stroke="rgba(255, 255, 255, 0.05000000074505806)" stroke-width="2" filter="url(#shadow-progress_bar)" />
+    </svg>

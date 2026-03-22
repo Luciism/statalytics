@@ -1,0 +1,13 @@
+<svg width="740" height="380" viewBox="0 0 740 380" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient
+        id="gradient-gjiy924"
+        x1="0.4293555777732375"
+        y1="1.5000000149011616"
+        x2="1.4293556075755607"
+        y2="0.49999998509883836"
+        gradientUnits="objectBoundingBox"
+    >
+    <stop offset="0" stop-color="rgba(255, 170, 0, 1)" stop-opacity="0.5" /><stop offset="1" stop-color="rgba(255, 170, 0, 0)" stop-opacity="0.5" />
+  </linearGradient></defs>
+        <rect x="590" y="100%" width="150" height="{bar_fours#height}" fill="url(#gradient-gjiy924)" style="transform: matrix(1, 0, 0, -1, 0, 0); transform-origin: center bottom;" />
+    </svg>

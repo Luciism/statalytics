@@ -1,0 +1,29 @@
+<svg width="370" height="15.5" viewBox="0 0 370 15.5" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="gradient-pupfnua" x1="0" y1="0.5" x2="1" y2="0.5" gradientUnits="objectBoundingBox">
+    <stop offset="0" stop-color="{progress_bar#gradientStop.0}" /><stop offset="0.16699999570846558" stop-color="{progress_bar#gradientStop.1}" /><stop offset="0.33000001311302185" stop-color="{progress_bar#gradientStop.2}" /><stop offset="0.5" stop-color="{progress_bar#gradientStop.3}" /><stop offset="0.6600000262260437" stop-color="{progress_bar#gradientStop.4}" /><stop offset="0.8299999833106995" stop-color="{progress_bar#gradientStop.5}" /><stop offset="1" stop-color="{progress_bar#gradientStop.6}" />
+  </linearGradient>
+        <filter id="shadow-progress_bar" color-interpolation-filters="sRGB">
+          <!-- Offset the colored text -->
+          <feOffset dx="0" dy="0" in="SourceGraphic" result="offsetColor"/>
+          <!-- Blur it -->
+          <feGaussianBlur in="offsetColor" stdDeviation="2" result="blurredColor"/>
+          <!-- Darken by 75% (multiply RGB by 0.25) -->
+          <feColorMatrix in="blurredColor" result="darkenedShadow"
+             type="matrix"
+             values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+          <!-- Fade it -->
+          <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+            <feFuncA type="linear" slope="1"/>
+          </feComponentTransfer>
+          <!-- Put original text on top -->
+          <feMerge>
+            <feMergeNode in="fadedShadow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+    </defs>
+        <rect x="0" y="0" width="{progress_bar#width}" height="15.5" rx="2" fill="url(#gradient-pupfnua)" stroke="rgba(255, 255, 255, 0.05000000074505806)" stroke-width="0.5" filter="url(#shadow-progress_bar)" />
+    </svg>

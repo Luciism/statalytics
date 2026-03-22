@@ -1,0 +1,18 @@
+
+                        <svg
+        width="155"
+        height="155"
+        viewBox="0 0 155 155"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+    >
+                            <image
+                                fractyl-id="skin_model"
+                                x="0"
+                                y="0"
+                                width="155"
+                                height="155"
+                                xlink:href="{skin_model#href}"
+                            />
+                        </svg> 

@@ -7,7 +7,7 @@ WORKDIR /app
 COPY ./apps/renderer/src/ src/
 COPY ./apps/renderer/Cargo.toml ./apps/renderer/Cargo.lock ./
 RUN cargo build --release
-COPY ./apps/renderer/exports/ exports/
+COPY ./apps/renderer/templates/ templates/
 COPY ./apps/renderer/fonts/ fonts/
 
 

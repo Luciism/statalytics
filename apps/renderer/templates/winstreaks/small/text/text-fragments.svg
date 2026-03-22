@@ -1,0 +1,86 @@
+<svg width="595.5" height="356" viewBox="0 0 595.5 356" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow-1372038659" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="2" dy="2" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-1449630659" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="1.5" dy="1.5" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-785169918">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="1" flood-color="#15371c"/>
+        </filter>
+    </defs>
+    <text filter="url(#shadow-1372038659)" fractyl-id="displayname" x="92.5" y="54.5" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="13" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="total_wins" x="170" y="268.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#ffffff">
+        {total_wins#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="api_status" x="170" y="288.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#ffffff">
+        {api_status#text}
+    </text>
+    <text filter="url(#shadow-1372038659)" fractyl-id="level_current" x="210" y="19" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#00aa00">
+        {level_current#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="xp_progress" x="395" y="19" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="10" font-weight="400" fill="#ababab">
+        {xp_progress#text}
+    </text>
+    <text filter="url(#shadow-1372038659)" fractyl-id="level_next" x="580" y="19" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#00aa00">
+        {level_next#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_overall" x="565" y="108.375" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_overall#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_solos" x="376.5" y="163" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_solos#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_doubles" x="565" y="163" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_doubles#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_threes" x="376.5" y="217.625" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_threes#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_fours" x="565" y="217.625" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_fours#text}
+    </text>
+    <text filter="url(#shadow-785169918)" fractyl-id="winstreak_4v4" x="565" y="272.25" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="14" font-weight="400" fill="#56db6e">
+        {winstreak_4v4#text}
+    </text>
+    <text filter="url(#shadow-1449630659)" fractyl-id="footer_info" x="132" y="338.5" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>

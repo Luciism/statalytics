@@ -1,0 +1,50 @@
+<svg width="1190" height="562" viewBox="0 0 1190 562" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter id="shadow--933100477" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="4" dy="4" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="shadow-219469091" color-interpolation-filters="sRGB">
+            <!-- Offset the colored text -->
+            <feOffset dx="3" dy="3" in="SourceGraphic" result="offsetColor"/>
+            <!-- Blur it -->
+            <feGaussianBlur in="offsetColor" stdDeviation="0" result="blurredColor"/>
+            <!-- Darken by 75% (multiply RGB by 0.25) -->
+            <feColorMatrix in="blurredColor" result="darkenedShadow" type="matrix" values="0.25 0    0    0  0
+                     0    0.25 0    0  0
+                     0    0    0.25 0  0
+                     0    0    0    1  0"/>
+            <!-- Fade it -->
+            <feComponentTransfer in="darkenedShadow" result="fadedShadow">
+                <feFuncA type="linear" slope="1"/>
+            </feComponentTransfer>
+            <!-- Put original text on top -->
+            <feMerge>
+                <feMergeNode in="fadedShadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <text filter="url(#shadow--933100477)" fractyl-id="displayname" x="185" y="109" text-anchor="middle" dominant-baseline="hanging" font-family="Minecraft" font-size="26" font-weight="400" fill="white">
+        {displayname#text}
+    </text>
+    <text filter="url(#shadow-219469091)" fractyl-id="footer_info" x="264.5" y="527" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="24" font-weight="400" fill="white">
+        {footer_info#text}
+    </text>
+</svg>
