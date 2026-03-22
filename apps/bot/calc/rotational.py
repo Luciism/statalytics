@@ -39,6 +39,9 @@ class RotationalStats(hypixel.CumulativeStats):
         self.timezone, self.reset_time = _get_reset_time_info(self.uuid)
 
 
+    def get_rank_info(self, username: str) -> hypixel.PlayerRank:
+        return hypixel.PlayerRank.from_hypixel_data(username, self._hypixel_player_data)
+
 
 @final
 class HistoricalRotationalStats(hypixel.BedwarsStats):
@@ -99,3 +102,8 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
     def _get_most_played(self):
         return hypixel.get_most_mode(
             self.historical_stats.data.as_dict(), 'games_played_bedwars')
+
+    def get_rank_info(self, username: str) -> hypixel.PlayerRank:
+        return hypixel.PlayerRank.from_hypixel_data(username, self._hypixel_player_data)
+
+

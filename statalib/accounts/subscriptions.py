@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 import threading
 from typing import Any
+import typing
 
 from ..redis_ext import SubscriptionUpdate, RedisStreamProducer
 from ..redis_ext.client import RedisClient, redis_client as main_redis_client
@@ -115,8 +116,8 @@ class Subscription:
     def get_package_property(
         package: str,
         property: str,
-        default: Any=None
-    ) -> list[str]:
+        default: typing.Any | None=None
+    ) -> typing.Any:
         """
         Static method that returns a property value configured
         for the respective package.
@@ -134,7 +135,7 @@ class Subscription:
         return properties.get(property, default)
 
 
-    def package_property(self, property: str, default: Any=None) -> list[str]:
+    def package_property(self, property: str, default: typing.Any | None=None) -> typing.Any:
         """
         Returns the configured property value for the given property.
 

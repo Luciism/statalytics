@@ -1,18 +1,89 @@
 """Code that needs to be rewritten"""
 
 import asyncio
-from typing import Self
+from typing import Self, cast, final
 
 import discord
 import statalib as lib
 from discord import app_commands
 from discord.ext import commands
+from statalib import render2
 from statalib.accounts import Account
-from statalib.sessions import SessionManager
+from statalib.sessions import BedwarsSession, SessionManager
 from typing_extensions import override
 
+from calc.session import SessionStats
 import helper
-from render.session import render_session
+
+@final
+class SessionStatsRenderer(render2.RenderingClient):
+    def __init__(
+        self,
+        skin_model_bytes: bytes,
+        username: str,
+        player_uuid: str,
+        data: lib.HypixelData,
+        session: BedwarsSession,
+        mode: lib.Mode
+    ) -> None:
+        super().__init__(route="session-stats")
+
+        self._skin_model_bytes = skin_model_bytes
+        self._username = username
+        self._player_uuid = player_uuid
+        self._data = data
+        self._session = session
+        self.mode = mode
+
+
+    @override
+    def placeholder_values(self) -> render2.PlaceholderValues:
+        mode = self.mode or lib.ModesEnum.OVERALL.value
+        stats = SessionStats(self._player_uuid, self._session, self._data, mode)
+
+        xp_progress = stats.leveling.progression
+
+        prestige = lib.render.Prestige(int(stats.level))
+        prestige_gradient = prestige.colors.seven_step_gradient
+
+        text_placeholders = {
+            "stat_wins#text": f"{stats.wins_cum:,}",
+            "stat_losses#text": f"{stats.losses_cum:,}",
+            "stat_wlr#text": f"{stats.wlr_cum:,}",
+
+            "stat_final_kills#text": f"{stats.final_kills_cum:,}",
+            "stat_final_deaths#text": f"{stats.final_deaths_cum:,}",
+            "stat_fkdr#text": f"{stats.fkdr_cum:,}",
+
+            "stat_kills#text": f"{stats.kills_cum:,}",
+            "stat_deaths#text": f"{stats.deaths_cum:,}",
+            "stat_kdr#text": f"{stats.kdr_cum:,}",
+
+            "stat_beds_broken#text": f"{stats.beds_broken_cum:,}",
+            "stat_beds_lost#text": f"{stats.beds_lost_cum:,}",
+            "stat_bblr#text": f"{stats.bblr_cum:,}",
+
+            "stat_wins_per_day#text": f"{stats.wins_per_day:,}",
+            "stat_final_kills_per_day#text": f"{stats.final_kills_per_day:,}",
+            "stat_stars_per_day#text": f"{stats.stars_gained_per_day:,}",
+
+            "gamemode#text": mode.name,
+            "session_id#text": f"#{self._session.session_id}",
+            "session_date_started#text": stats.date_started,
+            "games_played#text": f"{stats.games_played:,}",
+            "stars_gained#text": f"{stats.stars_gained:,}",
+        }
+
+
+        placeholder_values = render2.PlaceholderValues.new(text=text_placeholders)
+        placeholder_values.add_skin_model(self._skin_model_bytes)
+        placeholder_values.add_footer_text()
+        placeholder_values.add_progress_bar(prestige_gradient, xp_progress.progress_percent)
+        placeholder_values.add_xp_progress_text(stats.leveling.progression)
+        placeholder_values.add_current_and_next_level(int(stats.level))
+        placeholder_values.add_playername(stats.get_rank_info(self._username))
+
+        return placeholder_values
 
 
 class ManageSession(helper.views.CustomBaseView):
@@ -27,7 +98,8 @@ class ManageSession(helper.views.CustomBaseView):
     @override
     async def on_timeout(self) -> None:
         for item in self.children:
-            item.disabled = True
+            if isinstance(item, (discord.ui.Button, discord.ui.Select)):
+                item.disabled = True
 
         if self.message:
             try:
@@ -91,10 +163,8 @@ class SessionsCommandCog(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(lib.config.loading_message())
-
         skin_model, hypixel_data = await asyncio.gather(
-            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_skin_model(uuid),
             lib.network.fetch_hypixel_data(uuid),
         )
 
@@ -106,17 +176,26 @@ class SessionsCommandCog(commands.Cog):
             session=session,
         )
 
-        await helper.interactions.handle_modes_renders(
-            interaction,
-            render_session,
-            {
-                "name": name,
-                "uuid": uuid,
-                "session_info": session_info,
-                "hypixel_data": hypixel_data,
-                "skin_model": skin_model,
-                "save_dir": interaction.id,
-            },
+        renderer = SessionStatsRenderer(
+            skin_model,
+            name,
+            uuid,
+            hypixel_data,
+            session_info,
+            lib.ModesEnum.OVERALL.value
+        )
+        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "session-stats")
+        img_bytes = await renderer.render_to_buffer(background_img)
+        
+        await interaction.followup.send(
+            files=[discord.File(img_bytes, filename="overall.png")],
+            view=helper.views.FractylModesView(
+                interaction_origin=interaction,
+                modes=lib.ModesEnum.non_dream_modes(),
+                background_img=background_img,
+                placeholder="Overall",
+                renderer=renderer
+            )
         )
 
     @helper.decorators.app_command("session_start", group=session_group)
@@ -137,8 +216,7 @@ class SessionsCommandCog(commands.Cog):
         active_sessions = session_manager.active_sessions()
         active_sessions_count = len(active_sessions)
 
-        max_user_sessions = (
-            Account(interaction.user.id)
+        max_user_sessions: int = cast(int, Account(interaction.user.id)
             .subscriptions.get_subscription()
             .package_property("max_sessions", 2)
         )

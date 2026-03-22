@@ -1,4 +1,7 @@
 {
+  "logging": {
+    "level": "INFO"
+  },
   "apps": {
     "bot": {
       "version": "1.21.2",
@@ -46,7 +49,6 @@
           "commands.misc.premium",
           "commands.misc.usage",
 
-          "commands.bedwars.general_proto",
           "commands.bedwars.year",
           "commands.bedwars.winstreaks",
           "commands.bedwars.sessions",

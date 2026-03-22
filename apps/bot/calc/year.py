@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from typing import final
 
 from statalib import Mode, ModesEnum, hypixel, sessions
+from statalib.hypixel.projected_stats import TargetDate
 
 
 @final
@@ -19,9 +20,12 @@ class YearStats(hypixel.ProjectedStats):
         super().__init__(
             hypixel_data=hypixel_data,
             session_info=session_info,
-            target_date=target_date,
+            target=TargetDate(target_date),
             gamemode=mode
         )
 
         self.rank_info = hypixel.get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)
+
+    def get_rank_info(self, username: str) -> hypixel.PlayerRank:
+        return hypixel.PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

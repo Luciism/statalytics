@@ -3,6 +3,7 @@ from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     BedwarsStats,
     HypixelData,
+    PlayerRank,
     get_rank_info,
     rround,
 )
@@ -39,3 +40,6 @@ class TotalStats(BedwarsStats):
             self.projectile_kills / (self.projectile_deaths or 1), 2)
 
         self.melee_kills = self._get_mode_stats('entity_attack_kills_bedwars')
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

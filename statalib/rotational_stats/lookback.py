@@ -8,7 +8,7 @@ FALLBACK_MAX_LOOKBACK = 30  # Days
 """Fallback value for maximum lookback duration (in days)."""
 
 
-def get_max_lookback(discord_ids: list[int]) -> int | None:
+def get_max_lookback(discord_ids: list[int | None]) -> int | None:
     """
     Get the highest possible max historical rotational stats lookback
     value for a range of Discord user IDs.

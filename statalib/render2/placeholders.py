@@ -1,9 +1,10 @@
-from collections.abc import Mapping
 import json
 import typing
 from base64 import b64encode
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, UTC
+from typing_extensions import override
 
 import aiohttp
 
@@ -14,11 +15,13 @@ from ..color import Color
 from ..render import Prestige
 
 
-@dataclass
+Size = typing.Literal["small", "regular", "large"]
+
+@dataclass(unsafe_hash=True)
 class TSpan:
     value: str
     fill: str | None = None
-    font_size: int | None = None
+    font_size: int | str | None = None
     font_weight: int | None = None
     font_family: str | None = None
 
@@ -74,47 +77,53 @@ class PlaceholderValues:
         self.shapes[f"progress_bar#width"] = f"{progress_percent}%"
 
     def add_skin_model(
-        self, skin_model_img: bytes
+        self, skin_model_img: bytes, placeholder_key: str="skin_model"
     ) -> None:
         skin_base64 = b64encode(skin_model_img).decode("utf-8")
-        self.images["skin_model#href"] = f"data:image/png;base64,{skin_base64}"
+        self.images[f"{placeholder_key}#href"] = f"data:image/png;base64,{skin_base64}"
 
-    def add_footer_text(
-        self
-    ) -> None:
+    def add_footer_text(self) -> None:
         now = datetime.now(UTC)
         self.text["footer_info#text"] = [
             TSpan(value="statalytics.net • ", fill="#FFFFFF"),
             TSpan(value=now.strftime(f"%A %d{ordinal(now.day)} %B, %Y"), fill="#ABABAB", font_weight=300),
         ]
+        
 
-
-    def add_current_and_next_level(self, current_level: int) -> None:
+    def add_current_level(self, current_level: int, placeholder_key: str="level_current") -> None:
         prestige = Prestige(current_level)
-        prestige_next = Prestige(current_level + 1)
 
-        self.text["level_current#text"] = [
+        self.text[f"{placeholder_key}#text"] = [
             TSpan(value=char, fill=color.hex)
             for char, color in prestige.char_to_color_map()
         ]
-        self.text["level_next#text"] = [
+
+    def add_next_level(self, next_level: int, placeholder_key: str="level_next") -> None:
+        prestige = Prestige(next_level)
+
+        self.text[f"{placeholder_key}#text"] = [
             TSpan(value=char, fill=color.hex)
-            for char, color in prestige_next.char_to_color_map()
+            for char, color in prestige.char_to_color_map()
         ]
+
+    def add_current_and_next_level(self, current_level: int) -> None:
+        self.add_current_level(current_level)
+        self.add_next_level(current_level + 1)
 
     def add_xp_progress_text(self, xp_progress: LevelProgressionTuple) -> None:
         self.text["xp_progress#text"] = [TSpan(f"{xp_progress.progress:,} / {xp_progress.target:,} xp")]
 
-    def add_playername(self, rank: PlayerRank) -> None:
-        self.text["displayname#text"] = [
+    def add_playername(self, rank: PlayerRank, placeholder_key: str="displayname") -> None:
+        self.text[f"{placeholder_key}#text"] = [
             TSpan(value=part[0], fill=part[1].hex) for part in rank.parts_with_username
         ]
 
 
     def build_form_data(
-        self, background_image: bytes | None
+        self, background_image: bytes | None, size: Size="regular"
     ) -> aiohttp.FormData:
         data = aiohttp.FormData()
+        data.add_field("scale", size, filename="blob", content_type="application/json")
         data.add_field(
             "placeholder_values",
             json.dumps(self.as_dict()).encode("utf-8"),
@@ -131,4 +140,21 @@ class PlaceholderValues:
             )
 
         return data
+
+
+    @override
+    def __hash__(self) -> int:
+        hashable_text: list[tuple[str, typing.Any]] = []
+
+        for k, v in self.text.items():
+            if isinstance(v, list):
+                hashable_text.append((k, tuple(v)))
+            else:
+                hashable_text.append((k, v))
+
+        return hash((
+            frozenset(self.images.items()),
+            frozenset(self.shapes.items()),
+            frozenset(hashable_text),
+        ))
 

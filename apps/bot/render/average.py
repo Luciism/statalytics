@@ -18,7 +18,7 @@ def render_average(
     stats = AverageStats(hypixel_data, mode)
 
     im = ImageRender(bg.load_background_image(uuid, {
-        "level": stats.level, "rank_info": stats.rank_info}))
+        "level": stats.level, "rank_info": stats.rank}))
 
     # Render the stat values
     im.text.draw_many([

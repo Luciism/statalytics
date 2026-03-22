@@ -1,16 +1,25 @@
-import math
+from dataclasses import dataclass
 from typing import final
 
 from statalib import Mode, ModesEnum
 from statalib.sessions import BedwarsSession
-from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info 
+from statalib.hypixel import BedwarsStats, HypixelData, PlayerRank, get_rank_info 
+
+
+@dataclass
+class Milestone:
+    target_ratio: float
+    target_value: int
+    value_at_ratio: int
+    x_until_target_value: int
+    x_until_target_ratio: int
 
 
 @final
 class MilestonesStats(BedwarsStats):
     def __init__(
         self,
-        session_info: BedwarsSession,
+        session_info: BedwarsSession | None,
         hypixel_data: HypixelData,
         mode: Mode=ModesEnum.OVERALL.value 
     ) -> None:
@@ -22,74 +31,63 @@ class MilestonesStats(BedwarsStats):
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_player_data)
 
+        self.target_level = (self.level // 100 + 1) * 100
+        self.levels_until_target = self.target_level - self.level
 
-    def _calc_general_stats(self, key_1, key_2, ratio):
-        # FIXME: im genuinely disappointed in myself for writing this code
-        val_1 = self._bedwars_data.get(key_1, 0)
-        val_2 = self._bedwars_data.get(key_2, 0)
 
-        if val_1 == 0:
-            target_ratio = 1
-        elif val_2 > 0:
-            target_ratio = math.ceil(val_1 / val_2)
-        else:
-            target_ratio = int(val_1) + 1
+    def _calc_milestone(self, key_good: str, key_bad: str) -> Milestone:
+        value_good: int = self._bedwars_data.get(key_good, 0)
+        value_bad: int = self._bedwars_data.get(key_bad, 0)
+        current_ratio = value_good / (value_bad or 1)
 
-        if val_2 > 1:
-            val_1_at_ratio = int(val_2 * target_ratio)
-        elif target_ratio > 0:
-            val_1_at_ratio = int(val_1 / (target_ratio - 1 or 1) * target_ratio)
-        else:
-            val_1_at_ratio = 0
+        target_ratio = int(value_good / (value_bad or 1)) + 1
+        target_value = int(value_good / 1000 + 1) * 1000
 
-        val_1_until_ratio = val_1_at_ratio - val_1
+        value_at_ratio = round(value_good * target_ratio / current_ratio)
 
         if self.session is not None:
-            session_val_1 = val_1 - self.session.data.__dict__[key_1]
-            session_val_2 = val_2 - self.session.data.__dict__[key_2]
+            session_good: int = value_good - self.session.data.__dict__[key_good]
+            session_bad: int = value_bad - self.session.data.__dict__[key_bad]
+            session_ratio = (session_good or 1) / (session_bad or 1)
 
-            val_1_repitition = val_1_until_ratio / (session_val_1 or 1)
+            if session_good or session_bad:
+                d = (target_ratio * value_bad - value_good) / ((session_ratio - target_ratio) or 1)
+                value_at_ratio = round(value_good + session_ratio * d)
+                # value_bad_at_ratio = value_bad + d
 
-            new_val_2 = session_val_2 * val_1_repitition + val_2
 
-            if new_val_2 > 1:
-                val_1_at_ratio = int(new_val_2 * target_ratio)
-            elif target_ratio > 0:
-                val_1_at_ratio = val_1 / (target_ratio - 1 or 1) * target_ratio
-            else:
-                val_1_at_ratio = 0
+        x_until_target_value = target_value - value_good
+        x_until_target_ratio = value_at_ratio - value_good
 
-            val_1_until_ratio = val_1_at_ratio - val_1
+        return Milestone(
+            target_ratio=target_ratio,
+            target_value=target_value,
+            value_at_ratio=value_at_ratio,
+            x_until_target_value=x_until_target_value,
+            x_until_target_ratio=x_until_target_ratio
+        )
 
-        target_val_1 = (val_1 // 1000 + 1) * 1000
-        val_1_until_val_1 = target_val_1 - val_1
-
-        target_val_2 = (val_2 // 1000 + 1) * 1000
-        val_2_until_val_2 = target_val_2 - val_2
-
-        return f"{val_1_until_ratio:,}", f"{val_1_at_ratio:,}",\
-               f"{target_ratio:,} {ratio}",f"{val_1_until_val_1:,}",\
-                f"{target_val_1:,}", f"{int(val_2_until_val_2):,}", f"{int(target_val_2):,}"
-
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self.hypixel_player_data)
 
     def get_wins(self):
-        return self._calc_general_stats(
-            f'{self.mode.prefix}wins_bedwars', f'{self.mode.prefix}losses_bedwars', 'WLR')
+        return self._calc_milestone(
+            f'{self.mode.prefix}wins_bedwars', f'{self.mode.prefix}losses_bedwars')
 
 
     def get_finals(self):
-        return self._calc_general_stats(
-            f'{self.mode.prefix}final_kills_bedwars', f'{self.mode.prefix}final_deaths_bedwars', 'FKDR')
+        return self._calc_milestone(
+            f'{self.mode.prefix}final_kills_bedwars', f'{self.mode.prefix}final_deaths_bedwars')
 
 
     def get_beds(self):
-        return self._calc_general_stats(
-            f'{self.mode.prefix}beds_broken_bedwars', f'{self.mode.prefix}beds_lost_bedwars', 'BBLR')
+        return self._calc_milestone(
+            f'{self.mode.prefix}beds_broken_bedwars', f'{self.mode.prefix}beds_lost_bedwars')
 
 
     def get_kills(self):
-        return self._calc_general_stats(
-            f'{self.mode.prefix}kills_bedwars', f'{self.mode.prefix}deaths_bedwars', 'KDR')
+        return self._calc_milestone(
+            f'{self.mode.prefix}kills_bedwars', f'{self.mode.prefix}deaths_bedwars')
 
 
     def get_stars(self):

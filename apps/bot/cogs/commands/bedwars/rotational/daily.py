@@ -3,11 +3,12 @@ from datetime import datetime, timedelta, timezone
 
 import discord
 from discord.ext import commands
+from statalib import render2
 
 import helper
 import statalib as lib
 from statalib import rotational_stats as rotational
-from render.rotational import render_rotational
+from .render import RotationalStatsRenderer
 
 
 class DailyCommandsCog(commands.Cog):
@@ -18,10 +19,8 @@ class DailyCommandsCog(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(lib.config.loading_message())
-
         skin_model, hypixel_data = await asyncio.gather(
-            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_skin_model(uuid),
             lib.network.fetch_hypixel_data(uuid)
         )
 
@@ -39,7 +38,6 @@ class DailyCommandsCog(commands.Cog):
             return
 
         now = datetime.now(timezone(timedelta(hours=reset_time.utc_offset)))
-        formatted_date = now.strftime(f"%b {now.day}{lib.fmt.ordinal(now.day)}, %Y")
 
         if lib.rotational_stats.has_auto_reset_access(uuid):
             # i dont know why this works but it does so dont touch it
@@ -61,21 +59,31 @@ class DailyCommandsCog(commands.Cog):
                 lib.timezone_relative_timestamp(rotational_data.last_reset_timestamp))
             message = f':alarm_clock: Last reset <t:{timestamp}:R>'
 
-        await helper.interactions.handle_modes_renders(
-            interaction=interaction,
-            render_fn=render_rotational,
-            kwargs={
-                "name": name,
-                "uuid": uuid,
-                "tracker": "daily",
-                "relative_date": formatted_date,
-                "title": "Daily Stats",
-                "hypixel_data": hypixel_data,
-                "skin_model": skin_model,
-                "save_dir": interaction.id
-            },
-            message=message,
-            custom_view=helper.views.tracker_view()
+        renderer = RotationalStatsRenderer(
+            skin_model,
+            name,
+            uuid,
+            hypixel_data,
+            rotational.RotationType.DAILY,
+            lib.ModesEnum.OVERALL.value,
+        )
+        background_img = render2.backgrounds.load_background_for_user(
+            interaction.user.id, "rotational.daily"
+        )
+        img_bytes = await renderer.render_to_buffer(background_img)
+
+        await interaction.followup.send(
+            content=message,
+            files=[discord.File(img_bytes, filename="overall.png")],
+            view=helper.views.FractylModesView(
+                interaction_origin=interaction,
+                modes=lib.ModesEnum.non_dream_modes(),
+                background_img=background_img,
+                placeholder="Overall",
+                renderer=renderer,
+            ).add_item(
+                helper.views.info.RotationalResettingInfoButton.button()
+            )
         )
 
 
@@ -110,9 +118,6 @@ class DailyCommandsCog(commands.Cog):
             # today's reset has not occured yet
             if now.hour < reset_time.reset_hour:
                 relative_date -= timedelta(days=1)
-
-            formatted_date = relative_date.strftime(
-                f"%b {relative_date.day}{lib.fmt.ordinal(relative_date.day)}, %Y")
         except OverflowError:
             await interaction.followup.send('Big, big number... too big number...')
             return
@@ -131,24 +136,39 @@ class DailyCommandsCog(commands.Cog):
                 f'{lib.fmt.pluralize(days, "day")} ago!')
             return
 
-        await interaction.followup.send(lib.config.loading_message())
-
         skin_model, hypixel_data = await asyncio.gather(
-            lib.network.fetch_skin_model(uuid, 144),
+            lib.network.fetch_skin_model(uuid),
             lib.network.fetch_hypixel_data(uuid)
         )
 
-        await helper.interactions.handle_modes_renders(interaction, render_rotational, {
-            "name": name,
-            "uuid": uuid,
-            "tracker": "lastday",
-            "relative_date": formatted_date,
-            "title": f"{days} {lib.fmt.pluralize(days, 'Day')} Ago",
-            "hypixel_data": hypixel_data,
-            "skin_model": skin_model,
-            "save_dir": interaction.id,
-            "period_id": period_id
-        })
+        renderer = RotationalStatsRenderer(
+            skin_model,
+            name,
+            uuid,
+            hypixel_data,
+            period_id,
+            lib.ModesEnum.OVERALL.value,
+            periods_ago=days
+        )
+        background_img = render2.backgrounds.load_background_for_user(
+            interaction.user.id, "rotational.historical.daily"
+        )
+        img_bytes = await renderer.render_to_buffer(background_img)
+
+        await interaction.followup.send(
+            files=[discord.File(img_bytes, filename="overall.png")],
+            view=helper.views.FractylModesView(
+                interaction_origin=interaction,
+                modes=lib.ModesEnum.non_dream_modes(),
+                background_img=background_img,
+                placeholder="Overall",
+                renderer=renderer,
+            ).add_item(
+                helper.views.info.RotationalResettingInfoButton.button()
+            )
+        )
+
+
 
 
 async def setup(client: helper.Client) -> None:

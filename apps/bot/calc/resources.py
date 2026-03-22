@@ -1,13 +1,20 @@
+from dataclasses import dataclass
 from typing import final
 
 from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     BedwarsStats,
     HypixelData,
+    PlayerRank,
     get_rank_info,
     rround,
 )
 
+@dataclass
+class Resource:
+    collected: int
+    per_game: float
+    per_star: float
 
 @final
 class ResourcesStats(BedwarsStats):
@@ -18,6 +25,33 @@ class ResourcesStats(BedwarsStats):
 
         self.rank_info = get_rank_info(self._hypixel_player_data)
         self.level = int(self.level)
+
+        self.iron = Resource(
+            self.iron_collected,
+            self._per_game(self.iron_collected),
+            self._per_star(self.iron_collected),
+        )
+        self.gold = Resource(
+            self.gold_collected,
+            self._per_game(self.gold_collected),
+            self._per_star(self.gold_collected),
+        )
+        self.diamonds = Resource(
+            self.diamonds_collected,
+            self._per_game(self.diamonds_collected),
+            self._per_star(self.diamonds_collected),
+        )
+        self.emeralds = Resource(
+            self.emeralds_collected,
+            self._per_game(self.emeralds_collected),
+            self._per_star(self.emeralds_collected),
+        )
+
+    def _per_game(self, value: int) -> float:
+        return rround(value / (self.games_played or 1), 2)
+
+    def _per_star(self, value: int) -> float:
+        return rround(value / (self.level or 1), 2)
 
     def get_per_game(self):
         iron_per_game = rround(self.iron_collected / (self.games_played or 1), 2)
@@ -85,3 +119,6 @@ class ResourcesStats(BedwarsStats):
                 return_values.append(str(max(values, key=values.get, default="N/A")))
 
         return return_values
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

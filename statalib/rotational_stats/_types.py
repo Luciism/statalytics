@@ -16,8 +16,20 @@ class RotationType(Enum):
     @staticmethod
     def from_string(string: str) -> 'RotationType':
         """Convert a string to a rotational type."""
+        # ???
         attributes = {r.value: r.name for r in RotationType}
         return RotationType.__getattribute__(RotationType, attributes.get(string))
+
+    def singular_name(self) -> str:
+        match self:
+            case RotationType.DAILY:
+                return "day"
+            case RotationType.WEEKLY:
+                return "week"
+            case RotationType.MONTHLY:
+                return "month"
+            case RotationType.YEARLY:
+                return "year"
 
 
 class BedwarsRotation:

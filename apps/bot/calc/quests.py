@@ -4,6 +4,7 @@ from statalib.fmt import format_seconds
 from statalib.hypixel import (
     BedwarsStats,
     HypixelData,
+    PlayerRank,
     get_rank_info,
     Leveling,
     rround
@@ -62,6 +63,9 @@ class QuestStats(BedwarsStats):
         self._questless_hours_per_star = None
 
         self._real_exp = None
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)
 
     @property
     def real_exp(self):

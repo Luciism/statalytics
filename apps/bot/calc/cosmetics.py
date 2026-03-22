@@ -1,5 +1,5 @@
 from typing import final
-from statalib.hypixel import BedwarsData, HypixelData, get_rank_info, get_player_dict, Leveling
+from statalib.hypixel import BedwarsData, HypixelData, PlayerRank, get_rank_info, get_player_dict, Leveling
 
 
 @final
@@ -14,7 +14,11 @@ class ActiveCosmetics:
 
         def _get_cosmetic(key, replace) -> str:
             cosmetic: str = bedwars_data.get(key, 'none')
-            return cosmetic.replace(replace, '').replace('_', ' ').title()
+            formatted = cosmetic.replace(replace, '').replace('_', ' ').title()
+
+            if len(formatted) > 17:
+                formatted = formatted[:14] + '...'
+            return formatted
 
         self.shopkeeper_skin = _get_cosmetic('activeNPCSkin', 'npcskin_')
         self.projectile_trail = _get_cosmetic('activeProjectileTrail', 'projectiletrail_')
@@ -29,3 +33,11 @@ class ActiveCosmetics:
         self.kill_message = _get_cosmetic('activeKillMessages', 'killmessages_')
 
         self.rank_info = get_rank_info(self.hypixel_data)
+
+        self.total_cosmetics_owned = len(bedwars_data.get("packages", []))
+
+
+    def get_rank_info(self) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(self.name, self.hypixel_data)
+
+

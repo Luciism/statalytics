@@ -5,7 +5,6 @@ from datetime import UTC, datetime, timedelta
 from typing import final
 
 import discord
-import statalib as lib
 from discord.ext import commands, tasks
 from statalib.hypixel.lbs import LiveLeaderboardsRepo
 from statalib.hypixel.lbs.db import GuildLiveLeaderboard

@@ -145,10 +145,11 @@ def skin_from_file(skin_type: str='bust') -> bytes:
     with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
         return skin.read()
 
+FixedSkinModelSize = Literal["small", "regular", "large"]
 
 async def fetch_skin_model(
     uuid: PlayerUUID,
-    size: int,
+    size: int | FixedSkinModelSize="regular",
     style: SkinStyle='bust'
 ) -> bytes:
     """
@@ -160,6 +161,14 @@ async def fetch_skin_model(
     :param style: The skin style to use.
     :return bytes: The skin model as bytes.
     """
+    if isinstance(size, str):
+        BASE_SIZE = 322
+        size = {
+            "small": round(BASE_SIZE * 0.5),
+            "regular": BASE_SIZE,
+            "large": BASE_SIZE * 2
+        }[size]
+
     options = {
         'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
         'timeout': 5,

@@ -1,6 +1,6 @@
 from typing import final
 from statalib import ModesEnum
-from statalib.hypixel import BedwarsStats, HypixelData, get_rank_info, ratio
+from statalib.hypixel import BedwarsStats, HypixelData, PlayerRank, get_rank_info, ratio
 
 
 @final
@@ -15,20 +15,20 @@ class PracticeStats(BedwarsStats):
         self.level = int(self.level)
         self.rank_info = get_rank_info(self._hypixel_player_data)
 
-        self.bridging_completed = self._get_successes('bridging')
-        self.bridging_failed = self._get_fails('bridging')
+        self.bridging_completed: int = self._get_successes('bridging')
+        self.bridging_failed: int = self._get_fails('bridging')
         self.bridging_ratio = ratio(self.bridging_completed, self.bridging_failed)
 
-        self.tnt_completed = self._get_successes('fireball_jumping')
-        self.tnt_failed = self._get_fails('fireball_jumping')
+        self.tnt_completed: int = self._get_successes('fireball_jumping')
+        self.tnt_failed: int = self._get_fails('fireball_jumping')
         self.tnt_ratio = ratio(self.tnt_completed, self.tnt_failed)
 
-        self.mlg_completed = self._get_successes('mlg')
-        self.mlg_failed = self._get_fails('mlg')
+        self.mlg_completed: int = self._get_successes('mlg')
+        self.mlg_failed: int = self._get_fails('mlg')
         self.mlg_ratio = ratio(self.mlg_completed, self.mlg_failed)
 
-        self.pearl_completed = self._get_successes('pearl_clutching')
-        self.pearl_failed = self._get_fails('pearl_clutching')
+        self.pearl_completed: int = self._get_successes('pearl_clutching')
+        self.pearl_failed: int = self._get_fails('pearl_clutching')
         self.pearl_ratio = ratio(self.pearl_completed, self.pearl_failed)
 
         self.straight_short_record = self._pretty_record('30', 'NONE', 'STRAIGHT')
@@ -46,7 +46,7 @@ class PracticeStats(BedwarsStats):
 
 
     @property
-    def blocks_placed(self):
+    def blocks_placed(self) -> int:
         if self._blocks_placed is None:
             bridging_blocks = self.practice_stats.get('bridging', {}).get('blocks_placed', 0)
             tnt_blocks = self.practice_stats.get('fireball_jumping', {}).get('blocks_placed', 0)
@@ -64,6 +64,16 @@ class PracticeStats(BedwarsStats):
                 self.mlg_failed, self.pearl_completed, self.pearl_failed
             ))
         return self._total_attempts
+
+    @property
+    def success_rate(self) -> int:
+        if self.total_attempts == 0:
+            return 0
+
+        total_fails = self.bridging_failed + self.tnt_failed + self.mlg_failed + self.pearl_failed
+        total_successes = self.total_attempts - total_fails
+
+        return round(total_successes / self.total_attempts * 100)
 
 
     def _get_successes(self, mode: str):
@@ -103,3 +113,6 @@ class PracticeStats(BedwarsStats):
         if total_time == 0:
             return 'N/A'
         return f'{round(total_distance / total_time, 2):,}m/s'
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

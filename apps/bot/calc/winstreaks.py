@@ -32,3 +32,6 @@ class WinstreakStats(hypixel.BedwarsStats):
             return 'N/A'
 
         return f'{value:,}'
+
+    def get_rank_info(self, username: str) -> hypixel.PlayerRank:
+        return hypixel.PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

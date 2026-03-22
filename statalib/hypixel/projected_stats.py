@@ -1,5 +1,6 @@
 """Wrapper for projected hypixel bedwars stats."""
 
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from ..aliases import HypixelData
@@ -8,6 +9,13 @@ from ..common import Mode, ModesEnum
 from .cumulative_stats import CumulativeStats
 from .utils import ratio, rround
 
+@dataclass
+class TargetLevel:
+    value: float
+
+@dataclass
+class TargetDate:
+    value: datetime
 
 class ProjectedStats(CumulativeStats):
     """Wrapper for projected hypixel bedwars stats."""
@@ -15,8 +23,7 @@ class ProjectedStats(CumulativeStats):
         self,
         hypixel_data: HypixelData,
         session_info: BedwarsSession,
-        target_level: float | None=None,
-        target_date: datetime | None=None,
+        target: TargetDate | TargetLevel,
         gamemode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         """
@@ -30,9 +37,6 @@ class ProjectedStats(CumulativeStats):
         :param target_date: The target date to project the stats for.
         :param gamemode: The mode to calculate stats for (overall, solos, etc).
         """
-        # Ensure either target_level or target_date was provided
-        assert (target_level, target_date).count(None) == 1
-
         super().__init__(hypixel_data, session_info.data, gamemode)
 
         now = datetime.now(UTC)
@@ -43,12 +47,14 @@ class ProjectedStats(CumulativeStats):
 
         self.levels_per_day: float = ratio(self.levels_cum, self.session_duration_days)
 
-        if target_level is None:
+        if isinstance(target, TargetDate):
+            target_date = target.value
             self.days_to_go: int = (target_date - now).days or 1
 
             target_level = self.level + (self.levels_per_day * self.days_to_go)
             self.levels_to_go: float = target_level - self.level
         else:
+            target_level = target.value
             self.levels_to_go = target_level - self.level
             days_per_level_gained = self.session_duration_days / (self.levels_cum or 1)
 
@@ -59,10 +65,11 @@ class ProjectedStats(CumulativeStats):
             except OverflowError:
                 target_date = None
 
-        self.target_level: float | None = target_level
+        self.target_level: float = target_level
         self.target_date: datetime | None = target_date
 
         self.complete_percent: str = f"{round((self.level / (target_level or 1)) * 100, 2)}%"
+        self.complete_percentage: float = round((self.level / (target_level or 1)) * 100, 2)
 
 
         self.wins_projected: int = self._calc_projection(self.wins, self.wins_cum)

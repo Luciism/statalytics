@@ -95,6 +95,7 @@ class BedwarsStats:
         )
 
         self.coins: int = self._bedwars_data.get("coins", 0)
+        self.tokens: int = self.coins
 
         self.slumber_tickets: int = self._bedwars_data.get("slumber", {}).get("tickets", 0)
 

@@ -444,11 +444,6 @@
       "name": "hypixel",
       "description": "View the live status of hypixel as well as latency metrics.",
       "parent": "status"
-    },
-    {
-      "id": "bedwars_stats_proto",
-      "description": "Prototype of fractyl renderer.",
-      "arguments": ["player"]
     }
   ]
 }

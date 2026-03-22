@@ -1,5 +1,6 @@
 from . import info
 from .modes import ModesView
+from .fractyl_modes import FractylModesView
 from .premium import PremiumInfoView
 from .trackers import tracker_view
 from .paginate import PaginationView
@@ -12,6 +13,7 @@ __all__ = [
     "PaginationView",
     "CustomBaseView",
     "CustomBaseModal",
-    "info"
+    "info",
+    "FractylModesView"
 ]
 

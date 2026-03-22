@@ -5,6 +5,7 @@ from statalib import Mode, ModesEnum
 from statalib.hypixel import (
     CumulativeStats,
     HypixelData,
+    PlayerRank,
     get_rank_info,
     rround
 )
@@ -32,12 +33,21 @@ class SessionStats(CumulativeStats):
         self.rank_info = get_rank_info(self._hypixel_player_data)
 
         self.level = int(self.level)
-        self.stars_gained = f'{rround(self.levels_cum, 2):,}'
+        self.stars_gained = rround(self.levels_cum, 2)
 
         created_at = datetime.fromtimestamp(self.session.creation_timestamp, UTC)
         self.date_started = str(created_at.strftime("%d/%m/%Y"))
 
         self.winspd, self.finalspd, self.bedspd, self.starspd = self._get_per_day()
+
+        current_time = datetime.now(UTC)
+        session_date = datetime.fromtimestamp(self.session.creation_timestamp, UTC)
+        days = (current_time - session_date).days
+
+        self.wins_per_day = rround(self.wins_cum / (days or 1), 2)
+        self.final_kills_per_day = rround(self.final_kills_cum / (days or 1), 2)
+        self.beds_broken_per_day = rround(self.beds_broken_cum / (days or 1), 2)
+        self.stars_gained_per_day = rround(self.levels_cum / (days or 1), 2)
 
 
     def _get_per_day(self):
@@ -51,3 +61,6 @@ class SessionStats(CumulativeStats):
         starspd = rround(self.levels_cum / (days or 1), 2)
 
         return f'{winspd:,}', f'{finalspd:,}', f'{bedspd:,}', f'{starspd:,}'
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self._hypixel_player_data)

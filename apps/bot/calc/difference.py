@@ -1,6 +1,6 @@
 from typing import final
 from statalib.fmt import prefix_int
-from statalib.hypixel import CumulativeStats, HypixelData, get_rank_info, ratio
+from statalib.hypixel import CumulativeStats, HypixelData, PlayerRank, get_rank_info, ratio
 from statalib import Mode, ModesEnum, rotational_stats as rotational
 
 
@@ -14,6 +14,8 @@ class DifferenceStats(CumulativeStats):
         mode: Mode=ModesEnum.OVERALL.value
     ) -> None:
         rotation_type = rotational.RotationType.from_string(tracker)
+        self.rotation_type = rotation_type
+
         bedwars_stats_snapshot = rotational.RotationalStatsManager(uuid) \
             .get_rotational_data(rotation_type)
 
@@ -44,3 +46,8 @@ class DifferenceStats(CumulativeStats):
     def _ratio_diff(self, old_ratio: float, new_ratio: float):
         ratio_diff = round(new_ratio - old_ratio, 2)
         return f'({prefix_int(ratio_diff)})'
+
+
+    def get_rank_info(self, username: str) -> PlayerRank:
+        return PlayerRank.from_hypixel_data(username, self.hypixel_player_data)
+

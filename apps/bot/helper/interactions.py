@@ -1,16 +1,19 @@
 import asyncio
 import logging
 import os
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Protocol
+from collections.abc import Coroutine, Awaitable, Sequence
+import typing
 
 import discord
 import mcfetch
 import statalib as lib
 from aiohttp import ClientConnectionError, ContentTypeError
-from discord import Embed, Interaction, app_commands
+from discord import Embed, Interaction, InteractionMessage, app_commands
 from statalib.accounts import Account
 from statalib.accounts.linking import LinkingOutcomeEnum
 from statalib.common import Mode, ModesEnum
+from statalib.hypixel import HypixelData
 
 from .embeds import Embeds
 from .tips import random_tip_message
@@ -126,12 +129,23 @@ async def linking_interaction(
     # Player not linked embed
     await interaction.followup.send(embed=Embeds.problems.linking_error())
 
+class DiscordInteractionCallable(Protocol):
+    def __call__(
+        self,
+        *,
+        content: str | None = ...,
+        embeds: Sequence[Embed] = ...,
+        embed: Embed | None = ...,
+        attachments: Sequence[discord.Attachment | discord.File] = ...,
+        view: discord.ui.View | None = ...,
+        allowed_mentions: discord.AllowedMentions | None = None,
+    ) -> Coroutine[typing.Any, typing.Any, InteractionMessage]: ...
 
 async def find_dynamic_session_interaction(
-    interaction_callback: Callable[[str], None],
+    interaction_callback: DiscordInteractionCallable,
     username: lib.aliases.PlayerName,
     uuid: lib.aliases.PlayerUUID,
-    hypixel_data: dict,
+    hypixel_data: HypixelData,
     session: int | None = None,
 ) -> lib.sessions.BedwarsSession:
     """
@@ -155,12 +169,12 @@ async def find_dynamic_session_interaction(
         if session_count == 0:
             session_manager.create_session(session_id=1, hypixel_data=hypixel_data)
 
-            await interaction_callback(
+            _ = await interaction_callback(
                 content=f"**{lib.fmt.fname(username)}** has no active sessions so one was created!"
             )
             raise lib.errors.SessionNotFoundError
 
-        await interaction_callback(
+        _ = await interaction_callback(
             content=f"**{lib.fmt.fname(username)}** doesn't have an active session with ID: `{session}`!"
         )
         raise lib.errors.SessionNotFoundError

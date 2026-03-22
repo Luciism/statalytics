@@ -1,6 +1,6 @@
 """Utility functions for calculating bedwars stats."""
 
-from typing import Literal
+from typing import Literal, overload
 from typing_extensions import deprecated
 
 from ..aliases import BedwarsData, HypixelData, HypixelPlayerData
@@ -159,8 +159,12 @@ def rround(number: float | int, ndigits: int = 0) -> float | int:
         rounded = int(rounded)
     return rounded
 
+@overload
+def add_suffixes(arg: int | float) -> str: ...
+@overload
+def add_suffixes(*args: int | float) -> list[str]: ...
 
-def add_suffixes(*args: int) -> list[str] | str:
+def add_suffixes(*args: int | float) -> list[str] | str:
     """
     Add suffixes to the end of large numbers to approximate them.
 
@@ -171,10 +175,10 @@ def add_suffixes(*args: int) -> list[str] | str:
     for value in args:
         for num, suffix in NUM_SUFFIXES_MAP.items():
             if value >= num:
-                fmt_value: str = f"{value/num:,.1f}{suffix}"
+                fmt_value = f"{value/num:,.1f}{suffix}"
                 break
         else:
-            fmt_value: str = f"{rround(value, 2):,}"
+            fmt_value = f"{rround(value, 2):,}"
         formatted_values.append(fmt_value)
 
     return formatted_values[0] if len(formatted_values) == 1 else formatted_values

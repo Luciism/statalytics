@@ -144,11 +144,11 @@ class PrestigeColors:
     @staticmethod
     def _single_prestige_color_gradient(color: PrestigeColorSingle):
         rgbs = [
-            tuple([int(c * (1 - 0.125 * 6)) for c in color.value.rgb]),
-            tuple([int(c * (1 - 0.125 * 5)) for c in color.value.rgb]),
-            tuple([int(c * (1 - 0.125 * 4)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 3.5)) for c in color.value.rgb]),
             tuple([int(c * (1 - 0.125 * 3)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 2.5)) for c in color.value.rgb]),
             tuple([int(c * (1 - 0.125 * 2)) for c in color.value.rgb]),
+            tuple([int(c * (1 - 0.125 * 1.5)) for c in color.value.rgb]),
             tuple([int(c * (1 - 0.125 * 1)) for c in color.value.rgb]),
             color.value.rgb
         ]
