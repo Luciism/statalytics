@@ -78,7 +78,7 @@ textures_server_cape_url_template = "{textures_server}/texture/{texture_id}"
 # The contact information will be appended to the User-Agent header with the following format:
 # "NMSR-as-a-Service/{version} ({contact_info})"
 # Where {version} is the git commit hash of the running instance, and {contact_info} is the contact information you provide here
-# contact_info = ""
+contact_info = "NMSR-as-a-Service/948ba4bc027b7a5a67d583b98982c1f95ddb3645 (Statalytics contact@statalytics.net)"
 
 # Rendering configuration.
 # This is used when setting up the rendering engine.
