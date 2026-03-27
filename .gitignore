@@ -8,6 +8,7 @@
 # Secrets
 **/.env*
 !.env.example
+!.env.test
 apps/bot/tips.json
 
 # Private apps
