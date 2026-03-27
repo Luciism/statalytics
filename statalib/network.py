@@ -9,7 +9,6 @@ from typing import Literal
 from os import getenv
 from json import JSONDecodeError
 from http.client import RemoteDisconnected
-import typing
 
 from requests import ReadTimeout, ConnectTimeout
 from aiohttp import ClientSession, ContentTypeError
