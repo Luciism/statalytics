@@ -6,20 +6,8 @@ authors = [
     {name = "Luciism"}
 ]
 package-mode = false
-requires-python = "^3.11"
-dependencies = [
-    "mcfetch (==2.1.3)",
-    "discord.py (==2.4.0)",
-    "Pillow (==10.3.0)",
-    "python-dateutil (==2.8.2)",
-    "python-dotenv (==1.0.0)"
-]
-
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
+requires-python = ">=3.11"
+dependencies = []
 
 [tool.pyright]
 reportMissingTypeStubs = false

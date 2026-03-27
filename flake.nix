@@ -5,7 +5,7 @@
       "github:NixOS/nixpkgs/d98abf5cf5914e5e4e9d57205e3af55ca90ffc1d";
   };
 
-  outputs = { self, nixpkgs, poetry2nix, ... }@inputs:
+  outputs = { self, nixpkgs, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -26,7 +26,13 @@
               fi
               source $PRJ_ROOT/.venv/bin/activate
 
-              uv sync
+              PWD="$(pwd)"
+
+              if [ "$DEPENDENCY_GROUP" ]; then
+                uv sync --active --group="$DEPENDENCY_GROUP" --directory=$PWD
+              else 
+                uv sync --active --directory=$PWD
+              fi
               clear
 
             if [ "$OPEN_NVIM" = "true" ]; then
