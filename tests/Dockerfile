@@ -7,8 +7,9 @@ FROM base AS deps
 
 WORKDIR /app
 
-COPY ./statalib/requirements.txt statalib/requirements.txt
-RUN pip install -r statalib/requirements.txt
+RUN pip install uv
+COPY ./pyproject.toml ./uv.lock ./
+RUN uv sync --group=tests --frozen
 
 
 FROM deps AS builder
@@ -17,11 +18,11 @@ COPY ./assets/ assets/
 COPY ./statalib/ statalib/
 COPY ./tests/ tests/
 COPY ./run_tests.py ./
-COPY ./config.json ./config.dev.json ./schema.sql ./
+COPY ./config.json ./config.dev.json ./schema.sql ./commands.json ./
 
 
 FROM builder AS runner
 
 WORKDIR /app/
 
-ENTRYPOINT [ "python3", "run_tests.py" ]
+ENTRYPOINT [ "/app/.venv/bin/python3", "run_tests.py" ]

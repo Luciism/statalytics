@@ -55,6 +55,11 @@ utils = [
     "python-dotenv==1.0.0"
 ]
 
+tests = [
+    { include-group = "statalib" },
+    "python-dotenv==1.0.0",
+]
+
 all = [
     { include-group = "statalib" },
     { include-group = "bot" },
