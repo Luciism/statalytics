@@ -24,7 +24,7 @@ class QuickBuyCommandCog(commands.Cog):
         await interaction.followup.send(lib.config.loading_message())
 
         skin_model, hypixel_data = await asyncio.gather(
-            lib.network.fetch_skin_model(uuid, 252, style="full"),
+            lib.network.fetch_skin_model(uuid, style="fullbody"),
             lib.network.fetch_hypixel_data(uuid),
         )
         hypixel_data = await lib.network.fetch_hypixel_data(uuid)

@@ -4,15 +4,17 @@ Module for handling API requests to Hypixel as well as skin model fetching.
 
 import asyncio
 import logging
-from typing import Any, Literal
+import os
+from typing import Literal
 from os import getenv
 from json import JSONDecodeError
 from http.client import RemoteDisconnected
+import typing
 
-from aiohttp_client_cache.response import CachedResponse
 from requests import ReadTimeout, ConnectTimeout
-from aiohttp import ClientError, ClientSession, ContentTypeError
-from aiohttp_client_cache import CachedSession, SQLiteBackend
+from aiohttp import ClientSession, ContentTypeError
+from aiohttp_client_cache import SQLiteBackend
+from aiohttp_client_cache.session import CachedSession
 
 from .cfg import config
 from .common import REL_PATH
@@ -34,15 +36,14 @@ mojang_session = SQLiteBackend(
 
 
 SkinStyle = Literal[
-    'face', 'front', 'frontfull', 'head',
-    'bust', 'full', 'skin', 'processedskin'
+    "fullbody", "bust", "frontfull", "fullbodyiso", "head", "face", "headiso", "skin"
 ]
 
 
 async def __make_hypixel_request(
     session: ClientSession | CachedSession,
     uuid: str
-) -> dict:
+) -> HypixelData:
     api_key = getenv('API_KEY_HYPIXEL')
 
     options = {
@@ -56,7 +57,7 @@ async def __make_hypixel_request(
     hypixel_data = await res.json()
 
     # reset trackers using the data if they are due
-    asyncio.ensure_future(
+    _ = asyncio.ensure_future(
         async_reset_rotational_stats_if_whitelisted(uuid, hypixel_data)
     )
 
@@ -107,8 +108,8 @@ async def fetch_hypixel_data_rate_limit_safe(
     cached_session: SQLiteBackend = stats_session,
     retries: int = 3,
     retry_delay: int = 5,
-    attempts=5,
-    attempt_delay=20
+    attempts: int=5,
+    attempt_delay: int=20
 ) -> HypixelData:
     """
     Rate limit safe version of `~fetch_hypixel_data()`.
@@ -129,7 +130,7 @@ async def fetch_hypixel_data_rate_limit_safe(
         if not hypixel_data.get('success') and hypixel_data.get('throttle'):
             if attempt < attempts:
                 logger.warning(
-                    'We are being rate limited by hypixel. '
+                    'We are being rate limited by hypixel. ' +
                     f'Retrying in {attempt_delay} seconds...')
                 await asyncio.sleep(attempt_delay)
             else:
@@ -145,11 +146,10 @@ def skin_from_file(skin_type: str='bust') -> bytes:
     with open(f'{REL_PATH}/assets/steve_{skin_type}.png', 'rb') as skin:
         return skin.read()
 
-FixedSkinModelSize = Literal["small", "regular", "large"]
+SKIN_API_HOSTNAME = os.getenv("SKIN_API_HOSTNAME")
 
 async def fetch_skin_model(
     uuid: PlayerUUID,
-    size: int | FixedSkinModelSize="regular",
     style: SkinStyle='bust'
 ) -> bytes:
     """
@@ -157,20 +157,11 @@ async def fetch_skin_model(
     If something goes wrong, a steve skin will returned.
 
     :param uuid: The player UUID of the respective player.
-    :param size: The image size in pixels.
     :param style: The skin style to use.
     :return bytes: The skin model as bytes.
     """
-    if isinstance(size, str):
-        BASE_SIZE = 322
-        size = {
-            "small": round(BASE_SIZE * 0.5),
-            "regular": BASE_SIZE,
-            "large": BASE_SIZE * 2
-        }[size]
-
     options = {
-        'url': f'https://visage.surgeplay.com/{style}/{size}/{uuid}',
+        'url': f'{SKIN_API_HOSTNAME}/{style}/{uuid}',
         'timeout': 5,
         'headers': {
             'User-Agent': f'Statalytics {config("apps.bot.version")}'
@@ -185,6 +176,4 @@ async def fetch_skin_model(
     # except (ReadTimeout, ConnectTimeout, TimeoutError, asyncio.TimeoutError):
     except Exception:  # shit just wasnt working idk why
         return skin_from_file()
-
-
 

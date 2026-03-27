@@ -1,0 +1,89 @@
+# Server configuration.
+[server]
+# The address to bind the server to.
+address = "0.0.0.0"
+# The port to bind the server to.
+port = 8080
+
+
+# Tracing configuration.
+#[tracing]
+# The OpenTelemetry endpoint to send traces to.
+#endpoint = "http://127.0.0.1:4317"
+# The service name to use for traces. (Optional, defaults to "nmsr-aas")
+#service_name = "nmsr-aas"
+
+
+# Caching configuration.
+[caching]
+# The interval of time to run the cleanup task.
+# This task will remove any files in the cache that are older than the image cache expiry.
+# This task will run on startup, and then every time the interval has passed.
+cleanup_interval = "1h"
+
+# How long it takes to expire the cache of the resolved models
+# This cache is used to prevent the same uuid from being resolved multiple times in a short period of time.
+# Setting this to a big value will reduce the amount of requests to the Mojang API, but will increase the time
+# it takes to update the skin for a player.
+# This value is also used for the Cache-Control header age for the skin requests.
+resolve_cache_duration = "15m"
+
+# The duration of time to keep a texture in the cache.
+# This is effectively for how long to cache the player's skin, cape and other textures
+# even if the player's UUID wasn't requested for some time.
+texture_cache_duration = "48h"
+
+# Cache biases for specific entries.
+# A cache bias is a duration of time to keep a specific entry in the cache.
+# This is useful for entries that are requested often, such as the models in the home page.
+# Example:
+#
+# [cache_biases]
+# # Cache NickAc's skin for 2h:
+# ad4569f3-7576-4376-a7c7-8e8cfcd9b832 = "2h"
+#
+# # Cache one of Koide's skins indefinitely:
+# 7c7e2befcd4bb8af1c970ec80d585a76bfb23d62c4c82126cd86548beaa695f7 = "CacheIndefinitely"
+[caching.cache_biases]
+
+
+# Mojank configuration (Mojang API and Geyser API).
+[mojank]
+# The URL to the Mojang API's session server.
+# This can be useful if you want to use a caching proxy for the Mojang API and is used to
+# get the game profile for a player based on their uuid.
+session_server = "https://sessionserver.mojang.com"
+# The URL to the Mojang API's textures server.
+textures_server = "https://textures.minecraft.net"
+# The URL to the Mojang API's textures server.
+mojang_api_server = "https://api.mojang.com"
+# The rate limit to use for requests to the session server in a 1 second window.
+session_server_rate_limit = 10
+# The URL to the Geyser API's server.
+# This is used to get the bedrock skin for a player based on their Floodgate UUID.
+geysermc_api_server = "https://api.geysermc.org"
+# Whether to enable the offline-mode UUIDs.
+# By enabling this, offline mode UUIDs (version 3) will be allowed.
+allow_offline_mode_uuids = false
+# Whether to use dashless UUIDs when requesting the Mojang API.
+# By enabling this, the UUIDs will be sent to the Mojang API without dashes.
+use_dashless_uuids = false
+# The template to use for the player skin textures URL.
+textures_server_skin_url_template = "{textures_server}/texture/{texture_id}"
+# The template to use for the player cape textures URL.
+textures_server_cape_url_template = "{textures_server}/texture/{texture_id}"
+
+# If you are self-hosting an instance that you run in production, you should fill this information.
+# This is used to provide contact information in the headers of outgoing requests to the various APIs.
+# The contact information will be appended to the User-Agent header with the following format:
+# "NMSR-as-a-Service/{version} ({contact_info})"
+# Where {version} is the git commit hash of the running instance, and {contact_info} is the contact information you provide here
+# contact_info = ""
+
+# Rendering configuration.
+# This is used when setting up the rendering engine.
+[rendering]
+# # The number of MSAA samples to use when rendering.
+sample_count = 1
+# # Whether to use SMAA (Anti-Aliasing) when rendering.
+use_smaa = true

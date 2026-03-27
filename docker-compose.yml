@@ -55,6 +55,12 @@ services:
       - "${WEBSITE_PORT}:443"
     restart: unless-stopped
 
+  skins:
+    build:
+      context: ./apps/skins/
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+
   redis:
     image: redis:8.2.1-alpine
     env_file:

@@ -15,7 +15,7 @@ class SkinCommandCog(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        image_bytes = await lib.network.fetch_skin_model(uuid, size=256, style='full')
+        image_bytes = await lib.network.fetch_skin_model(uuid, style='fullbody')
 
         embed = helper.Embeds.misc.player_skin(lib.fmt.fname(name), uuid)
 
