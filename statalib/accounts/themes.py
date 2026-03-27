@@ -1,7 +1,7 @@
 """Account themes related functionality."""
 
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 from ..cfg import config
 from ..db import Cursor, ensure_cursor
@@ -11,16 +11,23 @@ from ..errors import ThemeNotFoundError
 @dataclass
 class Theme:
     """Respresents a theme."""
-
     id: str
     "The unique ID of the theme."
     name: str
     "The display name of the theme."
     dynamic_color: bool
     "Whether the theme supports dynamic coloring."
+    types: list[Literal["legacy", "fractyl"]]
+    "The rendinerg systems that this theme supports."
+
+    def is_legacy(self) -> bool:
+        return "legacy" in self.types
+
+    def is_fractyl(self) -> bool:
+        return "fractyl" in self.types
 
 
-DEFAULT_THEME = Theme(id="none", name="None", dynamic_color=False)
+DEFAULT_THEME = Theme(id="none", name="None", dynamic_color=False, types=["legacy", "fractyl"])
 
 
 def get_theme_by_id(theme_id: str) -> Theme:
@@ -39,7 +46,7 @@ def get_theme_by_id(theme_id: str) -> Theme:
         if theme is None:
             raise ThemeNotFoundError("The specified theme does not exist!")
 
-    return Theme(theme_id, theme["display_name"], theme["dynamic_color"])
+    return Theme(theme_id, theme["display_name"], theme["dynamic_color"], theme["types"])
 
 
 def get_voter_themes() -> list[Theme]:
@@ -47,7 +54,7 @@ def get_voter_themes() -> list[Theme]:
     themes: dict[str, dict[str, Any]] = config("global.theme_packs.voter_themes")
 
     return [
-        Theme(theme_id, props["display_name"], props["dynamic_color"])
+        Theme(theme_id, props["display_name"], props["dynamic_color"], props["types"])
         for theme_id, props in themes.items()
     ]
 
@@ -57,7 +64,7 @@ def get_exclusive_themes() -> list[Theme]:
     themes: dict[str, dict[str, Any]] = config("global.theme_packs.exclusive_themes")
 
     return [
-        Theme(theme_id, props["display_name"], props["dynamic_color"])
+        Theme(theme_id, props["display_name"], props["dynamic_color"], props["types"])
         for theme_id, props in themes.items()
     ]
 
@@ -76,6 +83,7 @@ class ThemesData:
     "A list of the user's owned themes."
     active_theme: Theme | None
     "The user's active theme."
+
 
 
 class AccountThemes:

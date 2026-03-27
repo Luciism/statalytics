@@ -1,4 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+import typing
+from typing_extensions import override
 
 import discord
 from discord import app_commands
@@ -20,11 +22,12 @@ HOURS = [
 MINUTES = [0, 15, 30, 45]
 
 
-class ActiveThemeSelect(discord.ui.Select):
+class ActiveThemeSelect(discord.ui.Select[typing.Any]):
     def __init__(self, options: list[discord.SelectOption]):
         super().__init__(
             placeholder='Select Theme', max_values=1, min_values=1, options=options)
 
+    @override
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
@@ -36,12 +39,13 @@ class ActiveThemeSelect(discord.ui.Select):
         await interaction.followup.send('Theme updated successfully!', ephemeral=True)
 
 
-class _ResetTimeSelectBase(discord.ui.Select):
+class _ResetTimeSelectBase(discord.ui.Select[typing.Any], ABC):
     def __init__(self, options: list[discord.SelectOption], placeholder: str):
         super().__init__(
             placeholder=placeholder,
             max_values=1, min_values=1, options=options)
 
+    @override
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await helper.interactions.run_interaction_checks(interaction)
@@ -57,6 +61,7 @@ class _ResetTimeSelectBase(discord.ui.Select):
     ) -> str: ...
 
 class UTCOffsetSelect(_ResetTimeSelectBase):
+    @override
     def make_updates(
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
@@ -64,6 +69,7 @@ class UTCOffsetSelect(_ResetTimeSelectBase):
         return f'Timezone updated to **GMT{lib.fmt.prefix_int(selection)}:00**'
 
 class ResetHourSelect(_ResetTimeSelectBase):
+    @override
     def make_updates(
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
@@ -72,6 +78,7 @@ class ResetHourSelect(_ResetTimeSelectBase):
         return f'Reset time updated to **{fmted_time}**.'
 
 class ResetMinuteSelect(_ResetTimeSelectBase):
+    @override
     def make_updates(
         self, manager: rotational.ConfiguredResetTimeManager, selection: int
     ) -> str:
@@ -85,29 +92,32 @@ class SettingsSelectView(helper.views.CustomBaseView):
         self,
         interaction: discord.Interaction,
         *,
-        timeout=300
+        timeout: int=300
     ) -> None:
         super().__init__(timeout=timeout)
-        self.interaction = interaction
+        self.interaction: discord.Interaction = interaction
 
 
+    @override
     async def on_timeout(self) -> None:
         for child in self.children:
-            child.disabled = True
+            if isinstance(child, (discord.ui.Button, discord.ui.Select)):
+                child.disabled = True
 
         try:
-            await self.interaction.edit_original_response(view=self)
+            _ = await self.interaction.edit_original_response(view=self)
         except discord.errors.NotFound:
             pass
 
 
 class LinkAccountModal(helper.views.CustomBaseModal, title='Link Account'):
-    player = discord.ui.TextInput(
+    player: discord.ui.TextInput[typing.Self] = discord.ui.TextInput(
         label='Player',
         placeholder='Statalytics',
         style=discord.TextStyle.short
     )
 
+    @override
     async def on_submit(self, interaction: discord.Interaction):
         await helper.interactions.linking_interaction(interaction, str(self.player))
 
@@ -115,14 +125,16 @@ class LinkAccountModal(helper.views.CustomBaseModal, title='Link Account'):
 class SettingsButtons(helper.views.CustomBaseView):
     def __init__(self, interaction: discord.Interaction) -> None:
         super().__init__(timeout=300)
-        self.interaction = interaction
+        self.interaction: discord.Interaction = interaction
 
+    @override
     async def on_timeout(self) -> None:
         for child in self.children:
-            child.disabled = True
+            if isinstance(child, (discord.ui.Button, discord.ui.Select)):
+                child.disabled = True
 
         try:
-            await self.interaction.edit_original_response(view=self)
+            _ = await self.interaction.edit_original_response(view=self)
         except discord.errors.NotFound:
             pass
 
@@ -146,6 +158,11 @@ class SettingsButtons(helper.views.CustomBaseView):
         # owned exclusive themes
         for owned_theme in owned_themes:
             available_themes[owned_theme.id] = theme_packs['exclusive_themes'][owned_theme.id]
+
+        # Allow only fractyl themes
+        available_themes = {
+            k: v for k, v in available_themes.items() if 'fractyl' in v['types']
+        }
 
         options = [
             discord.SelectOption(label=properties.get('display_name'), value=name)

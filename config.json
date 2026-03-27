@@ -250,45 +250,100 @@
       "voter_themes": {
         "none": {
           "display_name": "None",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "color_sync_fusion": {
           "display_name": "High Contrast",
-          "dynamic_color": true
+          "dynamic_color": true,
+          "types": ["legacy"]
         },
         "cold_feet": {
           "display_name": "Cold Feet",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "crystal_dawn": {
           "display_name": "Crystal Dawn",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "mooner_eclipse": {
           "display_name": "Mooner Eclipse",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "blue_retreat": {
           "display_name": "Blue Retreat",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "technoblade": {
           "display_name": "The Blood God",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["fractyl", "legacy"]
+        },
+        "blossom": {
+          "display_name": "Blossom",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "retirement_village": {
+          "display_name": "Retirement Village",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "rising_moon": {
+          "display_name": "Bad Moon Rising",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "aurora_peaks": {
+          "display_name": "Aurora Peaks",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "deep_blue": {
+          "display_name": "Deep Blue",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "morning_gradients": {
+          "display_name": "Morning Gradients",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "framed_horizon": {
+          "display_name": "Framed Horizon",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "enchanted_forest": {
+          "display_name": "Enchanted Forest",
+          "dynamic_color": false,
+          "types": ["fractyl"]
+        },
+        "the_nook": {
+          "display_name": "The Nook",
+          "dynamic_color": false,
+          "types": ["fractyl"]
         }
       },
       "exclusive_themes": {
         "summer_2023": {
           "display_name": "Summer Exclusive 2023",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy"]
         },
         "mono": {
           "display_name": "Grayscale",
-          "dynamic_color": false
+          "dynamic_color": false,
+          "types": ["legacy", "fractyl"]
         },
         "mosaic": {
           "display_name": "Mosiac",
-          "dynamic_color": true
+          "dynamic_color": true,
+          "types": ["legacy"]
         }
       }
     },
