@@ -72,8 +72,7 @@ class WinstreaksCommandCog(commands.Cog):
         )
 
         renderer = WinstreakStatsRenderer(skin_model, name, hypixel_data)
-
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "winstreaks")
+        background_img = renderer.bg(interaction.user.id, "winstreaks", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

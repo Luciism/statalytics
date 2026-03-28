@@ -3,7 +3,9 @@
 from typing import Any
 
 from discord import Embed
+import statalib as lib
 from statalib import PlayerName, PlayerUUID, config
+from statalib.accounts import Subscription
 
 
 class MiscEmbeds:
@@ -171,6 +173,14 @@ class MiscEmbeds:
         """User voting info embed."""
         vote_links = config("global.links.voting")
 
+        rewards_duration = config.voter_rewards_duration
+
+        free_tier_command_cooldown: dict[str, int] = Subscription.get_package_property("free", "generic_command_cooldown")
+        rate = free_tier_command_cooldown.get('rate', 1)
+        per = free_tier_command_cooldown.get('per', 1)
+
+        reduced_cooldown = round((per / rate) * 0.5, 2)
+    
         embed = (
             Embed(
                 title="Vote for Statalytics!",
@@ -187,8 +197,8 @@ class MiscEmbeds:
             )
             .add_field(
                 name="Rewards",
-                value="Theme packs for 24 hours.\n"
-                + "Cooldowns reduced by 50% (1.75s)\n\n"
+                value=f"Theme packs for {rewards_duration}.\n"
+                + f"Cooldowns reduced by 50% ({reduced_cooldown}s)\n\n"
                 + "*You can change your theme pack with `/settings`*",
                 inline=False,
             )

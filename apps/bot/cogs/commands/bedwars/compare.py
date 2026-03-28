@@ -162,7 +162,7 @@ class CompareCommandCog(commands.Cog):
             hypixel_data_2,
             mode=lib.ModesEnum.OVERALL.value,
         )
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "stat-comparison")
+        background_img = renderer.bg(interaction.user.id, "compare", uuid_1)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

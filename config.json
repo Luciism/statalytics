@@ -244,7 +244,7 @@
       ]
     },
     "voting": {
-      "reward_duration_hours": 24
+      "reward_duration_hours": 240
     },
     "theme_packs": {
       "voter_themes": {

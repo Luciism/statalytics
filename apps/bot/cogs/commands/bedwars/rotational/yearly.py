@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 
 import discord
 from discord.ext import commands
-from statalib import render2
 
 import helper
 import statalib as lib
@@ -66,9 +65,7 @@ class YearlyCommandsCog(commands.Cog):
             rotational.RotationType.YEARLY,
             lib.ModesEnum.OVERALL.value,
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.yearly"
-        )
+        background_img = renderer.bg(interaction.user.id, "yearly", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(
@@ -154,9 +151,7 @@ class YearlyCommandsCog(commands.Cog):
             lib.ModesEnum.OVERALL.value,
             periods_ago=years
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.historical.yearly"
-        )
+        background_img = renderer.bg(interaction.user.id, "lastyear", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(

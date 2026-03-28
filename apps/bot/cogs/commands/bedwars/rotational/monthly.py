@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 
 import discord
 from discord.ext import commands
-from statalib import render2
 
 import helper
 import statalib as lib
@@ -78,9 +77,7 @@ class MonthlyCommandsCog(commands.Cog):
             rotational.RotationType.MONTHLY,
             lib.ModesEnum.OVERALL.value,
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.monthly"
-        )
+        background_img = renderer.bg(interaction.user.id, "monthly", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(
@@ -161,9 +158,7 @@ class MonthlyCommandsCog(commands.Cog):
             lib.ModesEnum.OVERALL.value,
             periods_ago=months
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.historical.monthly"
-        )
+        background_img = renderer.bg(interaction.user.id, "lastmonth", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(

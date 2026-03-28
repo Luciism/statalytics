@@ -84,7 +84,7 @@ class ResourcesCommandCog(commands.Cog):
         )
 
         renderer = ResourceStatsRenderer(skin_model, name, hypixel_data, lib.ModesEnum.OVERALL.value)
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "resources-collected")
+        background_img = renderer.bg(interaction.user.id, "resources", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

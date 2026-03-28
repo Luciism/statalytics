@@ -160,9 +160,7 @@ class DifferenceCommandCog(commands.Cog):
             formatted_date,
             lib.ModesEnum.OVERALL.value,
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "stat-difference"
-        )
+        background_img = renderer.bg(interaction.user.id, "difference", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(

@@ -65,8 +65,7 @@ class MostPlayedCommandCog(commands.Cog):
         )
 
         renderer = MostPlayedModesRenderer(skin_model, name, hypixel_data)
-
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "most-played")
+        background_img = renderer.bg(interaction.user.id, "mostplayed", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

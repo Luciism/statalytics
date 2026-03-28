@@ -88,7 +88,7 @@ class PracticeCommandCog(commands.Cog):
 
         renderer = PracticeStatsRenderer(skin_model, name, hypixel_data)
 
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "practice-stats")
+        background_img = renderer.bg(interaction.user.id, "practice", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

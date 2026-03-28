@@ -5,6 +5,7 @@ import os
 from typing import Any, Literal
 
 from .common import REL_PATH
+from .fmt import pluralize
 
 
 def merge_dicts(original_dict: dict, update_dict: dict) -> dict:
@@ -34,8 +35,8 @@ def merge_dicts(original_dict: dict, update_dict: dict) -> dict:
 
 class _Config:
     """Config class."""
-    SHOULD_UPDATE_SUBSCRIPTION_ROLES = True
-    DB_FILE_PATH = f'{REL_PATH}/database/core.db'
+    SHOULD_UPDATE_SUBSCRIPTION_ROLES: bool = True
+    DB_FILE_PATH: str = f'{REL_PATH}/database/core.db'
 
     def __init__(self) -> None:
         """Initialize the config class."""
@@ -87,6 +88,15 @@ class _Config:
         :param embed_type: The embed color type (primary, warning, or danger).
         """
         return int(config(f'apps.bot.embeds.{embed_type}_color'), base=16)
+
+    @property
+    def voter_rewards_duration(self) -> str:
+        configured_hours: int = self('global.voting.reward_duration_hours')
+
+        days = round(configured_hours / 24)
+        days_str: str = pluralize(days, "day", "s")
+
+        return f"{days} {days_str}"
 
 config = _Config()  # Globally used instance
 "Global config instance."

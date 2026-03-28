@@ -144,7 +144,7 @@ class GenericStatsCommandCog(commands.Cog):
         interaction: discord.Interaction,
         player: str | None,
         renderer_type: type[BedwarsStatsRenderer | PointlessStatsRenderer],
-        background_img: bytes | None,
+        render_name: str,
         dreams: bool = False,
     ):
         await interaction.response.defer()
@@ -167,6 +167,7 @@ class GenericStatsCommandCog(commands.Cog):
             hypixel_data,
             modes[0]
         )
+        background_img = renderer.bg(interaction.user.id, render_name, uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(
@@ -183,22 +184,19 @@ class GenericStatsCommandCog(commands.Cog):
     @helper.decorators.app_command("bedwars_general")
     @helper.interactions.access_permitted_check()
     async def total(self, interaction: discord.Interaction, player: str | None = None):
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "bedwars-stats")
-        await self.total_command(interaction, player, BedwarsStatsRenderer, background_img)
+        await self.total_command(interaction, player, BedwarsStatsRenderer, "total")
 
     @helper.decorators.app_command("bedwars_pointless")
     @helper.interactions.access_permitted_check()
     async def pointless(
         self, interaction: discord.Interaction, player: str | None = None
     ):
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "pointless-stats")
-        await self.total_command(interaction, player, PointlessStatsRenderer, background_img)
+        await self.total_command(interaction, player, PointlessStatsRenderer, "total")
 
     @helper.decorators.app_command("dreams")
     @helper.interactions.access_permitted_check()
     async def dreams(self, interaction: discord.Interaction, player: str | None = None):
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "bedwars-stats")
-        await self.total_command(interaction, player, BedwarsStatsRenderer, background_img, dreams=True)
+        await self.total_command(interaction, player, BedwarsStatsRenderer, "total", dreams=True)
 
 
 async def setup(client: helper.Client) -> None:

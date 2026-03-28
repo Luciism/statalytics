@@ -133,7 +133,7 @@ class MilestonesCommandCog(commands.Cog):
             session_info,
             lib.ModesEnum.OVERALL.value
         )
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "milestones")
+        background_img = renderer.bg(interaction.user.id, "milestones", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(

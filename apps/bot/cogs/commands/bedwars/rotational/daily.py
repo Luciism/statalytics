@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 
 import discord
 from discord.ext import commands
-from statalib import render2
 
 import helper
 import statalib as lib
@@ -67,9 +66,7 @@ class DailyCommandsCog(commands.Cog):
             rotational.RotationType.DAILY,
             lib.ModesEnum.OVERALL.value,
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.daily"
-        )
+        background_img = renderer.bg(interaction.user.id, "daily", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(
@@ -150,9 +147,7 @@ class DailyCommandsCog(commands.Cog):
             lib.ModesEnum.OVERALL.value,
             periods_ago=days
         )
-        background_img = render2.backgrounds.load_background_for_user(
-            interaction.user.id, "rotational.historical.daily"
-        )
+        background_img = renderer.bg(interaction.user.id, "lastday", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
 
         await interaction.followup.send(

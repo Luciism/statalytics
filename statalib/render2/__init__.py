@@ -1,3 +1,5 @@
+"""Statalytics' fractyl based rendering library."""
+
 from . import client, placeholders, backgrounds
 from .client import RenderingClient
 from .placeholders import PlaceholderValues, TSpan

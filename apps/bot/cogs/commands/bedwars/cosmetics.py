@@ -69,9 +69,9 @@ class CosmeticsCommandCog(commands.Cog):
             lib.network.fetch_hypixel_data(uuid),
             lib.network.fetch_skin_model(uuid)
         )
-        renderer = ActiveCosmeticsRenderer(skin_model, name, hypixel_data)
 
-        background_img = render2.backgrounds.load_background_for_user(interaction.user.id, "cosmetics")
+        renderer = ActiveCosmeticsRenderer(skin_model, name, hypixel_data)
+        background_img = renderer.bg(interaction.user.id, "cosmetics", uuid)
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(
