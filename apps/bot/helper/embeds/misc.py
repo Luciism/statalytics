@@ -107,57 +107,6 @@ class MiscEmbeds:
         return embed
 
     @staticmethod
-    def hypixel_status(server_info: dict[str, Any]) -> list[Embed]:
-        """Hypixel status info embed."""
-        status_embed = (
-            Embed(
-                title="Hypixel Status",
-                description="Hypixel's current server information.\n\n"
-                + f"**` > ` Status**: `{server_info['status']}`\n"
-                + f"**` > ` IP**: **`{server_info['ip']}`**\n"
-                + f"**` > ` Version**: `{server_info['version']}`\n\n"
-                + f"**` > ` Updated**: <t:{server_info['updated_timestamp']}>",
-                color=3092790,
-            )
-            .set_footer(text="Powered by api.polsu.xyz")
-            .set_thumbnail(
-                url=f"https://api.polsu.xyz/assets/minecraft/server/icon/{server_info['ip']}.png"
-            )
-            .set_image(
-                url=f"https://api.polsu.xyz/assets/minecraft/server/map/{server_info['ip']}.png"
-            )
-        )
-
-        ping_embed = (
-            Embed(
-                title="Ping",
-                description=f"**` > ` Ping**: `{server_info['ping']}`\n\n"
-                + f"**` > ` Max**: `{server_info['max_ping']}`\n"
-                + f"**` > ` Average**: `{server_info['avg_ping']}`\n"
-                + f"**` > ` Min**: `{server_info['min_ping']}`",
-                color=3092790,
-            )
-            .set_footer(text="UTC Time  -  Ping in ms (USA - Los Angeles)")
-            .set_image(
-                url=f"https://api.polsu.xyz/assets/minecraft/server/ping/{server_info['ip']}.png"
-            )
-        )
-
-        players_embed = Embed(
-            title="Players",
-            description=f"**` > ` Players**: `{server_info['players']}` / `"
-            + f"{server_info['max_players']}`\n\n"
-            + f"**` > ` Peak**: `{server_info['peak_players']}`\n"
-            + f"**` > ` Average**: `{server_info['avg_players']}`\n"
-            + f"**` > ` Min**: `{server_info['min_players']}`",
-            color=3092790,
-        ).set_image(
-            url=f"https://api.polsu.xyz/assets/minecraft/server/players/{server_info['ip']}.png"
-        )
-
-        return [status_embed, ping_embed, players_embed]
-
-    @staticmethod
     def suggestion_message(
         discord_username: str, discord_user_id: int, suggestion: str
     ) -> Embed:
@@ -175,7 +124,8 @@ class MiscEmbeds:
 
         rewards_duration = config.voter_rewards_duration
 
-        free_tier_command_cooldown: dict[str, int] = Subscription.get_package_property("free", "generic_command_cooldown")
+        free_tier_command_cooldown: dict[str, int] = Subscription.get_package_property(
+            "free", "generic_command_cooldown")
         rate = free_tier_command_cooldown.get('rate', 1)
         per = free_tier_command_cooldown.get('per', 1)
 
