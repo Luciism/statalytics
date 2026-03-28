@@ -189,17 +189,19 @@ class MiscEmbeds:
             )
             .set_thumbnail(url="https://statalytics.net/image/branding/logo.png?v=2")
             .add_field(
+                name="Rewards",
+                value=
+                    f"For the next **{rewards_duration}** after you vote, you'll have:\n"
+                    + f"- Access to all voter themes.\n"
+                    + f"- Cooldowns reduced by 50% ({reduced_cooldown}s)\n\n"
+                    + "*You can change your theme pack with `/settings`*",
+                inline=False,
+            )
+            .add_field(
                 name="Links",
                 value=f"Vote on [top.gg]({vote_links['top.gg']})\n"
                 + f"Vote on [discordbotlist.com]({vote_links['discordbotlist.com']})\n"
                 + f"Vote on [discords.com]({vote_links['discords.com']})",
-                inline=False,
-            )
-            .add_field(
-                name="Rewards",
-                value=f"Theme packs for {rewards_duration}.\n"
-                + f"Cooldowns reduced by 50% ({reduced_cooldown}s)\n\n"
-                + "*You can change your theme pack with `/settings`*",
                 inline=False,
             )
             .add_field(

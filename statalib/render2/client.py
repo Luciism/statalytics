@@ -70,7 +70,7 @@ class RenderingClient(ABC):
     async def _make_request_with_cache(
         self, placeholder_values: PlaceholderValues, background_image: bytes | None, size: Size
     ) -> bytes:
-        logger.info("LRU renderer cache miss.")
+        logger.debug("LRU renderer cache miss.")
         return await self._make_request(placeholder_values, background_image, size)
 
     async def render(
