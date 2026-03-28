@@ -13,7 +13,7 @@ import aiohttp
 from ..hypixel.leveling import LevelProgressionTuple
 from ..hypixel.ranks import PlayerRank
 from ..fmt import ordinal
-from ..color import Color, ColorString
+from ..color import Color
 from ..render import Prestige
 
 
