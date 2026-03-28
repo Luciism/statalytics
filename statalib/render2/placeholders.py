@@ -1,6 +1,7 @@
 """Placeholder values for rendering."""
 
 import json
+import logging
 import typing
 from base64 import b64encode
 from collections.abc import Mapping
@@ -13,7 +14,7 @@ import aiohttp
 from ..hypixel.leveling import LevelProgressionTuple
 from ..hypixel.ranks import PlayerRank
 from ..fmt import ordinal
-from ..color import Color
+from ..color import Color, ColorString
 from ..render import Prestige
 
 
@@ -170,8 +171,17 @@ class PlaceholderValues:
         :param rank: The player rank, contains the username.
         :param placeholder_key: The placeholder key to use.
         """
+        # Reduce the font size if the username is too long
+        length = len(f"{rank.prefix}{rank.username}")
+        max_len = 18
+
+        if length > max_len:
+            font_size = max(1 - (length - max_len) * 0.035, 0.1)
+        else:
+            font_size = 1
+
         self.text[f"{placeholder_key}#text"] = [
-            TSpan(value=part[0], fill=part[1].hex) for part in rank.parts_with_username
+            TSpan(value=part[0], fill=part[1].hex, font_size=f"{font_size}em") for part in rank.parts_with_username
         ]
 
 

@@ -67,7 +67,7 @@ class ProjectedStatsRenderer(render2.RenderingClient):
         }
 
         shape_placeholders = {
-            "progress_bar#width": f"{stats.complete_percentage}%",
+            "progress_bar#width": f"{max(min(stats.complete_percentage, 100), 0)}%",
             "progress_bar#fill": ColorString.GRAY.value.hex
         }
 

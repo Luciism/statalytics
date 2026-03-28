@@ -14,7 +14,7 @@ def format_rotation_date(rotation: RotationType, date: datetime) -> str:
         case RotationType.DAILY | RotationType.WEEKLY:
             return date.strftime(f"%b {date.day}{lib.fmt.ordinal(date.day)}, %Y")
         case RotationType.MONTHLY:
-            return date.strftime(f"%B %Y")
+            return date.strftime(f"%b %Y")
         case _:
             return date.strftime(f"%Y")
 

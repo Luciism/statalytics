@@ -119,8 +119,6 @@ class DifferenceCommandCog(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(lib.config.loading_message())
-
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid),
             lib.network.fetch_hypixel_data(uuid),

@@ -3,7 +3,6 @@
 from typing import Any
 
 from discord import Embed
-import statalib as lib
 from statalib import PlayerName, PlayerUUID, config
 from statalib.accounts import Subscription
 

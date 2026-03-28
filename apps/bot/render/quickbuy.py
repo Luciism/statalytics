@@ -1,4 +1,5 @@
-from PIL import Image
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
 
 import statalib as lib
 from statalib import HypixelData, HypixelPlayerData, hypixel, to_thread
@@ -64,6 +65,10 @@ def render_quickbuy(
     hypixel_player_data = hypixel.get_player_dict(hypixel_data)
     rank_info = hypixel.get_rank_info(hypixel_player_data)
 
+    skin_container = (40, 124, 209, 383)
+    skin_container_width = skin_container[2] - skin_container[0]
+    skin_height = skin_container[3] - skin_container[1]
+
     im = ImageRender(bg.load_background_image(uuid, {
         "level": 0, "rank_info": rank_info}))
 
@@ -90,7 +95,19 @@ def render_quickbuy(
     )
     im.overlay_image(hotbar_favourites, source=(35, 409))
 
-    im.player.paste_skin(skin_model, position=(47, 131))
+    try:
+        skin_img = Image.open(BytesIO(skin_model))
+
+        height = skin_height
+        width = round(skin_img.width / skin_img.height * height)
+        skin_img = skin_img.resize((width, height))
+
+        skin_x = skin_container[0] + round((skin_container_width - width) / 2)
+
+        im.overlay_image(skin_img, (skin_x, skin_container[1]))
+        # im.player.paste_skin(skin_model, position=(47, 131))
+    except UnidentifiedImageError:
+        pass
 
     return im.to_bytes()
 
