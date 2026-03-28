@@ -1,3 +1,4 @@
+import logging
 from typing_extensions import override
 
 import discord
@@ -42,6 +43,7 @@ class MetricsChannelsCog(commands.Cog):
             'commands': lib.usage.CommandMetricsRepo.get_usage(),
             'servers': len(self.client.guilds)
         }
+        logging.info(f"Metrics: {metrics}")
 
         channels_config: dict = lib.config(
             'global.support_server.channels.metrics_channels')

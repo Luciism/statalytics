@@ -71,7 +71,7 @@ class CommandMetricsRepo:
         if usage_row is None:
             return 0
 
-        return usage_row[0]
+        return usage_row[0] or 0
 
 
 @ensure_cursor

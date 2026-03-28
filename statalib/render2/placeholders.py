@@ -1,7 +1,6 @@
 """Placeholder values for rendering."""
 
 import json
-import logging
 import typing
 from base64 import b64encode
 from collections.abc import Mapping
