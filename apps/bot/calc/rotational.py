@@ -63,6 +63,7 @@ class HistoricalRotationalStats(hypixel.BedwarsStats):
         self.rank_info = hypixel.get_rank_info(self._hypixel_player_data)
 
         level = self.historical_stats.level
+        self.experience_local = hypixel.Leveling(level=level).xp
 
         self.level = int(level)
 

@@ -54,11 +54,11 @@ class RotationalStatsRenderer(render2.RenderingClient):
             now = datetime.now(timezone(timedelta(hours=utc_offset)))
             rotation_value = format_rotation_date(rotation_type, now)
 
-            experience = stats.experience_local
+            experience = stats.experience
         else:
             stats = HistoricalRotationalStats(self._player_uuid, self._period, self._data, mode)
             rotation_type = self._period.rotation_type
-            experience = stats.experience
+            experience = stats.experience_local
             time_period = f"{self._periods_ago} {rotation_type.singular_name().title()}s Ago"
 
             rotation_value = format_rotation_date(rotation_type, self._period.datetime_info)
