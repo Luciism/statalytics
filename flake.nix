@@ -35,12 +35,12 @@
               fi
               clear
 
-            if [ "$OPEN_NVIM" = "true" ]; then
-              nvim -c 'Neotree focus left'
-            fi
+              PYTHONPATH=$PRJ_ROOT
 
+              if [ "$OPEN_NVIM" = "true" ]; then
+                nvim -c 'Neotree focus left'
+              fi
           '';
-          PYTHONPATH = self;
         };
 
       };
