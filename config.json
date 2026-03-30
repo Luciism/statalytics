@@ -4,7 +4,7 @@
   },
   "apps": {
     "bot": {
-      "version": "2.0.0",
+      "version": "2.1.0",
       "loading_message": "Lagging in a block <a:loadingcircle:1456112946575970394>",
       "sync_on_startup": true,
       "embeds": {
@@ -107,7 +107,7 @@
       }
     },
     "website": {
-      "version": "4.1.1",
+      "version": "4.1.2",
       "logging": {
         "level": "INFO"
       }
