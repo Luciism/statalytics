@@ -27,7 +27,7 @@ class SettingsEmbeds:
             title="Select a theme pack!",
             description="In order for your selected theme pack to take effect, " 
                 + f"you must have voted for Statalytics in the past **{rewards_duration}**. "
-                + "(Use `/vote`)\n\n "
+                + "(See `/vote`)\n\n "
                 + "[Premium supporters](https://statalytics.net/premium) bypass this restriction.",
             color=config.embed_color("primary"),
         )

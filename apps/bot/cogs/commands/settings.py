@@ -3,11 +3,10 @@ import typing
 from typing_extensions import override
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 import statalib as lib
-from statalib.accounts import Account
+from statalib.accounts import Account, themes
 from statalib import rotational_stats as rotational
 import helper
 
@@ -147,33 +146,22 @@ class SettingsButtons(helper.views.CustomBaseView):
     ) -> None:
         await helper.interactions.run_interaction_checks(interaction)
 
-        embed = helper.Embeds.settings.select_theme()
-
+        free_themes = themes.get_free_themes()
+        voter_themes = themes.get_voter_themes()
         owned_themes = Account(interaction.user.id).themes.get_owned_themes()
-        theme_packs: dict = lib.config('global.theme_packs')
 
-        # themes available to anyone through voting
-        available_themes: dict = theme_packs['voter_themes']
-
-        # owned exclusive themes
-        for owned_theme in owned_themes:
-            available_themes[owned_theme.id] = theme_packs['exclusive_themes'][owned_theme.id]
-
-        # Allow only fractyl themes
-        available_themes = {
-            k: v for k, v in available_themes.items() if 'fractyl' in v['types']
-        }
+        available_themes = [*free_themes, *voter_themes, *owned_themes]
 
         options = [
-            discord.SelectOption(label=properties.get('display_name'), value=name)
-            for name, properties in available_themes.items()
+            discord.SelectOption(label=theme.name, value=theme.id)
+            for theme in available_themes if theme.is_fractyl()  # only show fractyl
         ]
 
         view = SettingsSelectView(interaction=interaction)
-        view.add_item(ActiveThemeSelect(options))
+        _ = view.add_item(ActiveThemeSelect(options))
 
         await interaction.response.send_message(
-            embed=embed, view=view, ephemeral=True)
+            embed=helper.Embeds.settings.select_theme(), view=view, ephemeral=True)
 
 
     @discord.ui.button(

@@ -69,22 +69,23 @@ def load_user_theme(discord_user_id: int) -> bytes | None:
     :param discord_user_id: The Discord ID of the user.
     """
     account = Account(discord_user_id)
-    voter_themes_available = themes.get_voter_themes()
-    user_theme = account.themes.get_active_theme(None)
+    user_theme = account.themes.get_active_theme()
 
-    if user_theme is None:
+    if user_theme.id is "none":
         return None
 
     try:
-        if user_theme in voter_themes_available:
-            has_permission = account.permissions.has_access("voter_themes")
-
-            if has_permission or user_has_voter_perks(account.voting.load()):
+        match user_theme.availability:
+            case "free":
                 return load_theme_img(user_theme.id)
+            case "voter":
+                has_permission = account.permissions.has_access("voter_themes")
 
-        # Theme is exclusive
-        elif user_theme in account.themes.get_owned_themes():
-            return load_theme_img(user_theme.id)
+                if has_permission or user_has_voter_perks(account.voting.load()):
+                    return load_theme_img(user_theme.id)
+            case "exclusive":
+                if user_theme in account.themes.get_owned_themes():
+                    return load_theme_img(user_theme.id)
 
         return None
     except ThemeNotFoundError:

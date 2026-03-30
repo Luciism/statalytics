@@ -19,23 +19,23 @@ def setup_config():
     voter_themes["test_voter"] = {
         "display_name": "Test Voter",
         "dynamic_color": False,
-        "types": []
+        "renderers": []
     }
     voter_themes["test_voter_2"] = {
         "display_name": "Test Voter 2",
         "dynamic_color": False,
-        "types": ["legacy"]
+        "renderers": ["legacy"]
     }
 
     exclusive_themes["test_exclusive"] = {
         "display_name": "Test Exclusive",
         "dynamic_color": False,
-        "types": ["legacy", "fractyl"],
+        "renderers": ["legacy", "fractyl"],
     }
     exclusive_themes["test_exclusive_2"] = {
         "display_name": "Test Exclusive 2",
         "dynamic_color": False,
-        "types": ["legacy", "fractyl"],
+        "renderers": ["legacy", "fractyl"],
     }
 
 
