@@ -89,8 +89,8 @@
     <text filter="url(#shadow-1449630659)" fractyl-id="stat_fkdr_diff" x="620.666015625" y="180.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="11" font-weight="400" fill="#db5656">
         {stat_fkdr_diff#text}
     </text>
-    <text filter="url(#shadow-1372038659)" fractyl-id="stat_final_kills" x="289.3330078125" y="236" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
-        {stat_final_kills#text}
+    <text filter="url(#shadow-1372038659)" fractyl-id="stat_beds_broken" x="289.3330078125" y="236" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
+        {stat_beds_broken#text}
     </text>
     <text filter="url(#shadow-1449630659)" fractyl-id="stat_beds_broken_diff" x="289.3330078125" y="252.5" text-anchor="middle" dominant-baseline="central" font-family="Minecraft" font-size="11" font-weight="400" fill="#56db6e">
         {stat_beds_broken_diff#text}
@@ -131,7 +131,7 @@
     <text filter="url(#shadow-1449630659)" fractyl-id="player2_level" x="895" y="313.5" text-anchor="end" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="#aaaaaa">
         {player2_level#text}
     </text>
-    <text filter="url(#shadow-1449630659)" fractyl-id="footer_info" x="289.5" y="383.5" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
+    <text filter="url(#shadow-1449630659)" fractyl-id="footer_info" x="290" y="383.5" text-anchor="start" dominant-baseline="central" font-family="Minecraft" font-size="12" font-weight="400" fill="white">
         {footer_info#text}
     </text>
 </svg>
