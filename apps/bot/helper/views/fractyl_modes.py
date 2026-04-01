@@ -1,27 +1,28 @@
 import io
-import os
-import shutil
 import typing
 
 import discord
-import statalib as lib
+from discord.abc import MISSING # pyright:ignore[reportAny]
 from discord.interactions import Interaction
+
 from statalib import Mode, ModesEnum
 from statalib.render2 import RenderingClient
 from typing_extensions import override
+
+from helper.tips import random_tip_message
 
 from ._custom import CustomBaseView
 
 
 @typing.final
-class FractylModeSelect(discord.ui.Select[typing.Any]):
+class FractylModeSelect(discord.ui.Select['FractylModesView']):
     def __init__(
         self,
         interaction_origin: discord.Interaction,
-        placeholder: str,
         renderer: RenderingClient,
-        background_img: bytes | None,
         modes: list[Mode],
+        selected_mode: Mode | None,
+        background_img: bytes | None,
     ) -> None:
         self.user_id = interaction_origin.user.id
         self.interaction_origin = interaction_origin
@@ -29,12 +30,15 @@ class FractylModeSelect(discord.ui.Select[typing.Any]):
         self.renderer = renderer
         self.background_image = background_img
 
+        selected_mode = selected_mode or modes[0]
+
         options = [
-            discord.SelectOption(label=mode.name, value=mode.id) for mode in modes
+            discord.SelectOption(label=mode.name, value=mode.id, default=selected_mode == mode)
+            for mode in modes
         ]
 
         super().__init__(
-            placeholder=placeholder,
+            placeholder="Select a mode",
             max_values=1,
             min_values=1,
             options=options,
@@ -67,11 +71,18 @@ class FractylModeSelect(discord.ui.Select[typing.Any]):
         # Get updated view (view disappears without).
         view = FractylModesView(
             interaction_origin=self.interaction_origin,
-            placeholder=mode.name,
+            selected_mode=mode,
             renderer=self.renderer,
             background_img=self.background_image,
             modes=self.modes,
         )
+
+        # Add existing view items
+        if self.view:
+            for child in self.view.children:
+                if not isinstance(child, FractylModeSelect):
+                    _ = view.add_item(child)
+
 
         _ = await self.interaction_origin.edit_original_response(
             attachments=[file], view=view
@@ -84,18 +95,23 @@ class FractylModesView(CustomBaseView):
         interaction_origin: discord.Interaction,
         renderer: RenderingClient,
         background_img: bytes | None,
-        modes: list[Mode],
-        placeholder: str = "Select a mode",
+        modes: list[Mode] | None=None,
+        selected_mode: Mode | None=None,
         *,
         timeout: int = 300,
     ) -> None:
+        if modes is None:
+            modes = ModesEnum.non_dream_modes()
+
         super().__init__(timeout=timeout)
         _ = self.add_item(
             FractylModeSelect(
-                interaction_origin, placeholder, renderer, background_img, modes
+                interaction_origin, renderer, modes, selected_mode, background_img
             )
         )
 
+        self.background_img: bytes | None = background_img
+        self.renderer: RenderingClient = renderer
         self.interaction_origin: Interaction = interaction_origin
 
     @override
@@ -103,16 +119,27 @@ class FractylModesView(CustomBaseView):
         try:
             # remove modes dropdown from view
             for child in self.children:
-                if child.custom_id == "modes_select_item":
-                    _ = self.remove_item(child)
-                    break
+                if isinstance(child, discord.ui.Select):
+                    if child.custom_id == "modes_select_item":
+                        _ = self.remove_item(child)
+                        break
 
             _ = await self.interaction_origin.edit_original_response(view=self)
         except discord.errors.NotFound:
             pass
 
-        # delete renders
-        dir_path = f"{lib.REL_PATH}/database/rendered/{self.interaction_origin.id}"
-        if os.path.isdir(dir_path):
-            shutil.rmtree(dir_path)
+
+    async def send_initial(self, message: str | None=None) -> None:
+        img_bytes = await self.renderer.render_to_buffer(self.background_img)
+
+        mode_name = self.renderer.mode.name if self.renderer.mode else "Overall"
+
+        if not message:
+            message = random_tip_message(self.interaction_origin.user.id)
+
+        await self.interaction_origin.followup.send(
+            content=message or MISSING,
+            files=[discord.File(img_bytes, filename=f"{mode_name}.png")],
+            view=self
+        )
 

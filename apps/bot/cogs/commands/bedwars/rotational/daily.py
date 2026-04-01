@@ -67,21 +67,14 @@ class DailyCommandsCog(commands.Cog):
             lib.ModesEnum.OVERALL.value,
         )
         background_img = renderer.bg(interaction.user.id, "daily", uuid)
-        img_bytes = await renderer.render_to_buffer(background_img)
 
-        await interaction.followup.send(
-            content=message,
-            files=[discord.File(img_bytes, filename="overall.png")],
-            view=helper.views.FractylModesView(
-                interaction_origin=interaction,
-                modes=lib.ModesEnum.non_dream_modes(),
-                background_img=background_img,
-                placeholder="Overall",
-                renderer=renderer,
-            ).add_item(
-                helper.views.info.RotationalResettingInfoButton.button()
-            )
-        )
+        await helper.views.FractylModesView(
+            interaction_origin=interaction,
+            background_img=background_img,
+            renderer=renderer
+        ).add_item(
+            helper.views.info.RotationalResettingInfoButton.button()
+        ).send_initial(message)
 
 
     @helper.decorators.app_command("lastday")
@@ -148,20 +141,14 @@ class DailyCommandsCog(commands.Cog):
             periods_ago=days
         )
         background_img = renderer.bg(interaction.user.id, "lastday", uuid)
-        img_bytes = await renderer.render_to_buffer(background_img)
 
-        await interaction.followup.send(
-            files=[discord.File(img_bytes, filename="overall.png")],
-            view=helper.views.FractylModesView(
-                interaction_origin=interaction,
-                modes=lib.ModesEnum.non_dream_modes(),
-                background_img=background_img,
-                placeholder="Overall",
-                renderer=renderer,
-            ).add_item(
-                helper.views.info.RotationalResettingInfoButton.button()
-            )
-        )
+        await helper.views.FractylModesView(
+            interaction_origin=interaction,
+            background_img=background_img,
+            renderer=renderer
+        ).add_item(
+            helper.views.info.RotationalResettingInfoButton.button()
+        ).send_initial()
 
 
 

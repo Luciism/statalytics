@@ -117,6 +117,7 @@ class QuestsCommandCog(commands.Cog):
         img_bytes = await renderer.render_to_buffer(background_img)
         
         await interaction.followup.send(
+            content=helper.random_tip_message(interaction.user.id),
             files=[discord.File(img_bytes, filename="quests.png")],
         )
 

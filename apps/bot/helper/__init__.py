@@ -1,9 +1,10 @@
-from . import interactions, views, leaderboards, emoji, embeds, handlers
+from . import interactions, views, leaderboards, emoji, embeds, handlers, tips
 from .embeds import Embeds
 from .client import Client
 from .cooldowns import generic_command_cooldown
 from .autocomplete import session_autocompletion, username_autocompletion
 from .decorators import app_command 
+from .tips import random_tip_message
 
 __all__ = [
     "Client",
@@ -17,5 +18,7 @@ __all__ = [
     "emoji",
     "embeds",
     "Embeds",
-    "handlers"
+    "handlers",
+    "tips",
+    "random_tip_message"
 ]

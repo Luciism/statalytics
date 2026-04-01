@@ -168,18 +168,14 @@ class GenericStatsCommandCog(commands.Cog):
             modes[0]
         )
         background_img = renderer.bg(interaction.user.id, render_name, uuid)
-        img_bytes = await renderer.render_to_buffer(background_img)
-        
-        await interaction.followup.send(
-            files=[discord.File(img_bytes, filename=f"{modes[0].id}.png")],
-            view=helper.views.FractylModesView(
-                interaction_origin=interaction,
-                modes=modes,
-                background_img=background_img,
-                placeholder=modes[0].name,
-                renderer=renderer
-            )
-        )
+
+        await helper.views.FractylModesView(
+            interaction_origin=interaction,
+            background_img=background_img,
+            renderer=renderer,
+            modes=modes
+        ).send_initial()
+
 
     @helper.decorators.app_command("bedwars_general")
     @helper.interactions.access_permitted_check()

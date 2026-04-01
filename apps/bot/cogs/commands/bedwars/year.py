@@ -127,19 +127,12 @@ class YearCommandCog(commands.Cog):
             lib.ModesEnum.OVERALL.value
         )
         background_img = renderer.bg(interaction.user.id, "year_projection", uuid)
-        img_bytes = await renderer.render_to_buffer(background_img)
-        
-        await interaction.followup.send(
-            files=[discord.File(img_bytes, filename="overall.png")],
-            view=helper.views.FractylModesView(
-                interaction_origin=interaction,
-                modes=lib.ModesEnum.non_dream_modes(),
-                background_img=background_img,
-                placeholder="Overall",
-                renderer=renderer
-            )
-        )
 
+        await helper.views.FractylModesView(
+            interaction_origin=interaction,
+            background_img=background_img,
+            renderer=renderer
+        ).send_initial()
 
 
     YEAR1: int = datetime.now(UTC).year + 1

@@ -6,6 +6,7 @@
     "bot": {
       "version": "2.1.0",
       "loading_message": "Lagging in a block <a:loadingcircle:1456112946575970394>",
+      "tip_message_chance": 50,
       "sync_on_startup": true,
       "embeds": {
         "primary_color": "BC92FF",

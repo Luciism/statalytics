@@ -21,8 +21,6 @@ class QuickBuyCommandCog(commands.Cog):
 
         name, uuid = await helper.interactions.fetch_player_info(player, interaction)
 
-        await interaction.followup.send(lib.config.loading_message())
-
         skin_model, hypixel_data = await asyncio.gather(
             lib.network.fetch_skin_model(uuid, style="fullbody"),
             lib.network.fetch_hypixel_data(uuid),
@@ -30,8 +28,9 @@ class QuickBuyCommandCog(commands.Cog):
         hypixel_data = await lib.network.fetch_hypixel_data(uuid)
         rendered = await render_quickbuy(name, uuid, hypixel_data, skin_model)
 
-        _ = await interaction.edit_original_response(
-            content=None, attachments=[discord.File(rendered, filename="quickbuy.png")]
+        _ = await interaction.followup.send(
+            content=helper.random_tip_message(interaction.user.id),
+            files=[discord.File(rendered, filename="quickbuy.png")]
         )
 
 

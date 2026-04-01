@@ -5,7 +5,7 @@ from typing import final
 import cachetools
 import discord
 import statalib as lib
-from cachetools_async import cached
+from cachetools_async import cached  # pyright:ignore[reportUnknownVariableType]
 from discord import app_commands
 from discord.ext import commands
 from statalib.hypixel.lbs import LeaderboardData
@@ -43,7 +43,6 @@ async def render_leaderboard_page(lb: LeaderboardData, page: int):
 class LeaderboardCommandsCog(commands.Cog):
     def __init__(self, client: helper.Client):
         self.client = client
-        self.LOADING_MSG = lib.config.loading_message()
 
     lb_group = app_commands.Group(
         name="leaderboard",
