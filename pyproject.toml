@@ -28,7 +28,7 @@ bot = [
     "discord.py==2.4.0",
     "Pillow>=12.1.1",
     "python-dateutil==2.8.2",
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.2.2",
     "typing-extensions==4.14.0",
     "cachetools>=6.2.1",
     "cachetools-async>=0.0.5"
@@ -38,7 +38,7 @@ website = [
     { include-group = "statalib" },
     "paypal-server-sdk==1.1.0",
     "Pillow>=12.1.1",
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.2.2",
     "quart>=0.20.0",
     "quartcord>=1.0.1",
     "pyjwt>=2.12.0",  # Used by quartcord
@@ -52,12 +52,12 @@ utils = [
     { include-group = "statalib" },
     "discord.py==2.4.0",
     "matplotlib==3.6.2",
-    "python-dotenv==1.0.0"
+    "python-dotenv==1.2.2"
 ]
 
 tests = [
     { include-group = "statalib" },
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.2.2",
 ]
 
 all = [
