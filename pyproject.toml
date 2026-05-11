@@ -15,7 +15,7 @@ statalib = [
     "Pillow>=12.1.1",
     "python-dateutil==2.8.2",
     "mcfetch==2.1.4",
-    "urllib3>=2.6.3",  # Used in mcfetch
+    "urllib3>=2.7.0",  # Used in mcfetch
     "typing-extensions==4.14.0",
     "redis==6.4.0",
     "cachetools>=6.2.1",
