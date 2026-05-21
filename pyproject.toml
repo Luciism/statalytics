@@ -9,13 +9,14 @@ requires-python = ">=3.11"
 statalib = [
     "aiohttp-client-cache==0.8.2",
     "aiosqlite==0.19.0",
-    "aiohttp>=3.13.3",
+    "aiohttp>=3.13.4",
     "colorlog==6.7.0",
     "numpy==1.24.1",
-    "Pillow>=12.1.1",
+    "Pillow>=12.2.0",
     "python-dateutil==2.8.2",
     "mcfetch==2.1.4",
-    "urllib3>=2.6.3",  # Used in mcfetch
+    "urllib3>=2.7.0",  # Used in mcfetch
+    "idna>=3.15",  # Used in mcfetch
     "typing-extensions==4.14.0",
     "redis==6.4.0",
     "cachetools>=6.2.1",
@@ -26,9 +27,9 @@ bot = [
     { include-group = "statalib" },
     "mcfetch==2.1.4",
     "discord.py==2.4.0",
-    "Pillow>=12.1.1",
+    "Pillow>=12.2.0",
     "python-dateutil==2.8.2",
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.2.2",
     "typing-extensions==4.14.0",
     "cachetools>=6.2.1",
     "cachetools-async>=0.0.5"
@@ -37,8 +38,8 @@ bot = [
 website = [
     { include-group = "statalib" },
     "paypal-server-sdk==1.1.0",
-    "Pillow>=12.1.1",
-    "python-dotenv==1.0.0",
+    "Pillow>=12.2.0",
+    "python-dotenv==1.2.2",
     "quart>=0.20.0",
     "quartcord>=1.0.1",
     "pyjwt>=2.12.0",  # Used by quartcord
@@ -52,12 +53,13 @@ utils = [
     { include-group = "statalib" },
     "discord.py==2.4.0",
     "matplotlib==3.6.2",
-    "python-dotenv==1.0.0"
+    "fonttools>=4.60.2",  # Used by matplotlib
+    "python-dotenv==1.2.2"
 ]
 
 tests = [
     { include-group = "statalib" },
-    "python-dotenv==1.0.0",
+    "python-dotenv==1.2.2",
 ]
 
 all = [
