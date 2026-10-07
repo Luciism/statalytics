@@ -1,17 +1,28 @@
 services:
   renderer:
+    image: registry.home.arpa/statalytics-renderer:${VERSION}
     build:
       context: ./
       dockerfile: ./apps/renderer/Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-renderer:latest
     volumes:
       - logs:/app/logs
     restart: unless-stopped
 
-
   bot:
+    image: registry.home.arpa/statalytics-bot:${VERSION}
     build:
       context: ./
       dockerfile: ./apps/bot/Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-bot:latest
     env_file:
       - ./.env
     volumes:
@@ -20,9 +31,15 @@ services:
     restart: unless-stopped
 
   trackers:
+    image: registry.home.arpa/statalytics-trackers:${VERSION}
     build:
       context: ./
       dockerfile: ./apps/bot/trackers.dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-trackers:latest
     env_file:
       - ./.env
     volumes:
@@ -31,9 +48,15 @@ services:
     restart: unless-stopped
 
   utils:
+    image: registry.home.arpa/statalytics-utils:${VERSION}
     build:
       context: ./
       dockerfile: ./apps/utils/Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-utils:latest
     env_file:
       - ./.env
     volumes:
@@ -42,10 +65,16 @@ services:
     restart: unless-stopped
 
   website:
+    image: registry.home.arpa/statalytics-website:${VERSION}
     build:
       context: ./
       dockerfile: ./apps/website/Dockerfile
       target: runner
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-website:latest
     env_file:
       - ./.env
     volumes:
@@ -56,20 +85,31 @@ services:
     restart: unless-stopped
 
   skins:
+    image: registry.home.arpa/statalytics-skins:${VERSION}
     build:
       context: ./apps/skins/
       dockerfile: ./Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-skins:latest
     restart: unless-stopped
 
   redis:
-    image: redis:8.2.1-alpine
+    image: registry.home.arpa/statalytics-redis:${VERSION}
+    build:
+      context: ./apps/redis/
+      dockerfile: ./Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-redis:latest
     env_file:
       - ./.env
     volumes:
-      - ./redis.conf:/etc/redis/redis.conf
-      - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
       - redis_data:/data
-    entrypoint: ["/usr/local/bin/docker-entrypoint.sh"]
     restart: unless-stopped
 
     ports:

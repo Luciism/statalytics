@@ -1,0 +1,67 @@
+services:
+  renderer:
+    image: registry.home.arpa/statalytics-renderer:latest
+    volumes:
+      - logs:/app/logs
+    restart: unless-stopped
+
+  bot:
+    image: registry.home.arpa/statalytics-bot:latest
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+
+  trackers:
+    image: registry.home.arpa/statalytics-trackers:latest
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+
+  utils:
+    image: registry.home.arpa/statalytics-utils:latest
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+
+  website:
+    image: registry.home.arpa/statalytics-website:latest
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    environment:
+      - WEBSITE_PORT=8000
+    ports:
+      - "${WEBSITE_PORT:-8000}:443"
+    restart: unless-stopped
+
+  skins:
+    image: registry.home.arpa/statalytics-skins:latest
+    restart: unless-stopped
+
+  redis:
+    image: registry.home.arpa/statalytics-redis:latest
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+    ports:
+      - 8767:6379
+
+
+volumes:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/statalytics/database
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/statalytics/logs
+  redis_data:

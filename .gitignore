@@ -6,7 +6,8 @@
 **/logs/
 
 # Secrets
-**/.env*
+secrets.prod/
+**.env*
 !.env.example
 !.env.test
 apps/bot/tips.json
@@ -23,6 +24,7 @@ apps/api/
 venv/
 .hintrc
 desktop.ini
+docker-compose.prod.nix
 
 # Misc
 **/test.py
@@ -30,3 +32,7 @@ test_consumer.py
 test_producer.py
 pyrightconfig.json
 .nvimlog
+
+# Buildkit
+buildkitd.toml
+buildkit-certs/

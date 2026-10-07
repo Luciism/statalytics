@@ -5,8 +5,6 @@ services:
     extends:
       file: docker-compose.yml
       service: renderer
-    volumes:
-      # - ./apps/renderer/:/app/
     env_file:
       - ./.env.dev
 

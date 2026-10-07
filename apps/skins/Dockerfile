@@ -9,7 +9,8 @@ WORKDIR /tmp/nmsr-rs/
 
 RUN git checkout main
 
-RUN RUSTFLAGS="-Ctarget-cpu=native" cargo build --release --bin nmsr-aas --features ears --package nmsr-aas
+RUN cargo build --release --bin nmsr-aas --features ears --package nmsr-aas
+# RUN RUSTFLAGS="-Ctarget-cpu=native" cargo build --release --bin nmsr-aas --features ears --package nmsr-aas
 
 FROM rust:slim-bookworm
 
