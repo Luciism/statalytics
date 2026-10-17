@@ -20,6 +20,7 @@ WORKDIR /nmsr/
 
 COPY --from=builder /tmp/nmsr-rs/target/release/nmsr-aas /nmsr/nmsr-aas
 COPY ./config.toml /nmsr/config.toml
+COPY ./healthcheck.py /usr/local/bin/healthcheck.py
 
 ENV NMSR_USE_SMAA=1
 ENV NMSR_SAMPLE_COUNT=1

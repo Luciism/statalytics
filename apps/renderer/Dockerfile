@@ -9,6 +9,7 @@ COPY ./apps/renderer/Cargo.toml ./apps/renderer/Cargo.lock ./
 RUN cargo build --release
 COPY ./apps/renderer/templates/ templates/
 COPY ./apps/renderer/fonts/ fonts/
+COPY ./apps/renderer/healthcheck.sh /app/renderer/healthcheck.sh
 
 
 FROM builder AS runner

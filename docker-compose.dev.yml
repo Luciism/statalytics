@@ -1,61 +1,153 @@
 name: statalytics-dev
 
 services:
-  renderer:
-    extends:
-      file: docker-compose.yml
-      service: renderer
+  health:
+    build:
+      context: ./
+      dockerfile: ./apps/health/Dockerfile
+    volumes:
+      - logs:/app/logs
+    restart: unless-stopped
     env_file:
+      - ./.env
       - ./.env.dev
+    ports:
+      - "8012:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/health/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
+
+  renderer:
+    build:
+      context: ./
+      dockerfile: ./apps/renderer/Dockerfile
+    volumes:
+      - logs:/app/logs
+    restart: unless-stopped
+    environment:
+      - RENDERER_PORT=3001
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/sh /app/renderer/healthcheck.sh"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
 
   bot:
-    extends:
-      file: docker-compose.yml
-      service: bot
-    volumes:
-      - ./apps/bot/:/app/bot/
+    build:
+      context: ./
+      dockerfile: ./apps/bot/Dockerfile
     env_file:
+      - ./.env
       - ./.env.dev
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+      - ./apps/bot/:/app/bot/
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/bot/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
 
   trackers:
-    extends:
-      file: docker-compose.yml
-      service: trackers
+    build:
+      context: ./
+      dockerfile: ./apps/bot/trackers.dockerfile
     env_file:
+      - ./.env
       - ./.env.dev
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/bot/healthcheck.trackers.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
 
   utils:
-    extends:
-      file: docker-compose.yml
-      service: utils
+    build:
+      context: ./
+      dockerfile: ./apps/utils/Dockerfile
     env_file:
+      - ./.env
       - ./.env.dev
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/utils/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
 
   website:
-    extends:
-      file: docker-compose.yml
-      service: website
     build:
+      context: ./
+      dockerfile: ./apps/website/Dockerfile
       target: dev
+    env_file:
+      - ./.env
+      - ./.env.dev
     volumes:
+      - logs:/app/logs
+      - database:/app/database
       - ./apps/website/:/app/website/
       - ./statalib:/app/statalib/
-    env_file:
-      - ./.env.dev
+    ports:
+      - "${WEBSITE_PORT}:443"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/website/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
 
   skins:
-    extends:
-      file: docker-compose.yml
-      service: skins 
+    build:
+      context: ./apps/skins/
+      dockerfile: ./Dockerfile
+    environment:
+      - SKINS_PORT=8080
     ports:
       - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /usr/local/bin/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
 
   redis:
-    extends:
-      file: docker-compose.yml
-      service: redis 
+    build:
+      context: ./apps/redis/
+      dockerfile: ./Dockerfile
     env_file:
+      - ./.env
       - ./.env.dev
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    ports:
+      - 8767:6379
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/sh /usr/local/bin/healthcheck.sh"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
 
 
 volumes:

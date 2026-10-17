@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 from datetime import datetime, UTC
@@ -14,7 +15,7 @@ logger = logging.getLogger('statalytics')
 
 
 class Client(commands.AutoShardedBot):
-    def __init__(self, *, intents: discord.Intents=None):
+    def __init__(self, *, intents: discord.Intents | None=None):
         if intents is None:
             intents = discord.Intents(messages=True)
             intents.guilds = True
@@ -25,6 +26,11 @@ class Client(commands.AutoShardedBot):
         )
 
     async def setup_hook(self):
+        health_app_port: int = int(os.getenv("BOT_HEALTH_PORT") or 0)
+
+        health_app = lib.HealthMicroApp(self.is_ready)
+        await health_app.setup_and_start(health_app_port)
+
         cogs = lib.config('apps.bot.cogs.enabled')
         for ext in cogs:
             try:
@@ -41,6 +47,8 @@ class Client(commands.AutoShardedBot):
 
         with open(f'{lib.REL_PATH}/database/uptime.json', 'w') as datafile:
             json.dump({"start_time": datetime.now(UTC).timestamp()}, datafile, indent=4)
+
+
 
 
     async def on_ready(self):

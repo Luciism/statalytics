@@ -19,13 +19,14 @@ from . import (
     sessions,
     stats_snapshot,
     usage,
-    commands
+    commands,
 )
 from .aliases import *
 from .assets import ASSET_LOADER
 from .cfg import config
 from .common import MISSING, REL_PATH, Mode, ModesEnum, utc_now
 from .functions import *
+from .health import HealthMicroApp
 
 __all__ = [
     "ASSET_LOADER",
@@ -48,5 +49,6 @@ __all__ = [
     "stats_snapshot",
     "usage",
     "redis_ext",
-    "commands"
+    "commands",
+    "HealthMicroApp"
 ]

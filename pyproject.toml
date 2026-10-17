@@ -62,11 +62,20 @@ tests = [
     "python-dotenv==1.2.2",
 ]
 
+health = [
+    # { include-group = "statalib" },
+    "fastapi==0.143.0",
+    "fastapi[standard]",
+    "redis==6.4.0",
+    "aiohttp>=3.13.4",
+]
+
 all = [
     { include-group = "statalib" },
     { include-group = "bot" },
     { include-group = "website" },
-    { include-group = "utils" }
+    { include-group = "utils" },
+    { include-group = "health" }
 ]
 
 

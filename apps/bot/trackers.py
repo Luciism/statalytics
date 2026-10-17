@@ -94,6 +94,11 @@ class Client(commands.AutoShardedBot):
 
     @override
     async def setup_hook(self) -> None:
+        health_app_port: int = int(os.getenv("TRACKERS_HEALTH_PORT") or 0)
+
+        health_app = statalib.HealthMicroApp(self.is_ready)
+        await health_app.setup_and_start(health_app_port)
+
         _ = reset_trackers_loop.start()
 
 

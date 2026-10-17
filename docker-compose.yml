@@ -1,4 +1,19 @@
 services:
+  health:
+    image: registry.home.arpa/statalytics-health:${VERSION}
+    build:
+      context: ./
+      dockerfile: ./apps/health/Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - registry.home.arpa/statalytics-health:latest
+    restart: unless-stopped
+    ports:
+      - "8012:8000"
+
+
   renderer:
     image: registry.home.arpa/statalytics-renderer:${VERSION}
     build:
@@ -12,6 +27,7 @@ services:
     volumes:
       - logs:/app/logs
     restart: unless-stopped
+
 
   bot:
     image: registry.home.arpa/statalytics-bot:${VERSION}
@@ -30,6 +46,7 @@ services:
       - database:/app/database
     restart: unless-stopped
 
+
   trackers:
     image: registry.home.arpa/statalytics-trackers:${VERSION}
     build:
@@ -47,6 +64,7 @@ services:
       - database:/app/database
     restart: unless-stopped
 
+
   utils:
     image: registry.home.arpa/statalytics-utils:${VERSION}
     build:
@@ -63,6 +81,7 @@ services:
       - logs:/app/logs
       - database:/app/database
     restart: unless-stopped
+
 
   website:
     image: registry.home.arpa/statalytics-website:${VERSION}
@@ -84,6 +103,7 @@ services:
       - "${WEBSITE_PORT}:443"
     restart: unless-stopped
 
+
   skins:
     image: registry.home.arpa/statalytics-skins:${VERSION}
     build:
@@ -95,6 +115,7 @@ services:
       tags:
         - registry.home.arpa/statalytics-skins:latest
     restart: unless-stopped
+
 
   redis:
     image: registry.home.arpa/statalytics-redis:${VERSION}
@@ -111,9 +132,6 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
-
-    ports:
-      - 8767:6379
 
 
 volumes:
