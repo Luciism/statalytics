@@ -9,13 +9,13 @@ requires-python = ">=3.11"
 statalib = [
     "aiohttp-client-cache==0.8.2",
     "aiosqlite==0.19.0",
-    "aiohttp>=3.13.4",
+    "aiohttp>=3.14.3",
     "colorlog==6.7.0",
     "numpy==1.24.1",
-    "Pillow>=12.2.0",
+    "Pillow>=12.3.0",
     "python-dateutil==2.8.2",
     "mcfetch==2.1.4",
-    "urllib3>=2.7.0",  # Used in mcfetch
+    "urllib3>=2.8.0",  # Used in mcfetch
     "idna>=3.15",  # Used in mcfetch
     "typing-extensions==4.14.0",
     "redis==6.4.0",
@@ -27,7 +27,7 @@ bot = [
     { include-group = "statalib" },
     "mcfetch==2.1.4",
     "discord.py==2.4.0",
-    "Pillow>=12.2.0",
+    "Pillow>=12.3.0",
     "python-dateutil==2.8.2",
     "python-dotenv==1.2.2",
     "typing-extensions==4.14.0",
@@ -38,11 +38,16 @@ bot = [
 website = [
     { include-group = "statalib" },
     "paypal-server-sdk==1.1.0",
-    "Pillow>=12.2.0",
+    "setuptools>=83.0.0",  # Used by paypal-server-sdk
+    "msgpack>=1.2.1",  # Used by paypal-server-sdk
+    "Pillow>=12.3.0",
     "python-dotenv==1.2.2",
     "quart>=0.20.0",
     "quartcord>=1.0.1",
-    "pyjwt>=2.12.0",  # Used by quartcord
+    "oauthlib>=4.0.0", # Used by quartcord
+    "pyjwt>=2.15.0",  # Used by quartcord
+    "hpack>=4.2.0",  # Used by quartcord
+    "h2>=4.4.1",  # Used by quartcord
     "redis==6.4.0",
     "Werkzeug==3.1.6",
     "pydantic>=2.11.4",
@@ -67,7 +72,7 @@ health = [
     "fastapi==0.143.0",
     "fastapi[standard]",
     "redis==6.4.0",
-    "aiohttp>=3.13.4",
+    "aiohttp>=3.14.3",
 ]
 
 all = [
