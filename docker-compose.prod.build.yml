@@ -1,0 +1,149 @@
+services:
+  health:
+    build:
+      context: ./
+      dockerfile: ./apps/health/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8012:8000"
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/health/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
+
+  renderer:
+    build:
+      context: ./
+      dockerfile: ./apps/renderer/Dockerfile
+    volumes:
+      - logs:/app/logs
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/sh /app/renderer/healthcheck.sh"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
+
+  bot:
+    build:
+      context: ./
+      dockerfile: ./apps/bot/Dockerfile
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/bot/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+
+  trackers:
+    build:
+      context: ./
+      dockerfile: ./apps/bot/trackers.dockerfile
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/bot/healthcheck.trackers.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+
+  utils:
+    build:
+      context: ./
+      dockerfile: ./apps/utils/Dockerfile
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/utils/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+
+  website:
+    build:
+      context: ./
+      dockerfile: ./apps/website/Dockerfile
+      target: runner
+    volumes:
+      - logs:/app/logs
+      - database:/app/database
+    environment:
+      - WEBSITE_PORT=8000
+    ports:
+      - "${WEBSITE_PORT:-8000}:443"
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /app/website/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+
+  skins:
+    build:
+      context: ./apps/skins/
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /usr/local/bin/healthcheck.py"]
+      interval: 120s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+
+  redis:
+    build:
+      context: ./apps/redis/
+      dockerfile: ./Dockerfile
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/sh /usr/local/bin/healthcheck.sh"]
+      interval: 120s
+      retries: 3
+      start_period: 3s
+      timeout: 5s
+
+
+volumes:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: database/
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: logs/
+  redis_data:
