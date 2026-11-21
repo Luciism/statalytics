@@ -1,13 +1,15 @@
 import os
+import asyncio
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Awaitable, Callable
 
+from pydantic import BaseModel
 import redis.asyncio as redis
 from aiohttp import ClientSession, ClientError, ClientTimeout
 from redis.exceptions import RedisError
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI, Response, Request, WebSocket
 
 app = FastAPI()
 
@@ -33,18 +35,16 @@ if API_KEY is None:
 def is_ready():
     return Response(status_code=200)
 
-class StatusEnum(Enum):
+class StatusEnum(str, Enum):
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
 
-@dataclass
-class ServiceStatusInfo:
+class ServiceStatusInfo(BaseModel):
     status: StatusEnum
     is_critical: bool
 
-@dataclass
-class HealthAggregate:
+class HealthAggregate(BaseModel):
     status: StatusEnum
     checked_at: str
     services: dict[str, ServiceStatusInfo]
@@ -75,7 +75,7 @@ async def get_service_status(
             res = await session.get(uri, timeout=ClientTimeout(total=2), ssl=tls_verify)
             if res.status == 200:
                 return ServiceStatusInfo(status=StatusEnum.HEALTHY, is_critical=is_service_critical)
-        except ClientError as exc:
+        except (ClientError, TimeoutError) as exc:
             print(exc)
 
         return ServiceStatusInfo(status=StatusEnum.UNHEALTHY, is_critical=is_service_critical)
@@ -91,6 +91,29 @@ async def authenticate_request(
 
     response = await call_next(request)
     return response
+
+@app.websocket("/health")
+async def send_health_periodically(websocket: WebSocket):
+    api_key = websocket.headers.get("X-Api-Key")
+    if api_key != API_KEY:
+        await websocket.close(1008, "Unauthorized")
+        return
+
+    interval = 5
+    try:
+        interval = float(websocket.query_params.get("interval", interval))
+    except (ValueError, TypeError):
+        pass
+
+    # Restrict to between 0.5
+    interval = min(max(interval, 0.5), 60*60)
+
+    await websocket.accept()
+
+    while True:
+        health = await get_health()
+        await websocket.send_json(health.model_dump())
+        await asyncio.sleep(interval)
 
 @app.get("/health")
 async def get_health() -> HealthAggregate:

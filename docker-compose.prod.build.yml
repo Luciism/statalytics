@@ -20,7 +20,7 @@ services:
       context: ./
       dockerfile: ./apps/renderer/Dockerfile
     volumes:
-      - logs:/app/logs
+      - ./logs:/app/logs
     restart: unless-stopped
     env_file:
       - ./.env
@@ -36,8 +36,8 @@ services:
       context: ./
       dockerfile: ./apps/bot/Dockerfile
     volumes:
-      - logs:/app/logs
-      - database:/app/database
+      - ./logs:/app/logs
+      - ./database:/app/database
     restart: unless-stopped
     env_file:
       - ./.env
@@ -53,8 +53,8 @@ services:
       context: ./
       dockerfile: ./apps/bot/trackers.dockerfile
     volumes:
-      - logs:/app/logs
-      - database:/app/database
+      - ./logs:/app/logs
+      - ./database:/app/database
     restart: unless-stopped
     env_file:
       - ./.env
@@ -70,8 +70,8 @@ services:
       context: ./
       dockerfile: ./apps/utils/Dockerfile
     volumes:
-      - logs:/app/logs
-      - database:/app/database
+      - ./logs:/app/logs
+      - ./database:/app/database
     restart: unless-stopped
     env_file:
       - ./.env
@@ -88,8 +88,8 @@ services:
       dockerfile: ./apps/website/Dockerfile
       target: runner
     volumes:
-      - logs:/app/logs
-      - database:/app/database
+      - ./logs:/app/logs
+      - ./database:/app/database
     environment:
       - WEBSITE_PORT=8000
     ports:
@@ -134,16 +134,16 @@ services:
 
 
 volumes:
-  database:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: database/
-  logs:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: logs/
+#   database:
+#     driver: local
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: database/
+#   logs:
+#     driver: local
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: logs/
   redis_data:
